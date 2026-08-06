@@ -11,7 +11,7 @@
     <main class="auth-panel">
         <div class="auth-form-col">
             <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-sad.png" alt=""></span>
+                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
                 <span class="auth-logo-text">끄덕</span>
             </div>
 
@@ -46,7 +46,9 @@
                     </div>
                 </div>
 
-                <button type="submit" class="kd-btn kd-btn-primary auth-cta">확인</button>
+                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"으로 복원 --%>
+                <button type="button" class="kd-btn kd-btn-primary auth-cta"
+                        onclick="location.href='/find-id/result'">확인</button>
             </form>
         </div>
     </main>

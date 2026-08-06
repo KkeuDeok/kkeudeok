@@ -43,7 +43,9 @@
                     <a class="terms-view" href="#">보기 &gt;</a>
                 </div>
 
-                <button type="submit" class="kd-btn kd-btn-primary auth-cta">동의하고 계속하기</button>
+                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"으로 복원 --%>
+                <button type="button" class="kd-btn kd-btn-primary auth-cta"
+                        onclick="location.href='/signup/form'">동의하고 계속하기</button>
             </form>
         </div>
         <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>

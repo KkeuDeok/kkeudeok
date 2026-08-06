@@ -10,7 +10,10 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <span class="auth-logo">끄덕</span>
+            <div class="auth-brand">
+                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
+                <span class="auth-logo-text">끄덕</span>
+            </div>
             <h1 class="auth-title">로그인</h1>
 
             <form method="post" action="/login">
@@ -34,7 +37,8 @@
             </form>
 
             <div class="auth-links">
-                <a href="/find-id">아이디 찾기</a><span>·</span><a href="/find-pw">비밀번호 찾기</a><span>·</span><a href="/signup/terms">회원가입</a>
+                <%-- 아이디/비밀번호 찾기는 새 창(팝업)으로 진행 --%>
+                <a href="/find-id" onclick="window.open(this.href, 'kkeudeokFind', 'width=1000,height=760'); return false">아이디 찾기</a><span>·</span><a href="/find-pw" onclick="window.open(this.href, 'kkeudeokFind', 'width=1000,height=760'); return false">비밀번호 찾기</a><span>·</span><a href="/signup/terms">회원가입</a>
             </div>
         </div>
     </main>

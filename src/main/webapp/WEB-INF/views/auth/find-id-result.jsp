@@ -18,7 +18,9 @@
             <div class="done-id-card">pa****</div>
 
             <a href="/find-pw" class="kd-btn kd-btn-outline auth-cta" style="margin-top: 24px;">비밀번호 찾기</a>
-            <a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 13px;">로그인하기</a>
+            <%-- 팝업으로 열렸으면 창을 닫고 원래 로그인 화면으로 포커스 복귀 --%>
+            <a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 13px;"
+               onclick="if (window.opener && !window.opener.closed) { window.opener.focus(); window.close(); return false; }">로그인하기</a>
         </div>
     </main>
 </div>

@@ -11,7 +11,7 @@
     <main class="auth-panel">
         <div class="auth-form-col">
             <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-sad.png" alt=""></span>
+                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
                 <span class="auth-logo-text">끄덕</span>
             </div>
 
@@ -40,7 +40,9 @@
                     <div class="pw-rule"><span class="dot"></span>숫자 포함</div>
                 </div>
 
-                <button type="submit" class="kd-btn kd-btn-muted auth-cta" disabled>비밀번호 변경</button>
+                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"·비활성(muted) 로직 복원 --%>
+                <button type="button" class="kd-btn kd-btn-primary auth-cta"
+                        onclick="location.href='/find-pw/done'">비밀번호 변경</button>
             </form>
         </div>
         <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>
