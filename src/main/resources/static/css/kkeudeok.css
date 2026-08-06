@@ -1,0 +1,148 @@
+/* ==========================================================================
+   끄덕 공통 디자인 토큰 + 컴포넌트
+   - Figma(끄덕_프론트엔드) 실측 기반. 모든 화면이 공유한다.
+   - Bootstrap은 레이아웃 유틸리티만 사용, 컴포넌트 외형은 여기서 정의.
+   ========================================================================== */
+
+:root {
+    /* 색상 */
+    --kd-primary: #268254;        /* 주색 (버튼 채움) */
+    --kd-primary-strong: #1f5c40; /* 로고·강조 텍스트 */
+    --kd-primary-active: #34a36a; /* 활성 상태 */
+    --kd-primary-tint: #e3f6ec;   /* 연한 초록 배경 */
+    --kd-text: #2b3a33;           /* 본문 */
+    --kd-text-sub: #6b7a72;       /* 보조 텍스트·플레이스홀더 */
+    --kd-border: #e6ebe8;         /* 테두리 */
+    --kd-bg-page: #eef1ee;        /* 프레임 바깥 배경 */
+    --kd-danger: #e0483b;         /* 필수 표시·타이머 */
+    --kd-card-cream: #fff6ea;     /* 크림색 안내 카드 */
+
+    /* 폰트 */
+    --kd-font: "Noto Sans KR", sans-serif;
+}
+
+body {
+    font-family: var(--kd-font);
+    color: var(--kd-text);
+}
+
+/* --------------------------------------------------------------------------
+   입력칸 공통 규격: 520×48 · radius 6 · 테두리 1px · 글자 17px
+   -------------------------------------------------------------------------- */
+.kd-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 22.5px;
+    color: var(--kd-text);
+    margin-bottom: 8px;
+}
+
+.kd-input {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    font-family: var(--kd-font);
+    font-size: 17px;
+    line-height: 25.5px;
+    color: var(--kd-text);
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 6px;
+    outline: none;
+}
+
+.kd-input::placeholder {
+    color: var(--kd-text-sub);
+}
+
+.kd-input:focus {
+    border-color: var(--kd-primary-active);
+}
+
+/* 라벨↓입력 8은 .kd-label margin, 입력↓다음 라벨 24는 필드 간격으로 처리 */
+.kd-field + .kd-field {
+    margin-top: 24px;
+}
+
+/* 회원가입 정보입력처럼 필드가 많은 화면은 간격 20으로 압축 */
+.kd-field--tight {
+    margin-top: 20px !important;
+}
+
+/* --------------------------------------------------------------------------
+   버튼: 주 CTA 높이 59 · pill / 보조 40·34
+   -------------------------------------------------------------------------- */
+.kd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--kd-font);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.kd-btn-primary {
+    height: 59px;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    color: #fff;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.kd-btn-primary:hover {
+    background: var(--kd-primary-strong);
+    color: #fff;
+}
+
+/* 흰 배경 보조 버튼 (온보딩 '이전' 등에서 재사용 예정) */
+.kd-btn-outline {
+    height: 59px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+    font-size: 19px;
+    font-weight: 500;
+}
+
+.kd-btn-outline:hover {
+    border-color: var(--kd-primary-active);
+    color: var(--kd-text);
+}
+
+/* --------------------------------------------------------------------------
+   체크박스: 24×24 · radius 4 · 연초록 배경 + 진초록 테두리
+   -------------------------------------------------------------------------- */
+.kd-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    background: var(--kd-primary-tint);
+    border: 2px solid var(--kd-primary-strong);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.kd-check:checked {
+    background: var(--kd-primary);
+    border-color: var(--kd-primary);
+}
+
+.kd-check:checked::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 7px;
+    height: 12px;
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
