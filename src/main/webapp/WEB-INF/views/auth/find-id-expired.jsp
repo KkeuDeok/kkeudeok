@@ -11,7 +11,7 @@
     <main class="auth-panel">
         <div class="auth-form-col">
             <div class="auth-brand auth-brand--solo">
-                <span class="auth-avatar"><img src="/img/char-bear.png?v=3" alt=""></span>
+                <span class="auth-avatar"><img src="/img/char-bear.png?v=4" alt=""></span>
                 <span class="auth-logo">끄덕</span>
             </div>
 
