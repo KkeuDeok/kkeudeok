@@ -168,11 +168,13 @@ html {
 
 .kd-error {
     position: absolute;
-    top: 100%;
-    left: 0;
-    margin: 3px 0 0;
+    top: 0;
+    right: 0;
+    max-width: 64%;
+    margin: 0;
     font-size: 12px;
-    line-height: 18px;
+    line-height: 22.5px;
+    text-align: right;
     color: var(--kd-danger);
 }
 
@@ -187,15 +189,18 @@ html {
     color: var(--kd-danger);
 }
 
-/* 힌트도 오류와 같은 자리(필드 아래 여백)에 띄운다 — 흐름을 밀지 않고 서로 겹치지도 않게.
-   오류가 뜨면 auth-validate.js가 힌트를 감춘다 */
+/* 힌트·오류는 라벨과 같은 줄 오른쪽에 둔다 — 세로 공간을 쓰지 않아
+   아래 입력칸·버튼을 밀지 않고, 다음 필드 라벨과도 붙지 않는다.
+   오류가 뜨는 동안은 auth-validate.js가 힌트를 감춘다 */
 .kd-hint {
     position: absolute;
-    top: 100%;
-    left: 0;
-    margin: 3px 0 0;
+    top: 0;
+    right: 0;
+    max-width: 64%;
+    margin: 0;
     font-size: 12px;
-    line-height: 18px;
+    line-height: 22.5px;
+    text-align: right;
     color: var(--kd-text-sub);
 }
 
