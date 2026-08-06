@@ -10,7 +10,10 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <span class="auth-logo">끄덕</span>
+            <div class="auth-brand">
+                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
+                <span class="auth-logo">끄덕</span>
+            </div>
 
             <div class="progress-track progress-track--two">
                 <span class="bar active"></span>

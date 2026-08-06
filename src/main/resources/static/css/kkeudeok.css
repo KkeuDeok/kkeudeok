@@ -61,10 +61,10 @@ body {
     border-color: var(--kd-primary-active);
 }
 
-/* 라벨↓입력 8은 .kd-label margin. 필드 하단에 문구 예약석 17px이 있어(auth.css)
-   간격은 예약분을 뺀 값 — 시각 간격은 기존(24/17)과 동일하다 */
+/* 라벨↓입력 8은 .kd-label margin. 필드 하단에 문구 예약석 17px이 있고(auth.css)
+   그 아래 12px 여백 — 오류 문구가 자기 입력칸(3px)에 붙고 다음 라벨(12px)과는 떨어져 보인다 */
 .kd-field + .kd-field {
-    margin-top: 7px;
+    margin-top: 12px;
 }
 
 /* 회원가입 정보입력처럼 필드가 많은 화면은 예약석만으로 간격을 대신한다 */
