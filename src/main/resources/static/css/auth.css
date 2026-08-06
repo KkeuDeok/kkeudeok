@@ -108,11 +108,11 @@ html {
     line-height: 60px;
     letter-spacing: -0.8px;
     color: var(--kd-text);
-    margin: 0 0 28px;
+    margin: 0 0 18px;
 }
 
 .auth-title--tight {
-    margin-bottom: 28px;
+    margin-bottom: 18px;
 }
 
 .auth-title--sub {
@@ -161,20 +161,21 @@ html {
     visibility: hidden;
 }
 
-/* 오류 문구는 흐름 밖(absolute)에 띄워 아래 요소를 밀지 않는다 — 필드 사이 여백에 표시 */
+/* 모든 필드는 입력칸 아래 왼쪽에 문구 한 줄(17px) 자리를 상시 예약한다.
+   오류·힌트는 그 예약석에만 표시되므로 아무것도 밀리거나 붙지 않는다.
+   (필드 간격은 예약분만큼 줄여 전체 높이 유지 — kkeudeok.css) */
 .kd-field {
     position: relative;
+    padding-bottom: 17px;
 }
 
 .kd-error {
     position: absolute;
-    top: 0;
-    right: 0;
-    max-width: 64%;
+    bottom: 0;
+    left: 0;
     margin: 0;
-    font-size: 12px;
-    line-height: 22.5px;
-    text-align: right;
+    font-size: 11px;
+    line-height: 14px;
     color: var(--kd-danger);
 }
 
@@ -189,18 +190,14 @@ html {
     color: var(--kd-danger);
 }
 
-/* 힌트·오류는 라벨과 같은 줄 오른쪽에 둔다 — 세로 공간을 쓰지 않아
-   아래 입력칸·버튼을 밀지 않고, 다음 필드 라벨과도 붙지 않는다.
-   오류가 뜨는 동안은 auth-validate.js가 힌트를 감춘다 */
+/* 힌트도 같은 예약석 사용 — 오류가 뜨는 동안은 auth-validate.js가 힌트를 감춘다 */
 .kd-hint {
     position: absolute;
-    top: 0;
-    right: 0;
-    max-width: 64%;
+    bottom: 0;
+    left: 0;
     margin: 0;
-    font-size: 12px;
-    line-height: 22.5px;
-    text-align: right;
+    font-size: 11px;
+    line-height: 14px;
     color: var(--kd-text-sub);
 }
 
@@ -252,6 +249,19 @@ html {
 .auth-cta {
     width: 100%;
     margin-top: 33px;
+}
+
+/* 필드 바로 다음에 오는 요소들은 예약석(17px)만큼 마진을 빼서 시각 간격 유지 */
+.kd-field + .auth-cta {
+    margin-top: 16px;
+}
+
+.kd-field + .auth-remember {
+    margin-top: 8px;
+}
+
+.kd-field + .pw-rules {
+    margin-top: 9px;
 }
 
 .is-disabled,
@@ -513,7 +523,7 @@ html {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 28px;
+    bottom: 18px;
     width: 520px;
     text-align: center;
     font-size: 13px;
