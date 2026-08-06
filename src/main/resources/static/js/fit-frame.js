@@ -1,15 +1,11 @@
-/* 1440×1024 고정 디자인 캔버스를 브라우저 창 크기에 맞춰 배율 조정.
-   Figma 프레젠테이션 모드처럼 어떤 해상도에서도 전체 화면이 스크롤 없이 보인다. */
+/* 우측 폼 패널의 내부 세로 좌표가 항상 디자인 기준(1024px)이 되도록
+   창 높이 대비 배율(--fit-scale)을 계산한다. 좌측 일러스트는 CSS(cover)가 유동 대응.
+   → 창모드·전체화면·모니터 해상도와 무관하게 비율이 동일하고 스크롤이 생기지 않는다. */
 (function () {
-    var DESIGN_W = 1440;
     var DESIGN_H = 1024;
-    var MARGIN = 26; /* 프레임 주변 최소 여백 */
 
     function fit() {
-        var scale = Math.min(
-            (window.innerWidth - MARGIN) / DESIGN_W,
-            (window.innerHeight - MARGIN) / DESIGN_H
-        );
+        var scale = window.innerHeight / DESIGN_H;
         document.documentElement.style.setProperty('--fit-scale', scale.toFixed(4));
     }
 

@@ -1,49 +1,41 @@
 /* ==========================================================================
    로그인·회원가입 계열 (auth) 전용 레이아웃
-   - Figma 좌우 분할: 좌측 수채 일러스트 676px + 우측 폼 패널 762px
-   - 프레임 1440×1024 고정, radius 28 카드형
+   - Figma 좌우 분할: 좌측 수채 일러스트 47% + 우측 폼 패널
+   - 화면 전체를 꽉 채우는 유동 레이아웃 (창모드·전체화면 동일)
    ========================================================================== */
 
 html {
-    overflow: hidden;          /* 스크롤 금지 — 캔버스는 항상 화면 안에 들어온다 */
+    overflow: hidden;          /* 스크롤 금지 — 화면은 항상 뷰포트 안에 들어온다 */
 }
 
 .auth-body {
-    background: var(--kd-bg-page);
+    background: #fff;
     height: 100vh;
     overflow: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 }
 
 .app-frame {
-    width: 1440px;
-    height: 1024px;
-    flex: none;
+    width: 100vw;
+    height: 100vh;
     background: #fff;
-    border: 1px solid var(--kd-border);
-    border-radius: 28px;
     overflow: hidden;
     display: flex;
-    /* fit-frame.js가 창 크기에 맞춰 --fit-scale을 계산 (Figma 프레젠테이션 방식) */
-    zoom: var(--fit-scale, 1);
 }
 
-/* 좌측 일러스트 패널 — 우측 끝 160px은 흰색 그라데이션으로 폼과 자연스럽게 연결 */
+/* 좌측 일러스트 패널 — 곰은 항상 좌하단 고정, 우측 끝은 흰색 그라데이션으로 폼과 연결 */
 .auth-illust {
     position: relative;
-    width: 676px;
+    flex: 0 0 47%;             /* 1440 기준 676px과 같은 비율 */
     height: 100%;
-    flex: none;
     overflow: hidden;
 }
 
 .auth-illust img {
     display: block;
-    width: 677px;
-    height: 1024px;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    object-position: left bottom;
 }
 
 .auth-illust::after {
@@ -57,8 +49,10 @@ html {
 }
 
 /* --------------------------------------------------------------------------
-   우측 폼 패널 — 폼 열은 좌측 여백 121px, 폭 520 고정
+   우측 폼 패널 — 폼 열은 폭 520 고정·가로 중앙 (1440에서 Figma의 121px 여백과 일치)
    기본은 세로 중앙 정렬, 회원가입 3화면은 상단 고정(--top)
+   fit-frame.js가 --fit-scale(= 창높이/1024)을 계산해 패널만 배율 조정 →
+   패널 내부 세로 좌표는 어떤 창 크기에서도 디자인 기준 1024px 그대로 유지된다.
    -------------------------------------------------------------------------- */
 .auth-panel {
     position: relative;
@@ -67,7 +61,7 @@ html {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding-left: 121px;
+    zoom: var(--fit-scale, 1);
 }
 
 .auth-panel--top {
@@ -77,20 +71,12 @@ html {
 
 .auth-form-col {
     width: 520px;
+    margin: 0 auto;
 }
 
 /* --------------------------------------------------------------------------
-   브랜드: 캐릭터 아바타(40px 원) + 로고
+   브랜드: 곰돌이 아바타(40px 원) + 끄덕 로고 — 전 화면 공통
    -------------------------------------------------------------------------- */
-.auth-logo {
-    display: block;
-    font-size: 24px;
-    font-weight: 700;
-    line-height: 36px;
-    color: var(--kd-primary-strong);
-    margin-bottom: 30px;
-}
-
 .auth-brand {
     display: flex;
     align-items: center;
@@ -105,15 +91,12 @@ html {
     border-radius: 50%;
     background: var(--kd-primary-tint);
     overflow: hidden;
-    display: flex;
-    justify-content: center;
 }
 
 .auth-avatar img {
-    width: 38px;
-    height: 42px;
-    margin-top: 2px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .auth-brand .auth-logo-text {
@@ -522,7 +505,8 @@ html {
 
 .auth-footer {
     position: absolute;
-    left: 121px;
+    left: 50%;
+    transform: translateX(-50%);
     bottom: 28px;
     width: 520px;
     text-align: center;
