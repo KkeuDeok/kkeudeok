@@ -8,7 +8,7 @@
 <body class="auth-body">
 <div class="app-frame">
     <%@ include file="../common/auth-left.jsp" %>
-    <main class="auth-panel auth-panel--top">
+    <main class="auth-panel">
         <div class="auth-form-col">
             <% int signupStep = 3; %>
             <%@ include file="../common/signup-header.jsp" %>

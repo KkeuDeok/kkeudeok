@@ -10,10 +10,7 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
-                <span class="auth-logo-text">끄덕</span>
-            </div>
+            <span class="auth-logo auth-logo--solo">끄덕</span>
             <h1 class="auth-title">로그인</h1>
 
             <form method="post" action="/login">
@@ -33,14 +30,16 @@
                     <label for="rememberMe">로그인 상태 유지</label>
                 </div>
 
-                <button type="submit" class="kd-btn kd-btn-primary auth-cta">로그인</button>
+                <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
+                <button type="button" class="kd-btn kd-btn-primary auth-cta"
+                        onclick="kdSubmitLogin()">로그인</button>
             </form>
 
             <div class="auth-links">
-                <%-- 아이디/비밀번호 찾기는 새 창(팝업)으로 진행 --%>
-                <a href="/find-id" onclick="window.open(this.href, 'kkeudeokFind', 'width=1000,height=760'); return false">아이디 찾기</a><span>·</span><a href="/find-pw" onclick="window.open(this.href, 'kkeudeokFind', 'width=1000,height=760'); return false">비밀번호 찾기</a><span>·</span><a href="/signup/terms">회원가입</a>
+                <a href="/find-id">아이디 찾기</a><span>·</span><a href="/find-pw">비밀번호 찾기</a><span>·</span><a href="/signup/terms">회원가입</a>
             </div>
         </div>
+        <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>
     </main>
 </div>
 </body>

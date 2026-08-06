@@ -10,10 +10,7 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
-                <span class="auth-logo-text">끄덕</span>
-            </div>
+            <span class="auth-logo auth-logo--solo">끄덕</span>
 
             <h1 class="auth-title auth-title--sub">아이디 찾기</h1>
             <p class="auth-subtitle">가입할 때 등록한 정보를 입력해 주세요</p>

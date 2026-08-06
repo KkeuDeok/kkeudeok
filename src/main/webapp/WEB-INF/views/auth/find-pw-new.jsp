@@ -10,10 +10,7 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
-                <span class="auth-logo-text">끄덕</span>
-            </div>
+            <span class="auth-logo">끄덕</span>
 
             <div class="progress-track progress-track--two">
                 <span class="bar active"></span>
@@ -34,15 +31,16 @@
                            placeholder="새 비밀번호를 다시 입력하세요" autocomplete="new-password">
                 </div>
 
+                <%-- 입력에 따라 auth-validate.js가 실시간으로 ok 표시 --%>
                 <div class="pw-rules">
-                    <div class="pw-rule ok"><span class="dot"></span>8자 이상</div>
-                    <div class="pw-rule ok"><span class="dot"></span>영문 포함</div>
-                    <div class="pw-rule"><span class="dot"></span>숫자 포함</div>
+                    <div class="pw-rule" id="ruleLen"><span class="dot"></span>8자 이상</div>
+                    <div class="pw-rule" id="ruleAlpha"><span class="dot"></span>영문 포함</div>
+                    <div class="pw-rule" id="ruleNum"><span class="dot"></span>숫자 포함</div>
                 </div>
 
-                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"·비활성(muted) 로직 복원 --%>
+                <%-- 데모 검증 — 백엔드 연동 시 type="submit"·비활성(muted) 로직 복원 --%>
                 <button type="button" class="kd-btn kd-btn-primary auth-cta"
-                        onclick="location.href='/find-pw/done'">비밀번호 변경</button>
+                        onclick="kdSubmitFindPwNew()">비밀번호 변경</button>
             </form>
         </div>
         <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>

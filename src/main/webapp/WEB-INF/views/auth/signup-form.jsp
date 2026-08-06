@@ -8,7 +8,7 @@
 <body class="auth-body">
 <div class="app-frame">
     <%@ include file="../common/auth-left.jsp" %>
-    <main class="auth-panel auth-panel--top">
+    <main class="auth-panel">
         <div class="auth-form-col">
             <% int signupStep = 2; %>
             <%@ include file="../common/signup-header.jsp" %>
@@ -44,24 +44,27 @@
                             <input class="kd-input" type="email" id="email" name="email"
                                    placeholder="이메일을 입력하세요">
                         </div>
-                        <button type="button" class="kd-btn kd-btn-pill">인증번호 받기</button>
+                        <button type="button" class="kd-btn kd-btn-pill"
+                                onclick="kdSendCode('signup')">인증번호 전송</button>
                     </div>
                 </div>
-                <div class="kd-field kd-field--tight">
+                <%-- 인증번호 칸은 [인증번호 전송]을 눌러야 나타난다 --%>
+                <div class="kd-field kd-field--tight is-hidden" id="authCodeField">
                     <label class="kd-label" for="authCode">인증번호 <span class="req">*</span></label>
                     <div class="kd-input-row">
                         <div class="kd-input-wrap">
                             <input class="kd-input" type="text" id="authCode" name="authCode"
                                    placeholder="인증번호 6자리를 입력하세요" maxlength="6">
-                            <span class="kd-timer">02:47</span>
+                            <span class="kd-timer">03:00</span>
                         </div>
-                        <button type="button" class="kd-btn kd-btn-pill">재전송</button>
+                        <button type="button" class="kd-btn kd-btn-pill"
+                                onclick="kdSendCode('signup')">재전송</button>
                     </div>
                 </div>
 
-                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"으로 복원 --%>
+                <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
                 <button type="button" class="kd-btn kd-btn-primary auth-cta"
-                        onclick="location.href='/signup/done'">확인</button>
+                        onclick="kdSubmitSignup()">확인</button>
             </form>
         </div>
         <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>

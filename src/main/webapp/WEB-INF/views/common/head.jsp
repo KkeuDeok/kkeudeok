@@ -5,6 +5,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="/css/kkeudeok.css" rel="stylesheet">
-<link href="/css/auth.css" rel="stylesheet">
-<script src="/js/fit-frame.js"></script>
+<%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것 --%>
+<link href="/css/kkeudeok.css?v=12" rel="stylesheet">
+<link href="/css/auth.css?v=12" rel="stylesheet">
+<script src="/js/fit-frame.js?v=12"></script>
+<script src="/js/auth-validate.js?v=12" defer></script>

@@ -10,6 +10,7 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
+            <span class="auth-logo auth-logo--solo">끄덕</span>
             <div class="done-icon">
                 <img src="/img/icon-check.svg" alt="">
             </div>
@@ -18,10 +19,9 @@
             <div class="done-id-card">pa****</div>
 
             <a href="/find-pw" class="kd-btn kd-btn-outline auth-cta" style="margin-top: 24px;">비밀번호 찾기</a>
-            <%-- 팝업으로 열렸으면 창을 닫고 원래 로그인 화면으로 포커스 복귀 --%>
-            <a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 13px;"
-               onclick="if (window.opener && !window.opener.closed) { window.opener.focus(); window.close(); return false; }">로그인하기</a>
+            <a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 13px;">로그인하기</a>
         </div>
+        <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>
     </main>
 </div>
 </body>

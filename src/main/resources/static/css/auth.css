@@ -30,7 +30,7 @@ html {
     overflow: hidden;
 }
 
-.auth-illust img {
+.auth-illust .bg {
     display: block;
     width: 100%;
     height: 100%;
@@ -38,14 +38,27 @@ html {
     object-position: left bottom;
 }
 
+/* 곰(토리) — Figma 좌표(87, 454, h568 / 1024 기준)를 vh로 환산.
+   우측 패널 zoom과 같은 '높이 기준 배율'이라 창 크기와 무관하게 위치·크기가 디자인과 동일 */
+.auth-illust .bear {
+    position: absolute;
+    top: 35vh;             /* 원본 44.34 → 위로 올림 */
+    left: 3vh;             /* 원본 8.5 → 왼쪽으로 이동 */
+    height: 65vh;          /* 원본 55.47 → 확대, 하단(100vh)은 바닥 고정 */
+    width: auto;
+    z-index: 2;            /* 페이드(z1)보다 위 — 곰은 씻겨나가지 않는다 */
+}
+
+/* 중간부터 흰색으로 페이드 — 배경 위·곰 아래 레이어 */
 .auth-illust::after {
     content: "";
     position: absolute;
     top: 0;
     right: 0;
-    width: 160px;
+    width: 50%;
     height: 100%;
-    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    z-index: 1;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55) 55%, #fff);
 }
 
 /* --------------------------------------------------------------------------
@@ -60,13 +73,8 @@ html {
     background: #fff;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    padding-top: 150px;    /* 11개 화면 공통 앵커 — 로고 150 / 진행바 202 / 타이틀 250 */
     zoom: var(--fit-scale, 1);
-}
-
-.auth-panel--top {
-    justify-content: flex-start;
-    padding-top: 59px;
 }
 
 .auth-form-col {
@@ -75,35 +83,20 @@ html {
 }
 
 /* --------------------------------------------------------------------------
-   브랜드: 곰돌이 아바타(40px 원) + 끄덕 로고 — 전 화면 공통
+   브랜드: '끄덕' 텍스트 로고 — 전 화면 공통 (로그인 기준)
    -------------------------------------------------------------------------- */
-.auth-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 28px;
-}
-
-.auth-avatar {
-    width: 40px;
-    height: 40px;
-    flex: none;
-    border-radius: 50%;
-    background: var(--kd-primary-tint);
-    overflow: hidden;
-}
-
-.auth-avatar img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.auth-brand .auth-logo-text {
+.auth-logo {
+    display: block;
     font-size: 24px;
     font-weight: 700;
     line-height: 36px;
     color: var(--kd-primary-strong);
+    margin-bottom: 16px;
+}
+
+/* 진행바 없는 화면: 진행바 영역만큼 더 벌려 타이틀을 159 레일에 맞춘다 (95+64) */
+.auth-logo--solo {
+    margin-bottom: 64px;
 }
 
 /* --------------------------------------------------------------------------
@@ -115,7 +108,7 @@ html {
     line-height: 60px;
     letter-spacing: -0.8px;
     color: var(--kd-text);
-    margin: 0 0 40px;
+    margin: 0 0 28px;
 }
 
 .auth-title--tight {
@@ -130,7 +123,7 @@ html {
     font-size: 17px;
     line-height: 25.5px;
     color: var(--kd-text-sub);
-    margin: 0 0 54px;
+    margin: 0 0 36px;
 }
 
 /* --------------------------------------------------------------------------
@@ -139,7 +132,7 @@ html {
 .progress-track {
     display: flex;
     gap: 8px;
-    margin-bottom: 15px;
+    margin-bottom: 42px;   /* 라벨 없이 타이틀 레일로 (95+16+6+42 = 159 / mid는 300) */
 }
 
 .progress-track .bar {
@@ -160,28 +153,31 @@ html {
     background: var(--kd-primary-active);
 }
 
-.progress-labels {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    line-height: 19.5px;
+/* --------------------------------------------------------------------------
+   유효성 검사 (데모 — 백엔드 연동 시 서버 검증으로 대체)
+   -------------------------------------------------------------------------- */
+/* 자리는 차지한 채 숨긴다 — 인증칸이 나타나도 아래 버튼이 밀리지 않게 */
+.is-hidden {
+    visibility: hidden;
 }
 
-.progress-labels span {
-    width: 156px;
-    color: var(--kd-text-sub);
-    font-weight: 400;
+/* 오류 문구는 흐름 밖(absolute)에 띄워 아래 요소를 밀지 않는다 — 필드 사이 여백에 표시 */
+.kd-field {
+    position: relative;
 }
 
-.progress-labels span.active {
-    color: var(--kd-primary);
-    font-weight: 500;
+.kd-error {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 3px 0 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-danger);
 }
 
-/* 진행바 아래 타이틀까지 간격 보정 (라벨 16 + 타이틀 자체 여백) */
-.progress-track--two {
-    margin-bottom: 52px;
+.kd-input--error {
+    border-color: var(--kd-danger) !important;
 }
 
 /* --------------------------------------------------------------------------
@@ -191,11 +187,16 @@ html {
     color: var(--kd-danger);
 }
 
+/* 힌트도 오류와 같은 자리(필드 아래 여백)에 띄운다 — 흐름을 밀지 않고 서로 겹치지도 않게.
+   오류가 뜨면 auth-validate.js가 힌트를 감춘다 */
 .kd-hint {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    margin: 3px 0 0;
     font-size: 12px;
     line-height: 18px;
     color: var(--kd-text-sub);
-    margin-top: 8px;
 }
 
 /* 인증 행: 376px 입력 + 132px pill 버튼 (gap 12) */

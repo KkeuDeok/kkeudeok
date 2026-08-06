@@ -10,10 +10,7 @@
     <%@ include file="../common/auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-            <div class="auth-brand">
-                <span class="auth-avatar"><img src="/img/char-bear.png" alt=""></span>
-                <span class="auth-logo-text">끄덕</span>
-            </div>
+            <span class="auth-logo">끄덕</span>
 
             <div class="progress-track progress-track--two">
                 <span class="bar active"></span>
@@ -31,24 +28,27 @@
                             <input class="kd-input" type="email" id="email" name="email"
                                    placeholder="이메일을 입력하세요">
                         </div>
-                        <button type="button" class="kd-btn kd-btn-pill">인증메일 받기</button>
+                        <button type="button" class="kd-btn kd-btn-pill"
+                                onclick="kdSendCode('findPw')">인증메일 전송</button>
                     </div>
                 </div>
-                <div class="kd-field">
+                <%-- 인증코드 칸은 [인증메일 전송]을 눌러야 나타난다 --%>
+                <div class="kd-field is-hidden" id="authCodeField">
                     <label class="kd-label" for="authCode">인증코드</label>
                     <div class="kd-input-row">
                         <div class="kd-input-wrap">
                             <input class="kd-input" type="text" id="authCode" name="authCode"
-                                   placeholder="인증번호를 입력하세요">
-                            <span class="kd-timer">02:47</span>
+                                   placeholder="인증번호 6자리를 입력하세요" maxlength="6">
+                            <span class="kd-timer">03:00</span>
                         </div>
-                        <button type="button" class="kd-btn kd-btn-pill" style="color: var(--kd-primary-strong);">재전송</button>
+                        <button type="button" class="kd-btn kd-btn-pill" style="color: var(--kd-primary-strong);"
+                                onclick="kdSendCode('findPw')">재전송</button>
                     </div>
                 </div>
 
-                <%-- 데모 내비게이션 — 백엔드 연동 시 type="submit"으로 복원 --%>
+                <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
                 <button type="button" class="kd-btn kd-btn-primary auth-cta"
-                        onclick="location.href='/find-pw/new'">확인</button>
+                        onclick="kdSubmitFindPwEmail()">확인</button>
             </form>
         </div>
         <div class="auth-footer">개인정보 처리방침 · 이용약관 · 문의하기</div>
