@@ -7,3 +7,4 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="/css/kkeudeok.css" rel="stylesheet">
 <link href="/css/auth.css" rel="stylesheet">
+<script src="/js/fit-frame.js"></script>

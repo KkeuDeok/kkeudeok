@@ -4,14 +4,17 @@
    - 프레임 1440×1024 고정, radius 28 카드형
    ========================================================================== */
 
+html {
+    overflow: hidden;          /* 스크롤 금지 — 캔버스는 항상 화면 안에 들어온다 */
+}
+
 .auth-body {
     background: var(--kd-bg-page);
-    min-width: 1440px;
-    min-height: 100vh;
+    height: 100vh;
+    overflow: hidden;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 13px 0;
 }
 
 .app-frame {
@@ -23,6 +26,8 @@
     border-radius: 28px;
     overflow: hidden;
     display: flex;
+    /* fit-frame.js가 창 크기에 맞춰 --fit-scale을 계산 (Figma 프레젠테이션 방식) */
+    zoom: var(--fit-scale, 1);
 }
 
 /* 좌측 일러스트 패널 — 우측 끝 160px은 흰색 그라데이션으로 폼과 자연스럽게 연결 */
