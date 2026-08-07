@@ -2,7 +2,9 @@
 <%-- onbStep = 7 → 스텝바 여섯 칸이 모두 완료 표시된다 --%>
 <%-- 대시보드는 아직 만들 단계가 아니라 흐름을 여기서 끝낸다.
      대시보드 화면이 확정되면 onbNext 를 그쪽으로 돌리면 된다.
-     ⚠ JSP 주석(<%-- --%>)은 스크립틀릿(<% %>) 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다 --%>
+     ⚠ JSP 주석은 스크립틀릿 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다.
+        주석 닫는 기호를 주석 본문에 글자로 적어도 안 된다. 거기서 주석이 끝나 버려
+        뒷문장이 화면에 그대로 찍힌다 (실제로 이 주석이 그렇게 새고 있었다) --%>
 <% String pageTitle = "온보딩 - 완료"; int onbStep = 7;
    String onbCol = "onb-col--w800 onb-col--center onb-col--done"; String onbNext = ""; %>
 <%@ include file="../common/onb-top.jsp" %>
@@ -26,19 +28,20 @@
     <% } %>
 </div>
 
-<img class="onb-done-char" src="/img/char-haru.png?v=2" alt="">
+<img class="onb-done-char" id="doneChar" src="/img/char-haru.png?v=2" alt="">
 <h1 class="onb-title">준비가 끝났어요!</h1>
-<p class="onb-sub">지우에게 맞는 학습을 준비했어요</p>
+<p class="onb-sub" id="doneSub">지우에게 맞는 학습을 준비했어요</p>
 
-<%-- ponytail: 값은 앞 단계 입력을 그대로 보여줘야 한다. 지금은 예시 —
-     백엔드 연동 시 세션/DB 값으로 채울 것 --%>
+<%-- 여기 적힌 값은 Figma 예시다. 앞 단계 입력이 보관돼 있으면
+     auth-validate.js 의 renderOnbDone() 이 덮어쓴다.
+     백엔드가 붙으면 그 함수 대신 세션/DB 값으로 채우면 된다 --%>
 <table class="onb-summary">
     <thead>
         <tr><th>No</th><th>항목</th><th>내용</th></tr>
     </thead>
     <tbody>
-        <tr><td>1</td><td>아이 이름</td><td>지우 (6세)</td></tr>
-        <tr><td>2</td><td>함께할 친구</td><td>곰 토리</td></tr>
+        <tr><td>1</td><td>아이 이름</td><td id="doneName">지우 (6세)</td></tr>
+        <tr><td>2</td><td>함께할 친구</td><td id="doneFriend">곰 토리</td></tr>
     </tbody>
 </table>
 

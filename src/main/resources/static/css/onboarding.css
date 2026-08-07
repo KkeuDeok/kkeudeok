@@ -1018,17 +1018,19 @@
 
 .onb-col--done { position: relative; z-index: 1; }
 
+/* 담긴 정보가 두 줄뿐이라 작게 두면 화면이 비어 보인다 → 행 45 → 56 으로 키웠다.
+   표 하단 646, 버튼 레일 845 까지 여유 199 */
 .onb-summary {
     width: 100%;
     margin-top: 28px;
     border-collapse: collapse;
-    font-size: 14px;
-    line-height: 21px;
+    font-size: 16px;
+    line-height: 24px;
 }
 
 .onb-summary th,
 .onb-summary td {
-    padding: 12px 20px;
+    padding: 16px 24px;
     text-align: left;
 }
 
@@ -1042,8 +1044,8 @@
     border-bottom: 1px solid var(--kd-border);
 }
 
-.onb-summary tbody td:first-child { width: 60px; color: var(--kd-text-sub); }
-.onb-summary tbody td:nth-child(2) { width: 260px; }
+.onb-summary tbody td:first-child { width: 68px; color: var(--kd-text-sub); }
+.onb-summary tbody td:nth-child(2) { width: 280px; }
 
 /* --------------------------------------------------------------------------
    온보딩_시작 — 좌우 분할은 로그인 계열(.app-frame / .auth-illust / .auth-panel)을
