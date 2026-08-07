@@ -1,0 +1,519 @@
+/* ==========================================================================
+   보호자 앱 공통 껍데기 — 좌측 사이드바 240 + 본문 1200
+   온보딩과 같은 방식으로 창높이/1024 배율(--fit-scale)을 걸어 Figma 좌표를 그대로 쓴다.
+   성장 리포트·마이페이지도 이 껍데기를 재사용한다.
+   ========================================================================== */
+
+.app-body {
+    background: #fff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-shell {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-scale {
+    flex: 1;
+    display: flex;
+    zoom: var(--fit-scale, 1);
+}
+
+/* --------------------------------------------------------------------------
+   사이드바 240 — 세로 그라데이션 + 하단에 흐린 캐릭터
+   -------------------------------------------------------------------------- */
+.app-side {
+    position: relative;
+    width: 240px;
+    flex: none;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1f5c40 0%, #123a29 100%);
+}
+
+.app-side .deco {
+    position: absolute;
+    left: -10px;
+    top: 808px;
+    width: 260px;
+    height: 286px;
+    opacity: 0.25;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+.app-brand {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 40px;
+}
+
+.app-brand .ava {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+    overflow: hidden;
+}
+
+.app-brand .ava img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.app-brand .nm {
+    margin-left: 10px;      /* 아이콘 40 + 10 = 텍스트 x 50 */
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 33px;
+    color: #fff;
+}
+
+/* 메뉴 — 항목 200×47, 간격 6 (y 0/53/106/159/212) */
+.app-nav {
+    position: absolute;
+    left: 20px;
+    top: 96px;
+    width: 200px;
+}
+
+.app-nav a {
+    position: relative;
+    display: block;
+    height: 47px;
+    border-radius: 12px;
+    opacity: 0.75;
+    font-size: 15px;
+    line-height: 22.5px;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 0 0 14px;
+}
+
+.app-nav a + a { margin-top: 6px; }
+
+.app-nav a:hover { opacity: 1; }
+
+.app-nav a.is-on {
+    opacity: 1;
+    border-radius: 6px;
+    background: var(--kd-primary-active);
+    font-weight: 700;
+    padding-left: 20px;
+}
+
+/* 활성 항목 왼쪽의 노란 막대 — 사이드바 가장자리(x=0)에 붙는다 */
+.app-nav a.is-on::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 11.5px;
+    width: 4px;
+    height: 24px;
+    border-radius: 999px;
+    background: #ffc53d;
+}
+
+.app-profile {
+    position: absolute;
+    left: 20px;
+    top: 953px;             /* 블록 904 + 49 */
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 52px;
+    border-radius: 85px;
+    background: rgba(251, 245, 233, 0.12);
+}
+
+.app-profile .ava {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    margin-left: 20px;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+    overflow: hidden;
+}
+
+.app-profile .ava img { width: 100%; height: 100%; object-fit: cover; }
+
+.app-profile .nm {
+    margin-left: 10px;      /* 28 + 10 = 텍스트 x 58 */
+    font-size: 14px;
+    line-height: 21px;
+    color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   본문 1200 — 상단 120px 만 옅은 초록 띠
+   -------------------------------------------------------------------------- */
+.app-main {
+    position: relative;
+    flex: 1;
+    background: #fff;
+    overflow: hidden;
+}
+
+.app-main::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 120px;
+    background: linear-gradient(180deg, #eaf5ee 0%, #fff 100%);
+}
+
+.app-head {
+    position: relative;
+    padding: 64px 0 0 40px;
+}
+
+.app-head h1 {
+    position: relative;
+    margin: 0;
+    padding-left: 16px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 39px;
+    color: var(--kd-text);
+}
+
+.app-head h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7.5px;
+    width: 4px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+}
+
+.app-head p {
+    margin: 6px 0 0;
+    padding-left: 16px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   지표 3칸 — 첫 칸이 주지표라 숫자·막대가 더 크다
+   -------------------------------------------------------------------------- */
+.dash-kpis {
+    display: flex;
+    margin-top: 48px;
+    padding: 0 40px;
+}
+
+.dash-kpi {
+    padding: 0 28px;
+    box-sizing: border-box;
+}
+
+.dash-kpi:first-child { width: 479px; }
+.dash-kpi + .dash-kpi { width: 320px; border-left: 1px solid var(--kd-border); }
+
+.dash-kpi .lb {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+.dash-kpi .v {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: -1.36px;
+    color: var(--kd-text);
+}
+
+.dash-kpi:first-child .v {
+    font-size: 52px;
+    line-height: 52px;
+    letter-spacing: -2.08px;
+}
+
+.dash-kpi .track {
+    height: 6px;
+    margin-top: 24px;
+    border-radius: 999px;
+    background: #f1f5f2;
+    overflow: hidden;
+}
+
+.dash-kpi:first-child .track { height: 10px; margin-top: 22px; }
+
+.dash-kpi .track span { display: block; height: 100%; border-radius: 999px; }
+
+.dash-kpi .cap {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+/* 지표별 색 — 차트 선 색과 같다 */
+.c-express { background: #3d8fe0; }
+.c-understand { background: #e8a317; }
+.c-social { background: #0fa394; }
+
+/* --------------------------------------------------------------------------
+   차트 행 — 좌 660 차트 + 우 440 로드맵 카드
+   -------------------------------------------------------------------------- */
+.dash-row {
+    display: flex;
+    gap: 20px;
+    padding: 0 40px;
+}
+
+.dash-chart { width: 660px; flex: none; }
+
+.dash-chart h2 {
+    margin: 24px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.dash-chart svg { display: block; margin-top: 13px; }
+
+.dash-card {
+    width: 440px;
+    flex: none;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+.dash-plan { margin-top: 18.5px; padding: 22px 24px 0; height: 346px; }
+
+.dash-plan .hd {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.dash-plan .hd h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20px;
+    color: var(--kd-text);
+}
+
+.dash-plan .hd a {
+    font-size: 12px;
+    line-height: 14px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.dash-plan ol {
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dash-plan li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding-left: 34px;
+}
+
+.dash-plan li + li { margin-top: 26px; }    /* 단계 간격 48 */
+
+.dash-plan li .no {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 13px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-plan li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 24px;
+    width: 2px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+.dash-plan li .t {
+    flex: 1;
+    font-size: 14px;
+    line-height: 17px;
+    color: var(--kd-text);
+}
+
+.dash-plan .chip {
+    flex: none;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 24px;
+    text-align: center;
+}
+
+.chip-done { background: #e3f6ec; color: #1f5c40; }
+.chip-now  { background: #fff6ea; color: #268254; }
+.chip-soon { background: #f1f5f2; color: #a8b4ad; }
+
+.dash-plan .foot {
+    margin: 30px 0 0;
+    font-size: 12px;
+    line-height: 14px;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   하단 행 — 오늘의 추천 학습 660 + 연속 이용 440
+   -------------------------------------------------------------------------- */
+/* 위 행의 높이는 차트(629)가 아니라 더 긴 로드맵 카드(669.5)가 정한다 → 683 까지 13.5 */
+.dash-bottom {
+    display: flex;
+    gap: 20px;
+    margin-top: 13.5px;
+    padding: 0 40px;
+}
+
+.dash-today {
+    width: 660px;
+    height: 168px;
+    flex: none;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+}
+
+.dash-today h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.dash-today p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text-sub);
+}
+
+.dash-today .kd-btn {
+    width: 200px;
+    height: 40px;
+    margin-top: 18px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.dash-streak {
+    width: 440px;
+    height: 168px;
+    flex: none;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+}
+
+.dash-streak .big {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.dash-streak .big b {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 44px;
+    color: var(--kd-text);
+}
+
+.dash-streak .big span {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.dash-week {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.dash-week div {
+    width: 24px;
+    text-align: center;
+}
+
+.dash-week .d {
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.dash-week .mk {
+    width: 24px;
+    height: 24px;
+    margin-top: 8px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-week .mk.on { background: var(--kd-primary-active); }
+
+.dash-week .mk.on::after {
+    content: "";
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.dash-week .mk.off::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}

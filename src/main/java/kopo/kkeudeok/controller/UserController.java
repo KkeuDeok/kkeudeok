@@ -119,4 +119,11 @@ public class UserController {
     public String onboardingDone() {
         return "onboarding/done";
     }
+
+    /* ---------- 보호자 앱 ---------- */
+
+    @GetMapping("/dashboard")
+    public String dashboard() {
+        return "dashboard/index";
+    }
 }

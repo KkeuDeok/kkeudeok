@@ -1,12 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%-- onbStep = 7 → 스텝바 여섯 칸이 모두 완료 표시된다 --%>
-<%-- 대시보드는 아직 만들 단계가 아니라 흐름을 여기서 끝낸다.
-     대시보드 화면이 확정되면 onbNext 를 그쪽으로 돌리면 된다.
-     ⚠ JSP 주석은 스크립틀릿 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다.
+<%-- ⚠ JSP 주석은 스크립틀릿 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다.
         주석 닫는 기호를 주석 본문에 글자로 적어도 안 된다. 거기서 주석이 끝나 버려
         뒷문장이 화면에 그대로 찍힌다 (실제로 이 주석이 그렇게 새고 있었다) --%>
 <% String pageTitle = "온보딩 - 완료"; int onbStep = 7;
-   String onbCol = "onb-col--w800 onb-col--center onb-col--done"; String onbNext = ""; %>
+   String onbCol = "onb-col--w800 onb-col--center onb-col--done";
+   String onbNext = "location.href='/dashboard'"; %>
 <%@ include file="../common/onb-top.jsp" %>
 <% onbPrev = false; onbNextLabel = "대시보드로 가기"; %>
 
