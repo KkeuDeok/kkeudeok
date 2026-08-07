@@ -436,13 +436,32 @@
         return age;
     }
 
+    /* 부제는 아이를 부르는 말투로 — '박성현에게' 보다 '성현이에게'.
+       성을 떼고, 받침이 있으면 '이' 를 붙인다(성현이 / 지우).
+       표의 '아이 이름' 칸은 기록이라 적어 준 이름 그대로 둔다 */
+    var SURNAME2 = ['남궁', '황보', '제갈', '사공', '선우', '서문', '독고', '동방'];
+
+    function givenName(full) {
+        var n = (full || '').trim();
+        /* 두 글자 이하는 이미 이름만 적은 것으로 본다 (입력칸 안내도 '아이가 부르는 이름') */
+        if (n.length < 3) return n;
+        return SURNAME2.indexOf(n.slice(0, 2)) !== -1 ? n.slice(2) : n.slice(1);
+    }
+
+    function callName(full) {
+        var n = givenName(full);
+        /* 한글 음절은 (코드 - 가) % 28 이 0 이 아니면 받침이 있다. 한글이 아니면 안 붙인다 */
+        var i = n.charCodeAt(n.length - 1) - 0xAC00;
+        return n + (i >= 0 && i < 11172 && i % 28 !== 0 ? '이' : '');
+    }
+
     function renderOnbDone() {
         if (!$('doneName')) return;
         var v = readOnb();
         if (v.name) {
             $('doneName').textContent =
                 v.name + (v.birthY ? ' (' + ageOf(v.birthY, v.birthM, v.birthD) + '세)' : '');
-            $('doneSub').textContent = v.name + '에게 맞는 학습을 준비했어요';
+            $('doneSub').textContent = callName(v.name) + '에게 맞는 학습을 준비했어요';
         }
         if (v.charName) {
             /* 애칭을 적었으면 같이 보여 준다 — 어느 친구인지도 남게 괄호로 */
