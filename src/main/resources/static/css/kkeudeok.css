@@ -61,6 +61,10 @@ body {
     border-color: var(--kd-primary-active);
 }
 
+.kd-input:disabled {
+    opacity: 0.5;
+}
+
 /* 라벨↓입력 8은 .kd-label margin. 필드 하단에 문구 예약석 17px이 있고(auth.css)
    그 아래 12px 여백 — 오류 문구가 자기 입력칸(3px)에 붙고 다음 라벨(12px)과는 떨어져 보인다 */
 .kd-field + .kd-field {

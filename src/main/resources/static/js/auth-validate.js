@@ -7,11 +7,7 @@
     /* ---------- 공통 헬퍼 ---------- */
     function $(id) { return document.getElementById(id); }
 
-    function fieldOf(input) {
-        var el = input;
-        while (el && !el.classList.contains('kd-field')) el = el.parentElement;
-        return el;
-    }
+    function fieldOf(input) { return input.closest('.kd-field'); }
 
     function setError(input, msg) {
         var field = fieldOf(input);
@@ -57,13 +53,22 @@
         clearError(input); return true;
     }
 
+    /* 비밀번호 규칙 한 곳 — 제출 검사와 실시간 검사가 같이 쓴다 */
+    function pwOk(v) { return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v); }
+
     function checkPassword(input) {
-        var v = input.value;
-        if (!v) { setError(input, '비밀번호를 입력해 주세요'); return false; }
-        if (v.length < 8 || !/[a-zA-Z]/.test(v) || !/\d/.test(v)) {
+        if (!input.value) { setError(input, '비밀번호를 입력해 주세요'); return false; }
+        if (!pwOk(input.value)) {
             setError(input, '비밀번호는 8자 이상, 영문과 숫자를 포함해야 합니다'); return false;
         }
         clearError(input); return true;
+    }
+
+    function checkMatch(pw, pwc) {
+        if (!pwc.value || pwc.value !== pw.value) {
+            setError(pwc, '비밀번호가 일치하지 않습니다'); return false;
+        }
+        clearError(pwc); return true;
     }
 
     function checkCode() {
@@ -116,9 +121,9 @@
     /* ---------- 폼별 제출 검증 ---------- */
     window.kdSubmitLogin = function () {
         clearAllErrors();
-        var ok = checkRequired($('loginId'), '아이디를 입력해 주세요');
-        ok = checkRequired($('password'), '비밀번호를 입력해 주세요') && ok;
         /* 통과 시 이동할 다음 화면은 백엔드(로그인 처리) 영역 — 데모에서는 검증까지만 */
+        checkRequired($('loginId'), '아이디를 입력해 주세요');
+        checkRequired($('password'), '비밀번호를 입력해 주세요');
     };
 
     window.kdSubmitSignup = function () {
@@ -126,10 +131,7 @@
         var ok = checkRequired($('userName'), '이름을 입력해 주세요');
         ok = checkRequired($('loginId'), '아이디를 입력해 주세요') && ok;
         ok = checkPassword($('password')) && ok;
-        var pw = $('password'), pwc = $('passwordCheck');
-        if (pwc.value !== pw.value || !pwc.value) {
-            setError(pwc, '비밀번호가 일치하지 않습니다'); ok = false;
-        } else clearError(pwc);
+        ok = checkMatch($('password'), $('passwordCheck')) && ok;
         ok = checkEmail($('email')) && ok;
         ok = checkCode() && ok;
         if (ok) location.href = '/signup/done';
@@ -152,21 +154,21 @@
 
     window.kdSubmitFindPwNew = function () {
         clearAllErrors();
-        var pw = $('newPassword'), pwc = $('newPasswordCheck');
-        var ok = checkPassword(pw);
-        if (pwc.value !== pw.value || !pwc.value) {
-            setError(pwc, '비밀번호가 일치하지 않습니다'); ok = false;
-        } else clearError(pwc);
+        var ok = checkPassword($('newPassword'));
+        ok = checkMatch($('newPassword'), $('newPasswordCheck')) && ok;
         if (ok) location.href = '/find-pw/done';
     };
 
     /* ---------- 실시간 오류 해제 — 오류가 떠 있는 필드만 입력 시 재검증 ---------- */
+    function notBlank(el) { return !!el.value.trim(); }
+    function pwLive(el) { return pwOk(el.value); }
+
     var LIVE_CHECKS = {
-        userName: function (el) { return !!el.value.trim(); },
-        loginId: function (el) { return !!el.value.trim(); },
+        userName: notBlank,
+        loginId: notBlank,
         email: function (el) { return EMAIL_RE.test(el.value.trim()); },
-        password: function (el) { var v = el.value; return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v); },
-        newPassword: function (el) { var v = el.value; return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v); },
+        password: pwLive,
+        newPassword: pwLive,
         passwordCheck: function (el) { return !!el.value && el.value === $('password').value; },
         newPasswordCheck: function (el) { return !!el.value && el.value === $('newPassword').value; },
         authCode: function (el) { return el.value.trim() === DEMO_CODE; }
@@ -194,15 +196,66 @@
         if (pairId && $(pairId)) liveRevalidate($(pairId));
     });
 
-    /* ---------- 새 비밀번호 규칙 체크리스트 실시간 반영 ---------- */
-    document.addEventListener('DOMContentLoaded', function () {
-        var pw = $('newPassword');
-        if (!pw || !$('ruleLen')) return;
-        pw.addEventListener('input', function () {
-            var v = pw.value;
+    /* ---------- 약관 동의 ---------- */
+    var REQUIRED_TERMS = ['agreeTerms', 'agreePrivacy', 'agreeSensitive'];
+
+    function termsBoxes() {
+        return Array.prototype.slice.call(document.querySelectorAll('.terms-item .kd-check'));
+    }
+
+    /* 하위 항목이 전부 켜지면 [전체 동의]도 켜고, 하나라도 꺼지면 끈다 */
+    function syncAgreeAll() {
+        var all = $('agreeAll');
+        var boxes = termsBoxes();
+        all.checked = boxes.length > 0 && boxes.every(function (c) { return c.checked; });
+    }
+
+    function clearTermsError() {
+        var msg = $('termsError');
+        if (msg) msg.classList.remove('is-shown');
+        REQUIRED_TERMS.forEach(function (id) {
+            if ($(id)) $(id).classList.remove('kd-check--error');
+        });
+    }
+
+    document.addEventListener('change', function (e) {
+        var el = e.target;
+        if (el.id === 'agreeAll') {
+            /* 전체 동의 → 하위 일괄 토글 (해제 포함) */
+            termsBoxes().forEach(function (c) { c.checked = el.checked; });
+        } else if (el.classList && el.classList.contains('kd-check') && el.closest('.terms-item')) {
+            /* 하위 항목 → 전체 동의 역방향 동기화 */
+            syncAgreeAll();
+        } else {
+            return;
+        }
+        clearTermsError();
+    });
+
+    /* 필수 3개를 모두 동의해야 다음 단계로 — 선택(마케팅)은 검사하지 않는다 */
+    window.kdSubmitTerms = function () {
+        clearTermsError();
+        var missing = REQUIRED_TERMS.filter(function (id) { return !$(id).checked; });
+        if (missing.length) {
+            missing.forEach(function (id) { $(id).classList.add('kd-check--error'); });
+            var msg = $('termsError');
+            msg.textContent = '필수 약관에 모두 동의해 주세요';
+            msg.classList.add('is-shown');
+            $(missing[0]).focus();
+            return;
+        }
+        location.href = '/signup/form';
+    };
+
+    /* ---------- 새 비밀번호 규칙 체크리스트 실시간 반영 ----------
+       head.jsp 가 이 스크립트를 defer 로 싣기 때문에 여기선 DOM이 이미 준비돼 있다 */
+    var newPw = $('newPassword');
+    if (newPw && $('ruleLen')) {
+        newPw.addEventListener('input', function () {
+            var v = newPw.value;
             $('ruleLen').classList.toggle('ok', v.length >= 8);
             $('ruleAlpha').classList.toggle('ok', /[a-zA-Z]/.test(v));
             $('ruleNum').classList.toggle('ok', /\d/.test(v));
         });
-    });
+    }
 })();
