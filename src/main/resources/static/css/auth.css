@@ -73,7 +73,7 @@ html {
     background: #fff;
     display: flex;
     flex-direction: column;
-    padding-top: 150px;    /* 11개 화면 공통 앵커 — 로고 150 / 진행바 202 / 타이틀 250 */
+    padding-top: 110px;    /* 9개 화면 공통 앵커 — 로고 110 / 진행바 162 / 타이틀 210 */
     zoom: var(--fit-scale, 1);
 }
 

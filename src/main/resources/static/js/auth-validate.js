@@ -196,6 +196,15 @@
         if (pairId && $(pairId)) liveRevalidate($(pairId));
     });
 
+    /* ---------- data-nocopy 필드: 복사·잘라내기·붙여넣기 차단 ----------
+       비밀번호를 눈으로 다시 치게 해 오타를 잡는 목적. 로그인 화면은 대상이 아니다
+       (비밀번호 관리자 자동입력을 막으면 안 되므로). */
+    ['copy', 'cut', 'paste'].forEach(function (evt) {
+        document.addEventListener(evt, function (e) {
+            if (e.target.hasAttribute && e.target.hasAttribute('data-nocopy')) e.preventDefault();
+        });
+    });
+
     /* ---------- 약관 동의 ---------- */
     var REQUIRED_TERMS = ['agreeTerms', 'agreePrivacy', 'agreeSensitive'];
 

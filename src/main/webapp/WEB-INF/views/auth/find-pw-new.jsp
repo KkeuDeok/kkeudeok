@@ -12,15 +12,16 @@
 <h1 class="auth-title">비밀번호 재설정</h1>
 
 <form method="post" action="/find-pw/new">
+    <%-- data-nocopy: 복사·잘라내기·붙여넣기 차단 (auth-validate.js) --%>
     <div class="kd-field">
         <label class="kd-label" for="newPassword">새 비밀번호</label>
         <input class="kd-input" type="password" id="newPassword" name="newPassword"
-               placeholder="새 비밀번호를 입력하세요" autocomplete="new-password">
+               placeholder="새 비밀번호를 입력하세요" autocomplete="new-password" data-nocopy>
     </div>
     <div class="kd-field">
         <label class="kd-label" for="newPasswordCheck">새 비밀번호 확인</label>
         <input class="kd-input" type="password" id="newPasswordCheck" name="newPasswordCheck"
-               placeholder="새 비밀번호를 다시 입력하세요" autocomplete="new-password">
+               placeholder="새 비밀번호를 다시 입력하세요" autocomplete="new-password" data-nocopy>
     </div>
 
     <%-- 입력에 따라 auth-validate.js가 실시간으로 ok 표시 --%>
