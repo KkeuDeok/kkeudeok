@@ -58,4 +58,65 @@ public class UserController {
     public String findPwDone() {
         return "auth/find-pw-done";
     }
+
+    /* ---------- 온보딩(보호자) ---------- */
+
+    @GetMapping("/onboarding/pin")
+    public String onboardingPin() {
+        return "onboarding/pin";
+    }
+
+    /**
+     * PIN 설정 곰 버전 시안 — 흐름에 연결돼 있지 않다(직접 주소로만 접근).
+     * 채택되면 로그인 성공 시 이동 경로를 이쪽으로 바꾸면 된다.
+     */
+    @GetMapping("/onboarding/pin-bear")
+    public String onboardingPinBear() {
+        return "onboarding/pin-bear";
+    }
+
+    @GetMapping("/onboarding/start")
+    public String onboardingStart() {
+        return "onboarding/start";
+    }
+
+    @GetMapping("/onboarding/profile")
+    public String onboardingProfile() {
+        return "onboarding/child-profile";
+    }
+
+    @GetMapping("/onboarding/character")
+    public String onboardingCharacter() {
+        return "onboarding/character";
+    }
+
+    @GetMapping("/onboarding/checklist")
+    public String onboardingChecklist() {
+        return "onboarding/checklist";
+    }
+
+    @GetMapping("/onboarding/checklist-2")
+    public String onboardingChecklist2() {
+        return "onboarding/checklist2";
+    }
+
+    @GetMapping("/onboarding/face-guide")
+    public String onboardingFaceGuide() {
+        return "onboarding/face-guide";
+    }
+
+    @GetMapping("/onboarding/face-capture")
+    public String onboardingFaceCapture() {
+        return "onboarding/face-capture";
+    }
+
+    @GetMapping("/onboarding/roadmap")
+    public String onboardingRoadmap() {
+        return "onboarding/roadmap";
+    }
+
+    @GetMapping("/onboarding/done")
+    public String onboardingDone() {
+        return "onboarding/done";
+    }
 }
