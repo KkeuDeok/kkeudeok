@@ -6,7 +6,7 @@
       "runtimeExecutable": "cmd",
       "runtimeArgs": [
         "/c",
-        "set \"JAVA_HOME=C:\\IntelliJ IDEA 2025.3.3\\jbr\" && mvnw.cmd spring-boot:run -Dspring-boot.run.jvmArguments=\"-Dspring.docker.compose.enabled=false -Dspring.datasource.url=jdbc:mariadb://localhost:3306/kkeudeok_dummy -Dspring.datasource.username=local -Dspring.datasource.password=local -Dspring.datasource.driver-class-name=org.mariadb.jdbc.Driver\""
+        "set \"JAVA_HOME=C:\\IntelliJ IDEA 2025.3.3\\jbr\" && mvnw.cmd spring-boot:run"
       ],
       "port": 8080
     }
