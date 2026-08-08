@@ -269,7 +269,10 @@
     overflow: hidden;
 }
 
-.dash-kpi:first-child .track { height: 10px; margin-top: 22px; }
+/* 트랙 폭은 세 칸 모두 264 — 첫 칸은 카드가 넓지만 트랙까지 넓히면
+   64% 막대가 72% 막대보다 길어져 지표가 거꾸로 읽힌다.
+   (Figma 원본은 423이라 이 한 줄이 원본과 다른 유일한 곳 — 되돌리려면 이 줄만 지우면 된다) */
+.dash-kpi:first-child .track { width: 264px; height: 10px; margin-top: 22px; }
 
 .dash-kpi .track span { display: block; height: 100%; border-radius: 999px; }
 
@@ -306,11 +309,12 @@
 
 .dash-chart svg { display: block; margin-top: 13px; }
 
+/* 우측 카드(로드맵·연속이용)는 Figma 기준 연한 회록 채움 + 테두리 없음.
+   흰 카드는 좌측 `오늘의 추천 학습` 하나뿐이다. */
 .dash-card {
     width: 440px;
     flex: none;
-    background: #fff;
-    border: 1px solid var(--kd-border);
+    background: #f1f5f2;
     border-radius: 16px;
     box-sizing: border-box;
 }
@@ -361,14 +365,18 @@
     width: 22px;
     height: 22px;
     border-radius: 999px;
-    background: var(--kd-primary-tint);
-    color: var(--kd-primary-strong);
+    box-sizing: border-box;
     font-size: 13px;
     font-weight: 700;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
+/* 번호 원도 칩과 같은 3단계 상태를 갖는다 (Figma 실측색) */
+.no-done { background: var(--kd-primary-active); color: #fff; }
+.no-now  { background: #fff; border: 2px solid var(--kd-primary); color: var(--kd-primary); }
+.no-soon { background: var(--kd-border); color: #a8b4ad; }
 
 .dash-plan li:not(:last-child)::before {
     content: "";
@@ -400,7 +408,7 @@
 
 .chip-done { background: #e3f6ec; color: #1f5c40; }
 .chip-now  { background: #fff6ea; color: #268254; }
-.chip-soon { background: #f1f5f2; color: #a8b4ad; }
+.chip-soon { background: #fff; color: #a8b4ad; }   /* 카드가 회록이라 예정 칩만 흰색 */
 
 .dash-plan .foot {
     margin: 30px 0 0;
@@ -461,8 +469,7 @@
     flex: none;
     padding: 24px;
     box-sizing: border-box;
-    background: #fff;
-    border: 1px solid var(--kd-border);
+    background: #f1f5f2;
     border-radius: 16px;
 }
 

@@ -75,10 +75,10 @@
             <a href="/report">전체 보기</a>
         </div>
         <ol>
-            <li><span class="no">5</span><span class="t">표정으로 표현하기</span><span class="chip chip-done">완료</span></li>
-            <li><span class="no">6</span><span class="t">몸짓으로 표현하기</span><span class="chip chip-done">완료</span></li>
-            <li><span class="no">7</span><span class="t">감정 표현하기 — 슬픔 연습</span><span class="chip chip-now">진행중</span></li>
-            <li><span class="no">8</span><span class="t">친구 위로하기</span><span class="chip chip-soon">예정</span></li>
+            <li><span class="no no-done">5</span><span class="t">표정으로 표현하기</span><span class="chip chip-done">완료</span></li>
+            <li><span class="no no-done">6</span><span class="t">몸짓으로 표현하기</span><span class="chip chip-done">완료</span></li>
+            <li><span class="no no-now">7</span><span class="t">감정 표현하기 — 슬픔 연습</span><span class="chip chip-now">진행중</span></li>
+            <li><span class="no no-soon">8</span><span class="t">친구 위로하기</span><span class="chip chip-soon">예정</span></li>
         </ol>
         <p class="foot">12주 과정 중 7주차 · 이번 주 2 / 3 완료</p>
     </section>
