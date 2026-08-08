@@ -179,6 +179,17 @@ html {
     border-color: var(--kd-danger) !important;
 }
 
+/* 안내 문구(초록) — 오류와 같은 예약석. 인증번호 전송 안내 등 긍정 메시지용 */
+.kd-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    margin: 0;
+    font-size: 13px;
+    line-height: 16px;
+    color: var(--kd-primary);
+}
+
 /* --------------------------------------------------------------------------
    필수 표시·힌트·타이머
    -------------------------------------------------------------------------- */
@@ -195,6 +206,14 @@ html {
     font-size: 13px;
     line-height: 16px;
     color: var(--kd-text-sub);
+}
+
+/* 문구를 예약석보다 3px 아래로 — 입력칸에 붙어 보인다는 피드백(2026-08-08).
+   예약석·필드 간격은 그대로라 레일이 안 움직인다 (아래 여백 16을 3px 빌려 쓸 뿐) */
+.kd-error,
+.kd-hint,
+.kd-info {
+    bottom: -3px;
 }
 
 /* 인증 행: 376px 입력 + 132px pill 버튼 (gap 12) */
