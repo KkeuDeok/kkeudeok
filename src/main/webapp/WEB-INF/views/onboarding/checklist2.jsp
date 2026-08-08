@@ -18,7 +18,9 @@
        q10 사회적 인식   ← Social Awareness
        q11 상호작용 시작 ← Social Motivation
        q12 주고받기      ← Social Communication --%>
-<form method="post" action="/onboarding/checklist">
+<%-- action 은 checklist.jsp 에서 복사할 때 그대로 남아 있던 값이었다.
+     지금은 POST 라우트가 없어 잠복 상태지만, 백엔드가 붙는 순간 2페이지가 1페이지로 제출된다. --%>
+<form method="post" action="/onboarding/checklist-2">
     <%
         String ckTitle = "감정 조절";
         String ckCount = "checkCount";
