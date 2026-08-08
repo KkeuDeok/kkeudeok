@@ -597,18 +597,36 @@
 /* 대시보드 제목은 y=64, 학습 홈은 y=104 라 위 여백만 다르다 */
 .app-head-lg { padding-top: 104px; }
 
-/* --- AI 스토리 학습 배너 (1120×240 = 그림 340 + 텍스트 780) --- */
+/* --- AI 스토리 학습 배너 (1120×240 = 그림 340 + 텍스트 780) ---
+   Figma 개선판(24:20391)에서 배너 전체가 크림 카드(#fff6ea, r28)로 바뀌었다. */
 .learn-hero {
     display: flex;
     margin-top: 50px;       /* 부제 아래 143+20=163 → 배너 193 */
     padding: 0 40px;
 }
 
+.learn-hero > .art,
+.learn-hero > .txt { position: relative; z-index: 1; }
+
+/* 카드 배경은 padding(40) 안쪽 1120 에만 깔려야 해서 ::before 로 그린다 */
+.learn-hero { position: relative; }
+
+.learn-hero::before {
+    content: "";
+    position: absolute;
+    left: 40px;
+    right: 40px;
+    top: 0;
+    bottom: 0;
+    background: var(--kd-card-cream);
+    border-radius: 28px;
+}
+
 .learn-hero .art {
     width: 340px;
     height: 240px;
     flex: none;
-    border-radius: 16px;
+    border-radius: 28px 0 0 28px;   /* 카드 왼쪽 모서리와 맞춘다 */
     object-fit: cover;
 }
 
@@ -616,7 +634,7 @@
 
 .learn-hero h2 {
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;        /* Figma 개선판 실측 */
     font-weight: 700;
     line-height: 36px;
     color: var(--kd-text);
@@ -629,10 +647,18 @@
     color: var(--kd-text-sub);
 }
 
+/* 예상 소요 — 개선판에서 추가된 줄 (부제 아래 13px) */
+.learn-hero .txt .min {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
 .learn-hero .kd-btn {
     width: 200px;
     height: 40px;
-    margin-top: 40px;
+    margin-top: 16px;
     border-radius: 999px;
     font-size: 15px;
     font-weight: 700;
@@ -654,7 +680,7 @@
     margin: 0 0 12px;
     padding-bottom: 12px;
     border-bottom: 1px solid var(--kd-border);
-    font-size: 20px;
+    font-size: 19px;        /* Figma 개선판 실측 */
     font-weight: 700;
     line-height: 29px;
     color: var(--kd-text);
@@ -711,10 +737,19 @@
 
 .learn-daily textarea::placeholder { color: var(--kd-text-sub); }
 
+/* 저장 줄 — 좌측 안내문구 + 우측 버튼 (Figma 개선판) */
 .learn-save {
     display: flex;
-    justify-content: flex-end;
+    align-items: center;
+    justify-content: space-between;
     margin-top: 18px;       /* 689 → 707 */
+}
+
+.learn-save .note {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
 }
 
 .learn-save .kd-btn {
@@ -771,15 +806,22 @@
     overflow: hidden;
 }
 
+/* 상태 칩 3종 — 완료 / 다른 방식 선택 / 이어서 하기 (Figma 개선판 실측색) */
 .learn-recent .chip {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 64px;
+    min-width: 64px;
     height: 26px;
+    padding: 0 10px;
+    box-sizing: border-box;
     border-radius: 999px;
     font-size: 13px;
+    white-space: nowrap;
 }
+
+.learn-recent .chip-alt  { background: #d7eee3; color: var(--kd-primary-strong); }
+.learn-recent .chip-cont { background: #f1f5f2; color: var(--kd-text-sub); }
 
 /* --- 스토리 학습 흐름 5단계 --- */
 .learn-flow {
@@ -831,6 +873,7 @@
 }
 
 /* --- 하단 학습 유도 배너 --- */
+/* 하단 배너 — 개선판은 tint 가 아니라 크림 + r28 이다 */
 .learn-cta {
     display: flex;
     align-items: center;
@@ -838,8 +881,8 @@
     margin: 24px 0 40px;
     padding: 0 24px;
     box-sizing: border-box;
-    background: var(--kd-primary-tint);
-    border-radius: 16px;
+    background: var(--kd-card-cream);
+    border-radius: 28px;
 }
 
 /* 좌우 40 패딩은 위 블록들과 달리 카드 자체가 져야 해서 폭으로 뺀다 */
@@ -868,4 +911,11 @@
     border-radius: 999px;
     font-size: 15px;
     font-weight: 700;
+}
+
+/* 학습 홈만 상단 띠가 초록 그라데이션(120)이 아니라 크림 64 다 (Figma 개선판 24:20391).
+   .app-main::before 는 대시보드와 공용이라 :has() 로 이 화면에서만 덮는다. */
+.app-main:has(.learn-hero)::before {
+    height: 64px;
+    background: var(--kd-card-cream);
 }

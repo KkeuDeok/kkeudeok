@@ -15,6 +15,7 @@
     <div class="txt">
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
+        <p class="min">예상 소요 약 7분</p>
         <a class="kd-btn kd-btn-primary" href="#">이야기 시작하기</a>
     </div>
 </div>
@@ -30,7 +31,10 @@
                 <label><input type="radio" name="situation" value="새로운 곳"><span>새로운 곳</span></label>
             </div>
             <textarea name="memo" placeholder="블록놀이하다가 민수랑 다퉜어요"></textarea>
-            <div class="learn-save"><button type="submit" class="kd-btn kd-btn-outline">기록 저장</button></div>
+            <div class="learn-save">
+                <p class="note">기록은 이야기 생성에만 쓰이고 30일 후 자동 삭제돼요</p>
+                <button type="submit" class="kd-btn kd-btn-outline">기록 저장</button>
+            </div>
         </form>
     </section>
 
@@ -43,9 +47,9 @@
             <tbody>
             <tr><td class="c-no">1</td><td class="c-date">7.22</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
             <tr><td class="c-no">2</td><td class="c-date">7.21</td><td class="c-story">처음 간 곳에서 길을 잃을 뻔했어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
+            <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-alt">다른 방식 선택</span></td></tr>
             <tr><td class="c-no">4</td><td class="c-date">7.18</td><td class="c-story">동생이 내 장난감을 가져갔어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">5</td><td class="c-date">7.16</td><td class="c-story">블록으로 높은 탑을 쌓았어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
+            <tr><td class="c-no">5</td><td class="c-date">7.16</td><td class="c-story">블록으로 높은 탑을 쌓았어요</td><td class="c-state"><span class="chip chip-cont">이어서 하기</span></td></tr>
             </tbody>
         </table>
     </section>
