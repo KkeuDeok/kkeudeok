@@ -12,6 +12,8 @@
 .rpt-score,
 .rpt-sec,
 .rpt-rule,
+.rpt-ai,
+.rpt-note,
 .rpt-cta {
     max-width: 1200px;
     margin-left: auto;
@@ -60,7 +62,7 @@
 .rpt-score {
     display: flex;
     align-items: flex-end;
-    gap: 32px;
+    gap: 24px;              /* 값↔증감(24) 과 같은 값으로 통일 */
     margin-top: 24px;
     padding: 0 40px;
 }
@@ -267,13 +269,22 @@
 /* --------------------------------------------------------------------------
    사회성 — 레이더 차트 래퍼 + 장면 리스트 (감정 이해 화면과 공용)
    -------------------------------------------------------------------------- */
-.rpt-radar { display: flex; justify-content: center; margin-top: 0; }
+/* 좌 차트 + 우 축별 점수 2열 — 세로를 안 늘리면서 오각형만 키운다 */
+.rpt-radar-row {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    margin-top: 4px;
+}
+
+.rpt-radar { flex: none; }
+.rpt-radar svg { display: block; }
 
 .rpt-radar-legend {
     display: flex;
     justify-content: center;
     gap: 24px;
-    margin-top: 8px;
+    margin-top: 0;
     font-size: 13px;
     color: var(--kd-text-sub);
 }
@@ -539,3 +550,55 @@
     line-height: 20px;
     color: var(--kd-text-sub);
 }
+
+
+/* --------------------------------------------------------------------------
+   사회성 — 축별 점수 리스트 (레이더 우측)
+   -------------------------------------------------------------------------- */
+.rpt-axis { flex: 1; min-width: 0; }
+
+.rpt-axis h3 {
+    margin: 0 0 16px;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 22px;
+    color: var(--kd-text);
+}
+
+/* 축 이름이 '신경증/정서 안정성' 처럼 길어 라벨 폭을 넓히고 증감 칸을 덧붙인다 */
+.rpt-axis .rpt-hbar .lb {
+    width: 132px;
+    font-size: 13px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-axis .rpt-hbar .track { height: 10px; }
+
+.rpt-axis .rpt-hbar .pct {
+    width: 34px;
+    font-size: 14px;
+}
+
+.rpt-axis .rpt-hbar .dt {
+    flex: none;
+    width: 44px;
+    text-align: right;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.rpt-axis .cap {
+    margin: 16px 0 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+/* 축 점수 아래에 장면 리스트를 이어 붙인다 (우측 열 두 블록) */
+.rpt-axis h3.mt { margin-top: 24px; }
+
+.rpt-axis .rpt-scenes { margin-top: 0; }
+
+.rpt-axis .rpt-scene { height: 44px; }
+.rpt-axis .rpt-scene .t { font-size: 14px; }
+.rpt-axis .rpt-scene .d { width: 44px; font-size: 12px; }

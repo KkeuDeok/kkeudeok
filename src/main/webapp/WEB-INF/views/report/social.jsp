@@ -25,9 +25,11 @@
       점 = (220 + R·(v/100)·cos, 200 + R·(v/100)·sin)
       축 순서: 외향성(위) → 우호성/친화성 → 성실성 → 신경증/정서 안정성 → 개방성
     --%>
+  <div class="rpt-radar-row">
     <div class="rpt-radar">
-        <%-- 1024 한 화면에 담기게 viewBox 는 그대로 두고 표시 크기만 0.73 배로 줄였다 --%>
-        <svg width="509" height="320" viewBox="0 0 700 440" role="img"
+        <%-- viewBox 를 그림이 실제로 차지하는 범위(x 40~660, y 10~410)로 좁혀
+             같은 표시 크기에서 오각형이 커지게 했다. 좌표 계산은 그대로 쓴다. --%>
+        <svg width="620" height="400" viewBox="40 10 620 400" role="img"
              aria-label="사회성 5축 — 외향성 74, 우호성 62, 성실성 41, 정서 안정성 55, 개방성 68">
             <g transform="translate(130,20)">
                 <%-- 격자 링 4개 (1 / 0.75 / 0.5 / 0.25 배) --%>
@@ -65,30 +67,40 @@
                 </g>
             </g>
         </svg>
-    </div>
-    <div class="rpt-radar-legend">
-        <span><i class="ln"></i>이번 주</span>
-        <span><i class="ln ln-prev"></i>4주 전</span>
-    </div>
-</section>
-
-<hr class="rpt-rule">
-
-<%-- Figma 원본(24:16480)에서 1050 밖으로 잘려 있던 섹션 — 웹은 스크롤이 있어 복원 --%>
-<section class="rpt-sec">
-    <h2>이번 주 사회성 장면</h2>
-    <div class="rpt-scenes">
-        <div class="rpt-scene">
-            <p class="t">놀이터에서 차례를 기다렸어요</p>
-            <span class="chip">차례 지키기 성공</span>
-            <span class="d">7.19</span>
-        </div>
-        <div class="rpt-scene">
-            <p class="t">블록놀이에서 민수와 화해했어요</p>
-            <span class="chip">마음을 말로 전달</span>
-            <span class="d">7.22</span>
+        <div class="rpt-radar-legend">
+            <span><i class="ln"></i>이번 주</span>
+            <span><i class="ln ln-prev"></i>4주 전</span>
         </div>
     </div>
+
+    <%-- 오각형만으로는 "성실성 41" 같은 정확한 값을 읽기 어렵다.
+         증감은 레이더의 4주 전 데이터 [62,55,38,48,60] 과의 차이를 그대로 쓴 것이다. --%>
+    <div class="rpt-axis">
+        <h3>축별 점수</h3>
+        <div class="rpt-hbar"><span class="lb">외향성</span><div class="track"><span style="width:74%;background:#34a36a"></span></div><span class="pct">74</span><b class="dt rpt-up">▲12</b></div>
+        <div class="rpt-hbar"><span class="lb">우호성/친화성</span><div class="track"><span style="width:62%;background:#34a36a"></span></div><span class="pct">62</span><b class="dt rpt-up">▲7</b></div>
+        <div class="rpt-hbar"><span class="lb">개방성</span><div class="track"><span style="width:68%;background:#34a36a"></span></div><span class="pct">68</span><b class="dt rpt-up">▲8</b></div>
+        <div class="rpt-hbar"><span class="lb">신경증/정서 안정성</span><div class="track"><span style="width:55%;background:#34a36a"></span></div><span class="pct">55</span><b class="dt rpt-up">▲7</b></div>
+        <div class="rpt-hbar"><span class="lb">성실성</span><div class="track"><span style="width:41%;background:#34a36a"></span></div><span class="pct">41</span><b class="dt rpt-up">▲3</b></div>
+        <p class="cap">4주 전과 견준 변화예요</p>
+
+        <%-- Figma 원본(24:16480)에서 1050 밖으로 잘려 있던 섹션.
+             아래에 따로 두면 오각형을 키운 만큼 화면이 넘쳐서 우측 열로 올렸다. --%>
+        <h3 class="mt">이번 주 사회성 장면</h3>
+        <div class="rpt-scenes">
+            <div class="rpt-scene">
+                <p class="t">놀이터에서 차례를 기다렸어요</p>
+                <span class="chip">차례 지키기 성공</span>
+                <span class="d">7.19</span>
+            </div>
+            <div class="rpt-scene">
+                <p class="t">블록놀이에서 민수와 화해했어요</p>
+                <span class="chip">마음을 말로 전달</span>
+                <span class="d">7.22</span>
+            </div>
+        </div>
+    </div>
+  </div>
 </section>
 
 <div class="rpt-cta">

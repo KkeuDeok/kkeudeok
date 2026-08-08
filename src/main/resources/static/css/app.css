@@ -274,7 +274,8 @@
 /* 트랙 폭은 세 칸 모두 264 — 첫 칸은 카드가 넓지만 트랙까지 넓히면
    64% 막대가 72% 막대보다 길어져 지표가 거꾸로 읽힌다.
    (Figma 원본은 423이라 이 한 줄이 원본과 다른 유일한 곳 — 되돌리려면 이 줄만 지우면 된다) */
-.dash-kpi:first-child .track { width: 264px; height: 10px; margin-top: 22px; }
+/* 첫 칸은 글자가 52px 이라 22 로는 붙어 보인다 -> 2·3번째 칸(34px 글자 + 24)과 눈높이를 맞춘다 */
+.dash-kpi:first-child .track { width: 264px; height: 10px; margin-top: 30px; }
 
 .dash-kpi .track span { display: block; height: 100%; border-radius: 999px; }
 
@@ -623,12 +624,31 @@
     border-radius: 28px;
 }
 
+/* 배경 + 캐릭터 2겹 — 제공받은 배경 그림에 캐릭터가 없어서 위에 얹는다 */
 .learn-hero .art {
+    position: relative;
+    display: block;
     width: 340px;
     height: 240px;
     flex: none;
     border-radius: 28px 0 0 28px;   /* 카드 왼쪽 모서리와 맞춘다 */
+    overflow: hidden;
+}
+
+.learn-hero .art .bg {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+}
+
+/* 캐릭터는 잔디선에 발이 닿게 아래 정렬 */
+.learn-hero .art .ch {
+    position: absolute;
+    left: 50%;
+    bottom: 8px;
+    width: 150px;
+    transform: translateX(-50%);
+    object-fit: contain;
 }
 
 .learn-hero .txt { padding: 44px 0 0 40px; }

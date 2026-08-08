@@ -209,20 +209,18 @@
     text-align: center;
 }
 
+/* 온보딩 PIN 설정 화면(.onb-hero)과 똑같이 — 초록 원 없이 아이콘만 120px */
 .mp-gate .ic {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 96px;
-    height: 96px;
-    border-radius: 999px;
-    background: var(--kd-primary-tint);
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
 }
 
-.mp-gate .ic img { width: 52px; }
+.mp-gate .ic img { display: block; width: 120px; height: 120px; }
 
 .mp-gate h1 {
-    margin: 24px 0 0;
+    margin: 20px 0 0;   /* .onb-hero 의 아래 여백 20 과 같게 */
     font-size: 28px;
     font-weight: 700;
     line-height: 42px;

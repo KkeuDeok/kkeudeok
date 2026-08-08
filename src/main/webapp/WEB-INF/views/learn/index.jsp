@@ -11,7 +11,12 @@
 </div>
 
 <div class="learn-hero">
-    <img class="art" src="/img/learn-hero.png" alt="">
+    <%-- 배경은 사용자가 제공한 수채화 그림(learn-hero-bg.png), 캐릭터는 기존 사람 토리를 겹친다.
+         제공 그림에는 아이가 없어서 배경만 쓰면 배너가 비어 보인다. --%>
+    <span class="art">
+        <img class="bg" src="/img/learn-hero-bg.png" alt="">
+        <img class="ch" src="/img/char-tori-full.png" alt="">
+    </span>
     <div class="txt">
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
