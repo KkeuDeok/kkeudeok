@@ -464,3 +464,90 @@
 
 /* 성별 라디오 행 — 입력칸 높이(48)와 눈높이를 맞춘다 */
 .mp-radios { display: flex; align-items: center; height: 48px; gap: 32px; }
+
+/* --------------------------------------------------------------------------
+   캐릭터 관리 — 좌 미리보기 + 우 카드 6개(3×2)
+   -------------------------------------------------------------------------- */
+.mp-char { display: flex; gap: 80px; }
+
+.mp-char-view { width: 520px; flex: none; text-align: center; }
+
+.mp-char-view .big {
+    display: block;
+    width: 260px;
+    height: 350px;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.mp-char-view .nm {
+    margin: 8px 0 0;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 39px;
+    color: var(--kd-text);
+}
+
+.mp-char-view .ds {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+}
+
+.mp-char-view .kd-field { margin-top: 24px; text-align: left; }
+
+/* 카드 그리드 — 168×216, gap 16 (3열 = 536) */
+.mp-char-pick { flex: 1; }
+
+.mp-chars {
+    display: grid;
+    grid-template-columns: repeat(3, 168px);
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.mp-chars label {
+    position: relative;
+    height: 216px;
+    box-sizing: border-box;
+    padding-top: 21px;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
+
+.mp-chars img { display: block; width: 150px; height: 150px; margin: 0 auto; object-fit: contain; }
+
+.mp-chars .nm {
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text);
+}
+
+/* 선택 상태 — box-sizing:border-box 라 테두리가 굵어져도 카드 크기는 그대로 */
+.mp-chars label:has(input:checked) {
+    background: var(--kd-primary-tint);
+    border: 2px solid var(--kd-primary-active);
+}
+
+.mp-chars label:has(input:focus-visible) { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+/* 선택 배지 — 체크된 카드에만 우상단에 뜬다.
+   icon-check-sm.svg 는 stroke 가 #34A36A(초록)라 초록 원 위에서는 안 보인다 → 흰 체크를 직접 넣는다 */
+.mp-chars label:has(input:checked)::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--kd-primary-active) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13.3333 4L6 11.3333L2.66667 8' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
+}
