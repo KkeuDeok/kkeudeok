@@ -277,3 +277,131 @@
 }
 
 .mp-gate .forgot:hover { color: var(--kd-primary); }
+
+/* 2열 폼 안의 드롭다운 — onb-select.js 가 select 를 .kd-select 래퍼로 감싸므로
+   폭·높이는 select 가 아니라 래퍼와 버튼에 줘야 한다(w135·h34 가 기본값이라 그냥 두면 좁다).
+   목록 top 은 입력 높이 34 기준 38 이므로 48 로 키운 만큼 같이 내린다. */
+.mp-grid .kd-select { width: 100%; }
+.mp-grid .kd-select-btn,
+.mp-grid .onb-select {
+    width: 100%;
+    height: 48px;
+    padding-left: 16px;
+    border-radius: 6px;
+    font-size: 17px;
+}
+.mp-grid .kd-select-list { top: 52px; }
+
+/* kkeudeok.css 의 `.kd-field + .kd-field{margin-top:16}` 이 그리드 안에서도 걸려
+   2·3·4번째 칸만 16px 내려간다(첫 행 좌우 라벨이 어긋나 보이던 원인).
+   그리드에서는 행 간격을 gap 이 지므로 여기서만 끈다. */
+.mp-grid .kd-field + .kd-field { margin-top: 0; }
+
+/* --------------------------------------------------------------------------
+   확인 모달 — 로그아웃(439:2129) · 계정 삭제(439:2259)
+   auth.css 의 .terms-dialog 를 함께 붙여 backdrop 과 zoom 상쇄를 물려받는다.
+   (새 클래스만 쓰면 --fit-scale 배율이 두 번 걸려 모달이 작아진다)
+   -------------------------------------------------------------------------- */
+.mp-modal {
+    width: 480px;
+    max-height: none;
+    padding: 40px 32px 32px;
+    border-radius: 24px;
+    text-align: center;
+}
+
+.mp-modal .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+}
+
+.mp-modal .ic::after {
+    content: "";
+    width: 28px;
+    height: 28px;
+    background: var(--kd-primary);
+    -webkit-mask: var(--kd-icon-logout) center / 28px no-repeat;
+    mask: var(--kd-icon-logout) center / 28px no-repeat;
+}
+
+.mp-modal h2 {
+    margin: 20px 0 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 33px;
+    color: var(--kd-text);
+}
+
+.mp-modal p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.mp-modal .warn { color: var(--kd-danger); }
+
+.mp-modal .row { display: flex; gap: 16px; margin-top: 28px; }
+
+.mp-modal .row .kd-btn {
+    flex: 1;
+    width: auto;
+    height: 52px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* 삭제 확인 — 위험 동작이라 주색 대신 danger */
+.kd-btn-danger {
+    background: var(--kd-danger);
+    color: #fff;
+}
+
+.kd-btn-danger:hover { background: #c33d31; }
+
+/* 로그아웃 아이콘 (lucide log-out) — 토큰이 kkeudeok.css 에 없어 여기서 선언 */
+:root {
+    --kd-icon-logout: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E");
+}
+
+/* auth.css 의 `.terms-dialog button { width:100%; height:44px; background:var(--kd-primary) … }`
+   이 모달 안 모든 button 을 초록 알약으로 덮어쓴다. 취소 버튼이 초록 원이 되던 원인.
+   구체성을 올려 다시 지정하고, form 래퍼도 flex 아이템으로 늘린다. */
+.mp-modal .row > form { flex: 1; display: flex; }
+
+.mp-modal .row .kd-btn,
+.mp-modal .row form button.kd-btn {
+    flex: 1;
+    width: 100%;
+    height: 52px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mp-modal .row .kd-btn-outline,
+.mp-modal .row form button.kd-btn-outline {
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+}
+
+.mp-modal .row .kd-btn-outline:hover { border-color: var(--kd-primary-active); }
+.mp-modal .row .kd-btn-primary { background: var(--kd-primary); color: #fff; }
+.mp-modal .row .kd-btn-danger  { background: var(--kd-danger); color: #fff; }
+
+/* showModal() 이 첫 버튼에 자동 포커스를 준다 — 브라우저 기본 검은 링 대신 브랜드 링으로 */
+.mp-modal .row .kd-btn:focus { outline: none; }
+.mp-modal .row .kd-btn:focus-visible {
+    outline: 2px solid var(--kd-primary);
+    outline-offset: 2px;
+}
+
+/* 경고 문구는 길어서 480 폭에서 줄이 어색하게 끊긴다 — 한글 단어 단위로 접는다 */
+.mp-modal p { word-break: keep-all; }
