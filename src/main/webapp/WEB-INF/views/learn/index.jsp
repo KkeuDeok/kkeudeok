@@ -23,19 +23,29 @@
 <div class="learn-row">
     <section class="learn-daily">
         <h2 class="learn-sec">오늘의 일상 입력</h2>
-        <form action="#" method="post">
-            <div class="learn-chips">
-                <label><input type="radio" name="situation" value="유치원" checked><span>유치원</span></label>
-                <label><input type="radio" name="situation" value="친구랑 다퉜어"><span>친구랑 다퉜어</span></label>
-                <label><input type="radio" name="situation" value="가족 나들이"><span>가족 나들이</span></label>
-                <label><input type="radio" name="situation" value="새로운 곳"><span>새로운 곳</span></label>
+
+        <%-- 기록 전 상태 — 버튼을 누르면 모달이 열린다.
+             전에는 여기 textarea 가 바로 박혀 있어 '메모장'처럼 보였다. --%>
+        <div class="learn-entry" id="dailyEmpty">
+            <span class="ic ic-pen"></span>
+            <p class="t">오늘은 아직 기록하지 않았어요</p>
+            <p class="d">오늘 있었던 일을 남기면 아이에게 딱 맞는 이야기를 만들어요</p>
+            <button type="button" class="kd-btn kd-btn-primary" onclick="dlgDaily.showModal()">오늘의 일상 기록하기</button>
+        </div>
+
+        <%-- 기록 후 상태 — Figma 에 없는 추가분.
+             "다음으로 넘어가는 느낌"을 만들기 위한 블록이라 통째로 빼기 쉽게 분리해 뒀다. --%>
+        <div class="learn-entry learn-entry-done" id="dailyDone" hidden>
+            <span class="ic ic-check"></span>
+            <p class="t">오늘 기록을 남겼어요</p>
+            <p class="d" id="dailySummary"></p>
+            <div class="row">
+                <button type="button" class="kd-btn kd-btn-outline" onclick="dlgDaily.showModal()">다시 쓰기</button>
+                <a class="kd-btn kd-btn-primary" href="#">이 이야기로 학습 시작</a>
             </div>
-            <textarea name="memo" placeholder="블록놀이하다가 민수랑 다퉜어요"></textarea>
-            <div class="learn-save">
-                <p class="note">기록은 이야기 생성에만 쓰이고 30일 후 자동 삭제돼요</p>
-                <button type="submit" class="kd-btn kd-btn-outline">기록 저장</button>
-            </div>
-        </form>
+        </div>
+
+        <p class="learn-note">기록은 이야기 생성에만 쓰이고 30일 후 자동 삭제돼요</p>
     </section>
 
     <section class="learn-recent">
@@ -71,5 +81,85 @@
     <p>이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
     <a class="kd-btn kd-btn-primary" href="#">학습 시작</a>
 </div>
+
+<%-- 오늘의 일상 입력 모달 (Figma 24:20619).
+     .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다 — 빼면 배율이 두 번 걸려 작아진다.
+     상황 칩은 Figma 서버 렌더에는 없지만 사용자 요청으로 모달 안에 넣었다. --%>
+<dialog id="dlgDaily" class="terms-dialog daily-modal">
+    <div class="hd">
+        <h2>오늘의 일상 입력</h2>
+        <button type="button" class="x" aria-label="닫기" onclick="dlgDaily.close()"></button>
+    </div>
+
+    <div class="bd">
+        <h3>오늘은 어떤 일이 있었나요?</h3>
+
+        <div class="learn-chips" id="dailyChips">
+            <label><input type="radio" name="situation" value="유치원" checked><span>유치원</span></label>
+            <label><input type="radio" name="situation" value="친구랑 다퉜어"><span>친구랑 다퉜어</span></label>
+            <label><input type="radio" name="situation" value="가족 나들이"><span>가족 나들이</span></label>
+            <label><input type="radio" name="situation" value="새로운 곳"><span>새로운 곳</span></label>
+        </div>
+
+        <div class="daily-emos" id="dailyEmos">
+            <label><img src="/img/face-happy.png" alt=""><span class="nm">기쁨</span><input type="radio" name="emotion" value="기쁨" checked></label>
+            <label><img src="/img/face-sad.png" alt=""><span class="nm">슬픔</span><input type="radio" name="emotion" value="슬픔"></label>
+            <label><img src="/img/face-angry.png" alt=""><span class="nm">화남</span><input type="radio" name="emotion" value="화남"></label>
+            <label><img src="/img/face-surprise.png" alt=""><span class="nm">놀람</span><input type="radio" name="emotion" value="놀람"></label>
+            <label><img src="/img/face-neutral.png" alt=""><span class="nm">무표정</span><input type="radio" name="emotion" value="무표정"></label>
+        </div>
+
+        <div class="daily-memo">
+            <textarea id="dailyText" maxlength="200" placeholder="유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요"></textarea>
+            <span class="daily-count" id="dailyCount">0 / 200</span>
+        </div>
+    </div>
+
+    <div class="ft">
+        <button type="button" class="kd-btn kd-btn-outline" onclick="dlgDaily.close()">취소</button>
+        <button type="button" class="kd-btn kd-btn-primary" onclick="kdDailySave()">저장</button>
+    </div>
+</dialog>
+
+<script>
+    /* 상황 칩 -> 예시 문구 + 기본 감정.
+       ponytail: 백엔드가 붙으면 이 표는 서버에서 내려주면 된다. */
+    var KD_DAILY = {
+        '유치원':        ['유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요', '기쁨'],
+        '친구랑 다퉜어': ['블록놀이하다 민수가 내 성을 무너뜨려서 속상했어요', '슬픔'],
+        '가족 나들이':   ['할머니 댁에 갔는데 강아지가 갑자기 짖어서 깜짝 놀랐어요', '놀람'],
+        '새로운 곳':     ['처음 간 수영장이 너무 시끄러워서 나가고 싶어 했어요', '화남']
+    };
+
+    (function () {
+        var text = document.getElementById('dailyText');
+        var count = document.getElementById('dailyCount');
+
+        document.getElementById('dailyChips').addEventListener('change', function (e) {
+            var pair = KD_DAILY[e.target.value];
+            if (!pair) return;
+            text.placeholder = pair[0];
+            var emo = document.querySelector('#dailyEmos input[value="' + pair[1] + '"]');
+            if (emo) emo.checked = true;
+        });
+
+        text.addEventListener('input', function () {
+            count.textContent = text.value.length + ' / 200';
+        });
+    })();
+
+    function kdDailySave() {
+        var chip = document.querySelector('#dailyChips input:checked');
+        var emo = document.querySelector('#dailyEmos input:checked');
+        var text = document.getElementById('dailyText');
+        var memo = text.value.trim() || text.placeholder;
+
+        document.getElementById('dailySummary').textContent =
+            chip.value + ' · ' + emo.value + ' · "' + memo + '"';
+        document.getElementById('dailyEmpty').hidden = true;
+        document.getElementById('dailyDone').hidden = false;
+        dlgDaily.close();
+    }
+</script>
 
 <%@ include file="../common/app-bottom.jsp" %>
