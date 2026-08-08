@@ -175,6 +175,19 @@
     background: linear-gradient(180deg, #eaf5ee 0%, #fff 100%);
 }
 
+/* 본문 열은 1200 고정 — 와이드 화면(배율이 세로 기준이라 캔버스보다 창이 넓을 때)은
+   왼쪽에 붙이지 않고 남는 공간 가운데에 둔다. 1440 창에서는 지금과 동일하다.
+   초록 띠(::before)는 이 제한 밖이라 계속 전체 폭을 채운다 */
+.app-head,
+.dash-kpis,
+.dash-row,
+.dash-bottom {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
 .app-head {
     position: relative;
     padding: 64px 0 0 40px;
