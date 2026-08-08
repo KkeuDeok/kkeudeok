@@ -27,19 +27,34 @@
         var field = fieldOf(input);
         if (!field) return;
         input.classList.remove('kd-input--error');
-        var old = field.querySelector('.kd-error');
-        if (old) old.remove();
+        field.querySelectorAll('.kd-error, .kd-info').forEach(function (e) { e.remove(); });
         var hint = field.querySelector('.kd-hint');
         if (hint) hint.style.visibility = '';
     }
 
     function clearAllErrors() {
-        document.querySelectorAll('.kd-error').forEach(function (e) { e.remove(); });
+        document.querySelectorAll('.kd-error, .kd-info').forEach(function (e) { e.remove(); });
         document.querySelectorAll('.kd-input--error').forEach(function (i) { i.classList.remove('kd-input--error'); });
         document.querySelectorAll('.kd-hint').forEach(function (h) { h.style.visibility = ''; });
     }
 
+    /* 안내(초록) — 오류와 같은 예약석을 쓰는 긍정 문구. 인증번호 전송 안내 등 */
+    function setInfo(input, msg) {
+        clearError(input);
+        var field = fieldOf(input);
+        if (!field) return;
+        var hint = field.querySelector('.kd-hint');
+        if (hint) hint.style.visibility = 'hidden';
+        var p = document.createElement('p');
+        p.className = 'kd-info';
+        p.textContent = msg;
+        field.appendChild(p);
+    }
+
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;   /* 이름: 한글·영문 2~20자 */
+    var ID_RE = /^[a-z0-9]{4,12}$/;          /* 아이디: 영문 소문자·숫자 4~12자 */
+    var CODE_RE = /^\d{6}$/;
     var DEMO_CODE = '040505';   /* 임시 인증번호 — 백엔드 연동 시 제거 */
 
     function checkRequired(input, msg) {
@@ -53,30 +68,60 @@
         clearError(input); return true;
     }
 
-    /* 비밀번호 규칙 한 곳 — 제출 검사와 실시간 검사가 같이 쓴다 */
-    function pwOk(v) { return v.length >= 8 && /[a-zA-Z]/.test(v) && /\d/.test(v); }
+    /* 이름·아이디는 형식까지 본다 — "멘트 유형이 적다"는 팀장 피드백(2026-08-08) 반영 */
+    function checkUserName(input) {
+        var v = input.value.trim();
+        if (!v) { setError(input, '이름을 입력해 주세요'); return false; }
+        if (!NAME_RE.test(v)) { setError(input, '이름은 한글 또는 영문 2~20자로 입력해 주세요'); return false; }
+        clearError(input); return true;
+    }
+
+    function checkLoginId(input) {
+        var v = input.value.trim();
+        if (!v) { setError(input, '아이디를 입력해 주세요'); return false; }
+        if (!ID_RE.test(v)) { setError(input, '아이디는 영문 소문자와 숫자 4~12자로 입력해 주세요'); return false; }
+        clearError(input); return true;
+    }
+
+    /* 비밀번호 규칙 한 곳 — 제출 검사와 실시간 검사가 같이 쓴다.
+       어긴 이유를 돌려줘야 원인별 멘트가 된다 (빈 문자열 = 통과) */
+    function pwWhy(v) {
+        if (v.length < 8) return '비밀번호는 8자 이상이어야 합니다';
+        if (!/[a-zA-Z]/.test(v)) return '비밀번호에 영문을 포함해 주세요';
+        if (!/\d/.test(v)) return '비밀번호에 숫자를 포함해 주세요';
+        return '';
+    }
+
+    function pwOk(v) { return !pwWhy(v); }
 
     function checkPassword(input) {
         if (!input.value) { setError(input, '비밀번호를 입력해 주세요'); return false; }
-        if (!pwOk(input.value)) {
-            setError(input, '비밀번호는 8자 이상, 영문과 숫자를 포함해야 합니다'); return false;
-        }
+        var why = pwWhy(input.value);
+        if (why) { setError(input, why); return false; }
         clearError(input); return true;
     }
 
     function checkMatch(pw, pwc) {
-        if (!pwc.value || pwc.value !== pw.value) {
-            setError(pwc, '비밀번호가 일치하지 않습니다'); return false;
-        }
+        if (!pwc.value) { setError(pwc, '비밀번호를 한 번 더 입력해 주세요'); return false; }
+        if (pwc.value !== pw.value) { setError(pwc, '비밀번호가 일치하지 않습니다'); return false; }
         clearError(pwc); return true;
     }
 
-    function checkCode() {
+    /* emailOk: 이메일 검사 결과 — 이메일 자체가 틀렸으면 그 오류를 덮지 않는다
+       (빈 이메일에 "인증번호를 먼저 전송해 주세요"가 뜨면 원인을 잘못 가리킨다) */
+    function checkCode(emailOk) {
         var field = $('authCodeField');
         var code = $('authCode');
         var email = $('email');
         if (field && field.classList.contains('is-hidden')) {
-            setError(email, '인증번호를 먼저 전송해 주세요'); return false;
+            if (emailOk) setError(email, '인증번호를 먼저 전송해 주세요');
+            return false;
+        }
+        if (!CODE_RE.test(code.value.trim())) {
+            setError(code, '인증번호 6자리를 입력해 주세요'); return false;
+        }
+        if (codeExpired) {
+            setError(code, '인증 시간이 지났습니다. 인증번호를 다시 전송해 주세요'); return false;
         }
         if (code.value.trim() !== DEMO_CODE) {
             setError(code, '인증번호가 일치하지 않습니다'); return false;
@@ -86,6 +131,7 @@
 
     /* ---------- 인증번호 전송(칸 표시 + 타이머) ---------- */
     var timerHandle = null;
+    var codeExpired = false;    /* 타이머가 0이 되면 참 — 재전송해야 풀린다 */
 
     function startTimer(field) {
         var span = field.querySelector('.kd-timer');
@@ -100,7 +146,7 @@
         render();
         timerHandle = setInterval(function () {
             left -= 1;
-            if (left < 0) { clearInterval(timerHandle); return; }
+            if (left < 0) { clearInterval(timerHandle); codeExpired = true; return; }
             render();
         }, 1000);
     }
@@ -109,12 +155,14 @@
     window.kdSendCode = function (kind) {
         clearAllErrors();
         var ok = true;
-        if (kind === 'findId') ok = checkRequired($('userName'), '이름을 입력해 주세요') && ok;
+        if (kind === 'findId') ok = checkUserName($('userName')) && ok;
         ok = checkEmail($('email')) && ok;
         if (!ok) return;
+        codeExpired = false;
         var field = $('authCodeField');
         field.classList.remove('is-hidden');
         startTimer(field);
+        setInfo($('email'), '인증번호를 보냈습니다. 메일함을 확인해 주세요');
         $('authCode').focus();
     };
 
@@ -129,27 +177,27 @@
 
     window.kdSubmitSignup = function () {
         clearAllErrors();
-        var ok = checkRequired($('userName'), '이름을 입력해 주세요');
-        ok = checkRequired($('loginId'), '아이디를 입력해 주세요') && ok;
+        var ok = checkUserName($('userName'));
+        ok = checkLoginId($('loginId')) && ok;
         ok = checkPassword($('password')) && ok;
         ok = checkMatch($('password'), $('passwordCheck')) && ok;
-        ok = checkEmail($('email')) && ok;
-        ok = checkCode() && ok;
+        var emailOk = checkEmail($('email'));
+        ok = checkCode(emailOk) && emailOk && ok;
         if (ok) location.href = '/signup/done';
     };
 
     window.kdSubmitFindId = function () {
         clearAllErrors();
-        var ok = checkRequired($('userName'), '이름을 입력해 주세요');
-        ok = checkEmail($('email')) && ok;
-        ok = checkCode() && ok;
+        var ok = checkUserName($('userName'));
+        var emailOk = checkEmail($('email'));
+        ok = checkCode(emailOk) && emailOk && ok;
         if (ok) location.href = '/find-id/result';
     };
 
     window.kdSubmitFindPwEmail = function () {
         clearAllErrors();
-        var ok = checkEmail($('email'));
-        ok = checkCode() && ok;
+        var emailOk = checkEmail($('email'));
+        var ok = checkCode(emailOk) && emailOk;
         if (ok) location.href = '/find-pw/new';
     };
 
@@ -478,14 +526,15 @@
     function pwLive(el) { return pwOk(el.value); }
 
     var LIVE_CHECKS = {
-        userName: notBlank,
-        loginId: notBlank,
+        userName: function (el) { return NAME_RE.test(el.value.trim()); },
+        /* 아이디 형식은 회원가입에서만 — 로그인 화면(비밀번호 확인 칸 없음)은 입력 여부만 본다 */
+        loginId: function (el) { return $('passwordCheck') ? ID_RE.test(el.value.trim()) : notBlank(el); },
         email: function (el) { return EMAIL_RE.test(el.value.trim()); },
         password: pwLive,
         newPassword: pwLive,
         passwordCheck: function (el) { return !!el.value && el.value === $('password').value; },
         newPasswordCheck: function (el) { return !!el.value && el.value === $('newPassword').value; },
-        authCode: function (el) { return el.value.trim() === DEMO_CODE; },
+        authCode: function (el) { return !codeExpired && el.value.trim() === DEMO_CODE; },
         pin: function (el) { return PIN_RE.test(el.value); },
         pinCheck: function (el) { return !!el.value && el.value === $('pin').value; },
         childName: notBlank,
