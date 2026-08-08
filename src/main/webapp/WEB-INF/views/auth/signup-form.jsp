@@ -1,12 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<% String pageTitle = "회원가입 - 정보입력"; int signupStep = 2; %>
+<% String pageTitle = "회원가입 - 정보입력"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
 <%@ include file="../common/signup-header.jsp" %>
 
 <h1 class="auth-title">회원가입</h1>
 
-<form method="post" action="/signup/form">
+<%-- auth-legacy: 세로가 꽉 차 8화면 공통 규격에서 제외된 화면 (auth.css 참고) --%>
+<form method="post" action="/signup/form" class="auth-legacy">
     <div class="kd-field">
         <label class="kd-label" for="userName">이름 <span class="req">*</span></label>
         <input class="kd-input" type="text" id="userName" name="userName"

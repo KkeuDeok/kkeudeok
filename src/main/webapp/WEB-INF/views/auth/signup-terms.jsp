@@ -1,12 +1,13 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<% String pageTitle = "회원가입 - 약관동의"; int signupStep = 1; %>
+<% String pageTitle = "회원가입 - 약관동의"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
 <%@ include file="../common/signup-header.jsp" %>
 
 <h1 class="auth-title">회원가입</h1>
 
-<form method="post" action="/signup/terms">
+<%-- auth-center: 콘텐츠가 짧아 남는 공간을 제목 아래·버튼 위로 반씩 나눈다 (auth.css 참고) --%>
+<form method="post" action="/signup/terms" class="auth-center">
     <%-- 전체 동의 토글은 auth-validate.js 가 처리 --%>
     <div class="terms-all">
         <input class="kd-check" type="checkbox" id="agreeAll">

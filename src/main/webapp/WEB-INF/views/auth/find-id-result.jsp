@@ -10,7 +10,7 @@
 
 <div class="done-id-card">pa****</div>
 
-<a href="/find-pw" class="kd-btn kd-btn-outline auth-cta" style="margin-top: 24px;">비밀번호 찾기</a>
-<a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 13px;">로그인하기</a>
+<a href="/find-pw" class="kd-btn kd-btn-outline auth-cta">비밀번호 찾기</a>
+<a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 16px;">로그인하기</a>
 
 <%@ include file="../common/auth-bottom.jsp" %>

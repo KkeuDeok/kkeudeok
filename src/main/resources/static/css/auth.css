@@ -86,17 +86,12 @@ html {
    브랜드: 곰 아바타(36px 원) + '끄덕' — 전 화면 공통
    행 높이 36(로고 line-height와 동일)으로 레일(150/202/250) 불변
    -------------------------------------------------------------------------- */
-/* 기본은 진행바 없는 화면 — 진행바 영역만큼 벌려 타이틀을 250 레일에 맞춘다 (192+58) */
+/* 기본은 진행바 없는 화면 — 타이틀을 216 레일에 맞춘다 (192+24) */
 .auth-brand {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 58px;
-}
-
-/* 진행바가 뒤따르면 그쪽이 202 레일을 차지하므로 여백을 줄인다 (행 42 + 10) */
-.auth-brand:has(+ .progress-track) {
-    margin-bottom: 10px;
+    margin-bottom: 24px;
 }
 
 .auth-avatar {
@@ -131,42 +126,26 @@ html {
     line-height: 60px;
     letter-spacing: -0.8px;
     color: var(--kd-text);
-    margin: 0 0 18px;
+    margin: 0 0 16px;
 }
 
 .auth-title--sub {
-    margin-bottom: 10px;
+    margin-bottom: 16px;
 }
 
 .auth-subtitle {
     font-size: 17px;
-    line-height: 25.5px;
+    line-height: 26px;     /* 16 + 26 + 16 = 58 → 부제 없는 화면의 예약분과 정확히 일치 */
     color: var(--kd-text-sub);
-    margin: 0 0 36px;
+    margin: 0 0 16px;
 }
 
-/* --------------------------------------------------------------------------
-   회원가입/비밀번호찾기 진행바 + 단계 라벨
-   -------------------------------------------------------------------------- */
-.progress-track {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 42px;   /* 라벨 없이 타이틀 레일로 (95+16+6+42 = 159 / mid는 300) */
-}
-
-.progress-track .bar {
-    width: 156px;          /* 3단(회원가입) 기준 */
-    height: 6px;
-    border-radius: 999px;
-    background: var(--kd-border);
-}
-
-.progress-track--two .bar {
-    width: 115px;          /* 2단(비밀번호찾기) */
-}
-
-.progress-track .bar.active {
-    background: var(--kd-primary-active);
+/* 부제가 없는 화면도 부제 자리(여백 16 + 한 줄 26 = 42)를 비워 둔다.
+   .kd-field 의 오류문구 예약석과 같은 방식 — 부제 유무와 무관하게 첫 콘텐츠가 350에서 시작한다.
+   그룹 A는 3화면 모두 부제가 없어 이미 일치하고, 정보입력은 34를 더하면
+   콘텐츠가 917까지 내려가 버튼(907)과 겹치므로 제외한다. */
+.auth-form-col:not(:has(.auth-legacy)) .auth-title:not(.auth-title--sub) {
+    margin-bottom: 58px;   /* 기본 16 + 부제 예약 42 */
 }
 
 /* --------------------------------------------------------------------------
@@ -182,7 +161,7 @@ html {
    (필드 간격은 예약분만큼 줄여 전체 높이 유지 — kkeudeok.css) */
 .kd-field {
     position: relative;
-    padding-bottom: 17px;
+    padding-bottom: 16px;
 }
 
 .kd-error {
@@ -190,8 +169,9 @@ html {
     bottom: 0;
     left: 0;
     margin: 0;
-    font-size: 11px;
-    line-height: 14px;
+    /* 줄높이는 .kd-field 예약석(16)을 넘기면 안 된다 — 넘기면 입력칸을 파고든다 */
+    font-size: 13px;
+    line-height: 16px;
     color: var(--kd-danger);
 }
 
@@ -212,8 +192,8 @@ html {
     bottom: 0;
     left: 0;
     margin: 0;
-    font-size: 11px;
-    line-height: 14px;
+    font-size: 13px;
+    line-height: 16px;
     color: var(--kd-text-sub);
 }
 
@@ -278,11 +258,11 @@ html {
 }
 
 .kd-field + .auth-remember {
-    margin-top: 12px;
+    margin-top: 16px;
 }
 
 .kd-field + .pw-rules {
-    margin-top: 12px;
+    margin-top: 16px;
 }
 
 .is-disabled,
@@ -349,7 +329,7 @@ html {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-bottom: 17px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--kd-border);
 }
 
@@ -360,9 +340,9 @@ html {
 }
 
 .terms-all label {
-    font-size: 17px;
+    font-size: 19px;
     font-weight: 700;
-    line-height: 25.5px;
+    line-height: 28px;
     color: var(--kd-text);
     cursor: pointer;
 }
@@ -371,7 +351,7 @@ html {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 21px;
+    margin-top: 24px;
 }
 
 .terms-item .kd-check {
@@ -381,8 +361,8 @@ html {
 }
 
 .terms-item label {
-    font-size: 15px;
-    line-height: 22.5px;
+    font-size: 17px;
+    line-height: 26px;
     color: var(--kd-text);
     cursor: pointer;
 }
@@ -393,8 +373,8 @@ html {
 
 .terms-item .terms-view {
     margin-left: auto;
-    font-size: 13px;
-    line-height: 19.5px;
+    font-size: 15px;
+    line-height: 22px;
     color: var(--kd-text-sub);
     text-decoration: none;
 }
@@ -404,17 +384,17 @@ html {
 }
 
 .terms-note {
-    font-size: 13px;
-    line-height: 19.5px;
+    font-size: 15px;
+    line-height: 22px;
     color: var(--kd-text-sub);
-    margin: 10px 0 0 34px;
+    margin: 8px 0 0 34px;
 }
 
 /* 필수 미동의 안내 — 자리는 상시 예약해서 뜰 때 버튼이 밀리지 않게 한다 */
 .terms-error {
-    margin: 14px 0 0;
-    font-size: 13px;
-    line-height: 19.5px;
+    margin: 16px 0 0;
+    font-size: 15px;
+    line-height: 22px;
     color: var(--kd-danger);
     visibility: hidden;
 }
@@ -444,7 +424,7 @@ html {
 }
 
 .pw-rule + .pw-rule {
-    margin-top: 12px;
+    margin-top: 8px;
 }
 
 .pw-rule .dot {
@@ -492,7 +472,7 @@ html {
     letter-spacing: -0.8px;
     color: var(--kd-text);
     text-align: center;
-    margin: 0 0 16px;
+    margin: 0 0 8px;
 }
 
 .done-sub {
@@ -508,8 +488,8 @@ html {
     background: var(--kd-card-cream);
     border: 1px solid var(--kd-border);
     border-radius: 20px;
-    padding: 24px 24px 34px;
-    margin-top: 28px;
+    padding: 24px 24px 32px;
+    margin-top: 40px;      /* 제목 블록↔본문 = 40 (폼 화면의 first-child 규칙과 동일) */
 }
 
 .done-card .card-caption {
@@ -517,7 +497,7 @@ html {
     font-weight: 700;
     line-height: 22.5px;
     color: var(--kd-primary-strong);
-    margin: 0 0 22px;
+    margin: 0 0 24px;
 }
 
 .done-step {
@@ -570,7 +550,7 @@ html {
     font-size: 22px;
     font-weight: 700;
     color: var(--kd-text);
-    margin-top: 28px;
+    margin-top: 40px;      /* 제목 블록↔본문 = 40 */
 }
 
 /* --------------------------------------------------------------------------
@@ -623,3 +603,80 @@ html {
     color: var(--kd-text);
     cursor: pointer;
 }
+
+/* ==========================================================================
+   레일 그룹 2개 — 사용자가 실제로 연속해서 넘어가는 단위끼리 묶는다.
+
+   [그룹 B] 로그인 · 아이디찾기 2 · 비밀번호찾기 3   (기본값)
+       브랜드 150 / 제목 216 / 초록 버튼 742~801 / 링크 827~850
+       패널 안쪽 110 + 열 위 40 = 브랜드 150, 열 아래 223 → 열 하단 801.
+       버튼이 열 하단에 붙으므로 6화면 어디서나 742.
+       레일을 정하는 건 아이디찾기(콘텐츠 702).
+
+   [그룹 A] 회원가입 약관 · 정보입력 · 완료   (.auth-signup — signup-header.jsp)
+       브랜드 110 / 제목 176 / 초록 버튼 883~942
+       회원가입은 약관→정보입력→완료를 연속으로 거치는 한 흐름이라
+       그 안에서 버튼이 안 움직이는 쪽이 중요하다.
+       레일을 정하는 건 정보입력(콘텐츠 867) — 입력칸 6개라 더 못 올린다.
+   ========================================================================== */
+.auth-form-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    margin: 40px auto 251px;   /* 열 하단 773 → 버튼 714~773 */
+}
+
+.auth-form-col > form {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.auth-form-col > form > * {
+    flex: none;              /* 세로가 모자라도 입력칸이 찌그러지지 않게 */
+}
+
+/* 남는 공간을 전부 위로 흡수 → 초록 버튼은 열 하단 레일에 고정 */
+.auth-form-col > form > .auth-cta,
+.auth-form-col > .auth-cta {
+    margin-top: auto;
+}
+
+/* 제목(부제) 블록 아래 첫 콘텐츠까지 40px = 제목·부제 margin 16 + 여기 24.
+   8px 스케일의 기점 — 이 값 하나로 9화면 전부의 '헤더↔본문' 간격이 결정된다.
+   완료형 화면은 카드가 본문이라 .done-card / .done-id-card 의 margin-top 40 이 같은 역할. */
+.auth-form-col > form > :first-child {
+    margin-top: 24px;
+}
+
+/* 콘텐츠가 짧아 아래가 크게 비는 화면 — 남는 공간을 제목 아래와 버튼 위가 반씩 나눠
+   콘텐츠 덩어리를 그 사이 중앙에 놓는다. 버튼 레일(margin-top:auto)은 그대로 유지된다. */
+.auth-form-col > form.auth-center > :first-child {
+    margin-top: auto;
+}
+
+/* 하단 링크는 푸터와 같이 패널 바닥 기준으로 띄운다.
+   폼 열 안에 두면 열 하단(870)을 차지해 초록 버튼이 49px 밀려 올라간다. */
+.auth-form-col > .auth-links {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 204px;           /* 버튼 끝 773 + 24 = 797 */
+    width: 520px;
+    margin: 0;
+}
+
+/* --------------------------------------------------------------------------
+   그룹 A — 회원가입 약관 · 완료. 브랜드는 그룹 B와 같은 150,
+   버튼만 781 (레일을 정하는 건 완료 화면의 안내 카드, 콘텐츠 741).
+   -------------------------------------------------------------------------- */
+.auth-form-col:has(.auth-signup) {
+    margin: 40px auto 184px;   /* 열 하단 840 → 버튼 781~840 */
+}
+
+/* 정보입력만 단독 — 입력칸 6개로 콘텐츠가 883까지 내려와 어느 레일에도 못 들어간다.
+   브랜드를 150으로 올리면 버튼이 푸터를 넘으므로 110 유지. */
+.auth-form-col:has(.auth-legacy) {
+    margin: 0 auto 58px;       /* 열 하단 966 → 버튼 907~966 */
+}
+
