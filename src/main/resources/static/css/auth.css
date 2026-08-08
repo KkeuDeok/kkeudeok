@@ -340,20 +340,21 @@ html {
 /* --------------------------------------------------------------------------
    약관 동의 리스트
    -------------------------------------------------------------------------- */
-/* 전체 동의 — 개별 항목과 성격이 달라 옅은 박스로 구분 (2026-08-08) */
+/* 전체 동의 — 개별 항목과 성격이 달라 아래 구분선으로 나눈다.
+   박스(배경·테두리·안쪽여백)를 쓰면 체크박스가 21px 밀려 아래 항목들과 왼쪽이 어긋난다.
+   가로 구분선은 왼쪽 정렬을 해치지 않으면서 위계는 그대로 보여준다. */
 .terms-all {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 18px 20px;
-    background: #f4f8f5;
-    border: 1px solid var(--kd-border);
-    border-radius: 12px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--kd-border);
 }
 
+/* 항목 체크박스(22)와 같은 크기 — 라벨 시작점이 34로 일치한다 */
 .terms-all .kd-check {
-    width: 26px;
-    height: 26px;
+    width: 22px;
+    height: 22px;
     border-radius: 6px;
 }
 
