@@ -137,4 +137,31 @@ public class UserController {
     public String learn() {
         return "learn/index";
     }
+
+    /* ---------- 성장 리포트 (탭 5개, 첫 탭 = 감정 이해) ---------- */
+
+    @GetMapping("/report")
+    public String report() {
+        return "report/understand";
+    }
+
+    @GetMapping("/report/express")
+    public String reportExpress() {
+        return "report/express";
+    }
+
+    @GetMapping("/report/social")
+    public String reportSocial() {
+        return "report/social";
+    }
+
+    @GetMapping("/report/weekly")
+    public String reportWeekly() {
+        return "report/weekly";
+    }
+
+    @GetMapping("/report/ai")
+    public String reportAi() {
+        return "report/ai";
+    }
 }
