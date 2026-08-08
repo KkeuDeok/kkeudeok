@@ -255,3 +255,55 @@
     font-size: 15px;
     font-weight: 700;
 }
+
+/* --------------------------------------------------------------------------
+   사회성 — 레이더 차트 래퍼 + 장면 리스트 (감정 이해 화면과 공용)
+   -------------------------------------------------------------------------- */
+.rpt-radar { display: flex; justify-content: center; margin-top: 8px; }
+
+.rpt-radar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-radar-legend span { display: inline-flex; align-items: center; gap: 8px; }
+
+.rpt-radar-legend .ln { width: 18px; height: 0; border-top: 3px solid #34a36a; border-radius: 2px; }
+.rpt-radar-legend .ln-prev { border-top: 2px dashed #8b978f; }
+
+/* 장면 리스트 — 스토리명 + 결과/감정 칩 + 날짜 */
+.rpt-scenes { margin-top: 8px; }
+
+.rpt-scene {
+    display: flex;
+    align-items: center;
+    height: 56px;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.rpt-scene .t { flex: 1; font-size: 15px; line-height: 23px; color: var(--kd-text); }
+
+.rpt-scene .chip {
+    flex: none;
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 13px;
+}
+
+.rpt-scene .d {
+    flex: none;
+    width: 56px;
+    margin-left: 16px;
+    text-align: right;
+    font-size: 13px;
+    color: var(--kd-text-sub);
+}
