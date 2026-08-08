@@ -4,12 +4,13 @@
 
 <%@ include file="../common/signup-header.jsp" %>
 
-<h1 class="auth-title auth-title--sub">회원가입</h1>
-<%-- 부제 — 이 화면만 없어서 제목과 목록 사이가 비어 보였다 (2026-08-08) --%>
-<p class="auth-subtitle">서비스 이용을 위해 아래 약관에 동의해 주세요</p>
+<%-- 부제 없음 — 정보입력 화면과 같은 자리(276)에서 콘텐츠가 시작하도록.
+     빈 느낌은 항목별 한 줄 설명으로 채운다 (2026-08-08) --%>
+<h1 class="auth-title">회원가입</h1>
 
-<%-- auth-center: 콘텐츠가 짧아 남는 공간을 제목 아래·버튼 위로 반씩 나눈다 (auth.css 참고) --%>
-<form method="post" action="/signup/terms" class="auth-center">
+<%-- 다른 회원가입 화면(정보입력)과 같은 자리에서 콘텐츠가 시작하도록 auth-center 를 뺐다.
+     항목마다 한 줄 설명을 붙여 무엇에 동의하는지 알 수 있게 한다 (2026-08-08) --%>
+<form method="post" action="/signup/terms">
     <%-- 전체 동의 토글은 auth-validate.js 가 처리 --%>
     <div class="terms-all">
         <input class="kd-check" type="checkbox" id="agreeAll">
@@ -21,11 +22,13 @@
         <label for="agreeTerms">이용약관 <span class="opt">(필수)</span></label>
         <a class="terms-view" href="#" onclick="dlgTerms.showModal(); return false">보기 &gt;</a>
     </div>
+    <p class="terms-desc">서비스 이용 규칙과 회원의 권리·의무를 담고 있어요</p>
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreePrivacy" name="agreePrivacy">
         <label for="agreePrivacy">개인정보 처리방침 <span class="opt">(필수)</span></label>
         <a class="terms-view" href="#" onclick="dlgPrivacy.showModal(); return false">보기 &gt;</a>
     </div>
+    <p class="terms-desc">이름·이메일을 어떻게 쓰고 언제 지우는지 안내해요</p>
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreeSensitive" name="agreeSensitive">
         <label for="agreeSensitive">민감정보 처리 동의 <span class="opt">(필수)</span></label>
@@ -37,6 +40,7 @@
         <label for="agreeMarketing">마케팅 정보 수신 <span class="opt">(선택)</span></label>
         <a class="terms-view" href="#" onclick="dlgMarketing.showModal(); return false">보기 &gt;</a>
     </div>
+    <p class="terms-desc">새 기능·이벤트 소식을 이메일로 받아볼 수 있어요</p>
 
     <p class="terms-error" id="termsError"></p>
 
