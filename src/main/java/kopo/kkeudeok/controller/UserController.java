@@ -132,4 +132,9 @@ public class UserController {
     public String dashboard() {
         return "dashboard/index";
     }
+
+    @GetMapping("/learn")
+    public String learn() {
+        return "learn/index";
+    }
 }
