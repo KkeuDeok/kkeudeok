@@ -10,10 +10,15 @@
     <p class="sub">이 메뉴에는 아이의 감정 기록이 담겨 있어요.<br>보호자만 들어올 수 있습니다.</p>
 
     <form onsubmit="return kdGateSubmit(event)">
+        <%-- PIN 입력은 온보딩 PIN 설정(/onboarding/pin)과 같은 자산을 쓴다.
+             점은 글꼴이 아니라 .onb-pin-dots 가 그리고, auth-validate.js 가 입력 수만큼 켠다. --%>
         <div class="kd-field">
             <label class="kd-label" for="gatePin">보호자 PIN 4자리 <span class="req">*</span></label>
-            <input class="kd-input" type="password" id="gatePin" name="pin"
-                   inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••">
+            <div class="onb-pin-box">
+                <input class="kd-input onb-pin" type="password" id="gatePin" name="pin"
+                       inputmode="numeric" maxlength="4" autocomplete="off" data-nocopy>
+                <span class="onb-pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+            </div>
             <p class="kd-hint" id="gateHint">가입할 때 설정한 4자리 숫자예요</p>
             <p class="kd-error" id="gateError" hidden></p>
         </div>
@@ -21,7 +26,7 @@
             <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
             <button type="submit" class="kd-btn kd-btn-primary">확인</button>
         </div>
-        <a class="forgot" href="#">PIN을 잊었어요</a>
+        <a class="forgot" href="/mypage/pin-reset">PIN을 잊었어요</a>
     </form>
 </div>
 

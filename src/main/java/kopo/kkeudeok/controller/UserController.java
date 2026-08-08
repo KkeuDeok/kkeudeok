@@ -172,6 +172,11 @@ public class UserController {
         return "mypage/gate";
     }
 
+    @GetMapping("/mypage/pin-reset")
+    public String mypagePinReset() {
+        return "mypage/pin-reset";
+    }
+
     @GetMapping("/mypage/account")
     public String mypageAccount() {
         return "mypage/account";

@@ -26,7 +26,8 @@
       축 순서: 외향성(위) → 우호성/친화성 → 성실성 → 신경증/정서 안정성 → 개방성
     --%>
     <div class="rpt-radar">
-        <svg width="700" height="440" viewBox="0 0 700 440" role="img"
+        <%-- 1024 한 화면에 담기게 viewBox 는 그대로 두고 표시 크기만 0.73 배로 줄였다 --%>
+        <svg width="509" height="320" viewBox="0 0 700 440" role="img"
              aria-label="사회성 5축 — 외향성 74, 우호성 62, 성실성 41, 정서 안정성 55, 개방성 68">
             <g transform="translate(130,20)">
                 <%-- 격자 링 4개 (1 / 0.75 / 0.5 / 0.25 배) --%>

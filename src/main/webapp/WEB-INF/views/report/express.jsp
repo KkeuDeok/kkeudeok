@@ -49,13 +49,13 @@
 
 <section class="rpt-sec">
     <h2>감정별 표현 빈도</h2>
-    <%-- 막대 높이 = 값 × 4px --%>
+    <%-- 막대 높이 = 값 × 3.2px (1024 한 화면에 담기게 축소) --%>
     <div class="rpt-bars">
-        <div class="rpt-bar"><b>32</b><span class="em-joy"  style="height:128px"></span><em>기쁨</em></div>
-        <div class="rpt-bar"><b>24</b><span class="em-sad"  style="height:96px"></span><em>슬픔</em></div>
-        <div class="rpt-bar"><b>18</b><span class="em-mad"  style="height:72px"></span><em>화남</em></div>
-        <div class="rpt-bar"><b>12</b><span class="em-sup"  style="height:48px"></span><em>놀람</em></div>
-        <div class="rpt-bar"><b>9</b><span class="em-help" style="height:36px"></span><em>도움요청</em></div>
+        <div class="rpt-bar"><b>32</b><span class="em-joy"  style="height:102px"></span><em>기쁨</em></div>
+        <div class="rpt-bar"><b>24</b><span class="em-sad"  style="height:77px"></span><em>슬픔</em></div>
+        <div class="rpt-bar"><b>18</b><span class="em-mad"  style="height:58px"></span><em>화남</em></div>
+        <div class="rpt-bar"><b>12</b><span class="em-sup"  style="height:38px"></span><em>놀람</em></div>
+        <div class="rpt-bar"><b>9</b><span class="em-help" style="height:29px"></span><em>도움요청</em></div>
     </div>
 </section>
 

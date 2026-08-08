@@ -18,7 +18,8 @@
     box-sizing: border-box;
 }
 
-.mp-head { padding-top: 104px; }
+/* 제목 레일 64 — 다른 화면과 통일 (사용자 요청 2026-08-08) */
+.mp-head { padding-top: 64px; }
 
 /* --------------------------------------------------------------------------
    탭바 3개 — 리포트와 같은 규격(h49 r999 #f1f5f2, 활성 tint)
@@ -55,10 +56,11 @@
 /* --------------------------------------------------------------------------
    섹션 / 구분선 / 하단 버튼행
    -------------------------------------------------------------------------- */
-.mp-sec { margin-top: 40px; padding: 0 40px; }
+/* 1024 한 화면에 담기게 압축 (사용자 요청) */
+.mp-sec { margin-top: 28px; padding: 0 40px; }
 
 .mp-sec h2 {
-    margin: 0 0 20px;
+    margin: 0 0 16px;
     font-size: 18px;
     font-weight: 700;
     line-height: 27px;
@@ -68,7 +70,7 @@
 .mp-rule {
     width: calc(100% - 80px);
     height: 1px;
-    margin-top: 40px;
+    margin-top: 28px;
     border: 0;
     background: var(--kd-border);
 }
@@ -77,8 +79,8 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 40px;
-    margin-bottom: 40px;
+    margin-top: 24px;
+    margin-bottom: 24px;
     padding: 0 40px;
 }
 
@@ -96,7 +98,7 @@
 .mp-grid {
     display: grid;
     grid-template-columns: 520px 520px;
-    gap: 32px 80px;
+    gap: 20px 80px;
 }
 
 /* 읽기 전용 입력칸 (이메일) — Figma 실측 #f1f5f2 */
@@ -111,7 +113,7 @@
 .mp-switch {
     display: flex;
     align-items: center;
-    padding: 20px 0;
+    padding: 14px 0;
     border-bottom: 1px solid var(--kd-border);
 }
 
