@@ -164,4 +164,26 @@ public class UserController {
     public String reportAi() {
         return "report/ai";
     }
+
+    /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
+
+    @GetMapping("/mypage")
+    public String mypage() {
+        return "mypage/gate";
+    }
+
+    @GetMapping("/mypage/account")
+    public String mypageAccount() {
+        return "mypage/account";
+    }
+
+    @GetMapping("/mypage/child")
+    public String mypageChild() {
+        return "mypage/child";
+    }
+
+    @GetMapping("/mypage/character")
+    public String mypageCharacter() {
+        return "mypage/character";
+    }
 }
