@@ -4,7 +4,9 @@
 
 <%@ include file="../common/signup-header.jsp" %>
 
-<h1 class="auth-title">회원가입</h1>
+<h1 class="auth-title auth-title--sub">회원가입</h1>
+<%-- 부제 — 이 화면만 없어서 제목과 목록 사이가 비어 보였다 (2026-08-08) --%>
+<p class="auth-subtitle">서비스 이용을 위해 아래 약관에 동의해 주세요</p>
 
 <%-- auth-center: 콘텐츠가 짧아 남는 공간을 제목 아래·버튼 위로 반씩 나눈다 (auth.css 참고) --%>
 <form method="post" action="/signup/terms" class="auth-center">
