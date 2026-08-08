@@ -102,7 +102,8 @@
    -------------------------------------------------------------------------- */
 .rpt-sec { margin-top: 48px; padding: 0 40px; }
 
-.rpt-sec > h2 {
+/* > 가 아니라 후손 선택 — 주간 변화의 2열(.rpt-cols) 안 h2 도 잡아야 한다 */
+.rpt-sec h2 {
     margin: 0;
     font-size: 18px;
     font-weight: 700;
@@ -305,5 +306,80 @@
     margin-left: 16px;
     text-align: right;
     font-size: 13px;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   주간 변화 — 감정별 히트맵 + 8주 추이 + 변화 리스트
+   -------------------------------------------------------------------------- */
+.rpt-heat {
+    display: grid;
+    grid-template-columns: 80px repeat(8, 1fr) 56px;
+    gap: 8px;
+    align-items: center;
+    margin-top: 32px;
+}
+
+.rpt-heat .rowlb {
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text);
+}
+
+.rpt-heat .cell { height: 40px; border-radius: 10px; }
+
+.rpt-heat .weeklb {
+    text-align: center;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+/* 우측 많음~적음 미니 범례 (1열 세로) */
+.rpt-heat-scale {
+    grid-row: span 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-heat-scale i {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: #34a36a;
+}
+
+/* 아래 2열 — 좌 추이 차트 660 + 우 변화 리스트 */
+.rpt-cols { display: flex; gap: 60px; }
+
+.rpt-cols .col-chart { width: 640px; flex: none; }
+.rpt-cols .col-list  { flex: 1; }
+
+.rpt-diff { margin-top: 32px; }
+
+.rpt-diff-item { display: flex; align-items: flex-start; gap: 24px; }
+.rpt-diff-item + .rpt-diff-item { margin-top: 32px; }
+
+.rpt-diff-item .n {
+    flex: none;
+    min-width: 72px;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 40px;
+    color: var(--kd-primary);
+    letter-spacing: -1px;
+}
+
+.rpt-diff-item b { display: block; font-size: 16px; line-height: 24px; color: var(--kd-text); }
+
+.rpt-diff-item .ds {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 19px;
     color: var(--kd-text-sub);
 }
