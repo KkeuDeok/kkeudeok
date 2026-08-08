@@ -132,4 +132,32 @@ public class UserController {
     public String dashboard() {
         return "dashboard/index";
     }
+
+    /* ---------- 성장 리포트 (탭 5개, 첫 탭 = 감정 이해) ---------- */
+
+    @GetMapping("/report")
+    public String report() {
+        // TODO: understand.jsp 완성되면 report/understand 로 교체 (임시로 감정 표현)
+        return "report/express";
+    }
+
+    @GetMapping("/report/express")
+    public String reportExpress() {
+        return "report/express";
+    }
+
+    @GetMapping("/report/social")
+    public String reportSocial() {
+        return "report/social";
+    }
+
+    @GetMapping("/report/weekly")
+    public String reportWeekly() {
+        return "report/weekly";
+    }
+
+    @GetMapping("/report/ai")
+    public String reportAi() {
+        return "report/ai";
+    }
 }

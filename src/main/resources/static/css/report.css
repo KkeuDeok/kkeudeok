@@ -1,0 +1,257 @@
+/* ==========================================================================
+   성장 리포트 — Figma 24:16727(감정 표현) · 24:16480(사회성) · 24:16167(주간 변화)
+                 + 감정 이해 · AI 피드백 (Figma에 탭만 있고 화면이 없어 신규 설계)
+   껍데기는 app.css(.app-shell 등)를 쓰고 이 파일은 리포트 화면 전용.
+   ⚠ app.css는 병합 충돌 방지를 위해 수정 금지 — 가운데 정렬도 여기서 자체 선언.
+   공통 레일: 제목 104 · 부제 149 · 탭 193(h49) · 지수 265.
+   (Figma는 제목 114·탭 180이지만 부제 한 줄을 더하며 8px 스케일로 재배치 — 5화면 동일)
+   ========================================================================== */
+
+.rpt-head,
+.rpt-tabsrow,
+.rpt-score,
+.rpt-sec,
+.rpt-rule,
+.rpt-cta {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* 제목 — .app-head(패딩 64)를 리포트 레일(104)로 올려 쓴다 */
+.rpt-head { padding-top: 104px; }
+
+/* --------------------------------------------------------------------------
+   탭바 5개 — 컨테이너 h49 r999 #f1f5f2, 활성 = tint 배경 + 진초록 (Figma 실측)
+   -------------------------------------------------------------------------- */
+.rpt-tabsrow { margin-top: 24px; padding: 0 40px; }
+
+.rpt-tabs {
+    display: inline-flex;
+    height: 49px;
+    padding: 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #f1f5f2;
+}
+
+.rpt-tabs a {
+    display: flex;
+    align-items: center;
+    height: 41px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.rpt-tabs a.is-on {
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   지수 헤더 — 라벨 13 + 값 44 + 증감. 우측 note 는 감정 이해 화면만 쓴다
+   -------------------------------------------------------------------------- */
+.rpt-score {
+    display: flex;
+    align-items: flex-end;
+    gap: 32px;
+    margin-top: 32px;
+    padding: 0 40px;
+}
+
+.rpt-score .lb {
+    margin: 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-score .v {
+    margin: 2px 0 0;
+    font-size: 44px;
+    font-weight: 700;
+    line-height: 52px;
+    letter-spacing: -1.76px;
+    color: var(--kd-text);
+}
+
+.rpt-score .v .u { margin-left: 4px; font-size: 20px; }
+
+.rpt-score .delta { margin-left: 12px; font-size: 14px; font-weight: 700; }
+
+.rpt-score .note {
+    margin: 0 0 8px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text-sub);
+}
+
+/* 증감색 — app.css의 .dl-up/.dl-down 과 같은 값 (그 클래스는 dash-kpi 스코프가 아니라 재사용 가능하지만
+   리포트 파일 단독으로도 성립하도록 자체 선언) */
+.rpt-up   { color: #268254; }
+.rpt-down { color: #c0392b; }
+
+/* --------------------------------------------------------------------------
+   섹션 공통
+   -------------------------------------------------------------------------- */
+.rpt-sec { margin-top: 48px; padding: 0 40px; }
+
+.rpt-sec > h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+/* 섹션 사이 구분선 */
+.rpt-rule {
+    width: calc(100% - 80px);
+    height: 1px;
+    margin-top: 48px;
+    border: 0;
+    background: var(--kd-border);
+}
+
+/* --------------------------------------------------------------------------
+   가로 스택바 (표현 방법의 변화) — 말/표정/몸짓
+   -------------------------------------------------------------------------- */
+.rpt-stackrow { margin-top: 24px; }
+
+.rpt-stackrow .cap {
+    margin: 0 0 8px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-stack {
+    display: flex;
+    height: 40px;
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.rpt-stack span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+}
+
+.st-talk { background: #34a36a; }
+.st-face { background: #3d8fe0; }
+.st-body { background: #0fa394; }
+
+/* 범례 칩 — Figma 실측: 크림 배경 + 어두운 크림 테두리 */
+.rpt-legend { display: flex; gap: 12px; margin-top: 24px; }
+
+.rpt-legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 30px;
+    padding: 0 16px;
+    background: var(--kd-card-cream);
+    border: 1px solid #d9d3c2;
+    border-radius: 999px;
+    font-size: 13px;
+    color: var(--kd-text);
+}
+
+.rpt-legend i { width: 10px; height: 10px; border-radius: 999px; }
+
+/* --------------------------------------------------------------------------
+   세로 막대 (감정별 표현 빈도) — 높이 = 값 × 4px 인라인
+   -------------------------------------------------------------------------- */
+.rpt-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 70px;
+    margin-top: 40px;
+    padding-left: 24px;
+}
+
+.rpt-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 42px;
+}
+
+.rpt-bar b {
+    font-size: 17px;
+    line-height: 25px;
+    color: var(--kd-text);
+}
+
+.rpt-bar span {
+    display: block;
+    width: 42px;
+    margin-top: 8px;
+    border-radius: 10px 10px 0 0;
+}
+
+.rpt-bar em {
+    margin-top: 12px;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+    white-space: nowrap;    /* 막대(42px)보다 긴 '도움요청'이 꺾이지 않게 */
+}
+
+/* 감정색 — Figma 실측 (막대·히트맵·이해도 막대 공용) */
+.em-joy  { background: #e8a317; }
+.em-sad  { background: #3d8fe0; }
+.em-mad  { background: #ec4b3f; }
+.em-sup  { background: #8b5cf6; }   /* 놀람 */
+.em-help { background: #0fa394; }   /* 도움요청 */
+
+/* --------------------------------------------------------------------------
+   하단 학습 유도 배너 — Figma에 없는 웹 추가분 (빈 하단 채움, 대시보드 배너와 동일 문법)
+   -------------------------------------------------------------------------- */
+.rpt-cta {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 80px);
+    height: 88px;
+    margin-top: 48px;
+    margin-bottom: 40px;
+    padding: 0 24px;
+    background: var(--kd-primary-tint);
+    border-radius: 16px;
+}
+
+.rpt-cta .ic {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 999px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 3 14 9-14 9V3z'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+
+.rpt-cta p {
+    flex: 1;
+    margin: 0 24px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+}
+
+.rpt-cta .kd-btn {
+    width: 140px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
