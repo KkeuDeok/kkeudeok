@@ -4,11 +4,6 @@
 
 <%@ include file="../common/auth-brand.jsp" %>
 
-<div class="progress-track progress-track--two">
-    <span class="bar active"></span>
-    <span class="bar active"></span>
-</div>
-
 <h1 class="auth-title">비밀번호 재설정</h1>
 
 <form method="post" action="/find-pw/new">

@@ -4,11 +4,6 @@
 
 <%@ include file="../common/auth-brand.jsp" %>
 
-<div class="progress-track progress-track--two">
-    <span class="bar active"></span>
-    <span class="bar"></span>
-</div>
-
 <h1 class="auth-title auth-title--sub">비밀번호 찾기</h1>
 <p class="auth-subtitle">가입한 이메일을 입력해 주세요</p>
 

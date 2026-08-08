@@ -1,10 +1,10 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<% String pageTitle = "회원가입 - 완료"; int signupStep = 3; %>
+<% String pageTitle = "회원가입 - 완료"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
 <%@ include file="../common/signup-header.jsp" %>
 
-<div class="done-icon" style="margin-top: 39px;">
+<div class="done-icon">
     <img src="/img/icon-check.svg" alt="">
 </div>
 <h1 class="done-title">가입이 완료되었어요!</h1>
