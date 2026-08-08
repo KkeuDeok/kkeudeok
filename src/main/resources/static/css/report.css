@@ -418,3 +418,117 @@
     font-weight: 700;
     color: var(--kd-text);
 }
+
+/* --------------------------------------------------------------------------
+   AI 피드백 (신규 설계) — 종합 코멘트 카드 · 지표 카드 3장 · 추천 활동 · 면책
+   -------------------------------------------------------------------------- */
+.rpt-ai {
+    display: flex;
+    align-items: flex-start;
+    width: calc(100% - 80px);
+    margin: 32px auto 0;
+    padding: 24px;
+    box-sizing: border-box;
+    background: var(--kd-card-cream);
+    border: 1px solid #ece2cf;
+    border-radius: 20px;
+}
+
+.rpt-ai .ava {
+    width: 64px;
+    height: 64px;
+    flex: none;
+    border-radius: 999px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.rpt-ai .ava img { width: 100%; height: 100%; object-fit: cover; }
+
+.rpt-ai .tx { margin-left: 20px; }
+
+.rpt-ai h2 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 25px;
+    color: var(--kd-text);
+}
+
+.rpt-ai p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text);
+}
+
+/* 지표 카드 3장 */
+.rpt-cards { display: flex; gap: 20px; margin-top: 24px; }
+
+.rpt-card {
+    flex: 1;
+    padding: 20px 24px 24px;
+    box-sizing: border-box;
+    background: #f1f5f2;
+    border-radius: 16px;
+}
+
+.rpt-card .lb { margin: 0; font-size: 14px; line-height: 21px; color: var(--kd-text-sub); }
+
+.rpt-card .v {
+    margin: 4px 0 0;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 38px;
+    letter-spacing: -1.2px;
+    color: var(--kd-text);
+}
+
+.rpt-card .v b { margin-left: 8px; font-size: 14px; }
+
+.rpt-card .ds {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+}
+
+/* 추천 활동 — 번호원 + 제목 + 설명 */
+.rpt-todo { margin-top: 24px; }
+
+.rpt-todo-item { display: flex; align-items: flex-start; }
+.rpt-todo-item + .rpt-todo-item { margin-top: 24px; }
+
+.rpt-todo-item .no {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.rpt-todo-item .tx { margin-left: 16px; }
+.rpt-todo-item b { display: block; font-size: 15px; line-height: 28px; color: var(--kd-text); }
+
+.rpt-todo-item .ds {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+/* 면책 문구 */
+.rpt-note {
+    width: calc(100% - 80px);
+    margin: 40px auto;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
