@@ -20,25 +20,25 @@
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreeTerms" name="agreeTerms">
         <label for="agreeTerms">이용약관 <span class="opt">(필수)</span></label>
-        <a class="terms-view" href="#" onclick="dlgTerms.showModal(); return false">보기 &gt;</a>
+        <a class="terms-view" href="#" onclick="dlgTerms.showModal(); return false">보기</a>
     </div>
     <p class="terms-desc">서비스 이용 규칙과 회원의 권리·의무를 담고 있어요</p>
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreePrivacy" name="agreePrivacy">
         <label for="agreePrivacy">개인정보 처리방침 <span class="opt">(필수)</span></label>
-        <a class="terms-view" href="#" onclick="dlgPrivacy.showModal(); return false">보기 &gt;</a>
+        <a class="terms-view" href="#" onclick="dlgPrivacy.showModal(); return false">보기</a>
     </div>
     <p class="terms-desc">이름·이메일을 어떻게 쓰고 언제 지우는지 안내해요</p>
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreeSensitive" name="agreeSensitive">
         <label for="agreeSensitive">민감정보 처리 동의 <span class="opt">(필수)</span></label>
-        <a class="terms-view" href="#" onclick="dlgSensitive.showModal(); return false">보기 &gt;</a>
+        <a class="terms-view" href="#" onclick="dlgSensitive.showModal(); return false">보기</a>
     </div>
     <p class="terms-note">표정·음성 데이터는 기기 안에서만 처리되고 원본은 저장되지 않아요</p>
     <div class="terms-item">
         <input class="kd-check" type="checkbox" id="agreeMarketing" name="agreeMarketing">
         <label for="agreeMarketing">마케팅 정보 수신 <span class="opt">(선택)</span></label>
-        <a class="terms-view" href="#" onclick="dlgMarketing.showModal(); return false">보기 &gt;</a>
+        <a class="terms-view" href="#" onclick="dlgMarketing.showModal(); return false">보기</a>
     </div>
     <p class="terms-desc">새 기능·이벤트 소식을 이메일로 받아볼 수 있어요</p>
 
