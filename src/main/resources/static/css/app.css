@@ -20,6 +20,8 @@
 
 .app-scale {
     flex: 1;
+    min-height: 0;          /* 없으면 flex 자식이 내용 높이만큼 부풀어 .app-main 이 스크롤하지 않고
+                               .app-shell 에서 잘려 버린다 (학습 홈 하단 배너가 사라지던 원인) */
     display: flex;
     zoom: var(--fit-scale, 1);
 }
@@ -158,11 +160,14 @@
 /* --------------------------------------------------------------------------
    본문 1200 — 상단 120px 만 옅은 초록 띠
    -------------------------------------------------------------------------- */
+/* 대시보드는 1024 에 딱 맞지만 학습 홈은 본문이 1115 라 넘친다.
+   Figma 는 프레임 밖을 잘라 버리지만 웹에서는 스크롤로 끝까지 보여 준다. */
 .app-main {
     position: relative;
     flex: 1;
     background: #fff;
-    overflow: hidden;
+    overflow-x: hidden;
+    overflow-y: auto;
 }
 
 .app-main::before {
@@ -181,7 +186,8 @@
 .app-head,
 .dash-kpis,
 .dash-row,
-.dash-bottom {
+.dash-bottom,
+.dash-observe {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -282,6 +288,13 @@
     line-height: 18px;
     color: var(--kd-text-sub);
 }
+
+/* 지난주 대비 증감 — 세 지표 모두 높을수록 좋으므로 오름이 초록이다.
+   ponytail: 값은 백엔드가 내려줄 자리라 JSP 에 예시로 박아 뒀다. */
+.dash-kpi .cap b { font-weight: 700; }
+.dl-up   { color: #268254; }
+.dl-down { color: #c0392b; }
+.dl-flat { color: #8b978f; }
 
 /* 지표별 색 — 차트 선 색과 같다 */
 .c-express { background: #3d8fe0; }
@@ -536,4 +549,45 @@
     height: 8px;
     border-radius: 999px;
     background: var(--kd-border);
+}
+
+/* --------------------------------------------------------------------------
+   오늘의 관찰 확인 배너 — 하단 851 아래로 남던 173px 을 쓴다
+   -------------------------------------------------------------------------- */
+.dash-observe {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 80px);   /* 좌우 40 — 위 블록들은 padding 으로 주지만
+                                   여긴 카드 자체가 여백을 져야 해서 폭으로 뺀다 */
+    height: 88px;
+    margin-top: 24px;           /* 851 → 875, 아래 61 여백 */
+    padding: 0 24px;
+    box-sizing: border-box;
+    background: var(--kd-primary-tint);
+    border-radius: 16px;
+}
+
+.dash-observe .ic {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 999px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+
+.dash-observe p {
+    flex: 1;
+    margin: 0 24px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+}
+
+.dash-observe .kd-btn {
+    width: 140px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
 }

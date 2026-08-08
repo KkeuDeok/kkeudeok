@@ -14,19 +14,19 @@
         <p class="lb">감정 표현</p>
         <p class="v">64%</p>
         <div class="track"><span class="c-express" style="width:64%"></span></div>
-        <p class="cap">지난주 대비</p>
+        <p class="cap">지난주 대비 <b class="dl-up">+5%p</b></p>
     </div>
     <div class="dash-kpi">
         <p class="lb">감정 이해</p>
         <p class="v">72%</p>
         <div class="track"><span class="c-understand" style="width:72%"></span></div>
-        <p class="cap">지난주 대비</p>
+        <p class="cap">지난주 대비 <b class="dl-up">+2%p</b></p>
     </div>
     <div class="dash-kpi">
         <p class="lb">사회성</p>
         <p class="v">58%</p>
         <div class="track"><span class="c-social" style="width:58%"></span></div>
-        <p class="cap">지난주 대비</p>
+        <p class="cap">지난주 대비 <b class="dl-down">-3%p</b></p>
     </div>
 </div>
 
@@ -103,6 +103,14 @@
             <div><p class="d">일</p><span class="mk on"></span></div>
         </div>
     </section>
+</div>
+
+<%-- 하단 173px 이 비어 있던 자리. Figma A안(284:75)에 있다가 B안으로 넘어오며
+     빠진 `오늘의 관찰 확인` 가로 배너를 되살린 것이다. --%>
+<div class="dash-observe">
+    <span class="ic"></span>
+    <p>오늘 지우의 모습을 기록하면 다음 학습이 더 정확해져요</p>
+    <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>
 </div>
 
 <%@ include file="../common/app-bottom.jsp" %>
