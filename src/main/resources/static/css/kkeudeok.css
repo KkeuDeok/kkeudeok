@@ -19,6 +19,9 @@
 
     /* 폰트 */
     --kd-font: "Noto Sans KR", sans-serif;
+
+    /* 아이콘 — Iconify lucide:chevron-right. mask로 쓰므로 색은 currentColor가 정한다 */
+    --kd-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
 }
 
 body {

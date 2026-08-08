@@ -392,10 +392,25 @@ html {
 
 .terms-item .terms-view {
     margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
     font-size: 15px;
     line-height: 22px;
     color: var(--kd-text-sub);
     text-decoration: none;
+}
+
+/* 화살표 — 글자 '>' 대신 lucide 아이콘. background가 currentColor라
+   링크 색과 hover 색을 그대로 따라간다 (장식이라 스크린리더에는 안 읽힌다) */
+.terms-item .terms-view::after {
+    content: "";
+    width: 16px;
+    height: 16px;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: var(--kd-icon-chevron) no-repeat center / contain;
+    mask: var(--kd-icon-chevron) no-repeat center / contain;
 }
 
 .terms-item .terms-view:hover {
