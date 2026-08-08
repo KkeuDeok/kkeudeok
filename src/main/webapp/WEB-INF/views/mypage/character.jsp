@@ -60,7 +60,7 @@
 
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary">저장</button>
+    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaved('캐릭터를 저장했어요')">저장</button>
 </div>
 
 <%@ include file="../common/app-bottom.jsp" %>

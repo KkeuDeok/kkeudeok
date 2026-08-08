@@ -68,13 +68,13 @@
     <div class="mp-links">
         <button type="button" class="danger" onclick="dlgDelete.showModal()">계정 삭제</button>
         <span class="sep"></span>
-        <a class="arrow" href="#">보호자 PIN 변경</a>
+        <a class="arrow" href="/mypage/pin-reset">보호자 PIN 변경</a>
     </div>
 </section>
 
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary">저장</button>
+    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaved('회원정보를 저장했어요')">저장</button>
 </div>
 
 <%-- 확인 모달 2개 (Figma 439:2129 · 439:2259).

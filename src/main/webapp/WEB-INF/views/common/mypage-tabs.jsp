@@ -15,3 +15,15 @@
     <a href="<%= t[2] %>"<%= mpTab.equals(t[0]) ? " class=\"is-on\" aria-current=\"page\"" : "" %>><%= t[1] %></a>
 <% } %>
 </nav>
+
+<%-- 저장 알림 — 탭 3화면이 공유한다. 백엔드가 붙으면 POST 성공 후 호출하도록 바꾸면 된다. --%>
+<div class="mp-toast" id="mpToast" role="status" aria-live="polite"></div>
+<script>
+    function kdSaved(msg) {
+        var t = document.getElementById('mpToast');
+        t.textContent = msg || '저장했어요';
+        t.classList.add('is-on');
+        clearTimeout(window.__kdToast);
+        window.__kdToast = setTimeout(function () { t.classList.remove('is-on'); }, 1800);
+    }
+</script>

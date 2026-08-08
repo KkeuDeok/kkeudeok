@@ -551,3 +551,40 @@
     border-radius: 999px;
     background: var(--kd-primary-active) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13.3333 4L6 11.3333L2.66667 8' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
 }
+
+/* --------------------------------------------------------------------------
+   저장 알림 — 백엔드가 없어 실제 저장은 안 되지만, 눌러도 아무 반응이 없으면
+   고장으로 오해한다. 최소한의 피드백만 준다.
+   -------------------------------------------------------------------------- */
+.mp-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 48px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: var(--kd-text);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+}
+
+.mp-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+.mp-toast::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: var(--kd-primary-active);
+    border-radius: 999px;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
+}

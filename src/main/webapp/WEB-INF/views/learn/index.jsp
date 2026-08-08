@@ -21,6 +21,7 @@
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
         <p class="min">예상 소요 약 7분</p>
+        <%-- TODO: 학습 흐름 첫 화면(섹션 07)이 아직 없어 연결할 곳이 없다 --%>
         <a class="kd-btn kd-btn-primary" href="#">이야기 시작하기</a>
     </div>
 </div>
@@ -46,6 +47,7 @@
             <p class="d" id="dailySummary"></p>
             <div class="row">
                 <button type="button" class="kd-btn kd-btn-outline" onclick="dlgDaily.showModal()">다시 쓰기</button>
+                <%-- TODO: 학습 흐름 화면 생기면 연결 --%>
                 <a class="kd-btn kd-btn-primary" href="#">이 이야기로 학습 시작</a>
             </div>
         </div>
@@ -84,6 +86,7 @@
 <div class="learn-cta">
     <span class="ic"></span>
     <p>이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
+    <%-- TODO: 학습 흐름 화면 생기면 연결 --%>
     <a class="kd-btn kd-btn-primary" href="#">학습 시작</a>
 </div>
 

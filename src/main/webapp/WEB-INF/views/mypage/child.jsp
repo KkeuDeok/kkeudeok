@@ -91,7 +91,7 @@
 <%-- Figma 에는 이 버튼행이 없다 — 캐릭터 관리 탭과 대칭을 맞추려고 웹에서 추가 --%>
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary">저장</button>
+    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaved('아이 프로필을 저장했어요')">저장</button>
 </div>
 
 <%@ include file="../common/app-bottom.jsp" %>
