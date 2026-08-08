@@ -44,8 +44,7 @@
         </div>
     </div>
 
-    <%-- ponytail: 장애 유형·정도 목록은 Figma 에 선택된 값 하나씩만 있어 임시로 채운 것.
-         기획 확정본이 나오면 option 만 교체할 것 --%>
+    <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백) --%>
     <div class="kd-field onb-field">
         <label class="onb-label" for="disabilityType">장애 정보 <span class="req">*</span></label>
         <div class="onb-row onb-row--gap">
@@ -53,13 +52,12 @@
                 <option value="">유형 선택</option>
                 <option>자폐 장애</option>
                 <option>지적 장애</option>
-                <option>발달 지연</option>
+                <option>발달 장애</option>
                 <option>기타</option>
             </select>
             <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel">
                 <option value="">정도 선택</option>
                 <option>경증</option>
-                <option>중등도</option>
                 <option>중증</option>
             </select>
         </div>
