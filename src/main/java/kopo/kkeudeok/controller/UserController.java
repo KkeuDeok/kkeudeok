@@ -14,6 +14,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class UserController {
 
+    /** 주소창에 localhost:8080 만 쳤을 때 404 대신 로그인으로 보낸다. */
+    @GetMapping("/")
+    public String root() {
+        return "redirect:/login";
+    }
+
     @GetMapping("/login")
     public String login() {
         return "auth/login";
