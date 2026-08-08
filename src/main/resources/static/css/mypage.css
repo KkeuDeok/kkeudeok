@@ -405,3 +405,62 @@
 
 /* 경고 문구는 길어서 480 폭에서 줄이 어색하게 끊긴다 — 한글 단어 단위로 접는다 */
 .mp-modal p { word-break: keep-all; }
+
+/* --------------------------------------------------------------------------
+   아동 프로필 — 프로필 헤더 + 2열 폼
+   -------------------------------------------------------------------------- */
+.mp-profile {
+    display: flex;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.mp-profile .ava {
+    width: 96px;
+    height: 96px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    overflow: hidden;
+}
+
+.mp-profile .ava img { width: 100%; height: 100%; object-fit: cover; }
+
+.mp-profile .tx { margin-left: 24px; }
+
+.mp-profile b {
+    display: block;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 42px;
+    color: var(--kd-text);
+}
+
+.mp-profile .ds {
+    display: block;
+    margin-top: 2px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+}
+
+/* 생년월일 3분할·장애 2분할은 온보딩 마크업을 그대로 쓰되 520 열에 맞춘다.
+   ⚠ 폭은 .kd-select(래퍼)에 줘야 한다 — .onb-select 는 래퍼 안에 숨겨진 select 다. */
+.mp-grid .onb-row { display: flex; align-items: center; }
+
+.mp-grid .onb-row .kd-select { width: 135px; flex: none; }
+.mp-grid .onb-row--gap .kd-select { width: 239px; }   /* 239 + 42 + 239 = 520 */
+
+/* 이 두 행만 온보딩 규격(h34)을 유지한다 — 3분할·2분할이라 48이면 답답하다 */
+.mp-grid .onb-row .kd-select-btn,
+.mp-grid .onb-row .onb-select {
+    height: 34px;
+    padding-left: 14px;
+    font-size: 14px;
+}
+
+.mp-grid .onb-row .kd-select-list { top: 38px; }
+
+/* 성별 라디오 행 — 입력칸 높이(48)와 눈높이를 맞춘다 */
+.mp-radios { display: flex; align-items: center; height: 48px; gap: 32px; }
