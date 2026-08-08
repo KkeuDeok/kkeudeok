@@ -155,11 +155,27 @@
     font-size: 13px;
     font-weight: 700;
     color: #fff;
+    background: none;      /* 색은 막대 전체 그라데이션이 낸다 */
 }
 
+/* 색 지점은 Figma 픽셀 실측 — 경계 앞뒤 약 7%p 구간에서 섞인다.
+   4주 전 28/38/34 -> 경계 28·66 / 이번 주 46/32/22 -> 경계 46·78 */
+.rpt-stack--prev {
+    background: linear-gradient(90deg,
+        #34a36a 0%, #34a36a 24%, #3d8fe0 32%,
+        #3d8fe0 62%, #199ea7 70%, #199ea7 100%);
+}
+
+.rpt-stack--now {
+    background: linear-gradient(90deg,
+        #34a36a 0%, #34a36a 42%, #3d8fe0 50%,
+        #3d8fe0 74%, #199ea7 82%, #199ea7 100%);
+}
+
+/* 범례 점은 그라데이션의 세 대표색 */
 .st-talk { background: #34a36a; }
 .st-face { background: #3d8fe0; }
-.st-body { background: #0fa394; }
+.st-body { background: #199ea7; }
 
 /* 범례 칩 — Figma 실측: 크림 배경 + 어두운 크림 테두리 */
 .rpt-legend { display: flex; gap: 12px; margin-top: 16px; }
@@ -311,7 +327,8 @@
     display: inline-flex;
     align-items: center;
     height: 26px;
-    padding: 0 12px;
+    padding: 0 10px;
+    white-space: nowrap;
     border-radius: 999px;
     background: var(--kd-primary-tint);
     color: var(--kd-primary-strong);
@@ -555,7 +572,7 @@
 /* --------------------------------------------------------------------------
    사회성 — 축별 점수 리스트 (레이더 우측)
    -------------------------------------------------------------------------- */
-.rpt-axis { flex: 1; min-width: 0; }
+.rpt-axis { flex: 0 0 370px; min-width: 0; }
 
 .rpt-axis h3 {
     margin: 0 0 16px;
@@ -567,7 +584,7 @@
 
 /* 축 이름이 '신경증/정서 안정성' 처럼 길어 라벨 폭을 넓히고 증감 칸을 덧붙인다 */
 .rpt-axis .rpt-hbar .lb {
-    width: 132px;
+    width: 108px;   /* 좌측 차트를 키우려고 우측 열을 370 으로 좁혔다 */
     font-size: 13px;
     color: var(--kd-text-sub);
 }
@@ -581,7 +598,7 @@
 
 .rpt-axis .rpt-hbar .dt {
     flex: none;
-    width: 44px;
+    width: 38px;
     text-align: right;
     font-size: 12px;
     font-weight: 700;
@@ -600,5 +617,5 @@
 .rpt-axis .rpt-scenes { margin-top: 0; }
 
 .rpt-axis .rpt-scene { height: 44px; }
-.rpt-axis .rpt-scene .t { font-size: 14px; }
-.rpt-axis .rpt-scene .d { width: 44px; font-size: 12px; }
+.rpt-axis .rpt-scene .t { font-size: 13px; }
+.rpt-axis .rpt-scene .d { width: 38px; margin-left: 10px; font-size: 12px; }

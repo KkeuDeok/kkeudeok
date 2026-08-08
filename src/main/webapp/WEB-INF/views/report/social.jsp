@@ -27,9 +27,9 @@
     --%>
   <div class="rpt-radar-row">
     <div class="rpt-radar">
-        <%-- viewBox 를 그림이 실제로 차지하는 범위(x 40~660, y 10~410)로 좁혀
-             같은 표시 크기에서 오각형이 커지게 했다. 좌표 계산은 그대로 쓴다. --%>
-        <svg width="620" height="400" viewBox="40 10 620 400" role="img"
+        <%-- getBBox() 로 잰 실제 그림 범위(x 94~629, y 19~410)까지 viewBox 를 바짝 좁혔다.
+             같은 자리에서 오각형이 최대로 커지고, 감정 표현 화면과 아래 끝이 맞는다. --%>
+        <svg width="699" height="511" viewBox="94 19 535 391" role="img"
              aria-label="사회성 5축 — 외향성 74, 우호성 62, 성실성 41, 정서 안정성 55, 개방성 68">
             <g transform="translate(130,20)">
                 <%-- 격자 링 4개 (1 / 0.75 / 0.5 / 0.25 배) --%>

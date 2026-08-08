@@ -16,7 +16,7 @@
     <div class="app-scale">
         <aside class="app-side">
             <div class="app-brand">
-                <span class="ava"><img src="/img/char-bear.png?v=5" alt=""></span>
+                <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
                 <span class="nm">끄덕</span>
             </div>
 
@@ -36,7 +36,7 @@
 
             <%-- ponytail: 아이 이름·나이는 온보딩 입력값이라 백엔드 연동 시 채울 것 --%>
             <div class="app-profile">
-                <span class="ava"><img src="/img/char-bear.png?v=5" alt=""></span>
+                <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
                 <span class="nm">지우 · 6세</span>
             </div>
         </aside>

@@ -127,13 +127,14 @@
 </dialog>
 
 <script>
-    /* 상황 칩 -> 예시 문구 + 기본 감정.
+    /* 상황 칩 -> 예시 문구.
+       감정은 칩을 따라 바뀌지 않는다 — 기본값 기쁨으로 두고 보호자가 직접 고른다(사용자 요청).
        ponytail: 백엔드가 붙으면 이 표는 서버에서 내려주면 된다. */
     var KD_DAILY = {
-        '유치원':        ['유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요', '기쁨'],
-        '친구랑 다퉜어': ['블록놀이하다 민수가 내 성을 무너뜨려서 속상했어요', '슬픔'],
-        '가족 나들이':   ['할머니 댁에 갔는데 강아지가 갑자기 짖어서 깜짝 놀랐어요', '놀람'],
-        '새로운 곳':     ['처음 간 수영장이 너무 시끄러워서 나가고 싶어 했어요', '화남']
+        '유치원':        '유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요',
+        '친구랑 다퉜어': '블록놀이하다 민수가 내 성을 무너뜨려서 속상했어요',
+        '가족 나들이':   '할머니 댁에 갔는데 강아지가 갑자기 짖어서 깜짝 놀랐어요',
+        '새로운 곳':     '처음 간 수영장이 너무 시끄러워서 나가고 싶어 했어요'
     };
 
     (function () {
@@ -141,11 +142,8 @@
         var count = document.getElementById('dailyCount');
 
         document.getElementById('dailyChips').addEventListener('change', function (e) {
-            var pair = KD_DAILY[e.target.value];
-            if (!pair) return;
-            text.placeholder = pair[0];
-            var emo = document.querySelector('#dailyEmos input[value="' + pair[1] + '"]');
-            if (emo) emo.checked = true;
+            var ex = KD_DAILY[e.target.value];
+            if (ex) text.placeholder = ex;
         });
 
         text.addEventListener('input', function () {

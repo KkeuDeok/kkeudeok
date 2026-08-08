@@ -24,20 +24,23 @@
     <h2>표현 방법의 변화</h2>
     <%-- Figma(24:16727)는 두 막대가 46/32/22 로 복붙돼 있어 '변화'가 안 보인다.
          4주 전 값만 다르게 넣었다(몸짓↓ 말↑ = "몸짓 대신 말" 서사와 일치). 팀장 확인 대상 --%>
+    <%-- Figma 원본은 구간마다 단색이 아니라 경계에서 색이 섞이는 연속 그라데이션이다
+         (실측: 초록 #34a36a → 경계 60~80px 에서 혼합 → 파랑 #3d8fe0 → 혼합 → 청록 #199ea7).
+         그래서 span 3개에 각각 색을 주지 않고 막대 전체에 그라데이션 하나를 깐다. --%>
     <div class="rpt-stackrow">
         <p class="cap">4주 전</p>
-        <div class="rpt-stack">
-            <span class="st-talk" style="width:28%">28%</span>
-            <span class="st-face" style="width:38%">38%</span>
-            <span class="st-body" style="width:34%">34%</span>
+        <div class="rpt-stack rpt-stack--prev">
+            <span style="width:28%">28%</span>
+            <span style="width:38%">38%</span>
+            <span style="width:34%">34%</span>
         </div>
     </div>
     <div class="rpt-stackrow">
         <p class="cap">이번 주</p>
-        <div class="rpt-stack">
-            <span class="st-talk" style="width:46%">46%</span>
-            <span class="st-face" style="width:32%">32%</span>
-            <span class="st-body" style="width:22%">22%</span>
+        <div class="rpt-stack rpt-stack--now">
+            <span style="width:46%">46%</span>
+            <span style="width:32%">32%</span>
+            <span style="width:22%">22%</span>
         </div>
     </div>
     <div class="rpt-legend">
