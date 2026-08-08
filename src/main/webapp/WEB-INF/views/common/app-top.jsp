@@ -15,8 +15,6 @@
 <div class="app-shell">
     <div class="app-scale">
         <aside class="app-side">
-            <img class="deco" src="/img/tori.png" alt="">
-
             <div class="app-brand">
                 <span class="ava"><img src="/img/char-bear.png?v=5" alt=""></span>
                 <span class="nm">끄덕</span>

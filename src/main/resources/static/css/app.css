@@ -37,17 +37,6 @@
     background: linear-gradient(180deg, #1f5c40 0%, #123a29 100%);
 }
 
-.app-side .deco {
-    position: absolute;
-    left: -10px;
-    top: 808px;
-    width: 260px;
-    height: 286px;
-    opacity: 0.25;
-    object-fit: contain;
-    pointer-events: none;
-}
-
 .app-brand {
     position: absolute;
     left: 20px;
@@ -161,13 +150,16 @@
    본문 1200 — 상단 120px 만 옅은 초록 띠
    -------------------------------------------------------------------------- */
 /* 대시보드는 1024 에 딱 맞지만 학습 홈은 본문이 1115 라 넘친다.
-   Figma 는 프레임 밖을 잘라 버리지만 웹에서는 스크롤로 끝까지 보여 준다. */
+   Figma 는 프레임 밖을 잘라 버리지만 웹에서는 스크롤로 끝까지 보여 준다.
+   scrollbar-gutter: 스크롤바 자리를 항상 비워 둔다. 없으면 스크롤이 생기는 화면에서만
+   본문이 15px 좁아져, 메뉴를 옮겨 다닐 때 화면이 좌우로 움찔한다. */
 .app-main {
     position: relative;
     flex: 1;
     background: #fff;
     overflow-x: hidden;
     overflow-y: auto;
+    scrollbar-gutter: stable;
 }
 
 .app-main::before {
