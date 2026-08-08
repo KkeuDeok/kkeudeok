@@ -16,12 +16,12 @@
                        placeholder="이메일을 입력하세요">
             </div>
             <button type="button" class="kd-btn kd-btn-pill"
-                    onclick="kdSendCode('findPw')">인증메일 전송</button>
+                    onclick="kdSendCode('findPw')">인증번호 전송</button>
         </div>
     </div>
-    <%-- 인증코드 칸은 [인증메일 전송]을 눌러야 나타난다 --%>
+    <%-- 인증번호 칸은 [인증번호 전송]을 눌러야 나타난다 --%>
     <div class="kd-field is-hidden" id="authCodeField">
-        <label class="kd-label" for="authCode">인증코드</label>
+        <label class="kd-label" for="authCode">인증번호</label>
         <div class="kd-input-row">
             <div class="kd-input-wrap">
                 <input class="kd-input" type="text" id="authCode" name="authCode"

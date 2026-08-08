@@ -35,6 +35,7 @@
     </div>
 </div>
 
-<a href="#" class="kd-btn kd-btn-primary auth-cta">아이 정보 등록하기</a>
+<%-- 가입 다음 단계는 보호자 PIN 설정이다(로그인 성공 시에도 같은 곳으로 간다) --%>
+<a href="/onboarding/pin" class="kd-btn kd-btn-primary auth-cta">아이 정보 등록하기</a>
 
 <%@ include file="../common/auth-bottom.jsp" %>
