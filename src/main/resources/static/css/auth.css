@@ -340,12 +340,15 @@ html {
 /* --------------------------------------------------------------------------
    약관 동의 리스트
    -------------------------------------------------------------------------- */
+/* 전체 동의 — 개별 항목과 성격이 달라 옅은 박스로 구분 (2026-08-08) */
 .terms-all {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--kd-border);
+    padding: 18px 20px;
+    background: #f4f8f5;
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
 }
 
 .terms-all .kd-check {
@@ -366,7 +369,7 @@ html {
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-top: 24px;
+    margin-top: 26px;
 }
 
 .terms-item .kd-check {
@@ -398,7 +401,10 @@ html {
     color: var(--kd-primary);
 }
 
-.terms-note {
+/* 항목 아래 한 줄 설명 — 민감정보만 있던 안내(.terms-note)를 네 항목 모두에 맞춘 것.
+   체크박스(22) + 간격(12) = 34 만큼 들여써 라벨과 왼쪽이 맞는다 */
+.terms-note,
+.terms-desc {
     font-size: 15px;
     line-height: 22px;
     color: var(--kd-text-sub);
