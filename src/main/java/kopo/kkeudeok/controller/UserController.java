@@ -137,8 +137,7 @@ public class UserController {
 
     @GetMapping("/report")
     public String report() {
-        // TODO: understand.jsp 완성되면 report/understand 로 교체 (임시로 감정 표현)
-        return "report/express";
+        return "report/understand";
     }
 
     @GetMapping("/report/express")

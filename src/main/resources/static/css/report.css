@@ -383,3 +383,38 @@
     line-height: 19px;
     color: var(--kd-text-sub);
 }
+
+/* --------------------------------------------------------------------------
+   감정 이해 (신규 설계) — 감정별 이해도 가로 막대
+   -------------------------------------------------------------------------- */
+.rpt-hbars { margin-top: 32px; }
+
+.rpt-hbar { display: flex; align-items: center; }
+.rpt-hbar + .rpt-hbar { margin-top: 24px; }
+
+.rpt-hbar .lb {
+    flex: none;
+    width: 90px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text);
+}
+
+.rpt-hbar .track {
+    flex: 1;
+    height: 14px;
+    border-radius: 999px;
+    background: #f1f5f2;
+    overflow: hidden;
+}
+
+.rpt-hbar .track span { display: block; height: 100%; border-radius: 999px; }
+
+.rpt-hbar .pct {
+    flex: none;
+    width: 56px;
+    text-align: right;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
