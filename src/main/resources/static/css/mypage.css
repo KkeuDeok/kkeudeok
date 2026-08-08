@@ -1,0 +1,279 @@
+/* ==========================================================================
+   마이페이지 — Figma 24:15067(게이트) · 24:15148(회원정보) · 24:15283(아동 프로필)
+                 · 24:15532(캐릭터 관리) · 439:2129/439:2259(모달 2)
+   껍데기는 app.css(.app-shell 등)를 쓰고 이 파일은 마이페이지 전용.
+   ⚠ app.css는 병합 충돌 방지를 위해 수정 금지 — 가운데 정렬도 여기서 자체 선언.
+   공통 레일: 제목 104 · 탭 178(h49) · 본문 시작 251
+   ========================================================================== */
+
+.mp-head,
+.mp-tabsrow,
+.mp-sec,
+.mp-rule,
+.mp-actions,
+.mp-gate {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.mp-head { padding-top: 104px; }
+
+/* --------------------------------------------------------------------------
+   탭바 3개 — 리포트와 같은 규격(h49 r999 #f1f5f2, 활성 tint)
+   -------------------------------------------------------------------------- */
+.mp-tabsrow { margin-top: 24px; padding: 0 40px; }
+
+.mp-tabs {
+    display: inline-flex;
+    height: 49px;
+    padding: 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #f1f5f2;
+}
+
+.mp-tabs a {
+    display: flex;
+    align-items: center;
+    height: 41px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.mp-tabs a.is-on {
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   섹션 / 구분선 / 하단 버튼행
+   -------------------------------------------------------------------------- */
+.mp-sec { margin-top: 40px; padding: 0 40px; }
+
+.mp-sec h2 {
+    margin: 0 0 20px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.mp-rule {
+    width: calc(100% - 80px);
+    height: 1px;
+    margin-top: 40px;
+    border: 0;
+    background: var(--kd-border);
+}
+
+.mp-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 40px;
+    margin-bottom: 40px;
+    padding: 0 40px;
+}
+
+.mp-actions .kd-btn {
+    width: 96px;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   2열 폼 그리드 — 좌 520 / 우 520 (gap 80 = 본문 1120)
+   -------------------------------------------------------------------------- */
+.mp-grid {
+    display: grid;
+    grid-template-columns: 520px 520px;
+    gap: 32px 80px;
+}
+
+/* 읽기 전용 입력칸 (이메일) — Figma 실측 #f1f5f2 */
+.mp-input-ro {
+    background: #f1f5f2;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   알림 설정 — 제목/설명 좌, 토글 우, 행 구분선
+   -------------------------------------------------------------------------- */
+.mp-switch {
+    display: flex;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.mp-switch:first-of-type { border-top: 1px solid var(--kd-border); }
+
+.mp-switch .tx { flex: 1; }
+.mp-switch b { display: block; font-size: 15px; line-height: 23px; color: var(--kd-text); }
+
+.mp-switch .ds {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+/* 토글 — 체크박스를 감춘 순수 CSS 스위치 */
+.mp-toggle { position: relative; flex: none; width: 44px; height: 24px; }
+
+.mp-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.mp-toggle span {
+    display: block;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--kd-border);
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.mp-toggle span::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #fff;
+    transition: transform .15s;
+}
+
+.mp-toggle input:checked + span { background: var(--kd-primary-active); }
+.mp-toggle input:checked + span::after { transform: translateX(20px); }
+.mp-toggle input:focus-visible + span { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+/* --------------------------------------------------------------------------
+   계정 링크 행 — "로그아웃 | 비밀번호 변경 →"
+   -------------------------------------------------------------------------- */
+.mp-links { display: flex; align-items: center; }
+.mp-links + .mp-links { margin-top: 16px; }
+
+.mp-links a,
+.mp-links button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mp-links .sep {
+    width: 1px;
+    height: 14px;
+    margin: 0 16px;
+    background: var(--kd-border);
+}
+
+.mp-links .danger { color: var(--kd-danger); }
+
+.mp-links .arrow::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    vertical-align: -3px;
+    background: currentColor;
+    -webkit-mask: var(--kd-icon-chevron) center / 16px no-repeat;
+    mask: var(--kd-icon-chevron) center / 16px no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   보호자 확인 게이트 — 본문 가운데
+   -------------------------------------------------------------------------- */
+.mp-gate {
+    padding: 150px 40px 0;
+    text-align: center;
+}
+
+.mp-gate .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 96px;
+    height: 96px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+}
+
+.mp-gate .ic img { width: 52px; }
+
+.mp-gate h1 {
+    margin: 24px 0 0;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 42px;
+    color: var(--kd-text);
+}
+
+.mp-gate .sub {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.mp-gate form {
+    width: 520px;
+    margin: 40px auto 0;
+    text-align: left;
+}
+
+.mp-gate .row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.mp-gate .row .kd-btn {
+    width: 96px;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.mp-gate .forgot {
+    display: block;
+    margin-top: 24px;
+    text-align: right;
+    font-size: 15px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.mp-gate .forgot::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    vertical-align: -3px;
+    background: currentColor;
+    -webkit-mask: var(--kd-icon-chevron) center / 16px no-repeat;
+    mask: var(--kd-icon-chevron) center / 16px no-repeat;
+}
+
+.mp-gate .forgot:hover { color: var(--kd-primary); }

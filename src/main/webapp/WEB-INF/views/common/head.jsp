@@ -11,6 +11,7 @@
 <link href="/css/auth.css?v=90" rel="stylesheet">
 <link href="/css/onboarding.css?v=90" rel="stylesheet">
 <link href="/css/app.css?v=90" rel="stylesheet">
+<link href="/css/mypage.css?v=91" rel="stylesheet">
 <script src="/js/fit-frame.js?v=90"></script>
 <script src="/js/auth-validate.js?v=90" defer></script>
 <script src="/js/onb-select.js?v=90" defer></script>
