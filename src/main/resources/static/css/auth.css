@@ -308,8 +308,12 @@ html {
     zoom: calc(1 / var(--fit-scale, 1));   /* 패널에 걸린 배율 상쇄 — 화면 실제 크기로 */
 }
 
+/* 0.35 는 흰 바탕을 회색으로 덮어 초록 사이드바까지 탁해 보였다(2026-08-09 지적).
+   옅게 낮추고 흐림을 조금 줘서, 뒤가 비치되 모달에 시선이 모이게 한다. */
 .terms-dialog::backdrop {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(0, 0, 0, 0.22);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
 }
 
 .terms-dialog h2 {
