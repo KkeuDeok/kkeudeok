@@ -11,13 +11,6 @@
 <head>
     <title><%= pageTitle %> | 끄덕</title>
     <%@ include file="head.jsp" %>
-    <%-- 화면 사이 요소를 이어 주는 전환(View Transitions). 기본은 꺼짐 —
-         켜면 그 화면에서 나가고 들어오는 모든 이동에 걸리므로, 짝이 되는 두 화면에서만
-         include 전에 request.setAttribute("viewTransition", true) 로 켠다.
-         브라우저가 이 규칙을 <head> 에서 봐야 해서 여기에 둔다(본문에 두면 늦다). --%>
-    <% if (Boolean.TRUE.equals(request.getAttribute("viewTransition"))) { %>
-    <style>@view-transition { navigation: auto; }</style>
-    <% } %>
 </head>
 <body class="child-body">
 <div class="child-shell">

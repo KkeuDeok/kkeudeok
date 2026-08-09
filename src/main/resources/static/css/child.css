@@ -653,44 +653,14 @@
     color: var(--kd-primary);
 }
 
-/* --- 듣는 중 파형 애니메이션 ------------------------------------------------
-   Figma 는 정지 그림이지만, 아이가 "지금 내 말을 듣고 있다"를 알아야 하므로 움직인다.
-   높이(10~32)는 그대로 두고 scaleY 만 건드린다 — 레이아웃을 다시 계산하지 않아 가볍다.
-   막대마다 주기를 조금씩 다르게 줘서 7개가 한 몸처럼 움직이지 않게 한다. */
-@keyframes why-wave {
-    0%, 100% { transform: scaleY(0.3); }
-    50%      { transform: scaleY(1); }
-}
-
-.why-listen .wave i {
-    transform-origin: center;
-    animation: why-wave 0.9s ease-in-out infinite;
-}
-
-.why-listen .wave i:nth-child(1) { animation-duration: 0.72s; animation-delay: -0.42s; }
-.why-listen .wave i:nth-child(2) { animation-duration: 0.95s; animation-delay: -0.15s; }
-.why-listen .wave i:nth-child(3) { animation-duration: 0.64s; animation-delay: -0.30s; }
-.why-listen .wave i:nth-child(4) { animation-duration: 0.86s; animation-delay: -0.05s; }
-.why-listen .wave i:nth-child(5) { animation-duration: 0.70s; animation-delay: -0.36s; }
-.why-listen .wave i:nth-child(6) { animation-duration: 1.02s; animation-delay: -0.20s; }
-.why-listen .wave i:nth-child(7) { animation-duration: 0.78s; animation-delay: -0.48s; }
-
-/* --- 버튼 → 듣는 중 모핑 ---------------------------------------------------
-   두 화면은 별개 URL 이라 원래는 깜빡 하고 갈린다. 같은 이름을 붙여 두면
-   브라우저가 페이지를 넘기면서 알약을 알약으로 이어 준다(View Transitions).
-   전환 스위치 자체는 두 화면이 request.setAttribute("viewTransition", true) 로 켠다
-   (child-top.jsp) — 앱 전체가 아니라 이 두 화면 사이에서만 걸리게 하려는 것이다.
-   미지원 브라우저는 그냥 예전처럼 넘어간다. */
-.why-mic,
-.why-listen { view-transition-name: why-mic; }
-
-/* 눌리는 느낌 — 아이 손가락에 반응이 있어야 한다 */
-.why-mic { transition: transform 0.12s ease, background-color 0.12s ease; }
+/* 눌리는 느낌 — 아이 손가락에 반응이 있어야 한다.
+   story.js 가 이 버튼을 '듣는 중'과 맞바꾸는 토글로 쓰므로 눌린 표시가 필요하다.
+   ⚠ 파형 애니메이션은 아래 '학습 흐름 동작' 절(.wave i / kd-wave)에 있다 —
+     여기에 또 쓰면 :nth-child 쪽 specificity 가 높아 그쪽 주기를 덮어쓴다(실제로 겪음). */
+.why-mic { transition: transform var(--kd-dur-fast) ease, background-color var(--kd-dur-fast) ease; }
 .why-mic:active { transform: scale(0.96); background: #f4f6f3; }
 
-/* 모션 최소화 설정이면 파형은 Figma 원본대로 멈춰 세운다 */
 @media (prefers-reduced-motion: reduce) {
-    .why-listen .wave i { animation: none; }
     .why-mic:active { transform: none; }
 }
 
@@ -1384,15 +1354,30 @@
 
 /* 색종이 — 위에서 떨어지며 돌아간다. 낙하 거리·시간은 칸마다 조금씩 다르게
    (JSP 가 --fall / --spin / --dur 을 점마다 넣어 준다) 해야 한꺼번에 쏟아지지 않는다. */
+/* ⚠ 조각이 6~15px 짜리 완전한 원(border-radius:999px)이라 회전은 눈에 안 들어온다.
+   실측: spin 을 240deg 줘도 좌우로 1.2px 밖에 안 움직였다 — 자리에서 맴돌 뿐이다.
+   그래서 좌우로 나풀거리게 얹었다(실측 좌우 15.9px, 조각 폭의 2.6배라 확실히 보인다).
+   회전은 그대로 둔다 — 나중에 모양을 사각형으로 바꾸면 그때 살아난다.
+
+   낙하는 translate/rotate 프로퍼티, 나풀거림은 transform 프로퍼티로 나눠 건다.
+   같은 transform 안에 섞으면 중간 키프레임이 생겨 ease-in 낙하가 구간마다 끊긴다. */
 @keyframes kd-confetti {
-    0%   { opacity: 0; transform: translateY(-140px) rotate(0deg); }
+    0%   { opacity: 0; translate: 0 -140px; rotate: 0deg; }
     12%  { opacity: 1; }
     85%  { opacity: 1; }
-    100% { opacity: 0; transform: translateY(var(--fall, 180px)) rotate(var(--spin, 360deg)); }
+    100% { opacity: 0; translate: 0 var(--fall, 180px); rotate: var(--spin, 360deg); }
 }
 
+@keyframes kd-confetti-sway {
+    from { transform: translateX(calc(var(--sway, 9px) * -1)); }
+    to   { transform: translateX(var(--sway, 9px)); }
+}
+
+/* 나풀거림 주기는 --dur 의 1/4 + alternate → 떨어지는 동안 두 번 왕복한다.
+   --dur 이 조각마다 달라서 흔들리는 박자도 저절로 흩어진다(JSP 가 넣어 준다). */
 .done-confetti i {
-    animation: kd-confetti var(--dur, 3s) ease-in var(--delay, 0s) infinite;
+    animation: kd-confetti var(--dur, 3s) ease-in var(--delay, 0s) infinite,
+               kd-confetti-sway calc(var(--dur, 3s) / 4) ease-in-out var(--delay, 0s) infinite alternate;
 }
 
 /* 움직임을 줄이도록 설정한 경우 — 전부 정지. 그림·글자는 그대로 보인다 */
