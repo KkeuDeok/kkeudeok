@@ -16,7 +16,7 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img src="/img/char-tori-icon.png?v=108" alt=""></span>
+        <span class="ava"><img src="/img/char-tori-icon.png?v=118" alt=""></span>
         <span class="tx">
             <b>지우</b>
             <span class="ds">만 7세 · 학습 시작 2025.11.03</span>

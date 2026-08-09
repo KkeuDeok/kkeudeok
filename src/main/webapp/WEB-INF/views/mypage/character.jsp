@@ -18,7 +18,7 @@
 <section class="mp-sec">
     <div class="mp-char">
         <div class="mp-char-view">
-            <img class="big" id="charBig" src="/img/char-tori-icon.png?v=108" alt="토리">
+            <img class="big" id="charBig" src="/img/char-tori-icon.png?v=118" alt="토리">
             <p class="nm" id="charName">토리</p>
             <p class="ds" id="charDesc">마음을 함께 읽어주는 다정한 친구예요</p>
             <div class="kd-field">
@@ -32,34 +32,34 @@
             <div class="mp-chars">
                 <label>
                     <input type="radio" name="character" value="tori" checked
-                           data-big="/img/char-tori-icon.png?v=108" data-ds="마음을 함께 읽어주는 다정한 친구예요">
-                    <img src="/img/char-tori-icon.png?v=108" alt=""><span class="nm">토리</span>
+                           data-big="/img/char-tori-icon.png?v=118" data-ds="마음을 함께 읽어주는 다정한 친구예요">
+                    <img src="/img/char-tori-icon.png?v=118" alt=""><span class="nm">토리</span>
                 </label>
                 <%-- 윗줄 3명 여자 · 아랫줄 3명 남자로 보이도록 보미↔코코 자리를 바꿨다(2026-08-09) --%>
                 <label>
                     <input type="radio" name="character" value="koko"
-                           data-big="/img/char-koko.png?v=108" data-ds="궁금한 게 많은 씩씩한 친구예요">
-                    <img src="/img/char-koko.png?v=108" alt=""><span class="nm">코코</span>
+                           data-big="/img/char-koko.png?v=118" data-ds="궁금한 게 많은 씩씩한 친구예요">
+                    <img src="/img/char-koko.png?v=118" alt=""><span class="nm">코코</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="lala"
-                           data-big="/img/char-lala.png?v=108" data-ds="노래하며 기분을 밝게 해 주는 친구예요">
-                    <img src="/img/char-lala.png?v=108" alt=""><span class="nm">라라</span>
+                           data-big="/img/char-lala.png?v=118" data-ds="노래하며 기분을 밝게 해 주는 친구예요">
+                    <img src="/img/char-lala.png?v=118" alt=""><span class="nm">라라</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="bomi"
-                           data-big="/img/char-bomi.png?v=108" data-ds="언제나 웃으며 응원해 주는 친구예요">
-                    <img src="/img/char-bomi.png?v=108" alt=""><span class="nm">보미</span>
+                           data-big="/img/char-bomi.png?v=118" data-ds="언제나 웃으며 응원해 주는 친구예요">
+                    <img src="/img/char-bomi.png?v=118" alt=""><span class="nm">보미</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="bada"
-                           data-big="/img/char-bada.png?v=108" data-ds="천천히 기다려 주는 차분한 친구예요">
-                    <img src="/img/char-bada.png?v=108" alt=""><span class="nm">바다</span>
+                           data-big="/img/char-bada.png?v=118" data-ds="천천히 기다려 주는 차분한 친구예요">
+                    <img src="/img/char-bada.png?v=118" alt=""><span class="nm">바다</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="rubi"
-                           data-big="/img/char-rubi.png?v=108" data-ds="속상한 날 곁에 있어 주는 친구예요">
-                    <img src="/img/char-rubi.png?v=108" alt=""><span class="nm">루비</span>
+                           data-big="/img/char-rubi.png?v=118" data-ds="속상한 날 곁에 있어 주는 친구예요">
+                    <img src="/img/char-rubi.png?v=118" alt=""><span class="nm">루비</span>
                 </label>
             </div>
         </div>
