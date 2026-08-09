@@ -35,10 +35,12 @@
                 <% } %>
             </nav>
 
-            <%-- ponytail: 아이 이름·나이는 온보딩 입력값이라 백엔드 연동 시 채울 것 --%>
+            <%-- 아이 이름·나이·아바타는 온보딩 입력값(sessionStorage.kdOnb)을
+                 auth-validate.js 의 renderAppOnb() 가 data-kd 훅을 보고 채운다.
+                 입력값이 없으면(직접 URL 진입·시크릿 모드) 아래 예시값이 그대로 남는다. --%>
             <div class="app-profile">
-                <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
-                <span class="nm">지우 · 6세</span>
+                <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt="" data-kd="charAva"></span>
+                <span class="nm" data-kd="childNameAge">지우 · 6세</span>
             </div>
         </aside>
 

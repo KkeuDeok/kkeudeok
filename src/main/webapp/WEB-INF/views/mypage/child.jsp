@@ -16,10 +16,11 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img src="/img/char-tori-icon.png?v=119" alt=""></span>
+        <span class="ava"><img src="/img/char-tori-icon.png?v=119" alt="" data-kd="charAva"></span>
         <span class="tx">
-            <b>지우</b>
-            <span class="ds">만 7세 · 학습 시작 2025.11.03</span>
+            <b data-kd="childName">지우</b>
+            <%-- ponytail: 학습 시작일은 아직 저장하는 곳이 없어 예시값 그대로다 --%>
+            <span class="ds">만 <span data-kd="childAge">7</span>세 · 학습 시작 2025.11.03</span>
         </span>
     </div>
 </section>
