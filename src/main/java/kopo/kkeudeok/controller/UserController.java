@@ -1,7 +1,12 @@
 package kopo.kkeudeok.controller;
 
+import java.util.Set;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  * 로그인·회원가입 화면 라우팅 (프론트 구현분 확인용 골격).
@@ -199,16 +204,29 @@ public class UserController {
         return "mypage/roadmap";
     }
 
-    /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ---------- */
+    /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ----------
+       화면만 늘어나고 화면별 로직이 없어 한 라우트로 받는다. 화면을 추가할 때
+       JSP 만 만들고 아래 목록에 이름을 넣으면 되므로 서버 재시작이 필요 없다.
+       (컨트롤러를 고치면 재시작이 필요한데 8080 서버 주인이 다른 세션일 때가 많다.)
+       ⚠ 화이트리스트 밖은 404 — 임의 경로로 JSP 를 훑는 걸 막는다.
+       감정 벌은 전부 `?emo=sad|angry|happy` 로 갈린다(기본 sad). */
+    private static final Set<String> STORY_STEPS = Set.of(
+            "scene",         // 학습1 상황 이야기
+            "feel",          // 학습2 마음 읽기
+            "feel-hint",     // 학습2b 힌트
+            "why",           // 학습3 이유 찾기
+            "why-listening", // 학습3b 듣는 중
+            "face",          // 학습4 표정 따라하기
+            "situation",     // 상황 선택
+            "act",           // 학습5 동작 따라하기
+            "result"         // 학습6 세션 결과
+    );
 
-    /** 학습1 상황 이야기. `?emo=sad|angry|happy` 로 감정 벌이 갈린다(기본 sad). */
-    @GetMapping("/story/scene")
-    public String storyScene() {
-        return "story/scene";
-    }
-
-    @GetMapping("/story/why")
-    public String storyWhy() {
-        return "story/why";
+    @GetMapping("/story/{step}")
+    public String story(@PathVariable String step) {
+        if (!STORY_STEPS.contains(step)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+        return "story/" + step;
     }
 }

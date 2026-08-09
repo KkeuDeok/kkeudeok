@@ -53,7 +53,7 @@
     </div>
 
     <div class="mp-links mp-plan-links">
-        <button type="button" id="planEdit">우리 아이에 맞게 바꾸기</button>
+        <button type="button" id="planEdit">주차별 전체 보기 · 바꾸기</button>
         <span class="sep"></span>
         <button type="button" id="planReset">기본값(AI 추천)으로 되돌리기</button>
     </div>
@@ -68,7 +68,7 @@
      빼면 --fit-scale 배율이 두 번 걸려 모달이 작아진다(마이페이지·대시보드 모달과 같은 규칙). --%>
 <dialog id="dlgWeeks" class="terms-dialog roadmap-dlg">
     <h2>주차별 주제 · 순서</h2>
-    <p class="ds">행을 끌어 원하는 자리에 놓거나 ▲▼로 옮길 수 있어요. 토글을 끄면 그 주차는 건너뜁니다.</p>
+    <p class="ds">12주 전체입니다. 행을 끌어 원하는 자리에 놓거나 ▲▼로 옮길 수 있어요. 토글을 끄면 그 주차는 건너뜁니다.</p>
 
     <div class="mp-weeks" id="roadmapEdit">
         <%

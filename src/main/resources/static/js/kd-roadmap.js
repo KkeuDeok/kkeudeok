@@ -150,7 +150,7 @@
         if (rest > 0) {
             var more = document.createElement('p');
             more.className = 'steps-more';
-            more.textContent = '외 ' + rest + '주 더';
+            more.textContent = '외 ' + rest + '주 더 — 눌러서 전체 보기';
             box.appendChild(more);
         }
     }
@@ -297,11 +297,14 @@
 
         document.getElementById('planEdit').addEventListener('click', openWeeks);
 
-        /* 만들어 둔 '우리 아이 맞춤' 카드를 다시 누르면 이어서 고칠 수 있게(2026-08-09 요청).
-           라디오 change 가 먼저 돌아 draft.mode 는 이미 custom 이다 */
-        var customCard = document.querySelector('.mp-plan--custom');
-        if (customCard) customCard.addEventListener('click', function () {
-            if (!customCard.hidden) setTimeout(openWeeks, 0);
+        /* 카드를 누르면 그 안이 선택되고 12주 전체가 열린다 — 카드에는 8줄만 보이므로
+           '외 N주 더' 를 확인할 길이 이것뿐이다(2026-08-09 지적).
+           라디오 change 가 먼저 돌아 draft 는 이미 그 안으로 바뀐 뒤다.
+           삭제(×)는 stopPropagation 으로 여기 안 걸린다. */
+        pick.querySelectorAll('.mp-plan').forEach(function (card) {
+            card.addEventListener('click', function () {
+                if (!card.hidden) setTimeout(openWeeks, 0);
+            });
         });
 
 

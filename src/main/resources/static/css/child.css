@@ -317,3 +317,127 @@
 }
 
 .story-cta:hover { background: var(--kd-primary-strong); color: #fff; }
+
+/* ==========================================================================
+   학습2 마음 읽기 — Figma `24:18040` 실측. 좌표는 캔버스값 − 72(본문 시작).
+   Figma 하단바가 캔버스 890.5 중심이라 껍데기(.child-foot)와 정확히 맞는다.
+   ========================================================================== */
+
+/* 상황을 되짚어 주는 캐릭터 그림 — Figma `캐릭터 - 놀람` 150×165 @(645,184) */
+.feel-art {
+    position: absolute;
+    left: 425px;
+    top: 86px;
+    width: 150px;
+    height: 165px;
+}
+
+.feel-art img { width: 100%; height: 100%; object-fit: contain; }
+
+.feel-recap,
+.feel-q {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.feel-recap {
+    top: 259px;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.feel-q {
+    top: 303px;
+    font-size: 34px;
+    line-height: 51px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+/* 카드 3장 — 300×290, 사이 28. 좌우 22 여백이라 행 폭 956 이 본문 1000 안에 든다 */
+.feel-cards {
+    position: absolute;
+    left: 22px;
+    top: 393.5px;
+    display: flex;
+    gap: 28px;
+}
+
+.feel-card {
+    position: relative;
+    display: block;
+    width: 300px;
+    height: 290px;
+    border: 1px solid var(--kd-border);
+    border-radius: 20px;
+    text-decoration: none;
+}
+
+/* 감정별 카드 색 — Figma 실측(픽셀값 그대로, 다른 화면에서 쓰는 토큰이 아니다) */
+.feel-card.is-happy { background: #fff3d6; }
+.feel-card.is-sad   { background: #dceefb; }
+.feel-card.is-angry { background: #fde0dc; }
+
+.feel-card:hover { border-color: var(--kd-primary); }
+
+.feel-card .ic {
+    position: absolute;
+    left: 80px;
+    top: 25px;
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+}
+
+.feel-card .nm,
+.feel-card .ds {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.feel-card .nm {
+    top: 179px;
+    font-size: 30px;
+    line-height: 45px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.feel-card .ds {
+    top: 238px;
+    font-size: 18px;
+    line-height: 27px;
+    color: var(--kd-text-sub);
+}
+
+/* 카드마다 있는 읽어주기 배지 — 카드 자체가 링크라 안에 button 을 또 넣지 않는다.
+   TODO: TTS 가 붙으면 카드를 <div>+JS 로 바꾸고 이 배지를 실제 버튼으로. */
+.feel-card .spk {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--kd-border);
+    border-radius: 999px;
+    background: #fff;
+}
+
+.feel-card .spk::before {
+    content: "";
+    width: 16px;
+    height: 16px;
+    background: var(--kd-text-sub);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 16px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 16px no-repeat;
+}
