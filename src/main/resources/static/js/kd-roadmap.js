@@ -14,7 +14,7 @@
     var KD_TOPICS = [
         '표정 알아보기', '기쁨 알아차리기', '슬픔 알아차리기', '화남 알아차리기',
         '놀람 알아차리기', '무서움 알아차리기', '표정으로 표현하기', '몸짓으로 표현하기',
-        '감정 표현하기 — 슬픔 연습', '감정 표현하기 — 기쁨 연습', '복합 감정 이해하기',
+        '슬픔 감정 표현하기', '기쁨 감정 표현하기', '복합 감정 이해하기',
         '친구 위로하기', '차례 지키기', '다툰 뒤 화해하기', '도움 요청하기',
         '마음 이야기 나누기', '눈 맞추고 대화하기', '먼저 말 걸어보기',
         '상황과 감정 잇기', '가정에서 연습하기', '학교에서 연습하기', '스스로 돌아보기'
@@ -26,40 +26,21 @@
        ponytail: 실제 추천 로직은 백엔드 몫이라 지금은 고정 프리셋이다 */
     var KD_PRESET = {
         ai: ['표정 알아보기', '기쁨 알아차리기', '슬픔 알아차리기', '화남 알아차리기',
-            '표정으로 표현하기', '몸짓으로 표현하기', '감정 표현하기 — 슬픔 연습',
+            '표정으로 표현하기', '몸짓으로 표현하기', '슬픔 감정 표현하기',
             '친구 위로하기', '차례 지키기', '다툰 뒤 화해하기', '도움 요청하기', '마음 이야기 나누기'],
         standard: ['표정 알아보기', '기쁨 알아차리기', '슬픔 알아차리기', '화남 알아차리기',
             '놀람 알아차리기', '무서움 알아차리기', '표정으로 표현하기', '몸짓으로 표현하기',
             '상황과 감정 잇기', '친구 위로하기', '눈 맞추고 대화하기', '스스로 돌아보기']
     };
 
-    /* 카드에 보여 줄 6단계 요약 — 온보딩 로드맵 비교 화면(Figma 306:75)의 문구를 그대로 쓴다.
-       12주 배열과 별개인 이유: 정석·AI 는 '단계 이름'이 기획 문구라 주차 주제에서 뽑아낼 수 없다.
-       직접 구성 카드만 저장된 12주를 2주씩 묶어 만든다(makeCustomSteps). */
-    var KD_STEPS = {
-        standard: [
-            ['감정 인식 기초', '기본 6가지 감정 알기', '1-2주'],
-            ['감정 표현 연습', '표정/몸짓 따라하기', '3-4주'],
-            ['상황별 감정 이해', '상황과 감정 연결하기', '5-6주'],
-            ['공감 반응 연습', '위로/격려 표현하기', '7-8주'],
-            ['사회적 행동 적용', '실생활 사회 기술', '9-10주'],
-            ['종합 복습', '전체 내용 통합', '11-12주']
-        ],
-        ai: [
-            ['감정 표현 집중', '표현이 약한 부분 우선 강화', '1-3주'],
-            ['감정 이해 심화', '복합 감정 이해하기', '4-5주'],
-            ['사회적 상호작용', '친구와 소통하기', '6-7주'],
-            ['공감 실전 연습', '실제 상황 역할극', '8-9주'],
-            ['일상 적용', '가정/학교 연계 활동', '10-11주'],
-            ['자기 평가', '스스로 돌아보기', '12주']
-        ]
-    };
-
     function preset(mode) {
         return (KD_PRESET[mode] || KD_PRESET.ai).map(function (t) { return { topic: t, on: true }; });
     }
 
-    function defaults() { return { mode: 'ai', focus: '감정 표현', weeks: preset('ai') }; }
+    /* custom 은 '지금 고른 안'과 별개로 보관한다.
+       예전에는 weeks 하나만 들고 있어 정석·AI 를 누르는 순간 직접 만든 구성이 사라졌다(2026-08-09 지적).
+       이제 mode 가 무엇이든 custom 은 남고, 삭제 버튼으로만 지운다. */
+    function defaults() { return { mode: 'ai', focus: '감정 표현', weeks: preset('ai'), custom: null }; }
 
     /* 저장값이 깨졌거나(수기 편집·구버전) 개수가 안 맞으면 기본값으로 되돌린다 */
     function kdPlanLoad() {
@@ -140,30 +121,24 @@
 
     /* ---------- 마이페이지 카드 3장 ---------- */
 
-    /* 직접 구성 카드 — 켜 둔 주차를 2개씩 묶어 6줄로. 12주가 아니어도(토글로 뺐어도) 나눠 떨어진다 */
-    function makeCustomSteps(p) {
-        var on = p.weeks.filter(function (w) { return w.on; });
-        var per = Math.max(1, Math.ceil(on.length / 6)), out = [];
-        for (var i = 0; i < on.length; i += per) {
-            var g = on.slice(i, i + per);
-            var from = i + 1, to = Math.min(i + per, on.length);
-            out.push([g[0].topic, g.slice(1).map(function (w) { return w.topic; }).join(' · ') || '한 주 집중',
-                (from === to ? from : from + '-' + to) + '주']);
-            if (out.length === 6) break;
-        }
-        return out;
+    /* 카드는 12주를 그대로 보여 준다.
+       6단계로 묶어 보여 줬더니 카드 아래가 반쯤 비어 '더 길게 할 거면 7·8·9·10 도 나와야 한다'는
+       지적(2026-08-09). 12줄이면 카드 높이(650)와도 맞고 정본 데이터와 화면이 1:1 이 된다.
+       대신 단계 설명줄은 뺐다 — 12줄 × 2줄이면 카드가 두 배가 된다. */
+    function weekRows(weeks) {
+        return weeks.filter(function (w) { return w.on; })
+            .map(function (w, i) { return [w.topic, (i + 1) + '주']; });
     }
 
-    function fillSteps(box, steps) {
+    function fillSteps(box, rows) {
         box.textContent = '';
-        steps.forEach(function (st, i) {
+        rows.forEach(function (st, i) {
             var d = document.createElement('div');
             d.className = 'onb-step-item';
             d.innerHTML = '<span class="no">' + (i + 1) + '</span>'
-                + '<div class="hd"><p class="t"></p><span class="wk"></span></div><p class="d"></p>';
+                + '<div class="hd"><p class="t"></p><span class="wk"></span></div>';
             d.querySelector('.t').textContent = st[0];
-            d.querySelector('.d').textContent = st[1];
-            d.querySelector('.wk').textContent = st[2];
+            d.querySelector('.wk').textContent = st[1];
             box.appendChild(d);
         });
     }
@@ -174,11 +149,11 @@
         boxes.forEach(function (box) {
             var kind = box.dataset.plan;
             if (kind === 'custom') {
-                /* 아직 손대지 않았으면 비워 둔다 — CSS 가 안내 문구를 대신 보여 준다 */
-                if (p.mode === 'custom') fillSteps(box, makeCustomSteps(p));
-                else box.textContent = '';
+                /* 만든 적이 없으면 카드 자체가 없다. 한 번 만들면 어떤 안을 고르든 계속 남는다 */
+                box.closest('.mp-plan').hidden = !p.custom;
+                if (p.custom) fillSteps(box, weekRows(p.custom));
             } else {
-                fillSteps(box, KD_STEPS[kind]);
+                fillSteps(box, weekRows(preset(kind)));
             }
         });
     }
@@ -221,6 +196,57 @@
         });
     }
 
+    /* ---------- 끌어서 순서 바꾸기 ----------
+       HTML5 draggable 을 안 쓴다 — auth-validate.js 가 전역에서 dragstart 를 막고 있고,
+       그건 이미지 끌기 방지용이라 예외를 뚫느니 포인터 이벤트로 만드는 편이 안전하다.
+       12행뿐이라 매 이동마다 전체를 다시 그려도 무겁지 않다. */
+    function initDrag(box, onDrop) {
+        var from = -1, row = null;
+
+        box.addEventListener('pointerdown', function (e) {
+            /* 손잡이(⣿)와 번호 둘 다 잡는 자리 — 16px 손잡이만으로는 어디를 잡는지 안 보인다.
+               드롭다운·▲▼·토글은 각자 할 일이 있으니 제외된다 */
+            var grip = e.target.closest('.grip, .no');
+            if (!grip) return;
+            row = grip.closest('.mp-week');
+            if (!row) return;
+            from = editorRows().indexOf(row);
+            row.classList.add('is-drag');
+            grip.setPointerCapture(e.pointerId);
+            e.preventDefault();          /* 끌 때 글자가 선택되지 않게 */
+        });
+
+        box.addEventListener('pointermove', function (e) {
+            if (from < 0) return;
+            var over = target(e.clientY);
+            editorRows().forEach(function (r) { r.classList.toggle('is-over', r === over && r !== row); });
+        });
+
+        function target(y) {
+            /* 2열 그리드라 x 를 무시하면 엉뚱한 열에 놓인다 — 세로로 가장 가까운 행을 찾되
+               같은 열(왼쪽 1~6 / 오른쪽 7~12)만 후보로 둔다 */
+            var rows = editorRows(), best = null, gap = 1e9;
+            var col = rows.indexOf(row) < 6 ? 0 : 1;
+            rows.forEach(function (r, i) {
+                if ((i < 6 ? 0 : 1) !== col) return;
+                var b = r.getBoundingClientRect(), d = Math.abs((b.top + b.bottom) / 2 - y);
+                if (d < gap) { gap = d; best = r; }
+            });
+            return best;
+        }
+
+        function end(e) {
+            if (from < 0) return;
+            var over = target(e.clientY), to = editorRows().indexOf(over);
+            editorRows().forEach(function (r) { r.classList.remove('is-drag', 'is-over'); });
+            if (to >= 0 && to !== from) onDrop(from, to);
+            from = -1; row = null;
+        }
+
+        box.addEventListener('pointerup', end);
+        box.addEventListener('pointercancel', end);
+    }
+
     /* 화면에서 지금 고른 안 */
     function pickedMode() {
         var r = document.querySelector('input[name="planMode"]:checked');
@@ -245,22 +271,33 @@
         document.querySelectorAll('input[name="planMode"]').forEach(function (r) {
             r.addEventListener('change', function () {
                 draft.mode = r.value;
-                if (r.value !== 'custom') draft.weeks = preset(r.value);
+                draft.weeks = (r.value === 'custom') ? draft.custom.slice() : preset(r.value);
                 renderCards(draft);
             });
         });
 
         var dlg = document.getElementById('dlgWeeks');
 
-        document.getElementById('planEdit').addEventListener('click', function () {
-            fillEditor(draft);
+        function openWeeks() {
+            fillEditor({ weeks: draft.custom || draft.weeks });
             dlg.showModal();
+        }
+
+        document.getElementById('planEdit').addEventListener('click', openWeeks);
+
+        /* 만들어 둔 '우리 아이 맞춤' 카드를 다시 누르면 이어서 고칠 수 있게(2026-08-09 요청).
+           라디오 change 가 먼저 돌아 draft.mode 는 이미 custom 이다 */
+        var customCard = document.querySelector('.mp-plan--custom');
+        if (customCard) customCard.addEventListener('click', function () {
+            if (!customCard.hidden) setTimeout(openWeeks, 0);
         });
+
 
         document.getElementById('weeksCancel').addEventListener('click', function () { dlg.close(); });
 
         document.getElementById('weeksApply').addEventListener('click', function () {
-            draft.weeks = readEditorWeeks();
+            draft.custom = readEditorWeeks();
+            draft.weeks = draft.custom.slice();
             draft.mode = 'custom';          /* 손으로 고친 순간 직접 구성이 된다 */
             paint();
             dlg.close();
@@ -271,7 +308,17 @@
             if (!btn) return;
             var rows = editorRows(), i2 = rows.indexOf(btn.closest('.mp-week'));
             var j2 = btn.classList.contains('up') ? i2 - 1 : i2 + 1;
-            var w = readEditorWeeks(), t = w[i2]; w[i2] = w[j2]; w[j2] = t;
+            if (j2 < 0 || j2 > 11) return;
+            var w = readEditorWeeks();
+            w.splice(j2, 0, w.splice(i2, 1)[0]);
+            fillEditor({ weeks: w });
+        });
+
+        /* 끌어 놓기 — 자리 맞바꾸기가 아니라 뽑아서 그 자리에 끼운다.
+           맞바꾸면 12주차를 1주차로 보낼 때 사이 항목들이 뒤죽박죽 된다 */
+        initDrag(dlg, function (from, to) {
+            var w = readEditorWeeks();
+            w.splice(to, 0, w.splice(from, 1)[0]);
             fillEditor({ weeks: w });
         });
 
@@ -282,6 +329,16 @@
 
         document.getElementById('planReset').addEventListener('click', function () {
             draft = defaults();
+            paint();
+        });
+
+        /* 직접 만든 구성만 지운다 — 지우면 고른 안은 AI 로 돌아간다 */
+        var del = document.getElementById('planDelete');
+        if (del) del.addEventListener('click', function (e) {
+            e.stopPropagation();            /* 카드 클릭(편집 열기)까지 타지 않게 */
+            draft.custom = null;
+            draft.mode = 'ai';
+            draft.weeks = preset('ai');
             paint();
         });
 

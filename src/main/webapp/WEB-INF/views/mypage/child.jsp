@@ -26,33 +26,37 @@
 </section>
 
 <section class="mp-sec">
-    <h2>프로필 정보</h2>
+    <%-- 보호자 정보 탭과 대칭 — 어느 쪽이 누구 정보인지 제목에서 갈린다 --%>
+    <h2>아이 정보</h2>
     <div class="mp-grid">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
             <input class="kd-input" type="text" id="childName" value="지우">
         </div>
 
+        <%-- 온보딩 아동 프로필과 같은 방식 — 드롭다운에는 숫자만 두고 년·월·일은 밖에 라벨로 붙인다.
+             예전에는 .onb-unit 이 빈 칸이고 단위가 옵션 글자에 섞여 있어 온보딩과 모양이 달랐다. --%>
         <div class="kd-field">
             <label class="kd-label" for="birthYear">생년월일</label>
             <div class="onb-row">
                 <select class="kd-input onb-select" id="birthYear" name="birthYear">
                     <% for (int y = Year.now().getValue(); y >= 1990; y--) { %>
-                    <option value="<%= y %>"<%= y == 2018 ? " selected" : "" %>><%= y %>년</option>
+                    <option value="<%= y %>"<%= y == 2018 ? " selected" : "" %>><%= y %></option>
                     <% } %>
                 </select>
-                <span class="onb-unit"></span>
+                <span class="onb-unit">년</span>
                 <select class="kd-input onb-select" id="birthMonth" name="birthMonth">
                     <% for (int m = 1; m <= 12; m++) { %>
-                    <option value="<%= m %>"<%= m == 6 ? " selected" : "" %>><%= m %>월</option>
+                    <option value="<%= m %>"<%= m == 6 ? " selected" : "" %>><%= m %></option>
                     <% } %>
                 </select>
-                <span class="onb-unit"></span>
+                <span class="onb-unit">월</span>
                 <select class="kd-input onb-select" id="birthDay" name="birthDay">
                     <% for (int d = 1; d <= 31; d++) { %>
-                    <option value="<%= d %>"<%= d == 12 ? " selected" : "" %>><%= d %>일</option>
+                    <option value="<%= d %>"<%= d == 12 ? " selected" : "" %>><%= d %></option>
                     <% } %>
                 </select>
+                <span class="onb-unit">일</span>
             </div>
         </div>
 

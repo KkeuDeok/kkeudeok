@@ -12,11 +12,13 @@
 </div>
 
 <section class="mp-sec">
-    <h2>기본 정보</h2>
+    <%-- '이름' 만 쓰면 아동 프로필의 '아이 이름' 과 구분이 안 돼 두 탭이 겹쳐 보인다는 지적(2026-08-09).
+         누구 정보인지 라벨로 못박는다. --%>
+    <h2>보호자 정보</h2>
     <div class="mp-grid">
         <div class="kd-field">
-            <label class="kd-label" for="mpName">이름</label>
-            <input class="kd-input" type="text" id="mpName" value="김지우">
+            <label class="kd-label" for="mpName">보호자 이름</label>
+            <input class="kd-input" type="text" id="mpName" value="김민서" data-kd="guardianName">
         </div>
         <div class="kd-field">
             <label class="kd-label" for="mpEmail">이메일</label>
@@ -28,7 +30,7 @@
             <input class="kd-input" type="tel" id="mpPhone" value="010-1234-5678">
         </div>
         <div class="kd-field">
-            <label class="kd-label" for="mpRel">관계</label>
+            <label class="kd-label" for="mpRel">아이와의 관계</label>
             <%-- onb-select.js 가 select.onb-select 를 커스텀 드롭다운으로 바꿔 준다 --%>
             <select class="onb-select" id="mpRel" style="width:520px">
                 <option selected>어머니</option>

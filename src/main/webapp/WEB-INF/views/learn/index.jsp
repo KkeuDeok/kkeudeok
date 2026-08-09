@@ -11,10 +11,10 @@
 </div>
 
 <div class="learn-hero">
-    <%-- 배경은 사용자가 제공한 수채화 그림(learn-hero-bg.png), 캐릭터는 기존 사람 토리를 겹친다.
+    <%-- 배경은 사용자가 제공한 수채화 그림(learn-hero-bg2.jpg), 캐릭터는 기존 사람 토리를 겹친다.
          제공 그림에는 아이가 없어서 배경만 쓰면 배너가 비어 보인다. --%>
     <span class="art">
-        <img class="bg" src="/img/learn-hero-bg.png" alt="">
+        <img class="bg" src="/img/learn-hero-bg2.jpg?v=130" alt="">
         <img class="ch" src="/img/char-tori-full.png?v=108" alt="">
     </span>
     <div class="txt">
