@@ -291,6 +291,30 @@ html {
     .kd-splash { animation-duration: 0.2s; animation-delay: 0.4s; }
 }
 
+/* --- 오류·안내 문구가 뜨는 방식 ----------------------------------------------
+   auth-validate.js 가 .kd-error / .kd-info 를 DOM 에 새로 붙이므로 transition 은
+   걸리지 않는다(붙는 순간이 곧 첫 상태다) → animation 으로 한 번 돌린다.
+   위 예약석 덕분에 자리가 이미 잡혀 있어 움직임을 넣어도 아래 요소가 안 밀린다.
+   로그인 계열 9화면과 온보딩이 이 클래스를 공유하므로 여기 한 곳이면 전부 적용된다. */
+.kd-error,
+.kd-info {
+    animation: kd-msg-in var(--kd-dur-base) var(--kd-ease) both;
+}
+
+@keyframes kd-msg-in {
+    from { opacity: 0; transform: translateY(-3px); }
+}
+
+/* 테두리가 빨개지는 것도 같이 부드럽게 */
+.kd-input {
+    transition: border-color var(--kd-dur-fast) ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kd-error,
+    .kd-info { animation: none; }
+}
+
 /* 인증 행: 376px 입력 + 132px pill 버튼 (gap 12) */
 .kd-input-row {
     display: flex;

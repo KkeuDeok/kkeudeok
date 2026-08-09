@@ -234,6 +234,37 @@
     display: block;
 }
 
+/* --- 점이 톡 켜지고, 안 맞으면 흔들린다 ---------------------------------------
+   ⚠ 점은 display:none → block 으로 켜진다. display 는 transition 이 안 걸리므로
+     .is-on 에 animation 을 건다 — 클래스가 붙는 순간 한 번 돈다.
+     (auth-validate.js renderPinDots 가 입력 수만큼 .is-on 을 토글한다) */
+.onb-pin-dots i.is-on {
+    animation: kd-dot-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes kd-dot-in {
+    from { transform: scale(0.2); opacity: 0; }
+}
+
+/* 흔들림은 PIN 칸에만 건다 — 회원가입처럼 칸이 많은 화면에서 여러 개가
+   한꺼번에 흔들리면 시끄럽다. 대상: 온보딩 PIN · 마이페이지 PIN 재설정 · 게이트 */
+.onb-pin.kd-input--error {
+    animation: kd-pin-shake 0.4s ease-in-out;
+}
+
+@keyframes kd-pin-shake {
+    0%, 100% { transform: none; }
+    18%      { transform: translateX(-8px); }
+    38%      { transform: translateX(7px); }
+    58%      { transform: translateX(-4px); }
+    78%      { transform: translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .onb-pin-dots i.is-on,
+    .onb-pin.kd-input--error { animation: none; }
+}
+
 /* --------------------------------------------------------------------------
    입력 블록 — Figma 온보딩 원안 규격 (로그인 계열의 520×48 과 다르다)
    라벨 13 Medium + 8 + 입력칸 34, 블록 간격 42.
