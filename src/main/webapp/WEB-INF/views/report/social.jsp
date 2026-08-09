@@ -4,13 +4,15 @@
 
 <%-- ponytail: 수치는 전부 예시값. 고정값 표: 사회성 58 ▼3 · 8주 누적 +8 --%>
 <div class="app-head rpt-head">
-    <h1>지우의 성장 리포트</h1>
+    <h1><span data-kd="childName">지우</span>의 성장 리포트</h1>
     <p>관찰 8주차 · 매주 월요일에 갱신돼요</p>
 </div>
 
 <div class="rpt-tabsrow">
     <%@ include file="../common/report-tabs.jsp" %>
 </div>
+<%@ include file="../common/report-empty.jsp" %>
+
 
 <div class="rpt-score">
     <div>

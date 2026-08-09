@@ -6,13 +6,15 @@
      8주 시퀀스는 끝값·최근 증감·누적이 다른 화면과 전부 맞아떨어지게 설계돼 있다:
      이해 52→72(+20, 최근 +2) / 표현 48→64(+16, +4) / 사회성 50→58(+8, -3) --%>
 <div class="app-head rpt-head">
-    <h1>지우의 성장 리포트</h1>
+    <h1><span data-kd="childName">지우</span>의 성장 리포트</h1>
     <p>관찰 8주차 · 매주 월요일에 갱신돼요</p>
 </div>
 
 <div class="rpt-tabsrow">
     <%@ include file="../common/report-tabs.jsp" %>
 </div>
+<%@ include file="../common/report-empty.jsp" %>
+
 
 <div class="rpt-score">
     <div>

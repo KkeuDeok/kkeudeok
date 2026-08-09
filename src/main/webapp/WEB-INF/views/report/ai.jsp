@@ -6,13 +6,15 @@
      사회성 ▼3(지난주) 과 주간 변화의 +8(8주 누적)은 기간이 달라 모순이 아니다.
      ponytail: 코멘트·추천은 전부 예시 문구 — 실제로는 AI가 생성할 자리. --%>
 <div class="app-head rpt-head">
-    <h1>지우의 성장 리포트</h1>
+    <h1><span data-kd="childName">지우</span>의 성장 리포트</h1>
     <p>관찰 8주차 · 매주 월요일에 갱신돼요</p>
 </div>
 
 <div class="rpt-tabsrow">
     <%@ include file="../common/report-tabs.jsp" %>
 </div>
+<%@ include file="../common/report-empty.jsp" %>
+
 
 <div class="rpt-ai">
     <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
