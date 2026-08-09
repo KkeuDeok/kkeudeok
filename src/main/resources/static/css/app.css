@@ -1338,3 +1338,16 @@
 .learn-entry .ic-check {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
 }
+
+/* 빈 상태에서 KPI 3장(.dash-kpis)이 사라지면 차트 행이 제목에 붙어 버린다 —
+   .dash-kpis 가 갖고 있던 위 여백 48 을 대신 준다 */
+html[data-kd-empty] .dash-row { margin-top: 48px; }
+
+/* 빈 카드는 옆 로드맵 카드와 같은 높이로 늘어나야 한다 */
+.dash-chart.kd-no-data { display: flex; }
+.dash-chart.kd-no-data .kd-empty { flex: 1; }
+
+/* 최근 학습 기록이 0건일 때 — 표 대신 들어간 빈 카드가 왼쪽 일상 카드와 아래 선을 맞추도록 늘린다 */
+html[data-kd-empty] .learn-recent { display: flex; flex-direction: column; }
+/* margin-top 7 = 표가 있던 자리(디자인 y478)와 같은 높이. 왼쪽 일상 카드와 윗선이 맞는다 */
+html[data-kd-empty] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }

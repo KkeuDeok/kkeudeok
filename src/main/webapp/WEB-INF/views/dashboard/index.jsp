@@ -5,11 +5,11 @@
 <%-- ponytail: 숫자·그래프·목록은 전부 Figma 예시값이다.
      주간 집계는 백엔드에서 내려줄 값이라 화면 골격만 만들어 둔다. --%>
 <div class="app-head">
-    <h1>지우의 이번 주</h1>
+    <h1><span data-kd="childName">지우</span>의 이번 주</h1>
     <p>로드맵: 맞춤 (1순위 · 감정 표현)</p>
 </div>
 
-<div class="dash-kpis">
+<div class="dash-kpis kd-has-data">
     <div class="dash-kpi">
         <p class="lb">감정 표현</p>
         <p class="v">64%</p>
@@ -31,7 +31,18 @@
 </div>
 
 <div class="dash-row">
-    <div class="dash-chart">
+    <%-- 데이터 0일 때 KPI·추이 그래프 자리를 대신하는 카드. .dash-row 가 flex 라
+         옆 로드맵 카드와 높이가 저절로 맞는다(고정 높이 지정 금지). --%>
+    <div class="dash-chart kd-no-data">
+        <div class="kd-empty">
+            <span class="ic kd-empty-ic-seed"></span>
+            <p class="t">아직 성장 데이터가 없어요</p>
+            <p class="d">첫 이야기를 마치면 감정 이해 · 표현 · 사회성이 주차별로 여기에 쌓여요</p>
+            <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
+        </div>
+    </div>
+
+    <div class="dash-chart kd-has-data">
         <h2>주간 감정 변화 추이</h2>
         <%--
           세로축은 0~100 이 아니라 45~75 구간만 보여 준다 (Figma 격자선 = 75/65/55/45).
@@ -74,13 +85,23 @@
             <h2>주차별 로드맵</h2>
             <button type="button" class="lk" onclick="dlgRoadmap.showModal()">전체 보기</button>
         </div>
-        <ol>
+        <ol class="kd-has-data">
             <li><span class="no no-done">5</span><span class="t">표정으로 표현하기</span><span class="chip chip-done">완료</span></li>
             <li><span class="no no-done">6</span><span class="t">몸짓으로 표현하기</span><span class="chip chip-done">완료</span></li>
             <li><span class="no no-now">7</span><span class="t">감정 표현하기 — 슬픔 연습</span><span class="chip chip-now">진행중</span></li>
             <li><span class="no no-soon">8</span><span class="t">친구 위로하기</span><span class="chip chip-soon">예정</span></li>
         </ol>
-        <p class="foot">12주 과정 중 7주차 · 이번 주 2 / 3 완료</p>
+        <p class="foot kd-has-data">12주 과정 중 7주차 · 이번 주 2 / 3 완료</p>
+
+        <%-- 신규 사용자에게도 12주 계획 자체는 보여 준다 — 앞으로 뭘 하는지가 가입 동기다.
+             1주차부터 전부 '예정'으로만 바뀐다(모달 안 전체 목록은 그대로 쓴다). --%>
+        <ol class="kd-no-data">
+            <li><span class="no no-now">1</span><span class="t">감정 알아보기 — 기쁨</span><span class="chip chip-soon">예정</span></li>
+            <li><span class="no no-soon">2</span><span class="t">감정 알아보기 — 슬픔</span><span class="chip chip-soon">예정</span></li>
+            <li><span class="no no-soon">3</span><span class="t">표정 구분하기</span><span class="chip chip-soon">예정</span></li>
+            <li><span class="no no-soon">4</span><span class="t">상황과 감정 잇기</span><span class="chip chip-soon">예정</span></li>
+        </ol>
+        <p class="foot kd-no-data">12주 과정 중 1주차 시작 전 · 이번 주 0 / 3 완료</p>
     </section>
 </div>
 
@@ -95,8 +116,9 @@
     </section>
 
     <section class="dash-streak">
-        <p class="big"><b>5일</b><span>연속 이용 중</span></p>
-        <div class="dash-week">
+        <p class="big kd-has-data"><b>5일</b><span>연속 이용 중</span></p>
+        <p class="big kd-no-data"><b>0일</b><span>오늘 시작해 볼까요?</span></p>
+        <div class="dash-week kd-has-data">
             <div><p class="d">월</p><span class="mk on"></span></div>
             <div><p class="d">화</p><span class="mk on"></span></div>
             <div><p class="d">수</p><span class="mk off"></span></div>
@@ -105,6 +127,15 @@
             <div><p class="d">토</p><span class="mk off"></span></div>
             <div><p class="d">일</p><span class="mk on"></span></div>
         </div>
+        <div class="dash-week kd-no-data">
+            <div><p class="d">월</p><span class="mk off"></span></div>
+            <div><p class="d">화</p><span class="mk off"></span></div>
+            <div><p class="d">수</p><span class="mk off"></span></div>
+            <div><p class="d">목</p><span class="mk off"></span></div>
+            <div><p class="d">금</p><span class="mk off"></span></div>
+            <div><p class="d">토</p><span class="mk off"></span></div>
+            <div><p class="d">일</p><span class="mk off"></span></div>
+        </div>
     </section>
 </div>
 
@@ -112,7 +143,7 @@
      빠진 `오늘의 관찰 확인` 가로 배너를 되살린 것이다. --%>
 <div class="dash-observe">
     <span class="ic"></span>
-    <p>오늘 지우의 모습을 기록하면 다음 학습이 더 정확해져요</p>
+    <p>오늘 <span data-kd="childName">지우</span>의 모습을 기록하면 다음 학습이 더 정확해져요</p>
     <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>
 </div>
 

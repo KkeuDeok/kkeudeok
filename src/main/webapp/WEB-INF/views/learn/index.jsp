@@ -21,8 +21,7 @@
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
         <p class="min">예상 소요 약 7분</p>
-        <%-- TODO: 학습 흐름 첫 화면(섹션 07)이 아직 없어 연결할 곳이 없다 --%>
-        <a class="kd-btn kd-btn-primary" href="#">이야기 시작하기</a>
+        <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
 
@@ -47,8 +46,8 @@
             <p class="d" id="dailySummary"></p>
             <div class="row">
                 <button type="button" class="kd-btn kd-btn-outline" onclick="dlgDaily.showModal()">다시 쓰기</button>
-                <%-- TODO: 학습 흐름 화면 생기면 연결 --%>
-                <a class="kd-btn kd-btn-primary" href="#">이 이야기로 학습 시작</a>
+                <%-- 고른 감정이 그대로 학습 흐름의 감정 벌로 이어진다 — href 는 kdDailySave() 가 채운다 --%>
+                <a class="kd-btn kd-btn-primary" id="dailyStart" href="/story/scene">이 이야기로 학습 시작</a>
             </div>
         </div>
 
@@ -57,7 +56,14 @@
 
     <section class="learn-recent">
         <h2 class="learn-sec">최근 학습 기록</h2>
-        <table>
+        <%-- 기록이 0건일 때 — 표 헤더만 덩그러니 남으면 남의 화면처럼 보인다 --%>
+        <div class="kd-empty kd-no-data">
+            <span class="ic kd-empty-ic-list"></span>
+            <p class="t">아직 학습 기록이 없어요</p>
+            <p class="d">이야기를 한 편 마치면 날짜와 결과가 여기에 남아요</p>
+        </div>
+
+        <table class="kd-has-data">
             <thead>
             <tr><th class="c-no">No</th><th class="c-date">날짜</th><th class="c-story">스토리</th><th class="c-state">상태</th></tr>
             </thead>
@@ -85,9 +91,9 @@
 
 <div class="learn-cta">
     <span class="ic"></span>
-    <p>이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
-    <%-- TODO: 학습 흐름 화면 생기면 연결 --%>
-    <a class="kd-btn kd-btn-primary" href="#">학습 시작</a>
+    <p class="kd-has-data">이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
+    <p class="kd-no-data">첫 이야기를 시작해 볼까요? · 오늘의 일상을 적으면 더 딱 맞는 이야기가 나와요</p>
+    <a class="kd-btn kd-btn-primary" href="/story/scene">학습 시작</a>
 </div>
 
 <%-- 오늘의 일상 입력 모달 (Figma 24:20619).
@@ -162,6 +168,12 @@
 
         document.getElementById('dailySummary').textContent =
             chip.value + ' · ' + emo.value + ' · "' + memo + '"';
+
+        /* 고른 감정 → 학습1 감정 벌. 슬픔·놀람·무표정은 아직 벌이 없어 슬픔으로 보낸다. */
+        var KD_EMO = { '기쁨': 'happy', '화남': 'angry' };
+        document.getElementById('dailyStart').href =
+            '/story/scene?emo=' + (KD_EMO[emo.value] || 'sad');
+
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
         dlgDaily.close();
