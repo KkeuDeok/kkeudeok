@@ -222,6 +222,21 @@
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 18px no-repeat;
 }
 
+/* 배경 그림을 깔면서 하단 바가 잔디 위에 올라앉았다 — 상자 없는 글자('다음에 할래'·카운터)가
+   초록 위 초록이라 안 읽힌다. 바 뒤에 흰 안개를 옅게 깔아 대비를 만든다(그림은 그대로 비친다). */
+.child-foot::before {
+    content: "";
+    position: absolute;
+    left: -40px;
+    right: -40px;
+    top: -16px;
+    bottom: -16px;
+    background: rgba(255, 255, 255, 0.72);
+    filter: blur(12px);
+    z-index: -1;
+    pointer-events: none;
+}
+
 /* 다음에 할래 — 상자 없는 글자 버튼 */
 .child-foot .kd-later {
     width: 118px;
