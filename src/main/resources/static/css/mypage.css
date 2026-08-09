@@ -482,8 +482,8 @@
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
 .mp-char-view .big {
     display: block;
-    width: 217px;
-    height: 217px;
+    width: 260px;
+    height: 260px;
     margin: 0 auto;
     object-fit: contain;
 }
@@ -536,7 +536,7 @@
 
 .mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
 
-.mp-chars img { display: block; width: 125px; height: 125px; margin: 0 auto; object-fit: contain; }
+.mp-chars img { display: block; width: 150px; height: 150px; margin: 0 auto; object-fit: contain; }
 
 .mp-chars .nm {
     display: block;
