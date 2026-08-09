@@ -212,6 +212,85 @@ html {
     bottom: -3px;
 }
 
+/* ==========================================================================
+   첫 진입 스플래시 — 로그인 화면에만(login.jsp). 곰이 두 번 끄덕이고 걷힌다.
+   ⚠ visibility 까지 끄는 이유: opacity 만 0 이면 투명한 판이 그대로 남아
+     로그인 폼이 안 눌린다(elementFromPoint 로 확인함).
+   ========================================================================== */
+.kd-splash {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    display: grid;
+    place-items: center;
+    background: #fff;
+    /* 1.9s = 끄덕이 완전히 잦아드는 1.6s(0.5 지연 + 1.1 재생) + 숨 고르는 0.3s.
+       세션당 한 번만 뜨므로(login.jsp) 조금 길어도 된다 — 1.35s 로 두면
+       끄덕이 다 잦아들기 전에 걷히기 시작한다. */
+    animation: kd-splash-out 0.65s ease 1.9s forwards;
+}
+
+/* pointer-events 는 지연이 끝나고(=걷히기 시작할 때) 비로소 걸린다 — fill-mode 가
+   forwards 라 대기 중에는 적용되지 않는다. 덕분에 "덮여 있는 동안은 막고,
+   흐려지기 시작하면 바로 눌린다"가 된다. 없으면 보이는데 안 눌리는 구간이
+   사라지는 시간(0.65s)만큼 생긴다.
+   ⚠ 양쪽 키프레임에 모두 적어야 한다. pointer-events 는 이산(discrete) 속성이라
+     한쪽에만 두면 구간 절반에서 원래 값으로 되돌아간다(실측으로 확인). */
+@keyframes kd-splash-out {
+    from { pointer-events: none; }
+    to   { opacity: 0; visibility: hidden; pointer-events: none; }
+}
+
+.kd-splash-logo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+}
+
+/* 회전축을 턱 밑에 둬야 고개를 젓는 게 아니라 끄덕이는 걸로 보인다 */
+.kd-splash-logo img {
+    width: 96px;
+    height: 96px;
+    transform-origin: 50% 82%;
+    animation: kd-splash-drop 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) both,
+               kd-splash-nod 1.1s 0.5s ease-in-out both;
+}
+
+.kd-splash-logo span {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--kd-primary-strong);
+    animation: kd-splash-word 0.45s 0.95s var(--kd-ease) both;
+}
+
+@keyframes kd-splash-drop {
+    from { transform: translateY(-64px) scale(0.86); opacity: 0; }
+}
+
+/* 두 번 끄덕 — 크게 한 번, 작게 한 번. 되돌아오는 각(−4·−2)이 있어야 관성이 산다 */
+@keyframes kd-splash-nod {
+    0%   { transform: rotate(0); }
+    18%  { transform: rotate(13deg); }
+    36%  { transform: rotate(-4deg); }
+    54%  { transform: rotate(11deg); }
+    74%  { transform: rotate(-2deg); }
+    100% { transform: rotate(0); }
+}
+
+@keyframes kd-splash-word {
+    from { opacity: 0; transform: translateY(10px); }
+}
+
+/* 움직임을 줄이도록 설정한 경우 — 곰만 조용히 보여 주고 빨리 걷는다 */
+@media (prefers-reduced-motion: reduce) {
+    .kd-splash-logo img,
+    .kd-splash-logo span { animation: none; }
+    .kd-splash { animation-duration: 0.2s; animation-delay: 0.4s; }
+}
+
 /* 인증 행: 376px 입력 + 132px pill 버튼 (gap 12) */
 .kd-input-row {
     display: flex;

@@ -2,6 +2,26 @@
 <% String pageTitle = "로그인"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
+<%-- 첫 진입 스플래시 — 곰이 고개를 두 번 끄덕이고 워드마크가 올라온 뒤 스스로 걷힌다.
+     라우트를 새로 파지 않아 서버 재시작이 필요 없다(대시보드 모달과 같은 이유).
+     서버가 그려 보내므로 첫 프레임부터 덮인 상태다 — 깜빡임(FOUC)이 없다.
+     ⚠ 로그인 화면에만 둔다. auth-top.jsp 에 넣으면 아이디찾기·회원가입 9화면에 다 뜬다. --%>
+<div class="kd-splash" aria-hidden="true">
+    <div class="kd-splash-logo">
+        <img src="/img/char-bear.png?v=5" alt="">
+        <span>끄덕</span>
+    </div>
+</div>
+<script>
+    /* 비밀번호 찾기 갔다 돌아올 때 또 뜨면 성가시다 — 세션에 한 번만.
+       JS 가 꺼져 있으면 그냥 매번 재생된다(화면은 멀쩡하다). */
+    if (sessionStorage.getItem('kdSplash')) {
+        document.querySelector('.kd-splash').remove();
+    } else {
+        sessionStorage.setItem('kdSplash', '1');
+    }
+</script>
+
 <%@ include file="../common/auth-brand.jsp" %>
 <h1 class="auth-title">로그인</h1>
 
