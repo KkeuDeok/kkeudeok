@@ -19,7 +19,10 @@
        창 크기에 맞춰 1.3배 늘리는 순간 그 얼룩이 커져 배경이 지저분해 보인다(실제 지적 받음).
        → 잔디·나무 띠만 잘라 아래에 깔고, 그 위는 CSS 가 순백으로 칠한다.
        가로는 창 폭에 맞추고 세로는 비율대로(100% auto) — 늘려도 파도라 티가 안 난다. */
-    background: #fff url("/img/story-bg.png?v=147") center bottom / 100% auto no-repeat;
+    /* ⚠ PNG(535KB) → JPEG(73KB). 1503×331 에 색이 83,573 개라 PNG 는 최악의 선택이었다.
+       화면을 넘길 때마다 이게 통째로 내려와 흰 화면이 먼저 뜨고 배경이 뒤늦게 들어왔다
+       (2026-08-10 사용자 지적). 불투명한 그림이라 JPEG 로 잃는 게 없다(평균 색차 1.72). */
+    background: #fff url("/img/story-bg.jpg?v=148") center bottom / 100% auto no-repeat;
 }
 
 .child-shell {
