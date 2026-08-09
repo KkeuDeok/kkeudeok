@@ -172,3 +172,73 @@ img {
     border-width: 0 2.5px 2.5px 0;
     transform: rotate(45deg);
 }
+
+/* --------------------------------------------------------------------------
+   신규 가입 직후(데이터 0) 화면 — head.jsp 가 html[data-kd-empty] 를 켠다
+   더미 블록엔 .kd-has-data, 빈 상태 블록엔 .kd-no-data 만 붙이면 서로 뒤집힌다
+   -------------------------------------------------------------------------- */
+html[data-kd-empty] .kd-has-data { display: none !important; }
+html:not([data-kd-empty]) .kd-no-data { display: none !important; }
+
+/* 공통 빈 카드 — 학습 홈 .learn-entry 형태를 그대로 따른다(아이콘 원 + 제목 + 설명 + CTA) */
+.kd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    box-sizing: border-box;
+    background: #f9fbfa;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+    text-align: center;
+}
+
+/* ⚠ background 단축 속성을 쓰면 아래 .kd-empty-ic-* 의 background-image 가 리셋된다
+   (app.css 에서 이미 한 번 겪은 함정) — 반드시 background-color 로 따로 쓸 것 */
+.kd-empty .ic {
+    display: inline-flex;
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 999px;
+    background-color: var(--kd-primary-tint);
+    background-position: center;
+    background-size: 26px;
+    background-repeat: no-repeat;
+}
+
+.kd-empty .t {
+    margin: 16px 0 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 26px;
+    color: var(--kd-text);
+}
+
+.kd-empty .d {
+    margin: 6px 0 0;
+    max-width: 440px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+    word-break: keep-all;
+}
+
+.kd-empty .kd-btn {
+    width: 220px;
+    height: 44px;
+    margin-top: 16px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 아이콘 — 새싹(성장 데이터 없음) / 목록(기록 없음) */
+.kd-empty-ic-seed {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22V9'/%3E%3Cpath d='M12 9C12 5 9 3 5 3c0 4 3 6 7 6Z'/%3E%3Cpath d='M12 13c0-3.3 2.7-6 6-6 0 3.3-2.7 6-6 6Z'/%3E%3C/svg%3E");
+}
+
+.kd-empty-ic-list {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13'/%3E%3Cpath d='M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E");
+}

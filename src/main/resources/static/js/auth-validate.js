@@ -283,11 +283,16 @@
         ok = checkGroup([$('birthYear'), $('birthMonth'), $('birthDay')], '생년월일을 모두 선택해 주세요') && ok;
         ok = checkGroup([$('disabilityType'), $('disabilityLevel')], '장애 유형과 정도를 선택해 주세요') && ok;
         if (!ok) return;
+        var g = document.querySelector('input[name="gender"]:checked');
         saveOnb({
             name: $('childName').value.trim(),
             birthY: +$('birthYear').value,
             birthM: +$('birthMonth').value,
-            birthD: +$('birthDay').value
+            birthD: +$('birthDay').value,
+            /* 마이페이지 아동 프로필에서 그대로 다시 보여 줘야 해서 같이 담는다 */
+            gender: g ? g.value : '',
+            disType: $('disabilityType').value,
+            disLevel: $('disabilityLevel').value
         });
         location.href = '/onboarding/character';
     };
@@ -519,6 +524,69 @@
     }
 
     renderOnbDone();
+
+    /* 온보딩에서 받은 아이 정보를 보호자 앱 전 화면에 반영한다.
+       마크업에는 data-kd 훅만 두고 값은 여기서 채운다 — JSP 를 EL 로 바꾸는 건 백엔드가 붙은 뒤 일.
+       kdOnb 가 비어 있으면(직접 URL 진입·시크릿 모드) 아무것도 건드리지 않아 예시값이 그대로 남는다. */
+    function renderAppOnb() {
+        var v = readOnb();
+        if (!v.name) return;
+
+        var age = v.birthY ? ageOf(v.birthY, v.birthM, v.birthD) : null;
+
+        document.querySelectorAll('[data-kd="childName"]').forEach(function (el) {
+            el.textContent = v.name;
+        });
+        document.querySelectorAll('[data-kd="childNameAge"]').forEach(function (el) {
+            el.textContent = v.name + (age === null ? '' : ' · ' + age + '세');
+        });
+        document.querySelectorAll('[data-kd="childAge"]').forEach(function (el) {
+            if (age !== null) el.textContent = age;
+        });
+        if (v.charKey) {
+            document.querySelectorAll('[data-kd="charAva"]').forEach(function (el) {
+                el.src = '/img/char-' + v.charKey + '.png?v=120';
+            });
+        }
+
+        /* 마이페이지 아동 프로필 폼 — 이 화면에서만. 온보딩 입력 화면과 id 가 같아서 가드가 필요하다.
+           select 값은 onb-select.js 가 드롭다운을 만들기 전에 넣어야 버튼 글씨까지 따라온다
+           (head.jsp 로드 순서가 auth-validate → onb-select 라 여기서 넣으면 맞다) */
+        if (document.querySelector('.mp-profile')) {
+            if ($('childName')) $('childName').value = v.name;
+            if (v.birthY && $('birthYear')) {
+                $('birthYear').value = v.birthY;
+                $('birthMonth').value = v.birthM;
+                $('birthDay').value = v.birthD;
+            }
+            if (v.gender) {
+                var r = document.querySelector('input[name="gender"][value="' + v.gender + '"]');
+                if (r) r.checked = true;
+            }
+            if (v.disType && $('disabilityType')) $('disabilityType').value = v.disType;
+            if (v.disLevel && $('disabilityLevel')) $('disabilityLevel').value = v.disLevel;
+        }
+
+        /* 마이페이지 캐릭터 관리 — 온보딩에서 고른 친구를 선택 상태로.
+           미리보기 갱신은 화면 자체 change 핸들러에 맡긴다(그 인라인 스크립트가 먼저 실행된다) */
+        if (v.charKey && document.querySelector('.mp-chars')) {
+            var pick = document.querySelector('.mp-chars input[value="' + v.charKey + '"]');
+            if (pick) {
+                pick.checked = true;
+                pick.dispatchEvent(new Event('change'));
+                if (v.nickname && $('charNick')) $('charNick').value = v.nickname;
+            }
+        }
+    }
+
+    renderAppOnb();
+
+    /* 리포트 5탭 부제 — 관찰 데이터가 0인데 '관찰 8주차'가 남아 있으면 안 된다.
+       탭마다 같은 문장이라 JSP 5개를 고치는 대신 여기서 한 번에 바꾼다. */
+    if (document.documentElement.dataset.kdEmpty) {
+        var rptSub = document.querySelector('.rpt-head p');
+        if (rptSub) rptSub.textContent = '관찰 시작 전 · 첫 주 학습을 마치면 리포트가 만들어져요';
+    }
 
     /* ---------- 실시간 오류 해제 — 오류가 떠 있는 필드만 입력 시 재검증 ---------- */
     function notBlank(el) { return !!el.value.trim(); }

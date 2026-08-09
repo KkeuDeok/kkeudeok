@@ -5,7 +5,9 @@
         뒷문장이 화면에 그대로 찍힌다 (실제로 이 주석이 그렇게 새고 있었다) --%>
 <% String pageTitle = "온보딩 - 완료"; int onbStep = 7;
    String onbCol = "onb-col--w800 onb-col--center onb-col--done";
-   String onbNext = "location.href='/dashboard'"; %>
+   <%-- 온보딩을 실제로 통과했으면 데이터가 0인 게 맞다 — 대시보드를 신규 상태로 띄운다.
+        해제는 주소에 ?empty=0 (head.jsp 스위치). --%>
+   String onbNext = "sessionStorage.setItem('kdEmpty','1');location.href='/dashboard'"; %>
 <%@ include file="../common/onb-top.jsp" %>
 <% onbPrev = false; onbNextLabel = "대시보드로 가기"; %>
 

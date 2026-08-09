@@ -649,3 +649,21 @@
 .rpt-axis .rpt-scene { height: 44px; }
 .rpt-axis .rpt-scene .t { font-size: 13px; }
 .rpt-axis .rpt-scene .d { width: 38px; margin-left: 10px; font-size: 12px; }
+
+/* --------------------------------------------------------------------------
+   신규 가입 직후(데이터 0) — 본문 전체를 숨기고 common/report-empty.jsp 안내만 남긴다.
+   5개 탭이 같은 블록 클래스만 쓰기 때문에 파일을 감쌀 필요 없이 여기서 한 번에 끊는다.
+   -------------------------------------------------------------------------- */
+html[data-kd-empty] .rpt-score,
+html[data-kd-empty] .rpt-sec,
+html[data-kd-empty] .rpt-rule,
+html[data-kd-empty] .rpt-cta,
+html[data-kd-empty] .rpt-ai,
+html[data-kd-empty] .rpt-note { display: none !important; }
+
+.rpt-empty {
+    max-width: 1200px;
+    margin: 40px auto 0;
+    padding: 0 40px;
+    box-sizing: border-box;
+}
