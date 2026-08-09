@@ -20,6 +20,12 @@
     /* 폰트 */
     --kd-font: "Noto Sans KR", sans-serif;
 
+    /* 모션 — 화면마다 속도·감속이 제각각이 되지 않게 여기서 정한다.
+       튀는 느낌(팝·흔들림)은 성격이 달라 각자 값을 쓴다. */
+    --kd-dur-fast: 0.12s;                        /* 눌림·색 변화 같은 즉각 반응 */
+    --kd-dur-base: 0.22s;                        /* 나타남·사라짐 */
+    --kd-ease: cubic-bezier(0.22, 1, 0.36, 1);   /* 빨리 시작해 부드럽게 멈춘다 */
+
     /* 아이콘 — Iconify lucide:chevron-right. mask로 쓰므로 색은 currentColor가 정한다 */
     --kd-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
 }
