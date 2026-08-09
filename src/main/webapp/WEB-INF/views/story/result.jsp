@@ -39,8 +39,9 @@
 </div>
 
 <%-- 화면 어디를 눌러도 학습을 마친다(story.js).
-     ⚠ 아동홈으로 보내면 같은 이야기가 다시 시작돼 빠져나갈 수 없다 — 반드시 흐름 밖으로. --%>
-<div class="done-stage" data-home="/learn" role="button" tabindex="0" aria-label="오늘 학습 마치기">
+     ⚠ 아동홈으로 보내면 같은 이야기가 다시 시작돼 빠져나갈 수 없다 — 반드시 흐름 밖으로.
+     칭찬 다음은 학습 홈이 아니라 **보호자 대시보드**다(2026-08-10 사용자 확정). --%>
+<div class="done-stage" data-home="/dashboard" role="button" tabindex="0" aria-label="오늘 학습 마치기">
     <div class="done-art"><img data-kd-char="proud" src="/img/char-tori-proud.png" alt=""></div>
 
     <h1 class="done-title">고마워, 지우야!</h1>
