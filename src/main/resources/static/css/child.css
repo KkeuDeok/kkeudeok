@@ -22,7 +22,7 @@
     /* ⚠ PNG(535KB) → JPEG(73KB). 1503×331 에 색이 83,573 개라 PNG 는 최악의 선택이었다.
        화면을 넘길 때마다 이게 통째로 내려와 흰 화면이 먼저 뜨고 배경이 뒤늦게 들어왔다
        (2026-08-10 사용자 지적). 불투명한 그림이라 JPEG 로 잃는 게 없다(평균 색차 1.72). */
-    background: #fff url("/img/story-bg.jpg?v=149") center bottom / 100% auto no-repeat;
+    background: #fff url("/img/story-bg.jpg?v=159") center bottom / 100% auto no-repeat;
 }
 
 .child-shell {
@@ -858,7 +858,7 @@
        전 벌이 바닥에 닿게 한다 — 넘치는 만큼은 .cam-box 의 overflow 가 잘라 낸다. */
     bottom: -11px;
     width: 330px;
-    height: 336px;
+    height: 348px;
     object-fit: cover;      /* 세로를 꽉 채우고 남는 좌우 여백만 잘라낸다 */
 }
 
@@ -878,9 +878,9 @@
    (2026-08-10 사용자 지적 "얘는 더 커도 될 것 같아요"). 모자 몫만큼 키워 눈높이를 맞춘다.
    ⚠ 크기가 다른 건 이 한 가지 근거 때문이다. 다른 이유로 벌마다 값을 갈라 놓지 말 것. */
 .cam-box .demo[data-kd-char="celebrate"] {
-    left: -17px;            /* 얼굴 중심 x 를 165 로 유지 (−17 + 364/2) */
-    width: 364px;           /* 0.479×380 = 182 → 창 반폭 182 로 크래커를 담는다 */
-    height: 380px;
+    left: -24px;            /* 얼굴 중심 x 를 165 로 유지 (−24 + 378/2) */
+    width: 378px;           /* 0.479×394 = 189 → 창 반폭 189 로 크래커를 담는다 */
+    height: 394px;
 }
 
 /* 토리가 먼저 해 보이는 코너 카드 */
@@ -993,10 +993,10 @@
    문구 3줄도 그만큼 아래로 내렸다. */
 .done-art {
     position: absolute;
-    left: 335px;            /* (1000 − 330) / 2 */
+    left: 326px;            /* (1000 − 348) / 2 */
     top: 170px;
-    width: 330px;
-    height: 330px;
+    width: 348px;
+    height: 348px;
 }
 
 .done-art img { width: 100%; height: 100%; object-fit: contain; }
@@ -1111,8 +1111,8 @@
     position: absolute;
     left: 50%;
     top: 0;
-    width: 340px;
-    height: 340px;
+    width: 348px;
+    height: 348px;
     transform: translateX(-50%);
     object-fit: contain;
     object-position: center top;

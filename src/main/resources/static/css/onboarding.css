@@ -1206,12 +1206,15 @@
     pointer-events: none;
 }
 
+/* 2026-08-10 "더 크게". 212 → 240 + cover 로 캔버스 위쪽 빈 여백을 잘라 낸다.
+   얼굴이 33.7% 에 고정돼 있어 6명 모두 같은 자리에서 잘린다. */
 .onb-char img {
     display: block;
-    width: 212px;
-    height: 212px;
-    margin: 26px auto 0;
-    object-fit: contain;
+    width: 240px;
+    height: 200px;
+    margin: 16px auto 0;
+    object-fit: cover;
+    object-position: center 60%;
 }
 
 .onb-char .nm {

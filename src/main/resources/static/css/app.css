@@ -1348,12 +1348,15 @@ html[data-kd-stage="1"] .dash-row { margin-top: 48px; }
 
 /* 0단계는 아래 카드행·관찰 배너가 통째로 빠지므로 그 세로를 빈 카드가 먹는다.
    min-height 값은 마지막 요소 바닥이 2단계(디자인 y971)와 비슷하게 끝나도록 실측해 정했다. */
-html[data-kd-stage="0"] .dash-row { min-height: 794px; }
+/* 2026-08-10 "조금 더 깔끔하게" — 794 는 2단계와 페이지 바닥을 맞추려던 값인데,
+   0단계는 내용이 적어 카드 둘이 텅 빈 채로 늘어났다(로드맵 카드 아래 194px 이 죽은 공간).
+   내용 높이에 맞춘다 — 로드맵 8행 + 여백이 620 이다. */
+html[data-kd-stage="0"] .dash-row { min-height: 620px; }
 
 /* ⚠ .dash-plan 은 height:346 고정이다(4행 기준). 0단계는 8행을 그리므로 뒤 4행이 카드 밖으로
    삐져나온다 — .onb-plan 에서 겪은 것과 같은 함정이다. 여기서만 풀고, 옆 빈 카드와
    높이를 맞추려 stretch 로 늘린다(.dash-row 는 flex 라 align-items 기본값이 stretch). */
-html[data-kd-stage="0"] .dash-plan { height: auto; padding-bottom: 22px; }
+html[data-kd-stage="0"] .dash-plan { height: auto; margin-top: 0; padding-bottom: 22px; }   /* 위 끝도 왼쪽 카드와 맞춘다 */
 
 /* 1단계는 KPI 3장만 빠져 그만큼 아래가 비었다 — 차트 자리를 늘려 2단계와 같은 바닥(971)에서 끝낸다 */
 html[data-kd-stage="1"] .dash-row { min-height: 500px; }
