@@ -283,7 +283,7 @@
     left: 140px;            /* 캔버스 360 − 본문 220 */
     top: 46px;
     width: 720px;
-    height: 380px;
+    height: 296px;
 }
 
 .story-art img {
@@ -370,8 +370,8 @@
 /* 박스보다 크게 그린 뒤 위쪽을 기준으로 맞춘다 — 머리가 잘리면 안 된다.
    가로 margin 은 (145 − 100) / 2 로 가운데를 잡는다. */
 .feel-art img {
-    width: 145%;
-    height: 145%;
+    width: 123%;
+    height: 123%;
     margin-left: -22.5%;
     object-fit: contain;
     object-position: top;
@@ -431,8 +431,8 @@
     position: absolute;
     left: 80px;
     top: 25px;
-    width: 140px;
-    height: 140px;
+    width: 117px;
+    height: 117px;
     object-fit: contain;
 }
 
@@ -570,8 +570,8 @@
     position: absolute;
     left: 90px;
     top: 29.5px;
-    width: 140px;
-    height: 140px;
+    width: 117px;
+    height: 117px;
     object-fit: contain;
 }
 
@@ -853,8 +853,8 @@
     bottom: 0;              /* 상반신 그림이라 아래가 직선으로 끊긴다 →
                                그 절단면을 상자 바닥선과 겹쳐 안 보이게 한다.
                                띄우면 잘린 몸통이 그대로 노출된다(상황선택 원과 같은 문제). */
-    width: 330px;
-    height: 336px;
+    width: 296px;
+    height: 296px;
     object-fit: cover;      /* 세로를 꽉 채우고 남는 좌우 여백만 잘라낸다 */
 }
 
@@ -874,9 +874,9 @@
    (2026-08-10 사용자 지적 "얘는 더 커도 될 것 같아요"). 모자 몫만큼 키워 눈높이를 맞춘다.
    ⚠ 크기가 다른 건 이 한 가지 근거 때문이다. 다른 이유로 벌마다 값을 갈라 놓지 말 것. */
 .cam-box .demo[data-kd-char="celebrate"] {
-    left: -17px;            /* 얼굴 중심 x 를 165 로 유지 (−17 + 364/2) */
-    width: 364px;           /* 0.479×380 = 182 → 창 반폭 182 로 크래커를 담는다 */
-    height: 380px;
+    left: -19px;            /* 얼굴 중심 x 를 148 로 유지 (−19 + 334/2) */
+    width: 334px;           /* 0.50×335 = 167 → 창 반폭 167 로 크래커를 담는다 */
+    height: 335px;
 }
 
 /* 토리가 먼저 해 보이는 코너 카드 */
@@ -894,8 +894,8 @@
     position: absolute;
     left: 30px;
     top: 12px;
-    width: 80px;
-    height: 88px;
+    width: 67px;
+    height: 74px;
     object-fit: contain;
 }
 
@@ -984,10 +984,10 @@
    문구 3줄도 그만큼 아래로 내렸다. */
 .done-art {
     position: absolute;
-    left: 335px;            /* (1000 − 330) / 2 */
+    left: 352px;            /* (1000 − 296) / 2 */
     top: 170px;
-    width: 330px;
-    height: 330px;
+    width: 296px;
+    height: 296px;
 }
 
 .done-art img { width: 100%; height: 100%; object-fit: contain; }
@@ -1102,8 +1102,8 @@
     position: absolute;
     left: 50%;
     top: 0;
-    width: 340px;
-    height: 340px;
+    width: 296px;
+    height: 296px;
     transform: translateX(-50%);
     object-fit: contain;
     object-position: center top;
