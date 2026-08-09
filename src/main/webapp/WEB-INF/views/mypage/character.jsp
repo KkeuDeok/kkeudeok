@@ -35,10 +35,11 @@
                            data-big="/img/char-tori-icon.png?v=108" data-ds="마음을 함께 읽어주는 다정한 친구예요">
                     <img src="/img/char-tori-icon.png?v=108" alt=""><span class="nm">토리</span>
                 </label>
+                <%-- 윗줄 3명 여자 · 아랫줄 3명 남자로 보이도록 보미↔코코 자리를 바꿨다(2026-08-09) --%>
                 <label>
-                    <input type="radio" name="character" value="bomi"
-                           data-big="/img/char-bomi.png?v=108" data-ds="언제나 웃으며 응원해 주는 친구예요">
-                    <img src="/img/char-bomi.png?v=108" alt=""><span class="nm">보미</span>
+                    <input type="radio" name="character" value="koko"
+                           data-big="/img/char-koko.png?v=108" data-ds="궁금한 게 많은 씩씩한 친구예요">
+                    <img src="/img/char-koko.png?v=108" alt=""><span class="nm">코코</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="lala"
@@ -46,9 +47,9 @@
                     <img src="/img/char-lala.png?v=108" alt=""><span class="nm">라라</span>
                 </label>
                 <label>
-                    <input type="radio" name="character" value="koko"
-                           data-big="/img/char-koko.png?v=108" data-ds="궁금한 게 많은 씩씩한 친구예요">
-                    <img src="/img/char-koko.png?v=108" alt=""><span class="nm">코코</span>
+                    <input type="radio" name="character" value="bomi"
+                           data-big="/img/char-bomi.png?v=108" data-ds="언제나 웃으며 응원해 주는 친구예요">
+                    <img src="/img/char-bomi.png?v=108" alt=""><span class="nm">보미</span>
                 </label>
                 <label>
                     <input type="radio" name="character" value="bada"
