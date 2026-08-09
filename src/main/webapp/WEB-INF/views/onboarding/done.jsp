@@ -29,7 +29,7 @@
     <% } %>
 </div>
 
-<img class="onb-done-char" id="doneChar" src="/img/char-haru.png?v=2" alt="">
+<img class="onb-done-char" id="doneChar" src="/img/char-tori-icon.png?v=119" alt="">
 <h1 class="onb-title">준비가 끝났어요!</h1>
 <p class="onb-sub" id="doneSub">지우에게 맞는 학습을 준비했어요</p>
 

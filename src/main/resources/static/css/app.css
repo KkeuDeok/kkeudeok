@@ -1081,7 +1081,9 @@
     display: flex;
     align-items: center;
     height: 88px;
-    margin: 14px 0 12px;
+    /* 아래 여백 12 면 콘텐츠가 1025 가 되어 예산(.app-main 1024)을 1px 넘겨 스크롤바가 생겼다.
+       8 로 줄여 3px 여유를 둔다 — 스크롤 확인은 반드시 .app-main 기준으로 할 것 */
+    margin: 14px 0 8px;
     padding: 0 24px;
     box-sizing: border-box;
     background: var(--kd-card-cream);
