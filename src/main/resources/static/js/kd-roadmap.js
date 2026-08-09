@@ -364,6 +364,10 @@
         });
 
         paint();
+
+        /* /mypage/roadmap#weeks 로 들어오면 편집 화면이 바로 열린다.
+           캡처·시연에서 '주차별 고르기'를 한 번에 보여줄 때 쓴다. */
+        if (location.hash === '#weeks') openWeeks();
     }
 
     function boot() { renderDash(); initEditor(); }
