@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것 --%>
-<link href="/css/kkeudeok.css?v=118" rel="stylesheet">
-<link href="/css/auth.css?v=118" rel="stylesheet">
-<link href="/css/onboarding.css?v=118" rel="stylesheet">
-<link href="/css/app.css?v=118" rel="stylesheet">
-<link href="/css/report.css?v=118" rel="stylesheet">
-<link href="/css/mypage.css?v=118" rel="stylesheet">
-<link href="/css/child.css?v=118" rel="stylesheet">
-<script src="/js/fit-frame.js?v=118"></script>
-<script src="/js/auth-validate.js?v=118" defer></script>
-<script src="/js/onb-select.js?v=118" defer></script>
+<link href="/css/kkeudeok.css?v=119" rel="stylesheet">
+<link href="/css/auth.css?v=119" rel="stylesheet">
+<link href="/css/onboarding.css?v=119" rel="stylesheet">
+<link href="/css/app.css?v=119" rel="stylesheet">
+<link href="/css/report.css?v=119" rel="stylesheet">
+<link href="/css/mypage.css?v=119" rel="stylesheet">
+<link href="/css/child.css?v=119" rel="stylesheet">
+<script src="/js/fit-frame.js?v=119"></script>
+<script src="/js/auth-validate.js?v=119" defer></script>
+<script src="/js/onb-select.js?v=119" defer></script>
