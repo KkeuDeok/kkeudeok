@@ -432,6 +432,12 @@
     color: var(--kd-text-sub);
 }
 
+/* 고른 카드(또는 힌트가 짚어 주는 정답) — Figma 는 stroke 3px 안쪽이라 크기가 안 변한다 */
+.feel-card.is-pick {
+    box-sizing: border-box;
+    border: 3px solid var(--kd-primary-strong);
+}
+
 /* 카드마다 있는 읽어주기 배지 — 카드 자체가 링크라 안에 button 을 또 넣지 않는다.
    TODO: TTS 가 붙으면 카드를 <div>+JS 로 바꾸고 이 배지를 실제 버튼으로. */
 .feel-card .spk {
