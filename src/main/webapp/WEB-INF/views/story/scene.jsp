@@ -36,7 +36,6 @@
 <p class="story-sub"><%= sc[2] %></p>
 <p class="story-ask"><%= sc[3] %></p>
 
-<%-- TODO: 다음 화면(학습2 마음읽기)을 만들면 /story/feel?emo= 로 연결 --%>
-<a class="story-cta" href="#">토리에게 가기</a>
+<a class="story-cta" href="/story/feel?emo=<%= emo %>">토리에게 가기</a>
 
 <%@ include file="../common/child-bottom.jsp" %>

@@ -659,7 +659,10 @@
     font-size: 13px;
     line-height: 20px;
     color: var(--kd-text-sub);
+    text-decoration: underline;
 }
+
+.mp-plan:hover .steps-more { color: var(--kd-primary); }
 .mp-plan .onb-step-item:not(:last-of-type)::before { top: 32px; bottom: 6px; height: auto; }
 
 /* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
@@ -671,7 +674,7 @@
 .mp-plan-links button:hover { color: var(--kd-primary); }
 
 /* 주차 편집 모달 — 12주를 2열 6행으로. 카드와 같은 화면에 두면 세로 예산을 넘긴다 */
-.roadmap-dlg { width: 920px; }
+.roadmap-dlg { width: 820px; }
 .roadmap-dlg > h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 30px; color: var(--kd-text); }
 .roadmap-dlg > .ds { margin: 6px 0 20px; font-size: 13px; line-height: 20px; color: var(--kd-text-sub); }
 .roadmap-dlg .ft { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
@@ -691,12 +694,21 @@
 .roadmap-dlg .kd-select-btn:hover { border-color: var(--kd-primary-active); }
 .roadmap-dlg .mv { margin-top: 0; }
 
+/* 같은 이유로 '취소' 까지 초록으로 칠해졌다 — .kd-btn-outline(0,1,0) 이
+   .terms-dialog button(0,1,1) 에 밀린다. 여기서 되돌린다 */
+.roadmap-dlg .ft .kd-btn-outline {
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+    font-weight: 500;
+}
+
 .mp-weeks {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(6, auto);
     grid-auto-flow: column;
-    gap: 8px 32px;
+    gap: 8px 24px;
 }
 
 .mp-week { display: flex; align-items: center; gap: 8px; height: 40px; }
