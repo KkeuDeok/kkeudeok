@@ -22,7 +22,7 @@
     /* ⚠ PNG(535KB) → JPEG(73KB). 1503×331 에 색이 83,573 개라 PNG 는 최악의 선택이었다.
        화면을 넘길 때마다 이게 통째로 내려와 흰 화면이 먼저 뜨고 배경이 뒤늦게 들어왔다
        (2026-08-10 사용자 지적). 불투명한 그림이라 JPEG 로 잃는 게 없다(평균 색차 1.72). */
-    background: #fff url("/img/story-bg.jpg?v=148") center bottom / 100% auto no-repeat;
+    background: #fff url("/img/story-bg.jpg?v=149") center bottom / 100% auto no-repeat;
 }
 
 .child-shell {
@@ -842,16 +842,24 @@
     border: 2px dashed rgba(255, 255, 255, .7);
 }
 
-/* 동작 시범 그림 — Figma 는 전신 204×350 이었지만 새 캐릭터 그림이 상반신이라 비율을 맞췄다.
-   점선 가이드(x260~460) 왼쪽 공간에 세로 가운데로 앉힌다. */
+/* 동작 시범 그림 — Figma 자리는 204×353(`411:549`). 상반신 그림이라 비율을 맞춘다고
+   240×264 로 줄였더니 Figma 대비 세로가 1/3 짧아 너무 작았다(2026-08-10 사용자 지적).
+   원본이 정사각이라 **좌우는 거의 빈 여백**이다 → cover 로 여백만 잘라내면 손해 없이 키운다.
+   330 인 이유: 가장 넓은 벌(바다 celebrate, 가로 75.8%)이 0.758×330 ≈ 250 이라
+   점선 가이드(x260)를 안 넘는다. 여기서 더 키우면 크래커 든 팔이 잘린다. */
 .cam-box .demo {
     position: absolute;
-    left: 12px;
-    top: 88px;              /* (440 − 264) / 2 */
-    width: 240px;
-    height: 264px;
-    object-fit: contain;
+    left: 0;
+    bottom: 14px;           /* 벌마다 높이가 달라 바닥을 기준으로 맞춘다 */
+    width: 280px;           /* Figma 시범칸도 x280.5 까지라 점선 가이드(260)를 20 겹친다 */
+    height: 330px;
+    object-fit: cover;      /* 세로를 꽉 채우고 남는 좌우 여백만 잘라낸다 */
 }
+
+/* ⚠ 크롭 기준은 **이미지 중앙**인데 캐릭터는 얼굴 기준으로 앉아 있어 팔이 한쪽으로 쏠린다.
+   중앙에서 먼 쪽 반폭이 comfort·sorry 는 31% 인데 celebrate 만 48% 다(크래커 든 팔).
+   같은 330 을 주면 바다 크래커가 잘린다 → 이 벌만 낮춘다(0.48×280 = 134 ≤ 창 반폭 140). */
+.cam-box .demo[data-kd-char="celebrate"] { height: 280px; }
 
 /* 토리가 먼저 해 보이는 코너 카드 */
 .cam-hint {
@@ -1066,15 +1074,21 @@
     overflow: hidden;
 }
 
-/* 세 벌의 그림 크기가 제각각이다(165×283 / 290×290 / 232×276) → 원 안에 바닥맞춤으로 채운다.
-   Figma 슬픔 벌은 원 위에서 7px 내려와 있는데, 세 벌을 같은 규칙으로 두는 쪽을 택했다. */
+/* 세 벌의 그림 크기가 제각각이다(165×283 / 290×290 / 232×276) → 원 안을 채운다.
+   ⚠ 예전엔 290 에 딱 맞춰 바닥맞춤(contain + bottom)했는데, 그러면 **그림의 아래 끝이
+     원의 밑변과 겹쳐** 원이 아직 넓은 자리에서 몸통이 직선으로 뭉텅 잘려 보였다
+     (2026-08-10 사용자 지적). 원보다 크게 그려 아래를 원 밖으로 빼면, 보이는 경계가
+     그림의 직선이 아니라 **원의 곡선**이 된다. 머리는 위 기준이라 안 잘린다.
+   340 인 이유: 가장 넓은 벌도 가로 0.6×340 ≈ 204 라 원(290) 안에 들어온다. */
 .pick-card .art img {
     position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
+    left: 50%;
+    top: 0;
+    width: 340px;
+    height: 340px;
+    transform: translateX(-50%);
     object-fit: contain;
-    object-position: center bottom;
+    object-position: center top;
 }
 
 .pick-card .tag {
