@@ -281,9 +281,11 @@
 .story-art {
     position: absolute;
     left: 140px;            /* 캔버스 360 − 본문 220 */
-    top: 46px;
+    /* 위 여백 46 을 그림에 준다 — 아래 문구(426)는 Figma 고정이라 그대로.
+       380 → 426 (+12%). 2026-08-10 "더 키웁시다". */
+    top: 0;
     width: 720px;
-    height: 380px;
+    height: 426px;
 }
 
 .story-art img {
@@ -850,9 +852,11 @@
 .cam-box .demo {
     position: absolute;
     left: 0;
-    bottom: 0;              /* 상반신 그림이라 아래가 직선으로 끊긴다 →
-                               그 절단면을 상자 바닥선과 겹쳐 안 보이게 한다.
-                               띄우면 잘린 몸통이 그대로 노출된다(상황선택 원과 같은 문제). */
+    /* 상반신 그림이라 아래가 직선으로 끊긴다 → 그 절단면을 상자 바닥선과 겹쳐 안 보이게 한다.
+       ⚠ bottom:0 으로는 안 붙는다. 캔버스 안에서 몸이 96.6~98% 에서 끝나 336px 기준
+       7~11px 이 비기 때문이다(2026-08-10 "밑 뜨여져 있음"). 가장 큰 11 만큼 내려
+       전 벌이 바닥에 닿게 한다 — 넘치는 만큼은 .cam-box 의 overflow 가 잘라 낸다. */
+    bottom: -11px;
     width: 330px;
     height: 336px;
     object-fit: cover;      /* 세로를 꽉 채우고 남는 좌우 여백만 잘라낸다 */
@@ -888,15 +892,20 @@
     height: 136px;
     border-radius: 20px;
     background: #fff6ea;
+    overflow: hidden;       /* 아래 그림이 넘치는 만큼 잘라 낸다 */
 }
 
+/* 2026-08-10 "카드는 원래대로 두고 안에 캐릭터를 키우세요".
+   contain 이면 정사각 원본이 폭에 갇혀 80 밖에 못 그린다 → cover 로 **가로를 꽉 채우고**
+   넘치는 아래(가슴)를 잘라 낸다. 그림 80 → 130 (+63%), 글자 자리(106)는 그대로. */
 .cam-hint img {
     position: absolute;
-    left: 30px;
-    top: 12px;
-    width: 80px;
-    height: 88px;
-    object-fit: contain;
+    left: 5px;              /* (140 − 130) / 2 */
+    top: 4px;
+    width: 130px;
+    height: 98px;
+    object-fit: cover;
+    object-position: center top;
 }
 
 .cam-hint span {

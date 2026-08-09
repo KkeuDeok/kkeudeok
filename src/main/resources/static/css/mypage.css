@@ -427,7 +427,17 @@
     overflow: hidden;
 }
 
-.mp-profile .ava img { width: 100%; height: 100%; object-fit: cover; }
+/* ⚠ 100% 로 넣으면 캔버스의 빈 여백까지 들어와 캐릭터가 원 안에 **붕 떠 보인다**
+   (2026-08-10 사용자 지적). 원보다 크게 그려 아래를 원 밖으로 빼면
+   보이는 경계가 그림의 여백이 아니라 **원의 곡선**이 된다 — 상황선택 카드와 같은 처리. */
+.mp-profile .ava img {
+    display: block;
+    width: 130%;
+    height: 130%;
+    margin-left: -15%;      /* (130 − 100) / 2 — 가로 가운데 */
+    object-fit: contain;
+    object-position: center top;
+}
 
 .mp-profile .tx { margin-left: 28px; }
 
@@ -482,8 +492,8 @@
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
 .mp-char-view .big {
     display: block;
-    width: 260px;
-    height: 260px;
+    width: 320px;
+    height: 320px;
     margin: 0 auto;
     object-fit: contain;
 }
@@ -524,7 +534,7 @@
 
 .mp-chars label {
     position: relative;
-    height: 216px;
+    height: 246px;
     box-sizing: border-box;
     padding-top: 21px;
     background: #fff;
@@ -536,7 +546,7 @@
 
 .mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
 
-.mp-chars img { display: block; width: 150px; height: 150px; margin: 0 auto; object-fit: contain; }
+.mp-chars img { display: block; width: 180px; height: 180px; margin: 0 auto; object-fit: contain; }
 
 .mp-chars .nm {
     display: block;

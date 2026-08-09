@@ -31,8 +31,10 @@
 
 <div class="cam-box">
     <%-- TODO: 카메라 미리보기(getUserMedia). 지금은 시범 그림과 맞출 자리만.
-         Figma 는 시범 그림이 슬픔 벌에만 있었지만, 감정별 동작 그림이 생겨 3벌 모두 넣는다. --%>
-    <img class="demo" data-kd-char="<%= act[2] %>" src="/img/char-tori-<%= act[2] %>.png" alt="">
+         Figma 는 시범 그림이 슬픔 벌에만 있었지만, 감정별 동작 그림이 생겨 3벌 모두 넣는다.
+         ⚠ 큰 그림은 **도와줄 친구의 표정**(emo)이다 — 제목이 "토리가 슬픈가봐"인데 웃는 그림이
+           있으면 안 맞는다(2026-08-10 사용자 지적). 따라 할 **동작**은 오른쪽 코너 카드가 보여 준다. --%>
+    <img class="demo" data-kd-char="<%= emo %>" src="/img/char-tori-<%= emo %>.png" alt="">
     <div class="guide" aria-hidden="true"></div>
     <div class="cam-hint">
         <img data-kd-char="<%= act[2] %>" src="/img/char-tori-<%= act[2] %>.png" alt="">
