@@ -611,8 +611,21 @@
 .mp-plans { margin-top: 0; gap: 40px; }
 .mp-plan  { width: 340px; }
 
-/* 12줄이 들어갈 만큼만. 650 은 아래가 남았다는 지적(2026-08-09)으로 줄였다 */
-.mp-plan { min-height: 604px; padding-bottom: 20px; box-sizing: border-box; }
+/* ⚠ .onb-plan 은 height:448 고정이다(온보딩은 6단계라 그걸로 충분했다).
+   min-height 로는 바닥만 올라갈 뿐 내용이 넘치면 카드 밖으로 삐져나온다 —
+   실제로 12번째 줄이 테두리 밖에 찍혔다. height:auto 로 풀어 내용을 따라가게 한다. */
+.mp-plan { height: auto; padding-bottom: 20px; box-sizing: border-box; }
+
+/* 두 카드 높이를 맞춘다 — 한쪽에 두 줄짜리 제목이 있으면 그만큼 어긋난다 */
+.mp-plans { align-items: stretch; }
+
+/* 제목은 한 줄로 자른다. 12행 × 같은 높이라야 카드 높이가 계산대로 나오고 두 카드가 딱 맞는다.
+   ('감정 표현하기 — 슬픔 연습' 하나 때문에 AI 카드만 18px 길어져 있었다) */
+.mp-plan .onb-step-item .t {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
 
 /* 주차 라벨은 제목 첫 줄에 붙는다 — 가운데 정렬이면 제목이 두 줄인 행만 라벨이 아래로 내려가
    옆 행들과 눈높이가 어긋난다('7주' 만 처져 보이던 문제) */
@@ -638,10 +651,7 @@
 /* ⚠ 온보딩 카드는 420 폭이라 .onb-step-item 높이 48 고정으로 충분했지만
    여기는 340 이라 '감정 표현하기 — 슬픔 연습' 같은 긴 제목이 두 줄이 되며 아랫 항목과 겹쳤다.
    높이를 내용에 맡기고 연결선도 항목 바닥까지 늘린다. */
-.mp-plan .onb-step-item { height: auto; min-height: 44px; padding-bottom: 14px; }
-/* keep-all 이 없으면 '감정 표현하기 — 슬픔 연습' 이 음절 단위로 잘려 '슬픔 연 / 습' 이 된다 */
-.mp-plan .onb-step-item .t,
-.mp-plan .onb-step-item .d { word-break: keep-all; }
+.mp-plan .onb-step-item { height: 44px; padding-bottom: 0; }
 .mp-plan .onb-step-item:not(:last-of-type)::before { top: 32px; bottom: 6px; height: auto; }
 
 /* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
