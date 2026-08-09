@@ -192,7 +192,20 @@ public class UserController {
         return "mypage/character";
     }
 
+    /* 보호자가 AI 추천 12주 커리큘럼을 직접 고치는 탭.
+       저장은 브라우저(localStorage.kdPlan) — 백엔드가 붙으면 여기에 POST 를 짝지어 준다 */
+    @GetMapping("/mypage/roadmap")
+    public String mypageRoadmap() {
+        return "mypage/roadmap";
+    }
+
     /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ---------- */
+
+    /** 학습1 상황 이야기. `?emo=sad|angry|happy` 로 감정 벌이 갈린다(기본 sad). */
+    @GetMapping("/story/scene")
+    public String storyScene() {
+        return "story/scene";
+    }
 
     @GetMapping("/story/why")
     public String storyWhy() {

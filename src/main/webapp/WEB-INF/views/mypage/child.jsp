@@ -16,7 +16,7 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img src="/img/char-tori-icon.png?v=119" alt="" data-kd="charAva"></span>
+        <span class="ava"><img src="/img/char-tori-icon.png?v=119" alt=""></span>
         <span class="tx">
             <b data-kd="childName">지우</b>
             <%-- ponytail: 학습 시작일은 아직 저장하는 곳이 없어 예시값 그대로다 --%>

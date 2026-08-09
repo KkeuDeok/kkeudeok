@@ -87,6 +87,8 @@
         });
 
         sync();
+        /* 값이 코드로 바뀐 뒤 버튼 글씨를 다시 맞출 수 있게 붙여 둔다 (kdBuildSelects 가 쓴다) */
+        sel.__kdSync = sync;
     }
 
     document.addEventListener('click', function (e) {
@@ -96,5 +98,16 @@
         if (e.key === 'Escape') closeOpen();
     });
 
-    document.querySelectorAll('select.onb-select').forEach(build);
+    /* 이미 감싼 select 는 다시 감싸면 래퍼가 겹친다 — 버튼 글씨만 다시 맞춘다 */
+    function buildAll() {
+        document.querySelectorAll('select.onb-select').forEach(function (sel) {
+            if (sel.__kdSync) sel.__kdSync(); else build(sel);
+        });
+    }
+
+    buildAll();
+
+    /* 값을 코드로 바꾸면 이미 만들어진 버튼 글씨가 안 따라온다 —
+       로드맵 편집기처럼 select 값을 통째로 갈아끼우는 화면이 다시 맞출 수 있게 내보낸다 */
+    window.kdBuildSelects = buildAll;
 })();

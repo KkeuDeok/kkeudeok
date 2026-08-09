@@ -1081,7 +1081,9 @@
     display: flex;
     align-items: center;
     height: 88px;
-    margin: 14px 0 12px;
+    /* 아래 여백 12 면 콘텐츠가 1025 가 되어 예산(.app-main 1024)을 1px 넘겨 스크롤바가 생겼다.
+       8 로 줄여 3px 여유를 둔다 — 스크롤 확인은 반드시 .app-main 기준으로 할 것 */
+    margin: 14px 0 8px;
     padding: 0 24px;
     box-sizing: border-box;
     background: var(--kd-card-cream);
@@ -1341,13 +1343,23 @@
 
 /* 빈 상태에서 KPI 3장(.dash-kpis)이 사라지면 차트 행이 제목에 붙어 버린다 —
    .dash-kpis 가 갖고 있던 위 여백 48 을 대신 준다 */
-html[data-kd-empty] .dash-row { margin-top: 48px; }
+/* 0·1 단계에는 KPI 3장이 없어 차트 행이 제목에 붙는다 — .dash-kpis 가 갖고 있던 위 여백 48 을 대신 준다 */
+html[data-kd-stage="0"] .dash-row,
+html[data-kd-stage="1"] .dash-row { margin-top: 48px; }
+
+/* 0단계는 아래 카드행·관찰 배너가 통째로 빠지므로 그 세로를 빈 카드가 먹는다.
+   min-height 값은 마지막 요소 바닥이 2단계(디자인 y971)와 비슷하게 끝나도록 실측해 정했다. */
+html[data-kd-stage="0"] .dash-row { min-height: 794px; }
+
+/* 1단계는 KPI 3장만 빠져 그만큼 아래가 비었다 — 차트 자리를 늘려 2단계와 같은 바닥(971)에서 끝낸다 */
+html[data-kd-stage="1"] .dash-row { min-height: 500px; }
 
 /* 빈 카드는 옆 로드맵 카드와 같은 높이로 늘어나야 한다 */
 .dash-chart.kd-no-data { display: flex; }
 .dash-chart.kd-no-data .kd-empty { flex: 1; }
 
 /* 최근 학습 기록이 0건일 때 — 표 대신 들어간 빈 카드가 왼쪽 일상 카드와 아래 선을 맞추도록 늘린다 */
-html[data-kd-empty] .learn-recent { display: flex; flex-direction: column; }
+html[data-kd-stage="0"] .learn-recent,
+html[data-kd-stage="1"] .learn-recent { display: flex; flex-direction: column; }
 /* margin-top 7 = 표가 있던 자리(디자인 y478)와 같은 높이. 왼쪽 일상 카드와 윗선이 맞는다 */
-html[data-kd-empty] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }
+html[data-kd-stage="0"] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }

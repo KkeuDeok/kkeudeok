@@ -63,11 +63,15 @@
             <p class="d">이야기를 한 편 마치면 날짜와 결과가 여기에 남아요</p>
         </div>
 
-        <table class="kd-has-data">
+        <table class="kd-hide0">
             <thead>
             <tr><th class="c-no">No</th><th class="c-date">날짜</th><th class="c-story">스토리</th><th class="c-state">상태</th></tr>
             </thead>
-            <tbody>
+            <%-- 1단계 — 이야기 한 편만 마친 상태 --%>
+            <tbody class="kd-s1">
+            <tr><td class="c-no">1</td><td class="c-date">오늘</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
+            </tbody>
+            <tbody class="kd-has-data">
             <tr><td class="c-no">1</td><td class="c-date">7.22</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
             <tr><td class="c-no">2</td><td class="c-date">7.21</td><td class="c-story">처음 간 곳에서 길을 잃을 뻔했어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
             <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-alt">다른 방식 선택</span></td></tr>
@@ -93,6 +97,7 @@
     <span class="ic"></span>
     <p class="kd-has-data">이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
     <p class="kd-no-data">첫 이야기를 시작해 볼까요? · 오늘의 일상을 적으면 더 딱 맞는 이야기가 나와요</p>
+    <p class="kd-s1">이야기를 한 편 마쳤어요 · 이번 주 3회를 채우면 성장 리포트가 만들어져요</p>
     <a class="kd-btn kd-btn-primary" href="/story/scene">학습 시작</a>
 </div>
 
@@ -177,6 +182,24 @@
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
         dlgDaily.close();
+
+        /* 실제로 기록을 남겼으면 '아무것도 없음(0)' 은 더 이상 맞지 않다 -> 1단계로 올린다.
+           스토리 화면이 미완이라 '이야기 완료 -> 2단계' 트리거는 아직 붙일 곳이 없다. */
+        if (document.documentElement.dataset.kdStage === '0') {
+            try { sessionStorage.setItem('kdStage', '1'); } catch (e) { }
+            document.documentElement.dataset.kdStage = '1';
+        }
+    }
+</script>
+
+<script>
+    /* 1단계는 '이미 오늘 기록을 남긴' 상태다 — 두 카드의 hidden 을 단계에 맞춰 정한다.
+       (0·2 단계는 JSP 기본값 그대로 = 아직 기록 안 함) */
+    if (document.documentElement.dataset.kdStage === '1') {
+        document.getElementById('dailySummary').textContent =
+            '유치원 · 기쁨 · "선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
+        document.getElementById('dailyEmpty').hidden = true;
+        document.getElementById('dailyDone').hidden = false;
     }
 </script>
 

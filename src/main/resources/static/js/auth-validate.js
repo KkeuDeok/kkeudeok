@@ -508,6 +508,12 @@
         return n + (i >= 0 && i < 11172 && i % 28 !== 0 ? '이' : '');
     }
 
+    /* 캐릭터 키 -> 이미지 경로. 토리만 파일명이 char-tori-icon.png 이라 규칙이 깨진다.
+       ?v 는 head.jsp 의 CSS 버전과 별개로 이미지 자체 버전(6장 재보정 = 119) */
+    function charImg(key) {
+        return '/img/char-' + (key === 'tori' ? 'tori-icon' : key) + '.png?v=119';
+    }
+
     function renderOnbDone() {
         if (!$('doneName')) return;
         var v = readOnb();
@@ -519,7 +525,7 @@
         if (v.charName) {
             /* 애칭을 적었으면 같이 보여 준다 — 어느 친구인지도 남게 괄호로 */
             $('doneFriend').textContent = v.nickname ? v.charName + ' (' + v.nickname + ')' : v.charName;
-            $('doneChar').src = '/img/char-' + v.charKey + '.png?v=2';
+            $('doneChar').src = charImg(v.charKey);
         }
     }
 
@@ -540,14 +546,14 @@
         document.querySelectorAll('[data-kd="childNameAge"]').forEach(function (el) {
             el.textContent = v.name + (age === null ? '' : ' · ' + age + '세');
         });
+        /* 소유격·호칭 자리는 부르는 말투로 — '박민준의 성장 리포트' 가 아니라 '민준이의 성장 리포트'.
+           본명 그대로 둬야 하는 곳(사이드바·아동 프로필 이름)은 childName / childNameAge 를 쓴다 */
+        document.querySelectorAll('[data-kd="childCall"]').forEach(function (el) {
+            el.textContent = callName(v.name);
+        });
         document.querySelectorAll('[data-kd="childAge"]').forEach(function (el) {
             if (age !== null) el.textContent = age;
         });
-        if (v.charKey) {
-            document.querySelectorAll('[data-kd="charAva"]').forEach(function (el) {
-                el.src = '/img/char-' + v.charKey + '.png?v=120';
-            });
-        }
 
         /* 마이페이지 아동 프로필 폼 — 이 화면에서만. 온보딩 입력 화면과 id 가 같아서 가드가 필요하다.
            select 값은 onb-select.js 가 드롭다운을 만들기 전에 넣어야 버튼 글씨까지 따라온다
@@ -583,7 +589,7 @@
 
     /* 리포트 5탭 부제 — 관찰 데이터가 0인데 '관찰 8주차'가 남아 있으면 안 된다.
        탭마다 같은 문장이라 JSP 5개를 고치는 대신 여기서 한 번에 바꾼다. */
-    if (document.documentElement.dataset.kdEmpty) {
+    if (document.documentElement.dataset.kdStage !== '2') {
         var rptSub = document.querySelector('.rpt-head p');
         if (rptSub) rptSub.textContent = '관찰 시작 전 · 첫 주 학습을 마치면 리포트가 만들어져요';
     }

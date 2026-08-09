@@ -1,6 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <% String pageTitle = "온보딩 - AI 로드맵"; int onbStep = 6;
-   String onbCol = "onb-col--w900 onb-col--center"; String onbNext = "location.href='/onboarding/done'"; %>
+   String onbCol = "onb-col--w900 onb-col--center"; String onbNext = "kdSaveOnbPlan()"; %>
 <%@ include file="../common/onb-top.jsp" %>
 <% onbNextLabel = "시작"; %>
 
@@ -39,5 +39,17 @@
         <div class="onb-step-item"><span class="no">6</span><div class="hd"><p class="t">자기 평가</p><span class="wk">12주</span></div><p class="d">스스로 돌아보기</p></div>
     </label>
 </form>
+
+<script>
+    /* 고른 안을 저장하고 완료 화면으로. 예전에는 form 이 POST 매핑도 submit 버튼도 없어
+       라디오 값이 그대로 버려졌다(하단 [시작]은 form 바깥이라 그냥 이동만 했다). */
+    function kdSaveOnbPlan() {
+        var picked = document.querySelector('input[name="plan"]:checked');
+        if (picked && window.kdPlanSave) {
+            kdPlanSave({ mode: picked.value, focus: '감정 표현', weeks: KD_PRESET_OF(picked.value) });
+        }
+        location.href = '/onboarding/done';
+    }
+</script>
 
 <%@ include file="../common/onb-bottom.jsp" %>

@@ -5,7 +5,7 @@
 <%-- ponytail: 수치는 전부 예시값 — 백엔드가 붙으면 그대로 갈아끼운다.
      고정값 표: 표현 64 ▲4 · 8주 누적 +16 (다른 리포트 화면·대시보드와 일치해야 함) --%>
 <div class="app-head rpt-head">
-    <h1><span data-kd="childName">지우</span>의 성장 리포트</h1>
+    <h1><span data-kd="childCall">지우</span>의 성장 리포트</h1>
     <p>관찰 8주차 · 매주 월요일에 갱신돼요</p>
 </div>
 

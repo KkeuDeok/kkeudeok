@@ -174,11 +174,22 @@ img {
 }
 
 /* --------------------------------------------------------------------------
-   신규 가입 직후(데이터 0) 화면 — head.jsp 가 html[data-kd-empty] 를 켠다
-   더미 블록엔 .kd-has-data, 빈 상태 블록엔 .kd-no-data 만 붙이면 서로 뒤집힌다
+   사용 단계 — head.jsp 가 html[data-kd-stage="0|1|2"] 를 켠다
+     0 신규(아무것도 없음) · 1 시작함(일상 1건+이야기 1편) · 2 익숙함(기본)
+   마크업에는 그 단계에서만 보일 클래스 하나만 붙인다
+     .kd-no-data = 0 전용 · .kd-s1 = 1 전용 · .kd-has-data = 2 전용
+     .kd-hide0   = 0 에서만 숨김 · .kd-hide2 = 2 에서만 숨김(0·1 에 보임)
    -------------------------------------------------------------------------- */
-html[data-kd-empty] .kd-has-data { display: none !important; }
-html:not([data-kd-empty]) .kd-no-data { display: none !important; }
+html[data-kd-stage="0"] .kd-has-data,
+html[data-kd-stage="0"] .kd-s1,
+html[data-kd-stage="0"] .kd-hide0     { display: none !important; }
+
+html[data-kd-stage="1"] .kd-has-data,
+html[data-kd-stage="1"] .kd-no-data   { display: none !important; }
+
+html[data-kd-stage="2"] .kd-no-data,
+html[data-kd-stage="2"] .kd-s1,
+html[data-kd-stage="2"] .kd-hide2     { display: none !important; }
 
 /* 공통 빈 카드 — 학습 홈 .learn-entry 형태를 그대로 따른다(아이콘 원 + 제목 + 설명 + CTA) */
 .kd-empty {
