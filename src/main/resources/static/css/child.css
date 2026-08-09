@@ -8,10 +8,14 @@
        현재 칩 배경 #e3f6ec / 연결선 #e6ebe8 / 카운터 우측정렬 y939 13px
    ========================================================================== */
 
+/* 배경은 제공받은 수채화 그림(story-bg.jpg 1440×1001) — 위쪽은 흰 여백, 아래에 잔디·꽃·나무.
+   하늘까지 있는 안(100.png)도 써 봤지만 상단 스텝바가 하늘색 위에 떠 이질적이었다.
+   아래 정렬인 이유: 잔디가 그림 아래에 있어 남는 세로는 위(흰 여백)에서 덜어야 한다.
+   --fit-scale zoom 은 .child-scale 에 걸리므로 여기 배경은 배율과 무관하게 창을 채운다. */
 .child-body {
     height: 100vh;
     overflow: hidden;
-    background: #fff;
+    background: #fff url("/img/story-bg.jpg?v=135") center bottom / cover no-repeat;
 }
 
 .child-shell {
@@ -23,6 +27,7 @@
 }
 
 .child-scale {
+    position: relative;     /* 하단 장식이 이 상자를 기준으로 깔린다 */
     flex: 1;
     min-height: 0;          /* 없으면 flex 자식이 내용 높이만큼 부풀어 본문이 잘린다
                                (app.css 학습 홈에서 실제로 겪은 함정) */
@@ -32,16 +37,76 @@
 }
 
 /* --------------------------------------------------------------------------
+   하단 장식 — 언덕·구름·나무. Figma `368:201`(1440×260, 캔버스 y764~1024) 실측.
+   8개 화면에 다 있는데 y가 764 / 772 / 880 으로 제각각이라 껍데기에서 하나로 고정한다.
+   -------------------------------------------------------------------------- */
+/* ⚠ 배경 그림(story-bg.jpg)에 언덕·나무·꽃이 이미 들어 있어 이 SVG 장식과 겹친다 → 끈다.
+   지우지 않고 남겨 두는 이유: Figma 368:201 실측값이라 배경을 되돌릴 때 그대로 살려 쓴다.
+   되살리려면 아래 display:none 한 줄만 지우면 된다. */
+.child-deco { display: none; }
+
+.child-deco {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 260px;
+    pointer-events: none;   /* 위에 있는 버튼을 가리면 안 된다 */
+}
+
+/* 언덕·구름은 파도라 가로로 늘어나도 티가 안 난다 → 창 폭에 맞춰 늘린다 */
+.child-deco .hills {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* 나무는 정원(正圓)이라 늘이면 타원이 된다 → 1440 고정 + 가운데 정렬 */
+.child-deco .trees {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: 1440px;
+    height: 260px;
+    transform: translateX(-50%);
+}
+
+/* --------------------------------------------------------------------------
    스텝바 — 이야기 / 마음 / 왜? / 표정 / 행동 / 칭찬
    폭은 글자 길이가 정한다(Figma 도 상태에 따라 칩 폭이 달라진다). 행은 가운데 정렬.
    -------------------------------------------------------------------------- */
 .child-head {
+    position: relative;
     height: 72px;
     flex: none;
     display: flex;
     align-items: center;
     justify-content: center;
 }
+
+/* 학습 그만두기 — Figma 40×40 @(1376,16), 안쪽 아이콘 20 */
+.child-close {
+    position: absolute;
+    right: 24px;
+    top: 16px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.child-close::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    background: var(--kd-text-sub);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+}
+
+.child-close:hover::before { background: var(--kd-text); }
 
 .child-steps {
     display: flex;
@@ -105,15 +170,150 @@
     margin: 0 auto;
 }
 
-/* 진도 카운터 — 본문 우측 끝, 캔버스 y939(= 본문 기준 867).
+/* --------------------------------------------------------------------------
+   하단 바 — [다시 들려줘][잘 모르겠어] ······ [다음에 할래][오늘 이야기 N/3]
+   Figma 는 레일이 776·878.5·886.5·920·937 로 제각각인데, 아이가 6단계를 연속으로
+   누르는 흐름이라 바가 튀면 안 된다 → 학습1 값(캔버스 870.5)으로 고정.
+   ⚠ 전 화면을 다 만든 뒤 하나의 레일로 재확정할 것(온보딩 버튼 845 처럼).
+   네 요소의 세로 중심이 전부 890.5 라 높이만 40 으로 두고 가운데 정렬하면 맞는다.
+   -------------------------------------------------------------------------- */
+.child-foot {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 798.5px;           /* 캔버스 870.5 − 본문 시작 72 */
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.child-foot .side { display: flex; align-items: center; gap: 12px; }
+
+/* 보조 버튼 — 흰 알약. 주 CTA(초록 59)와 위계가 다르다 */
+.child-foot .kd-sub {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    padding: 0;
+    border: 1px solid var(--kd-border);
+    border-radius: 999px;
+    background: #fff;
+    font-family: var(--kd-font);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kd-text);
+    cursor: pointer;
+}
+
+.child-foot .kd-sub-listen { width: 146px; border-color: #ccc; }
+.child-foot .kd-sub-hint { width: 120px; }
+
+/* 스피커 — 체크와 같은 방식(mask + currentColor) */
+.child-foot .kd-sub-listen::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 18px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 18px no-repeat;
+}
+
+/* 다음에 할래 — 상자 없는 글자 버튼 */
+.child-foot .kd-later {
+    width: 118px;
+    height: 34px;
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--kd-font);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kd-primary);
+    cursor: pointer;
+}
+
+/* 진도 카운터 — 본문 우측 끝.
    Figma 는 화면마다 2/5·3/5·4/5 로 올라갔지만 단계는 스텝바가 표시하므로
    '오늘 몇 번째 이야기'만 남기고 고정한다(2026-08-09 확정). */
 .child-count {
-    position: absolute;
-    right: 0;
-    top: 867px;
     margin: 0;
     font-size: 13px;
     line-height: 20px;
     color: var(--kd-text-sub);
 }
+
+/* ==========================================================================
+   학습1 상황 이야기 — Figma `368:200`(슬픔) / `237:402`(기쁨) 실측
+   좌표는 전부 캔버스값 − 72(본문 시작). 감정 3벌은 같은 레일에 문구만 갈아끼운다.
+   ========================================================================== */
+
+.story-art {
+    position: absolute;
+    left: 140px;            /* 캔버스 360 − 본문 220 */
+    top: 46px;
+    width: 720px;
+    height: 380px;
+}
+
+.story-art img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;    /* Figma 도 FIT — 세로 380 에 맞고 가로는 남는다 */
+}
+
+.story-title,
+.story-sub,
+.story-ask {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.story-title {
+    top: 454px;
+    font-size: 30px;
+    line-height: 45px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.story-sub {
+    top: 511px;
+    font-size: 18px;
+    line-height: 27px;
+    color: var(--kd-text-sub);
+}
+
+.story-ask {
+    top: 575px;
+    font-size: 24px;
+    line-height: 36px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+/* 주 CTA — 학습 흐름 공통 규격 h59 (보조 버튼 40/34 와 위계가 다르다) */
+.story-cta {
+    position: absolute;
+    left: 360px;            /* (1000 − 280) / 2 */
+    top: 650px;
+    width: 280px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.story-cta:hover { background: var(--kd-primary-strong); color: #fff; }
