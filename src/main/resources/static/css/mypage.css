@@ -470,9 +470,13 @@
 /* --------------------------------------------------------------------------
    캐릭터 관리 — 좌 미리보기 + 우 카드 6개(3×2)
    -------------------------------------------------------------------------- */
-.mp-char { display: flex; gap: 80px; }
+/* gap 은 64 고정 — 카드 그리드 실폭이 536(168×3+16×2)이라
+   520 + 64 + 536 = 1120(콘텐츠 레일)로 딱 떨어진다.
+   80 이면 그리드가 레일을 16px 넘어가 하단 저장 버튼과 오른쪽 끝이 어긋난다. */
+.mp-char { display: flex; gap: 64px; }
 
-.mp-char-view { width: 520px; flex: none; text-align: center; }
+/* flex column 인 이유: 아래 .kd-field 의 margin-top:auto 를 쓰려고. */
+.mp-char-view { width: 520px; flex: none; text-align: center; display: flex; flex-direction: column; }
 
 /* 아이콘이 정사각(512)이라 박스도 정사각으로 둔다.
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
@@ -499,7 +503,14 @@
     color: var(--kd-text-sub);
 }
 
-.mp-char-view .kd-field { margin-top: 24px; text-align: left; }
+/* margin-top:auto — 애칭 칸을 컬럼 바닥으로 밀어 오른쪽 카드 그리드 아래 선과 맞춘다.
+   padding-bottom:0 — auth.css 의 오류문구 예약석(16). 이 화면엔 .kd-error 가 없어
+   그대로 두면 입력칸 바닥이 카드 바닥보다 16px 위에 뜬다. */
+.mp-char-view .kd-field { margin-top: auto; text-align: left; padding-bottom: 0; }
+
+/* 애칭 입력칸만 컬럼(520)보다 넓게 — 오른쪽 gap 64 중 48 을 먹고 그리드까지 16 남긴다.
+   .mp-char 의 gap 을 줄이면 카드와 겹치니 같이 손볼 것. */
+.mp-char-view .kd-input { width: 568px; }
 
 /* 카드 그리드 — 168×216, gap 16 (3열 = 536) */
 .mp-char-pick { flex: 1; }
