@@ -1,0 +1,119 @@
+/* ==========================================================================
+   아동 학습 흐름(스토리) 공통 껍데기 — 상단 스텝바 72 + 본문 1000 중앙
+   - 보호자 앱(app.css)과 달리 사이드바가 없다. 아동 화면이라 1440 전체를 쓴다.
+   - 창높이/1024 배율(--fit-scale, fit-frame.js)은 온보딩·보호자 앱과 동일.
+   - Figma 실측 기준: 웹_학습3_이유찾기(136:282)
+       스텝행 y20 h32 중심720 / 칩 좌우패딩 14 · 간격 6 / 연결선 14×2 /
+       칩 글자 14px(완료·현재 Bold #1f5c40, 예정 Regular #a8b4ad) /
+       현재 칩 배경 #e3f6ec / 연결선 #e6ebe8 / 카운터 우측정렬 y939 13px
+   ========================================================================== */
+
+.child-body {
+    height: 100vh;
+    overflow: hidden;
+    background: #fff;
+}
+
+.child-shell {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.child-scale {
+    flex: 1;
+    min-height: 0;          /* 없으면 flex 자식이 내용 높이만큼 부풀어 본문이 잘린다
+                               (app.css 학습 홈에서 실제로 겪은 함정) */
+    display: flex;
+    flex-direction: column;
+    zoom: var(--fit-scale, 1);
+}
+
+/* --------------------------------------------------------------------------
+   스텝바 — 이야기 / 마음 / 왜? / 표정 / 행동 / 칭찬
+   폭은 글자 길이가 정한다(Figma 도 상태에 따라 칩 폭이 달라진다). 행은 가운데 정렬.
+   -------------------------------------------------------------------------- */
+.child-head {
+    height: 72px;
+    flex: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.child-steps {
+    display: flex;
+    align-items: center;
+    height: 32px;
+}
+
+.child-steps .st {
+    display: flex;
+    align-items: center;
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    line-height: 21px;
+    font-weight: 400;
+    color: #a8b4ad;                         /* 예정 */
+}
+
+.child-steps .is-done,
+.child-steps .is-on {
+    font-weight: 700;
+    color: var(--kd-primary-strong);
+}
+
+/* 현재 단계만 알약 배경이라 좌우 여백이 14 → 20 이다(Figma 실측: 왜? 칩 61 = 20+21+20).
+   14 로 두면 배경이 글자에 붙어 보인다. */
+.child-steps .is-on {
+    padding: 0 20px;
+    background: var(--kd-primary-tint);
+}
+
+/* 완료 체크 — mask 라 색이 글자색(currentColor)을 따라간다.
+   초록 stroke 가 박힌 icon-check-sm.svg 를 쓰면 초록 위에서 안 보인다(온보딩에서 겪음). */
+.child-steps .ic {
+    width: 14px;
+    height: 14px;
+    margin-right: 6px;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m20 6l-11 11l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m20 6l-11 11l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
+}
+
+.child-steps .ln {
+    width: 14px;
+    height: 2px;
+    margin: 0 6px;
+    flex: none;
+    background: var(--kd-border);
+}
+
+/* --------------------------------------------------------------------------
+   본문 — 1000 중앙(x 220~1220), 스텝바 아래 전부(y 72~1024)
+   -------------------------------------------------------------------------- */
+.child-main {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 1000px;
+    margin: 0 auto;
+}
+
+/* 진도 카운터 — 본문 우측 끝, 캔버스 y939(= 본문 기준 867).
+   Figma 는 화면마다 2/5·3/5·4/5 로 올라갔지만 단계는 스텝바가 표시하므로
+   '오늘 몇 번째 이야기'만 남기고 고정한다(2026-08-09 확정). */
+.child-count {
+    position: absolute;
+    right: 0;
+    top: 867px;
+    margin: 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}

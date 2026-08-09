@@ -191,4 +191,11 @@ public class UserController {
     public String mypageCharacter() {
         return "mypage/character";
     }
+
+    /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ---------- */
+
+    @GetMapping("/story/why")
+    public String storyWhy() {
+        return "story/why";
+    }
 }
