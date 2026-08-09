@@ -44,6 +44,10 @@
         <header class="child-head">
             <nav class="child-steps" aria-label="학습 단계">
                 <%
+                    /* 하단 바를 통째로 끄는 화면이 있다(세션 결과·상황 선택).
+                       여기서 기본값을 잡아 두면 각 화면은 필요할 때만 true 로 바꾸면 된다. */
+                    boolean storyFootOff = false;
+
                     String[][] storySteps = {
                         {"scene",  "이야기"},
                         {"feel",   "마음"},

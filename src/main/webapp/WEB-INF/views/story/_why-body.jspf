@@ -1,0 +1,52 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  학습3 이유 찾기 본문 — 기본(why)과 듣는 중(why-listening)이 같은 그림을 쓴다.
+  include 하기 전에 스크립틀릿으로 아래를 준비할 것:
+      String emo     정답 감정(sad|angry|happy)
+      String whyPick 테두리로 짚어 줄 카드 키("cause"|"other"). null 이면 강조 없음
+
+  ⚠ 문구 출처
+    제목은 Figma 3벌 원문 그대로(감정마다 다르다).
+    카드 2장은 Figma 가 3벌 모두 "넘어져서 아파서 / 졸려서" 로 같다 — 슬픔 시나리오용이라
+    화남·기쁨에는 맞지 않아 임시로 갈아 두었다. 기획 확정 필요.
+--%>
+<%
+    String[][] whyTitles = {
+        {"sad",   "토리는 왜 슬퍼졌을까?"},
+        {"angry", "토리는 왜 화가 났을까?"},
+        {"happy", "토리는 왜 기뻐졌을까?"}
+    };
+    String whyTitle = whyTitles[0][1];
+    for (String[] row : whyTitles) {
+        if (row[0].equals(emo)) whyTitle = row[1];
+    }
+
+    /* 정답(cause) · 오답(other) 각각 [문구, 아이콘 키] */
+    String[][][] whyChoices = {
+        {{"sad"},   {"넘어져서 아파서", "sad"},     {"졸려서", "neutral"}},
+        {{"angry"}, {"블록이 무너져서", "angry"},   {"졸려서", "neutral"}},
+        {{"happy"}, {"선물을 받아서", "happy"},     {"졸려서", "neutral"}}
+    };
+    String[][] whyPair = whyChoices[0];
+    for (String[][] row : whyChoices) {
+        if (row[0][0].equals(emo)) whyPair = row;
+    }
+%>
+
+<h1 class="why-title"><%= whyTitle %></h1>
+<p class="why-sub">말로 해도 되고, 그림을 눌러도 돼</p>
+
+<div class="why-cards">
+    <%-- 왼쪽이 정답(원인), 오른쪽이 오답. Figma 도 이 순서다 --%>
+    <a class="why-card<%= "cause".equals(whyPick) ? " is-pick" : "" %>" href="/story/face?emo=<%= emo %>">
+        <img class="ic" src="/img/story-face-<%= whyPair[1][1] %>.png?v=142" alt="">
+        <p class="nm"><%= whyPair[1][0] %></p>
+        <span class="spk" aria-hidden="true"></span>
+    </a>
+    <%-- TODO: 오답 처리(모달·재시도)는 기획 확정 후. 지금은 힌트 상태로 돌려보낸다 --%>
+    <a class="why-card<%= "other".equals(whyPick) ? " is-pick" : "" %>" href="/story/why-listening?emo=<%= emo %>">
+        <img class="ic" src="/img/story-face-<%= whyPair[2][1] %>.png?v=142" alt="">
+        <p class="nm"><%= whyPair[2][0] %></p>
+        <span class="spk" aria-hidden="true"></span>
+    </a>
+</div>

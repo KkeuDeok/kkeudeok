@@ -191,7 +191,8 @@
 .child-foot .side { display: flex; align-items: center; gap: 12px; }
 
 /* 보조 버튼 — 흰 알약. 주 CTA(초록 59)와 위계가 다르다 */
-.child-foot .kd-sub {
+.child-foot .kd-sub,
+.cam-actions .kd-sub {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -205,14 +206,18 @@
     font-size: 16px;
     font-weight: 500;
     color: var(--kd-text);
+    text-decoration: none;  /* 힌트는 <a> 라 밑줄이 붙는다 */
     cursor: pointer;
 }
 
-.child-foot .kd-sub-listen { width: 146px; border-color: #ccc; }
-.child-foot .kd-sub-hint { width: 120px; }
+.child-foot .kd-sub-listen,
+.cam-actions .kd-sub-listen { width: 146px; border-color: #ccc; }
+.child-foot .kd-sub-hint,
+.cam-actions .kd-sub-hint { width: 120px; }
 
 /* 스피커 — 체크와 같은 방식(mask + currentColor) */
-.child-foot .kd-sub-listen::before {
+.child-foot .kd-sub-listen::before,
+.cam-actions .kd-sub-listen::before {
     content: "";
     width: 18px;
     height: 18px;
@@ -432,9 +437,14 @@
     color: var(--kd-text-sub);
 }
 
+/* 고른 카드(또는 힌트가 짚어 주는 정답) — Figma 는 stroke 3px 안쪽이라 크기가 안 변한다 */
+/* 굵은 테두리로 자식이 밀리지 않게 inset box-shadow 로 그린다 */
+.feel-card.is-pick { box-shadow: inset 0 0 0 3px var(--kd-primary-strong); }
+
 /* 카드마다 있는 읽어주기 배지 — 카드 자체가 링크라 안에 button 을 또 넣지 않는다.
    TODO: TTS 가 붙으면 카드를 <div>+JS 로 바꾸고 이 배지를 실제 버튼으로. */
-.feel-card .spk {
+.feel-card .spk,
+.why-card .spk {
     position: absolute;
     right: 15px;
     top: 15px;
@@ -448,7 +458,8 @@
     background: #fff;
 }
 
-.feel-card .spk::before {
+.feel-card .spk::before,
+.why-card .spk::before {
     content: "";
     width: 16px;
     height: 16px;
@@ -456,3 +467,631 @@
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 16px no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 16px no-repeat;
 }
+
+/* 힌트 말풍선 — 학습2b(Figma `368:75`). 카드 아래, 하단바 위.
+   2b 프레임은 본문이 y80 에서 시작해 학습2(y98)보다 18 위인데, 요소 간격은 완전히 같다.
+   껍데기 레일이 정본이라 학습2 좌표에 맞춰 18 을 더해 두었다. */
+.feel-hint {
+    position: absolute;
+    left: 299px;            /* (1000 − 402) / 2 */
+    top: 724px;
+    width: 402px;
+    height: 51px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    background: var(--kd-text);
+    font-size: 18px;
+    line-height: 27px;
+    color: #fff;
+}
+
+/* ==========================================================================
+   학습3 이유 찾기 — Figma `136:282`(기본) / `383:892`(화남) / `383:1001`(기쁨)
+   3b 듣는 중(`383:1232`)은 같은 화면에서 아래 버튼만 바뀐다.
+   ========================================================================== */
+
+.why-title,
+.why-sub {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.why-title {
+    top: 96px;
+    font-size: 34px;
+    line-height: 51px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.why-sub {
+    top: 157px;
+    font-size: 17px;
+    line-height: 26px;
+    color: var(--kd-text-sub);
+}
+
+/* 카드 2장 — 320×260, 사이 24. 행 폭 664 라 좌우 168 여백 */
+.why-cards {
+    position: absolute;
+    left: 168px;
+    top: 275px;
+    display: flex;
+    gap: 24px;
+}
+
+.why-card {
+    position: relative;
+    display: block;
+    box-sizing: border-box;
+    width: 320px;
+    height: 260px;
+    border: 1px solid var(--kd-border);
+    border-radius: 20px;
+    text-decoration: none;
+}
+
+/* 두 카드 색이 다르다 — 왼쪽 파랑, 오른쪽 초록(Figma 실측, 정답/오답과 무관) */
+.why-card:nth-child(1) { background: #dceefb; }
+.why-card:nth-child(2) { background: var(--kd-primary-tint); }
+
+.why-card:hover { border-color: var(--kd-primary); }
+.why-card.is-pick { box-shadow: inset 0 0 0 3px var(--kd-primary-strong); }
+
+.why-card .ic {
+    position: absolute;
+    left: 90px;
+    top: 29.5px;
+    width: 140px;
+    height: 140px;
+    object-fit: contain;
+}
+
+.why-card .nm {
+    position: absolute;
+    left: 0;
+    top: 185.5px;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 30px;
+    line-height: 45px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+/* 말로 알려줄래! / 듣는 중 — 같은 자리(240×40)에서 상태만 바뀐다 */
+.why-mic,
+.why-listen {
+    position: absolute;
+    left: 380px;            /* (1000 − 240) / 2 */
+    top: 616px;
+    box-sizing: border-box;
+    width: 240px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+}
+
+.why-mic {
+    gap: 8px;
+    padding: 0;
+    border: 1px solid #ccc;
+    background: #fff;
+    font-family: var(--kd-font);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kd-text);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.why-mic::before {
+    content: "";
+    width: 20px;
+    height: 20px;
+    flex: none;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3M19 10v2a7 7 0 0 1-14 0v-2M12 19v3'/%3E%3C/svg%3E") center / 20px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3M19 10v2a7 7 0 0 1-14 0v-2M12 19v3'/%3E%3C/svg%3E") center / 20px no-repeat;
+}
+
+/* 듣는 중 — 파형 7개(4px, 사이 6) + 문구. 좌우 여백이 45/46 으로 떨어진다 */
+.why-listen {
+    gap: 12px;
+    background: #e9f0e7;
+}
+
+.why-listen .wave { display: flex; align-items: center; gap: 6px; }
+
+.why-listen .wave i {
+    width: 4px;
+    border-radius: 999px;
+    background: var(--kd-primary);
+}
+
+/* 가운데가 높은 산 모양 — Figma 실측 10·18·26·32·26·18·10 */
+.why-listen .wave i:nth-child(1),
+.why-listen .wave i:nth-child(7) { height: 10px; }
+.why-listen .wave i:nth-child(2),
+.why-listen .wave i:nth-child(6) { height: 18px; }
+.why-listen .wave i:nth-child(3),
+.why-listen .wave i:nth-child(5) { height: 26px; }
+.why-listen .wave i:nth-child(4) { height: 32px; }
+
+.why-listen .txt {
+    font-size: 15px;
+    line-height: 18px;
+    font-weight: 500;
+    color: var(--kd-primary);
+}
+
+/* ==========================================================================
+   오답 모달 — 학습2c(Figma `24:17777` 위에 겹친 레이어 `24:17900`)
+   본문(1000)보다 넓어야 해서 화면 폭 1440 을 직접 덮는다. 카드는 정중앙.
+   ========================================================================== */
+.story-dim {
+    position: absolute;
+    left: 50%;
+    top: -72px;             /* 본문 시작 72 → 캔버스 0 */
+    width: 1440px;
+    height: 1024px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(31, 58, 51, .45);   /* Figma: #1f3a33 fill opacity 45% */
+    z-index: 10;
+}
+
+.story-modal {
+    box-sizing: border-box;
+    width: 560px;
+    height: 512px;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--kd-border);
+    border-radius: 24px;
+    background: #fff;
+}
+
+.story-modal .hd {
+    display: flex;
+    align-items: center;
+    height: 63px;
+    padding: 0 25px;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.story-modal .hd h2 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 26px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.story-modal .hd .x {
+    margin-left: auto;
+    width: 20px;
+    height: 20px;
+    background: var(--kd-text-sub);
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+}
+
+.story-modal .bd { position: relative; height: 356px; }
+
+.story-modal .bd img {
+    position: absolute;
+    left: 220px;
+    top: 28px;
+    width: 120px;
+    height: 132px;
+    object-fit: contain;
+}
+
+.story-modal .say,
+.story-modal .more {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.story-modal .say {
+    top: 178px;
+    font-size: 24px;
+    line-height: 36px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.story-modal .clue {
+    position: absolute;
+    left: 25px;
+    top: 232px;
+    box-sizing: border-box;
+    width: 510px;
+    height: 52px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+    background: var(--kd-primary-tint);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kd-primary-strong);
+}
+
+.story-modal .more {
+    top: 302px;
+    font-size: 17px;
+    line-height: 26px;
+    color: var(--kd-text-sub);
+}
+
+.story-modal .ft {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    height: 86px;
+    padding: 0 25px;
+}
+
+/* 주 CTA 규격이지만 모달 안이라 폭이 160 이다(학습 흐름 h59 는 동일) */
+.story-modal .ft a {
+    width: 160px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    font-size: 19px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+}
+
+.story-modal .ft a:hover { background: var(--kd-primary-strong); color: #fff; }
+
+/* ==========================================================================
+   학습4 표정 따라하기 · 학습5 동작 따라하기 — Figma `383:1367` / `411:85`
+   두 화면은 구조가 완전히 같다(제목 → 카메라 박스 → 버튼 3개). 다른 건
+   박스 안 시범 그림과 문구뿐이라 클래스를 공유한다.
+   ========================================================================== */
+
+.cam-title {
+    position: absolute;
+    left: 0;
+    top: 117px;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 32px;
+    line-height: 48px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.cam-box {
+    position: absolute;
+    left: 140px;
+    top: 188.5px;
+    width: 720px;
+    height: 440px;
+    border-radius: 24px;
+    background: var(--kd-text);
+    overflow: hidden;
+}
+
+/* 얼굴을 맞출 자리 — 카메라가 없어도 어디를 봐야 하는지 알려 준다 */
+.cam-box .guide {
+    position: absolute;
+    left: 260px;
+    top: 100px;
+    box-sizing: border-box;
+    width: 200px;
+    height: 240px;
+    border: 2px dashed rgba(255, 255, 255, .7);
+}
+
+/* 동작 시범 그림 — 학습5 에만 있다 */
+.cam-box .demo {
+    position: absolute;
+    left: 76.5px;
+    top: 90.5px;
+    width: 204px;
+    height: 353px;
+    object-fit: contain;
+}
+
+/* 토리가 먼저 해 보이는 코너 카드 */
+.cam-hint {
+    position: absolute;
+    right: 14px;
+    top: 14.5px;
+    width: 140px;
+    height: 136px;
+    border-radius: 20px;
+    background: #fff6ea;
+}
+
+.cam-hint img {
+    position: absolute;
+    left: 30px;
+    top: 12px;
+    width: 80px;
+    height: 88px;
+    object-fit: contain;
+}
+
+.cam-hint span {
+    position: absolute;
+    left: 0;
+    top: 106px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+/* [다시 들려줘] [다 했어요!] [잘 모르겠어] — 세 개가 한 줄.
+   ⚠ Figma 는 이 행이 8px 왼쪽으로 치우쳐 있는데(229 vs 237) 가운데로 폈다. */
+.cam-actions {
+    position: absolute;
+    left: 0;
+    top: 686px;
+    width: 100%;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* 주 CTA — 학습 흐름 공통 h59 */
+.cam-actions .kd-cta {
+    flex: 0 0 auto;         /* .kd-btn 계열은 inline-flex 라 flex 안에서 늘어난다 */
+    width: 220px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    font-family: var(--kd-font);
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.cam-actions .kd-cta:hover { background: var(--kd-primary-strong); color: #fff; }
+.cam-actions .kd-sub { flex: 0 0 auto; }
+
+/* 하단바 왼쪽이 버튼 2개가 아니라 글자 링크인 화면(학습4·5) */
+.child-foot .kd-skip {
+    padding: 0;
+    border: 0;
+    background: none;
+    font-family: var(--kd-font);
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--kd-primary-strong);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   학습6 세션 결과 — Figma `24:17081`. 하단바가 없는 유일한 학습 화면이다.
+   ========================================================================== */
+
+/* 색 점 30개는 본문(1000) 밖까지 흩어져 있어 화면 폭을 직접 덮는다 */
+.done-confetti {
+    position: absolute;
+    left: 50%;
+    top: -72px;
+    width: 1440px;
+    height: 1024px;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.done-confetti i {
+    position: absolute;
+    border-radius: 999px;
+}
+
+.done-art {
+    position: absolute;
+    left: 400px;            /* (1000 − 200) / 2 — Figma 는 13px 오른쪽으로 치우쳐 있다 */
+    top: 260px;
+    width: 200px;
+    height: 220px;
+}
+
+.done-art img { width: 100%; height: 100%; object-fit: contain; }
+
+.done-title,
+.done-sub {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.done-title {
+    top: 488px;
+    font-size: 38px;
+    line-height: 57px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.done-sub {
+    top: 553px;
+    font-size: 26px;
+    line-height: 39px;
+    font-weight: 700;
+    color: var(--kd-text-sub);
+}
+
+/* ==========================================================================
+   상황 선택 — Figma `82:148`(+화남 `210:175` / 기쁨 `210:257`)
+   ⚠ 이 3벌만 파랑 톤이고 스텝바는 `행동`인데 내용은 세션 시작 화면처럼 읽힌다.
+     팀장 확인 대기 항목이라 Figma 원본을 그대로 옮겨 두었다.
+   ⚠ 원본은 배경이 #f8faf7 단색인데 껍데기 배경 그림을 두 화면만 끄면 흐름이 튄다 →
+     배경은 껍데기 그대로 두고 카드만 옮겼다.
+   ========================================================================== */
+
+.pick-badge {
+    position: absolute;
+    left: 413.5px;          /* (1000 − 173) / 2 */
+    top: 56px;
+    box-sizing: border-box;
+    width: 173px;
+    height: 29px;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 20px;
+    background: var(--kd-primary-tint);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--kd-primary-strong);
+}
+
+.pick-title,
+.pick-sub {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+}
+
+.pick-title {
+    top: 97px;
+    font-size: 36px;
+    line-height: 43px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.pick-sub {
+    top: 152px;
+    font-size: 18px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+}
+
+/* 카드 1장 — 감정마다 색이 다르다(파랑/빨강/노랑 계열). 색은 JSP 가 인라인으로 준다 */
+/* 테두리를 border 로 주면 안쪽 absolute 자식이 2px 밀린다(Figma 는 안 밀린다)
+   → inset box-shadow 로 그려 자식 좌표를 Figma 값 그대로 쓴다. */
+.pick-card {
+    position: absolute;
+    left: 320px;
+    top: 199px;
+    width: 360px;
+    height: 580px;
+    border-radius: 28px;
+    background: #fff;
+    box-shadow: inset 0 0 0 2px var(--pick-line);
+}
+
+.pick-card .art {
+    position: absolute;
+    left: 35px;
+    top: 19px;
+    width: 290px;
+    height: 290px;
+    border-radius: 999px;
+    background: var(--pick-key);
+    overflow: hidden;
+}
+
+/* 세 벌의 그림 크기가 제각각이다(165×283 / 290×290 / 232×276) → 원 안에 바닥맞춤으로 채운다.
+   Figma 슬픔 벌은 원 위에서 7px 내려와 있는데, 세 벌을 같은 규칙으로 두는 쪽을 택했다. */
+.pick-card .art img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+}
+
+.pick-card .tag {
+    position: absolute;
+    left: 24px;
+    top: 304px;
+    box-sizing: border-box;
+    height: 24px;
+    margin: 0;
+    padding: 0 12px;
+    display: inline-flex;
+    align-items: center;
+    border-radius: 12px;
+    background: var(--pick-tint);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--pick-key);
+}
+
+.pick-card .ttl,
+.pick-card .txt {
+    position: absolute;
+    left: 24px;
+    width: 312px;
+    margin: 0;
+}
+
+.pick-card .ttl {
+    top: 340px;
+    font-size: 24px;
+    line-height: 29px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.pick-card .txt {
+    top: 381px;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.pick-card .go {
+    position: absolute;
+    left: 24px;
+    top: 498.5px;
+    width: 312px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--pick-key);
+    font-size: 18px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.pick-card .go:hover { filter: brightness(.94); color: #fff; }

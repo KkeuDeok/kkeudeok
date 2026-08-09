@@ -1,7 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    /* 학습3 이유 찾기 — Figma 웹_학습3_이유찾기(136:282 / 383:892 화남 / 383:1001 기쁨).
-       말로 답하거나 그림을 눌러 고른다. [말로 알려줄래!]를 누르면 듣는 중(3b)으로 간다. */
+    /* 학습3b 이유 찾기 · 듣는 중 — Figma 웹_학습3b_이유찾기_듣는중(383:1232).
+       학습3 과 같은 화면인데 [말로 알려줄래!] 자리가 듣는 중 표시로 바뀐다.
+       파형은 정지 그림이다 — Figma 도 애니메이션이 아니다. */
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
 
@@ -14,7 +15,9 @@
 <%@ include file="../common/child-top.jsp" %>
 <%@ include file="_why-body.jspf" %>
 
-<%-- TODO: 실제 음성 인식은 마이크 권한 + STT 가 붙을 때. 지금은 듣는 중 화면으로만 넘어간다 --%>
-<a class="why-mic" href="/story/why-listening?emo=<%= emo %>">말로 알려줄래!</a>
+<div class="why-listen">
+    <span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="txt">듣고 있어요</span>
+</div>
 
 <%@ include file="../common/child-bottom.jsp" %>
