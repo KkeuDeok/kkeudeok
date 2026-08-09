@@ -73,9 +73,18 @@ img {
     border-color: var(--kd-primary-active);
 }
 
+/* ⚠ opacity 만 낮추면 **빈 칸일 때 잠긴 티가 전혀 안 난다** — 실제로 "클릭이 안 된다"는
+   제보를 받았다(PIN 재설정의 새 PIN 칸). 회색으로 채워 잠긴 것을 눈에 보이게 한다.
+   color 는 건드리지 않는다 — .onb-pin 은 글자를 transparent 로 두고 점을 CSS 로 그린다. */
 .kd-input:disabled {
-    opacity: 0.5;
+    background: #f1f4f2;
+    border-color: #e6ebe8;
+    /* ⚠ 잠긴 input 은 클릭 이벤트를 삼킨다(브라우저 규칙) — 감싸는 칸이 대신 받아
+       "인증을 먼저 하세요" 를 띄울 수 있도록 통과시킨다. */
+    pointer-events: none;
 }
+
+.onb-pin-box:has(.kd-input:disabled) { cursor: not-allowed; }
 
 /* 라벨↓입력 8은 .kd-label margin. 필드 하단에 문구 예약석 17px이 있고(auth.css)
    그 아래 12px 여백 — 오류 문구가 자기 입력칸(3px)에 붙고 다음 라벨(12px)과는 떨어져 보인다 */
