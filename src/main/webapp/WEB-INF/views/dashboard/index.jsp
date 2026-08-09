@@ -72,7 +72,7 @@
     <section class="dash-card dash-plan">
         <div class="hd">
             <h2>주차별 로드맵</h2>
-            <a href="/report">전체 보기</a>
+            <button type="button" class="lk" onclick="dlgRoadmap.showModal()">전체 보기</button>
         </div>
         <ol>
             <li><span class="no no-done">5</span><span class="t">표정으로 표현하기</span><span class="chip chip-done">완료</span></li>
@@ -85,10 +85,13 @@
 </div>
 
 <div class="dash-bottom">
+    <%-- 카드 오른쪽이 휑하다는 지적(2026-08-09)으로 캐릭터를 얹었다.
+         지우가 고른 캐릭터라 백엔드 연동 시 선택값으로 바꿀 것. --%>
     <section class="dash-today">
         <h2>오늘의 추천 학습</h2>
         <p>이야기 1편 + 표정 미션 1회</p>
         <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
+        <img class="ch" src="/img/char-tori-full.png?v=108" alt="">
     </section>
 
     <section class="dash-streak">
@@ -112,5 +115,41 @@
     <p>오늘 지우의 모습을 기록하면 다음 학습이 더 정확해져요</p>
     <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>
 </div>
+
+<%-- 로드맵 전체 보기 — 네이티브 <dialog>. 라우트를 새로 파면 서버 재시작이 필요해서 모달로 만들었다.
+     .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다(mypage 모달과 같은 규칙).
+     ⚠ 1~4·9~12 주차 문구는 임시 — 팀장·기획 확정 필요. --%>
+<dialog id="dlgRoadmap" class="terms-dialog dash-dlg">
+    <h2>12주 로드맵</h2>
+    <p>지우의 1순위 목표는 <b>감정 표현</b>이에요. 지금은 7주차예요.</p>
+    <ol>
+        <%
+            String[][] plan = {
+                {"1", "표정 알아보기",              "done"},
+                {"2", "기쁨 알아차리기",            "done"},
+                {"3", "슬픔 알아차리기",            "done"},
+                {"4", "화남 알아차리기",            "done"},
+                {"5", "표정으로 표현하기",          "done"},
+                {"6", "몸짓으로 표현하기",          "done"},
+                {"7", "감정 표현하기 — 슬픔 연습",  "now"},
+                {"8", "친구 위로하기",              "soon"},
+                {"9", "차례 지키기",                "soon"},
+                {"10", "다툰 뒤 화해하기",          "soon"},
+                {"11", "도움 요청하기",             "soon"},
+                {"12", "마음 이야기 나누기",        "soon"}
+            };
+            String[] chipLabel = {"완료", "진행중", "예정"};
+            for (String[] w : plan) {
+                int si = w[2].equals("done") ? 0 : w[2].equals("now") ? 1 : 2;
+        %>
+        <li>
+            <span class="no no-<%= w[2] %>"><%= w[0] %></span>
+            <span class="t"><%= w[1] %></span>
+            <span class="chip chip-<%= w[2] %>"><%= chipLabel[si] %></span>
+        </li>
+        <% } %>
+    </ol>
+    <button type="button" onclick="dlgRoadmap.close()">닫기</button>
+</dialog>
 
 <%@ include file="../common/app-bottom.jsp" %>

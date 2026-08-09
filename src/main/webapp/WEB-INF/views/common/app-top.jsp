@@ -15,10 +15,11 @@
 <div class="app-shell">
     <div class="app-scale">
         <aside class="app-side">
-            <div class="app-brand">
+            <%-- 브랜드를 누르면 메인 대시보드로 (2026-08-09 요청) --%>
+            <a class="app-brand" href="/dashboard">
                 <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
                 <span class="nm">끄덕</span>
-            </div>
+            </a>
 
             <nav class="app-nav">
                 <%

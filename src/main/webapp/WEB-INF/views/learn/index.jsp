@@ -15,7 +15,7 @@
          제공 그림에는 아이가 없어서 배경만 쓰면 배너가 비어 보인다. --%>
     <span class="art">
         <img class="bg" src="/img/learn-hero-bg.png" alt="">
-        <img class="ch" src="/img/char-tori-full.png" alt="">
+        <img class="ch" src="/img/char-tori-full.png?v=108" alt="">
     </span>
     <div class="txt">
         <h2>AI 스토리 학습</h2>

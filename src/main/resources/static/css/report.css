@@ -286,9 +286,11 @@
    사회성 — 레이더 차트 래퍼 + 장면 리스트 (감정 이해 화면과 공용)
    -------------------------------------------------------------------------- */
 /* 좌 차트 + 우 축별 점수 2열 — 세로를 안 늘리면서 오각형만 키운다 */
+/* 2026-08-09 지적 — 우측 열이 세로 가운데 정렬이라 차트(511px)에 밀려 아래로 내려가 있었다.
+   위로 붙여 사회성 지수 줄과 눈높이를 맞춘다. */
 .rpt-radar-row {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 32px;
     margin-top: 4px;
 }
@@ -361,7 +363,31 @@
     color: var(--kd-text);
 }
 
-.rpt-heat .cell { height: 40px; border-radius: 10px; }
+/* 칸 진하기는 opacity 가 아니라 흰색과 섞어서 낸다 — opacity 를 쓰면 안에 적은 숫자까지 흐려진다.
+   가장 진한 단계(--o:.80)에서도 #1f2a25 글자 대비가 4.8:1 이상이라 WCAG AA 를 넘는다. */
+.rpt-heat .cell {
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: #1f2a25;
+    background: color-mix(in srgb, var(--c) calc(var(--o) * 100%), #fff);
+}
+
+.rpt-heat .em-joy { --c: #e8a317; }
+.rpt-heat .em-sad { --c: #3d8fe0; }
+.rpt-heat .em-mad { --c: #ec4b3f; }
+.rpt-heat .em-sup { --c: #8b5cf6; }
+
+.rpt-heat-note {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
 
 .rpt-heat .weeklb {
     text-align: center;
@@ -457,10 +483,14 @@
 /* --------------------------------------------------------------------------
    AI 피드백 (신규 설계) — 종합 코멘트 카드 · 지표 카드 3장 · 추천 활동 · 면책
    -------------------------------------------------------------------------- */
+/* 2026-08-09 지적("길이 맞추기") — 아래 카드행과 좌우 끝을 맞춘다.
+   ⚠ 공통 규칙의 max-width 는 1200(=바깥 상자)인데, 카드행은 그 안에서 좌우 40 을 빼고 그린다.
+     배너에도 1200 을 쓰면 창이 1280 보다 넓어질 때 배너만 80px 더 벌어진다 → 1120 으로 맞춘다. */
 .rpt-ai {
     display: flex;
     align-items: flex-start;
     width: calc(100% - 80px);
+    max-width: 1120px;
     margin: 24px auto 0;
     padding: 20px 24px;
     box-sizing: border-box;

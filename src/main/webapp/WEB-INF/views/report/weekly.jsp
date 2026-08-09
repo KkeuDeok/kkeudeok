@@ -23,24 +23,27 @@
 
 <section class="rpt-sec">
     <h2>감정별 주간 히트맵</h2>
-    <%-- 진하기 5단계 = opacity .15/.3/.55/.75/1 --%>
+    <%-- 색만으로는 정도를 못 읽는다는 지적(2026-08-09 팀장)이 있어 칸마다 횟수를 적는다.
+         진하기 5단계 --o = .12/.26/.44/.62/.80 이 각각 1·2·4·6·8회.
+         ⚠ opacity 로 진하기를 주면 숫자까지 같이 흐려진다 → report.css 에서 흰색과 섞는다. --%>
     <div class="rpt-heat">
         <span class="rowlb">기쁨</span>
-        <div class="cell em-joy" style="opacity:.55"></div><div class="cell em-joy" style="opacity:.55"></div><div class="cell em-joy" style="opacity:.75"></div><div class="cell em-joy" style="opacity:.75"></div><div class="cell em-joy" style="opacity:.75"></div><div class="cell em-joy" style="opacity:1"></div><div class="cell em-joy" style="opacity:1"></div><div class="cell em-joy" style="opacity:1"></div>
+        <div class="cell em-joy" style="--o:.44">4</div><div class="cell em-joy" style="--o:.44">4</div><div class="cell em-joy" style="--o:.62">6</div><div class="cell em-joy" style="--o:.62">6</div><div class="cell em-joy" style="--o:.62">6</div><div class="cell em-joy" style="--o:.80">8</div><div class="cell em-joy" style="--o:.80">8</div><div class="cell em-joy" style="--o:.80">8</div>
         <div class="rpt-heat-scale">
             <span>많음</span>
-            <i style="opacity:1"></i><i style="opacity:.75"></i><i style="opacity:.55"></i><i style="opacity:.3"></i><i style="opacity:.15"></i>
+            <i style="opacity:.80"></i><i style="opacity:.62"></i><i style="opacity:.44"></i><i style="opacity:.26"></i><i style="opacity:.12"></i>
             <span>적음</span>
         </div>
         <span class="rowlb">슬픔</span>
-        <div class="cell em-sad" style="opacity:.3"></div><div class="cell em-sad" style="opacity:.3"></div><div class="cell em-sad" style="opacity:.55"></div><div class="cell em-sad" style="opacity:.55"></div><div class="cell em-sad" style="opacity:.75"></div><div class="cell em-sad" style="opacity:.75"></div><div class="cell em-sad" style="opacity:.75"></div><div class="cell em-sad" style="opacity:1"></div>
+        <div class="cell em-sad" style="--o:.26">2</div><div class="cell em-sad" style="--o:.26">2</div><div class="cell em-sad" style="--o:.44">4</div><div class="cell em-sad" style="--o:.44">4</div><div class="cell em-sad" style="--o:.62">6</div><div class="cell em-sad" style="--o:.62">6</div><div class="cell em-sad" style="--o:.62">6</div><div class="cell em-sad" style="--o:.80">8</div>
         <span class="rowlb">화남</span>
-        <div class="cell em-mad" style="opacity:.75"></div><div class="cell em-mad" style="opacity:.75"></div><div class="cell em-mad" style="opacity:.55"></div><div class="cell em-mad" style="opacity:.55"></div><div class="cell em-mad" style="opacity:.55"></div><div class="cell em-mad" style="opacity:.3"></div><div class="cell em-mad" style="opacity:.3"></div><div class="cell em-mad" style="opacity:.3"></div>
+        <div class="cell em-mad" style="--o:.62">6</div><div class="cell em-mad" style="--o:.62">6</div><div class="cell em-mad" style="--o:.44">4</div><div class="cell em-mad" style="--o:.44">4</div><div class="cell em-mad" style="--o:.44">4</div><div class="cell em-mad" style="--o:.26">2</div><div class="cell em-mad" style="--o:.26">2</div><div class="cell em-mad" style="--o:.26">2</div>
         <span class="rowlb">놀람</span>
-        <div class="cell em-sup" style="opacity:.15"></div><div class="cell em-sup" style="opacity:.3"></div><div class="cell em-sup" style="opacity:.3"></div><div class="cell em-sup" style="opacity:.55"></div><div class="cell em-sup" style="opacity:.55"></div><div class="cell em-sup" style="opacity:.55"></div><div class="cell em-sup" style="opacity:.75"></div><div class="cell em-sup" style="opacity:.75"></div>
+        <div class="cell em-sup" style="--o:.12">1</div><div class="cell em-sup" style="--o:.26">2</div><div class="cell em-sup" style="--o:.26">2</div><div class="cell em-sup" style="--o:.44">4</div><div class="cell em-sup" style="--o:.44">4</div><div class="cell em-sup" style="--o:.44">4</div><div class="cell em-sup" style="--o:.62">6</div><div class="cell em-sup" style="--o:.62">6</div>
         <span></span>
         <span class="weeklb">1주</span><span class="weeklb">2주</span><span class="weeklb">3주</span><span class="weeklb">4주</span><span class="weeklb">5주</span><span class="weeklb">6주</span><span class="weeklb">7주</span><span class="weeklb">8주</span>
     </div>
+    <p class="rpt-heat-note">숫자는 그 주에 아이가 그 감정을 표현한 횟수예요</p>
 </section>
 
 <hr class="rpt-rule">
