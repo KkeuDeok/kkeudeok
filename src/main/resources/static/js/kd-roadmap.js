@@ -130,9 +130,14 @@
             .map(function (w, i) { return [w.topic, (i + 1) + '주']; });
     }
 
+    /* 카드에는 앞 8줄만. 12줄을 다 넣으면 카드가 676 이 되어 저장 버튼이 995 —
+       세로 예산(1024) 여유가 29px 밖에 안 남는다. 나머지는 '외 N주 더' 한 줄로 접고
+       전체는 편집 모달에서 본다(2026-08-09 결정). */
+    var CARD_ROWS = 8;
+
     function fillSteps(box, rows) {
         box.textContent = '';
-        rows.forEach(function (st, i) {
+        rows.slice(0, CARD_ROWS).forEach(function (st, i) {
             var d = document.createElement('div');
             d.className = 'onb-step-item';
             d.innerHTML = '<span class="no">' + (i + 1) + '</span>'
@@ -141,6 +146,13 @@
             d.querySelector('.wk').textContent = st[1];
             box.appendChild(d);
         });
+        var rest = rows.length - CARD_ROWS;
+        if (rest > 0) {
+            var more = document.createElement('p');
+            more.className = 'steps-more';
+            more.textContent = '외 ' + rest + '주 더';
+            box.appendChild(more);
+        }
     }
 
     function renderCards(p) {

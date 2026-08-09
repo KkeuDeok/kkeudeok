@@ -652,6 +652,14 @@
    여기는 340 이라 '감정 표현하기 — 슬픔 연습' 같은 긴 제목이 두 줄이 되며 아랫 항목과 겹쳤다.
    높이를 내용에 맡기고 연결선도 항목 바닥까지 늘린다. */
 .mp-plan .onb-step-item { height: 44px; padding-bottom: 0; }
+
+/* 카드에 안 담은 나머지 주차 — 전체는 편집 모달에서 본다 */
+.mp-plan .steps-more {
+    margin: 8px 0 0 38px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
 .mp-plan .onb-step-item:not(:last-of-type)::before { top: 32px; bottom: 6px; height: auto; }
 
 /* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
