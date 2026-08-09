@@ -211,6 +211,7 @@ public class UserController {
        ⚠ 화이트리스트 밖은 404 — 임의 경로로 JSP 를 훑는 걸 막는다.
        감정 벌은 전부 `?emo=sad|angry|happy` 로 갈린다(기본 sad). */
     private static final Set<String> STORY_STEPS = Set.of(
+            "home",          // 아동홈 — 학습 단계가 아니라 흐름의 입구다(스텝바·하단바 없음)
             "scene",         // 학습1 상황 이야기
             "feel",          // 학습2 마음 읽기
             "feel-hint",     // 학습2b 힌트

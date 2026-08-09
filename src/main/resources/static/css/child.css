@@ -1095,3 +1095,98 @@
 }
 
 .pick-card .go:hover { filter: brightness(.94); color: #fff; }
+
+/* ==========================================================================
+   아동홈 — Figma 웹_아동홈(24:18425). 학습 단계가 아니라 흐름의 입구다.
+   스텝바·닫기·하단바가 전부 없고, 인사말 + 카드 한 장뿐이다.
+   좌표는 캔버스 − 72(본문 시작). 프레임이 1050 이 아니라 상단 여백 8 이라
+   캔버스 = 프레임 − 8 로 환산했다(다른 학습 화면은 −26).
+   ========================================================================== */
+
+.home-hi,
+.home-sub {
+    position: absolute;
+    left: 225px;            /* 카드와 같은 세로축 — Figma 는 2px 어긋나 있는데 폈다 */
+    width: 550px;
+    margin: 0;
+}
+
+.home-hi {
+    top: 40px;
+    font-size: 34px;
+    line-height: 51px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.home-sub {
+    top: 101px;
+    font-size: 20px;
+    line-height: 30px;
+    color: var(--kd-text-sub);
+}
+
+/* 테두리는 inset box-shadow 로 그린다 — border 로 주면 안쪽 자식이 1px 밀린다 */
+.home-card {
+    position: absolute;
+    left: 225px;            /* (1000 − 550) / 2 */
+    top: 161px;
+    width: 550px;
+    height: 558px;
+    border-radius: 20px;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px var(--kd-border), 0 4px 8px rgba(43, 58, 51, .08);
+}
+
+/* 카드 폭(550)을 거의 꽉 채우는 그림 */
+.home-card .art {
+    position: absolute;
+    left: 1px;
+    top: 29px;
+    width: 548px;
+    height: 320px;
+    object-fit: contain;
+}
+
+.home-card .ttl,
+.home-card .txt {
+    position: absolute;
+    left: 33px;
+    width: 484px;
+    margin: 0;
+}
+
+.home-card .ttl {
+    top: 349px;
+    font-size: 32px;
+    line-height: 48px;
+    font-weight: 700;
+    color: var(--kd-text);
+}
+
+.home-card .txt {
+    top: 407px;
+    font-size: 20px;
+    line-height: 30px;
+    color: var(--kd-text-sub);
+}
+
+/* 주 CTA — 학습 흐름 공통 h59, 카드 좌우 여백 33 을 뺀 폭 */
+.home-card .go {
+    position: absolute;
+    left: 33px;
+    top: 461px;
+    width: 484px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.home-card .go:hover { background: var(--kd-primary-strong); color: #fff; }

@@ -40,14 +40,19 @@
             </svg>
         </div>
 
-        <%-- 스텝바 — 현재 단계 이전은 완료(체크), 이후는 예정 --%>
+        <%-- 스텝바 — 현재 단계 이전은 완료(체크), 이후는 예정.
+             아동홈(storyStep="home")은 학습 단계가 아니라 흐름의 입구라 스텝바도 닫기도 없다.
+             자리(72)는 그대로 둬서 본문 좌표계가 다른 화면과 어긋나지 않게 한다. --%>
+        <%
+            /* 하단 바를 통째로 끄는 화면이 있다(아동홈·세션 결과·상황 선택).
+               여기서 기본값을 잡아 두면 각 화면은 필요할 때만 true 로 바꾸면 된다.
+               ⚠ 스텝바 if 블록 안에 두면 아동홈에서 선언이 안 돼 컴파일이 깨진다. */
+            boolean storyFootOff = false;
+        %>
         <header class="child-head">
+            <% if (!"home".equals(storyStep)) { %>
             <nav class="child-steps" aria-label="학습 단계">
                 <%
-                    /* 하단 바를 통째로 끄는 화면이 있다(세션 결과·상황 선택).
-                       여기서 기본값을 잡아 두면 각 화면은 필요할 때만 true 로 바꾸면 된다. */
-                    boolean storyFootOff = false;
-
                     String[][] storySteps = {
                         {"scene",  "이야기"},
                         {"feel",   "마음"},
@@ -71,8 +76,8 @@
                 <% } %>
             </nav>
 
-            <%-- TODO: 아동홈(Figma 24:18425)이 생기면 그쪽으로. 지금은 보호자 학습 홈으로 나간다 --%>
-            <a class="child-close" href="/learn" aria-label="학습 그만두기"></a>
+            <a class="child-close" href="/story/home?emo=<%= emo %>" aria-label="학습 그만두기"></a>
+            <% } %>
         </header>
 
         <main class="child-main">
