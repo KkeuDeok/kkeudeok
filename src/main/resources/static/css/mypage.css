@@ -605,64 +605,47 @@
 }
 
 /* --------------------------------------------------------------------------
-   학습 로드맵 탭 — 커리큘럼 안 세그먼트 + 12주 편집 목록(2열 6행)
+   학습 로드맵 탭 — 카드 3장(온보딩 .onb-plan 재사용) + 주차 편집 모달
    -------------------------------------------------------------------------- */
-/* 안 선택은 탭바(.mp-tabs)와 같은 pill 세그먼트로 — 온보딩의 큰 카드(420×450)는 세로가 없다 */
-.mp-plans {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 24px;
-}
+/* 온보딩 카드는 420 폭이라 3장이 안 들어간다. 340×3 + 40×2 = 1100 (레일 1120) */
+.mp-plans { margin-top: 0; gap: 40px; }
+.mp-plan  { width: 340px; }
 
-.mp-plans label {
-    display: inline-flex;
-    align-items: center;
-    height: 41px;
-    padding: 0 24px;
-    border-radius: 999px;
-    background: #f1f5f2;
-    font-size: 15px;
-    line-height: 22px;
+/* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
+.mp-plan--custom .badge { background: #eef2f0; color: var(--kd-text-sub); }
+.mp-plan--custom:has(input:checked) .badge { background: var(--kd-primary-active); color: #fff; }
+
+/* 아직 아무것도 안 고쳤을 때의 안내 — .steps 를 JS 가 채우기 전/빈 경우 */
+.mp-plan .steps:empty::after {
+    content: "아직 직접 고른 구성이 없어요";
+    display: block;
+    margin-top: 14px;
+    font-size: 13px;
     color: var(--kd-text-sub);
-    cursor: pointer;
 }
 
-.mp-plans input { position: absolute; opacity: 0; pointer-events: none; }
+.mp-plan-links { margin-top: 24px; }
+.mp-plan-links button { font-size: 14px; color: var(--kd-text-sub); text-decoration: underline; }
+.mp-plan-links button:hover { color: var(--kd-primary); }
 
-.mp-plans label:has(input:checked) {
-    background: var(--kd-primary-tint);
-    color: var(--kd-primary-strong);
-    font-weight: 700;
-}
+/* 주차 편집 모달 — 12주를 2열 6행으로. 카드와 같은 화면에 두면 세로 예산을 넘긴다 */
+.roadmap-dlg { width: 920px; }
+.roadmap-dlg > h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 30px; color: var(--kd-text); }
+.roadmap-dlg > .ds { margin: 6px 0 20px; font-size: 13px; line-height: 20px; color: var(--kd-text-sub); }
+.roadmap-dlg .ft { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
+.roadmap-dlg .ft .kd-btn { width: 96px; height: 44px; border-radius: 999px; font-size: 15px; font-weight: 700; }
 
-.mp-plans label:has(input:focus-visible) { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
-
-.mp-plans .ds { margin: 0 0 0 8px; font-size: 13px; line-height: 19px; color: var(--kd-text-sub); }
-
-/* 좌 1~6주 / 우 7~12주. 폭은 .mp-grid 와 같은 520+80+520 레일 */
 .mp-weeks {
     display: grid;
-    grid-template-columns: 520px 520px;
+    grid-template-columns: 1fr 1fr;
     grid-template-rows: repeat(6, auto);
     grid-auto-flow: column;
-    gap: 8px 80px;
+    gap: 8px 32px;
 }
 
-.mp-week {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    height: 40px;
-}
+.mp-week { display: flex; align-items: center; gap: 8px; height: 40px; }
 
-.mp-week .no {
-    flex: none;
-    width: 24px;
-    text-align: right;
-    font-size: 14px;
-    color: var(--kd-text-sub);
-}
+.mp-week .no { flex: none; width: 24px; text-align: right; font-size: 14px; color: var(--kd-text-sub); }
 
 /* 드롭다운이 남는 폭을 다 먹는다 — .kd-select 는 onb-select.js 가 씌우는 래퍼 */
 .mp-week .kd-select { flex: 1; min-width: 0; }
@@ -699,8 +682,3 @@
 /* 뺀 주차는 흐리게 — 목록에서 지우지 않고 남겨야 다시 켜기 쉽다 */
 .mp-week.is-off .no,
 .mp-week.is-off .kd-select { opacity: .4; }
-
-/* 되돌리기 링크 — .mp-links 버튼 규격 그대로 쓰되 위 여백만 준다 */
-#roadmapEdit .mp-links { margin-top: 20px; }
-#roadmapEdit .mp-links button { font-size: 14px; color: var(--kd-text-sub); text-decoration: underline; }
-#roadmapEdit .mp-links button:hover { color: var(--kd-primary); }

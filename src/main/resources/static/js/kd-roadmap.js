@@ -33,6 +33,28 @@
             '상황과 감정 잇기', '친구 위로하기', '눈 맞추고 대화하기', '스스로 돌아보기']
     };
 
+    /* 카드에 보여 줄 6단계 요약 — 온보딩 로드맵 비교 화면(Figma 306:75)의 문구를 그대로 쓴다.
+       12주 배열과 별개인 이유: 정석·AI 는 '단계 이름'이 기획 문구라 주차 주제에서 뽑아낼 수 없다.
+       직접 구성 카드만 저장된 12주를 2주씩 묶어 만든다(makeCustomSteps). */
+    var KD_STEPS = {
+        standard: [
+            ['감정 인식 기초', '기본 6가지 감정 알기', '1-2주'],
+            ['감정 표현 연습', '표정/몸짓 따라하기', '3-4주'],
+            ['상황별 감정 이해', '상황과 감정 연결하기', '5-6주'],
+            ['공감 반응 연습', '위로/격려 표현하기', '7-8주'],
+            ['사회적 행동 적용', '실생활 사회 기술', '9-10주'],
+            ['종합 복습', '전체 내용 통합', '11-12주']
+        ],
+        ai: [
+            ['감정 표현 집중', '표현이 약한 부분 우선 강화', '1-3주'],
+            ['감정 이해 심화', '복합 감정 이해하기', '4-5주'],
+            ['사회적 상호작용', '친구와 소통하기', '6-7주'],
+            ['공감 실전 연습', '실제 상황 역할극', '8-9주'],
+            ['일상 적용', '가정/학교 연계 활동', '10-11주'],
+            ['자기 평가', '스스로 돌아보기', '12주']
+        ]
+    };
+
     function preset(mode) {
         return (KD_PRESET[mode] || KD_PRESET.ai).map(function (t) { return { topic: t, on: true }; });
     }
@@ -116,23 +138,65 @@
         }
     }
 
-    /* ---------- 마이페이지 편집기 ---------- */
+    /* ---------- 마이페이지 카드 3장 ---------- */
+
+    /* 직접 구성 카드 — 켜 둔 주차를 2개씩 묶어 6줄로. 12주가 아니어도(토글로 뺐어도) 나눠 떨어진다 */
+    function makeCustomSteps(p) {
+        var on = p.weeks.filter(function (w) { return w.on; });
+        var per = Math.max(1, Math.ceil(on.length / 6)), out = [];
+        for (var i = 0; i < on.length; i += per) {
+            var g = on.slice(i, i + per);
+            var from = i + 1, to = Math.min(i + per, on.length);
+            out.push([g[0].topic, g.slice(1).map(function (w) { return w.topic; }).join(' · ') || '한 주 집중',
+                (from === to ? from : from + '-' + to) + '주']);
+            if (out.length === 6) break;
+        }
+        return out;
+    }
+
+    function fillSteps(box, steps) {
+        box.textContent = '';
+        steps.forEach(function (st, i) {
+            var d = document.createElement('div');
+            d.className = 'onb-step-item';
+            d.innerHTML = '<span class="no">' + (i + 1) + '</span>'
+                + '<div class="hd"><p class="t"></p><span class="wk"></span></div><p class="d"></p>';
+            d.querySelector('.t').textContent = st[0];
+            d.querySelector('.d').textContent = st[1];
+            d.querySelector('.wk').textContent = st[2];
+            box.appendChild(d);
+        });
+    }
+
+    function renderCards(p) {
+        var boxes = document.querySelectorAll('#roadmapPick .steps');
+        if (!boxes.length) return;
+        boxes.forEach(function (box) {
+            var kind = box.dataset.plan;
+            if (kind === 'custom') {
+                /* 아직 손대지 않았으면 비워 둔다 — CSS 가 안내 문구를 대신 보여 준다 */
+                if (p.mode === 'custom') fillSteps(box, makeCustomSteps(p));
+                else box.textContent = '';
+            } else {
+                fillSteps(box, KD_STEPS[kind]);
+            }
+        });
+    }
+
+    /* ---------- 마이페이지 편집기(모달) ---------- */
 
     function editorRows() {
         return [].slice.call(document.querySelectorAll('#roadmapEdit .mp-week'));
     }
 
-    /* 화면 -> 객체. 저장할 때와 안을 바꿀 때 모두 이걸로 현재 상태를 읽는다 */
-    function readEditor() {
-        var p = kdPlanLoad();
-        p.weeks = editorRows().map(function (row) {
+    /* 모달 화면 -> 12주 배열 */
+    function readEditorWeeks() {
+        return editorRows().map(function (row) {
             return {
                 topic: row.querySelector('select').value,
                 on: row.querySelector('input[type=checkbox]').checked
             };
         });
-        p.mode = document.querySelector('input[name="planMode"]:checked').value;
-        return p;
     }
 
     /* 객체 -> 화면. select 는 값만 바꾸면 onb-select.js 가 만든 커스텀 드롭다운 글씨가 안 따라오므로
@@ -157,64 +221,77 @@
         });
     }
 
-    function markCustom() {
-        var c = document.querySelector('input[name="planMode"][value="custom"]');
-        if (c && !c.checked) c.checked = true;
-    }
-
-    function swap(i, j) {
-        var p = readEditor();
-        var t = p.weeks[i]; p.weeks[i] = p.weeks[j]; p.weeks[j] = t;
-        markCustom();
-        p.mode = 'custom';
-        fillEditor(p);
+    /* 화면에서 지금 고른 안 */
+    function pickedMode() {
+        var r = document.querySelector('input[name="planMode"]:checked');
+        return r ? r.value : 'ai';
     }
 
     function initEditor() {
-        var box = document.getElementById('roadmapEdit');
-        if (!box) return;
-        var p = kdPlanLoad();
+        var pick = document.getElementById('roadmapPick');
+        if (!pick) return;
 
+        /* 편집 중인 값 — 모달에서 [적용] 하기 전까지 저장하지 않는다 */
+        var draft = kdPlanLoad();
+
+        function paint() {
+            document.querySelectorAll('input[name="planMode"]').forEach(function (r) {
+                r.checked = (r.value === draft.mode);
+            });
+            renderCards(draft);
+        }
+
+        /* 정석·AI 를 고르면 그 프리셋으로 12주를 덮는다. 직접 구성은 지금 값을 유지 */
         document.querySelectorAll('input[name="planMode"]').forEach(function (r) {
-            r.checked = (r.value === p.mode);
             r.addEventListener('change', function () {
-                if (r.value === 'custom') return;      /* 직접 구성은 지금 값을 유지한다 */
-                fillEditor({ weeks: preset(r.value) });
+                draft.mode = r.value;
+                if (r.value !== 'custom') draft.weeks = preset(r.value);
+                renderCards(draft);
             });
         });
 
-        box.addEventListener('change', function (e) {
-            var row = e.target.closest('.mp-week');
-            if (!row) return;
-            if (e.target.type === 'checkbox') row.classList.toggle('is-off', !e.target.checked);
-            markCustom();
+        var dlg = document.getElementById('dlgWeeks');
+
+        document.getElementById('planEdit').addEventListener('click', function () {
+            fillEditor(draft);
+            dlg.showModal();
         });
 
-        box.addEventListener('click', function (e) {
+        document.getElementById('weeksCancel').addEventListener('click', function () { dlg.close(); });
+
+        document.getElementById('weeksApply').addEventListener('click', function () {
+            draft.weeks = readEditorWeeks();
+            draft.mode = 'custom';          /* 손으로 고친 순간 직접 구성이 된다 */
+            paint();
+            dlg.close();
+        });
+
+        dlg.addEventListener('click', function (e) {
             var btn = e.target.closest('.up, .dn');
             if (!btn) return;
-            var rows = editorRows(), i = rows.indexOf(btn.closest('.mp-week'));
-            swap(i, btn.classList.contains('up') ? i - 1 : i + 1);
+            var rows = editorRows(), i2 = rows.indexOf(btn.closest('.mp-week'));
+            var j2 = btn.classList.contains('up') ? i2 - 1 : i2 + 1;
+            var w = readEditorWeeks(), t = w[i2]; w[i2] = w[j2]; w[j2] = t;
+            fillEditor({ weeks: w });
         });
 
-        var reset = document.getElementById('planReset');
-        if (reset) {
-            reset.addEventListener('click', function () {
-                var r = document.querySelector('input[name="planMode"][value="ai"]');
-                if (r) r.checked = true;
-                fillEditor(defaults());
-            });
-        }
+        dlg.addEventListener('change', function (e) {
+            var row = e.target.closest('.mp-week');
+            if (row && e.target.type === 'checkbox') row.classList.toggle('is-off', !e.target.checked);
+        });
 
-        var save = document.getElementById('planSave');
-        if (save) {
-            save.addEventListener('click', function () {
-                kdPlanSave(readEditor());
-                kdSaved('로드맵을 저장했어요');
-            });
-        }
+        document.getElementById('planReset').addEventListener('click', function () {
+            draft = defaults();
+            paint();
+        });
 
-        fillEditor(p);
+        document.getElementById('planSave').addEventListener('click', function () {
+            draft.mode = pickedMode();
+            kdPlanSave(draft);
+            kdSaved('로드맵을 저장했어요');
+        });
+
+        paint();
     }
 
     function boot() { renderDash(); initEditor(); }
