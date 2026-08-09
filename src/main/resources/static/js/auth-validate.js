@@ -534,11 +534,19 @@
          6명을 다 보여주는 자리라 전부 한 캐릭터로 바뀌어 버린다.
        renderAppOnb() 안에 두지 않은 이유: 그쪽은 아이 이름이 없으면 조기 반환한다.
        캐릭터 반영이 이름 입력 여부에 묶이면 안 된다. */
+    /* 지금 자산이 있는 6명. 여기 없는 키(예전에 뺀 '하루'·'보리')가 세션에 남아 있으면
+       char-haru-comfort.png 같은 없는 파일을 가리켜 화면의 그림이 전부 깨진다 — 실제로 겪었다.
+       모르는 키면 그림도 이름도 건드리지 않고 JSP 기본값(토리)을 그대로 둔다. */
+    var CHAR_KEYS = ['tori', 'koko', 'lala', 'bada', 'bomi', 'rubi'];
+
     function renderChar() {
         var v = readOnb();
+        if (v.charKey && CHAR_KEYS.indexOf(v.charKey) === -1) return;
         if (v.charKey) {
             document.querySelectorAll('[data-kd-char]').forEach(function (el) {
-                el.src = charImg(v.charKey, el.getAttribute('data-kd-char'));
+                var pose = el.getAttribute('data-kd-char');
+                el.onerror = function () { this.onerror = null; this.src = charImg('tori', pose); };
+                el.src = charImg(v.charKey, pose);
             });
         }
         if (v.charName) {

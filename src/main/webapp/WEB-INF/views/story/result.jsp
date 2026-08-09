@@ -38,14 +38,14 @@
     %>
 </div>
 
-<%-- 화면 어디를 눌러도 아동홈으로 — Figma 는 "3초 뒤 자동"이지만 아이가 칭찬을 다 보기 전에
-     넘어가면 안 되므로 터치로 넘긴다(story.js). --%>
-<div class="done-stage" data-home="/story/home?emo=<%= emo %>" role="button" tabindex="0" aria-label="아동 홈으로 돌아가기">
+<%-- 화면 어디를 눌러도 학습을 마친다(story.js).
+     ⚠ 아동홈으로 보내면 같은 이야기가 다시 시작돼 빠져나갈 수 없다 — 반드시 흐름 밖으로. --%>
+<div class="done-stage" data-home="/learn" role="button" tabindex="0" aria-label="오늘 학습 마치기">
     <div class="done-art"><img data-kd-char="proud" src="/img/char-tori-proud.png" alt=""></div>
 
     <h1 class="done-title">고마워, 지우야!</h1>
     <p class="done-sub">마음이 따뜻해졌어</p>
-    <p class="done-tap">화면을 누르면 처음으로 돌아가요</p>
+    <p class="done-tap">화면을 누르면 오늘 학습을 마쳐요</p>
 </div>
 
 <%@ include file="../common/child-bottom.jsp" %>
