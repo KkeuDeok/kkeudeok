@@ -611,18 +611,42 @@
 .mp-plans { margin-top: 0; gap: 40px; }
 .mp-plan  { width: 340px; }
 
+/* 12줄이 들어갈 만큼만. 650 은 아래가 남았다는 지적(2026-08-09)으로 줄였다 */
+.mp-plan { min-height: 604px; padding-bottom: 20px; box-sizing: border-box; }
+
+/* 주차 라벨은 제목 첫 줄에 붙는다 — 가운데 정렬이면 제목이 두 줄인 행만 라벨이 아래로 내려가
+   옆 행들과 눈높이가 어긋난다('7주' 만 처져 보이던 문제) */
+.mp-plan .onb-step-item .hd { align-items: flex-start; }
+.mp-plan .onb-step-item .wk { line-height: 24px; }
+
+/* 삭제 — 배지 반대쪽 모서리 */
+.mp-plan--custom .del {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 999px;
+    background: center / 14px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b978f' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E");
+    cursor: pointer;
+}
+
+.mp-plan--custom .del:hover { background-color: #f1f5f2; }
+
+/* ⚠ 온보딩 카드는 420 폭이라 .onb-step-item 높이 48 고정으로 충분했지만
+   여기는 340 이라 '감정 표현하기 — 슬픔 연습' 같은 긴 제목이 두 줄이 되며 아랫 항목과 겹쳤다.
+   높이를 내용에 맡기고 연결선도 항목 바닥까지 늘린다. */
+.mp-plan .onb-step-item { height: auto; min-height: 44px; padding-bottom: 14px; }
+/* keep-all 이 없으면 '감정 표현하기 — 슬픔 연습' 이 음절 단위로 잘려 '슬픔 연 / 습' 이 된다 */
+.mp-plan .onb-step-item .t,
+.mp-plan .onb-step-item .d { word-break: keep-all; }
+.mp-plan .onb-step-item:not(:last-of-type)::before { top: 32px; bottom: 6px; height: auto; }
+
 /* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
 .mp-plan--custom .badge { background: #eef2f0; color: var(--kd-text-sub); }
 .mp-plan--custom:has(input:checked) .badge { background: var(--kd-primary-active); color: #fff; }
-
-/* 아직 아무것도 안 고쳤을 때의 안내 — .steps 를 JS 가 채우기 전/빈 경우 */
-.mp-plan .steps:empty::after {
-    content: "아직 직접 고른 구성이 없어요";
-    display: block;
-    margin-top: 14px;
-    font-size: 13px;
-    color: var(--kd-text-sub);
-}
 
 .mp-plan-links { margin-top: 24px; }
 .mp-plan-links button { font-size: 14px; color: var(--kd-text-sub); text-decoration: underline; }
@@ -633,7 +657,21 @@
 .roadmap-dlg > h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 30px; color: var(--kd-text); }
 .roadmap-dlg > .ds { margin: 6px 0 20px; font-size: 13px; line-height: 20px; color: var(--kd-text-sub); }
 .roadmap-dlg .ft { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-.roadmap-dlg .ft .kd-btn { width: 96px; height: 44px; border-radius: 999px; font-size: 15px; font-weight: 700; }
+.roadmap-dlg .ft .kd-btn { width: 96px; height: 44px; margin-top: 0; border-radius: 999px; font-size: 15px; font-weight: 700; }
+
+/* ⚠ auth.css:328 의 `.terms-dialog button` 이 모달 안 모든 button 을
+   width:100% · margin-top:14 · 초록 배경 알약으로 만든다(원래는 '닫기' 하나만 있던 모달이라 그랬다).
+   주제 드롭다운과 ▲▼ 는 그 대상이 아니다 — 14px 이 행마다 밀려 칸이 움직여 보였다. */
+.roadmap-dlg .kd-select-btn {
+    margin-top: 0;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+    font-weight: 400;
+    text-align: left;
+}
+.roadmap-dlg .kd-select-btn:hover { border-color: var(--kd-primary-active); }
+.roadmap-dlg .mv { margin-top: 0; }
 
 .mp-weeks {
     display: grid;
@@ -646,6 +684,37 @@
 .mp-week { display: flex; align-items: center; gap: 8px; height: 40px; }
 
 .mp-week .no { flex: none; width: 24px; text-align: right; font-size: 14px; color: var(--kd-text-sub); }
+
+/* 끌기 손잡이 — HTML5 draggable 이 아니라 포인터 이벤트로 옮긴다.
+   이 프로젝트는 auth-validate.js 가 전역으로 dragstart 를 막아 두는데, 그건 이미지 끌기 방지라
+   포인터 방식과는 상관이 없다. */
+/* 손잡이가 16px 이라 '어디를 잡아야 하는지' 안 보인다는 지적(2026-08-09) —
+   번호까지 묶어 44px 폭으로 넓히고 배경을 줘서 잡는 자리임을 드러낸다 */
+.mp-week .grip {
+    flex: none;
+    width: 20px;
+    height: 32px;
+    border-radius: 6px;
+    cursor: grab;
+    background: center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8b4ad'%3E%3Ccircle cx='9' cy='5' r='1.6'/%3E%3Ccircle cx='15' cy='5' r='1.6'/%3E%3Ccircle cx='9' cy='12' r='1.6'/%3E%3Ccircle cx='15' cy='12' r='1.6'/%3E%3Ccircle cx='9' cy='19' r='1.6'/%3E%3Ccircle cx='15' cy='19' r='1.6'/%3E%3C/svg%3E");
+}
+
+.mp-week .grip:hover { background-color: #eef2f0; }
+
+/* 번호도 잡는 자리 — 손잡이만으로는 목표가 너무 작다 */
+.mp-week .no { cursor: grab; }
+
+.mp-week.is-drag {
+    opacity: .55;
+    cursor: grabbing;
+}
+
+/* 끌고 온 행이 놓일 자리 */
+.mp-week.is-over {
+    outline: 2px dashed var(--kd-primary-active);
+    outline-offset: 2px;
+    border-radius: 8px;
+}
 
 /* 드롭다운이 남는 폭을 다 먹는다 — .kd-select 는 onb-select.js 가 씌우는 래퍼 */
 .mp-week .kd-select { flex: 1; min-width: 0; }

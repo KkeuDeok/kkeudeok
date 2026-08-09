@@ -38,9 +38,13 @@
             <div class="steps" data-plan="ai"></div>
         </label>
 
-        <label class="onb-plan mp-plan mp-plan--custom">
+        <%-- 만들기 전에는 없는 카드다. kd-roadmap.js 가 저장값이 custom 일 때만 켠다.
+             정석·AI 옆에 늘 세워 두면 고른 안을 그대로 복사해 보여 주게 돼 옆 카드와 내용이 겹친다. --%>
+        <label class="onb-plan mp-plan mp-plan--custom" hidden>
             <input type="radio" name="planMode" value="custom">
             <span class="badge">직접 구성</span>
+            <%-- 카드를 누르면 편집이 열리므로 삭제는 stopPropagation 으로 따로 잡는다(kd-roadmap.js) --%>
+            <button type="button" class="del" id="planDelete" aria-label="직접 만든 구성 삭제"></button>
             <h2>우리 아이 맞춤</h2>
             <p class="lead">주차별 주제와 순서를 직접 고른 과정</p>
             <div class="rule"></div>
@@ -49,7 +53,7 @@
     </div>
 
     <div class="mp-links mp-plan-links">
-        <button type="button" id="planEdit">주차별 주제 · 순서 바꾸기</button>
+        <button type="button" id="planEdit">우리 아이에 맞게 바꾸기</button>
         <span class="sep"></span>
         <button type="button" id="planReset">기본값(AI 추천)으로 되돌리기</button>
     </div>
@@ -64,7 +68,7 @@
      빼면 --fit-scale 배율이 두 번 걸려 모달이 작아진다(마이페이지·대시보드 모달과 같은 규칙). --%>
 <dialog id="dlgWeeks" class="terms-dialog roadmap-dlg">
     <h2>주차별 주제 · 순서</h2>
-    <p class="ds">주제를 바꾸거나 순서를 옮기면 <b>직접 구성</b>이 돼요. 토글을 끄면 그 주차는 건너뜁니다.</p>
+    <p class="ds">행을 끌어 원하는 자리에 놓거나 ▲▼로 옮길 수 있어요. 토글을 끄면 그 주차는 건너뜁니다.</p>
 
     <div class="mp-weeks" id="roadmapEdit">
         <%
@@ -81,6 +85,7 @@
             for (int w = 1; w <= 12; w++) {
         %>
         <div class="mp-week">
+            <span class="grip" aria-hidden="true"></span>
             <span class="no"><%= w %></span>
             <select class="kd-input onb-select" aria-label="<%= w %>주차 학습 주제">
                 <% for (String t : topics) { %>

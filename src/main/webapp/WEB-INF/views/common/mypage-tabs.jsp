@@ -6,7 +6,7 @@
 <nav class="mp-tabs">
 <%
     String[][] mpTabs = {
-        {"account",   "회원정보",    "/mypage/account"},
+        {"account",   "보호자 정보", "/mypage/account"},
         {"child",     "아동 프로필", "/mypage/child"},
         {"character", "캐릭터 관리", "/mypage/character"},
         {"roadmap",   "학습 로드맵", "/mypage/roadmap"}

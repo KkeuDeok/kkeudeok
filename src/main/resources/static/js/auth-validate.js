@@ -183,7 +183,11 @@
         ok = checkMatch($('password'), $('passwordCheck')) && ok;
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
-        if (ok) location.href = '/signup/done';
+        if (!ok) return;
+        /* 가입 폼에 적은 보호자 이름·이메일을 마이페이지에서 그대로 보여 준다.
+           예전에는 버려져서 아이 이름과 같은 예시값('김지우')이 남아 두 탭이 같은 사람처럼 보였다 */
+        saveOnb({ guardianName: $('userName').value.trim(), email: $('email').value.trim() });
+        location.href = '/signup/done';
     };
 
     window.kdSubmitFindId = function () {
@@ -536,6 +540,16 @@
        kdOnb 가 비어 있으면(직접 URL 진입·시크릿 모드) 아무것도 건드리지 않아 예시값이 그대로 남는다. */
     function renderAppOnb() {
         var v = readOnb();
+
+        /* 보호자 값은 아이 이름과 무관하게 채운다 — 가입만 하고 온보딩을 안 거친 경우도 있다 */
+        if (v.guardianName) {
+            document.querySelectorAll('[data-kd="guardianName"]').forEach(function (el) { el.value = v.guardianName; });
+        }
+        if (v.email) {
+            var em = document.getElementById('mpEmail');
+            if (em) em.value = v.email;
+        }
+
         if (!v.name) return;
 
         var age = v.birthY ? ageOf(v.birthY, v.birthM, v.birthD) : null;
