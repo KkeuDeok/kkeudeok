@@ -589,7 +589,7 @@
 
     /* 리포트 5탭 부제 — 관찰 데이터가 0인데 '관찰 8주차'가 남아 있으면 안 된다.
        탭마다 같은 문장이라 JSP 5개를 고치는 대신 여기서 한 번에 바꾼다. */
-    if (document.documentElement.dataset.kdEmpty) {
+    if (document.documentElement.dataset.kdStage !== '2') {
         var rptSub = document.querySelector('.rpt-head p');
         if (rptSub) rptSub.textContent = '관찰 시작 전 · 첫 주 학습을 마치면 리포트가 만들어져요';
     }

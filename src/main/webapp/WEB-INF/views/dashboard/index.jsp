@@ -42,6 +42,17 @@
         </div>
     </div>
 
+    <%-- 1단계 — 한 번 해 봤지만 지수를 내기엔 이르다. 다음 행동을 딱 하나만 가리킨다 --%>
+    <div class="dash-chart kd-s1">
+        <div class="kd-empty">
+            <span class="ic kd-empty-ic-seed"></span>
+            <p class="t">첫 이야기를 마쳤어요</p>
+            <p class="d">이번 주 <b>1 / 3회</b> · 세 번을 채우면 감정 이해 · 표현 · 사회성 지수가 처음 계산돼요</p>
+            <%-- 버튼을 두지 않는다 — 바로 아래 '오늘의 추천 학습' 에 같은 [학습 시작하기] 가 있어 겹친다.
+                 CTA 는 화면당 하나로 (0단계에서 하단 카드를 통째로 숨긴 것도 같은 이유). --%>
+        </div>
+    </div>
+
     <div class="dash-chart kd-has-data">
         <h2>주간 감정 변화 추이</h2>
         <%--
@@ -93,7 +104,9 @@
     </section>
 </div>
 
-<div class="dash-bottom">
+<%-- 0단계에서는 숨긴다 — 갈 곳을 [학습 시작하기] 하나로 좁히려고(2026-08-09 요청).
+     비워진 세로는 위 .dash-row 가 흡수해 빈 카드가 그만큼 커진다. --%>
+<div class="dash-bottom kd-hide0">
     <%-- 카드 오른쪽이 휑하다는 지적(2026-08-09)으로 캐릭터를 얹었다.
          지우가 고른 캐릭터라 백엔드 연동 시 선택값으로 바꿀 것. --%>
     <section class="dash-today">
@@ -106,6 +119,7 @@
     <section class="dash-streak">
         <p class="big kd-has-data"><b>5일</b><span>연속 이용 중</span></p>
         <p class="big kd-no-data"><b>0일</b><span>오늘 시작해 볼까요?</span></p>
+        <p class="big kd-s1"><b>1일</b><span>연속 이용 중</span></p>
         <div class="dash-week kd-has-data">
             <div><p class="d">월</p><span class="mk on"></span></div>
             <div><p class="d">화</p><span class="mk on"></span></div>
@@ -114,6 +128,15 @@
             <div><p class="d">금</p><span class="mk on"></span></div>
             <div><p class="d">토</p><span class="mk off"></span></div>
             <div><p class="d">일</p><span class="mk on"></span></div>
+        </div>
+        <div class="dash-week kd-s1">
+            <div><p class="d">월</p><span class="mk on"></span></div>
+            <div><p class="d">화</p><span class="mk off"></span></div>
+            <div><p class="d">수</p><span class="mk off"></span></div>
+            <div><p class="d">목</p><span class="mk off"></span></div>
+            <div><p class="d">금</p><span class="mk off"></span></div>
+            <div><p class="d">토</p><span class="mk off"></span></div>
+            <div><p class="d">일</p><span class="mk off"></span></div>
         </div>
         <div class="dash-week kd-no-data">
             <div><p class="d">월</p><span class="mk off"></span></div>
@@ -129,7 +152,7 @@
 
 <%-- 하단 173px 이 비어 있던 자리. Figma A안(284:75)에 있다가 B안으로 넘어오며
      빠진 `오늘의 관찰 확인` 가로 배너를 되살린 것이다. --%>
-<div class="dash-observe">
+<div class="dash-observe kd-hide0">
     <span class="ic"></span>
     <p>오늘 <span data-kd="childCall">지우</span>의 모습을 기록하면 다음 학습이 더 정확해져요</p>
     <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>

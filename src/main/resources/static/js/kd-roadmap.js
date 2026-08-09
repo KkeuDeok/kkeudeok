@@ -56,11 +56,10 @@
     window.kdPlanSave = kdPlanSave;
     window.KD_PRESET_OF = preset;
 
-    /* 현재 몇 주차인지 — 학습 이력이 없어 계산할 근거가 없다.
-       빈 상태(신규)면 시작 전(0), 아니면 예시값 7주차를 쓴다. 백엔드가 붙으면 여기만 바꾼다 */
-    function curWeek() {
-        return document.documentElement.dataset.kdEmpty ? 0 : 7;
-    }
+    /* 현재 몇 주차인지 — 학습 이력이 없어 계산할 근거가 없다. 사용 단계로 대신한다.
+       0 신규=시작 전 · 1 시작함=1주차 · 2 익숙함=예시값 7주차. 백엔드가 붙으면 여기만 바꾼다 */
+    function stage() { return +(document.documentElement.dataset.kdStage || 2); }
+    function curWeek() { return [0, 1, 7][stage()]; }
 
     /* ---------- 대시보드 렌더 ---------- */
 
@@ -88,10 +87,12 @@
         var p = kdPlanLoad(), cur = curWeek();
         var on = p.weeks.filter(function (w) { return w.on; });
 
-        /* 카드에는 4줄만 — 진행 중 주차 앞뒤로 잘라서 보여 준다 */
-        var start = cur === 0 ? 0 : Math.max(0, Math.min(cur - 3, on.length - 4));
+        /* 카드에는 진행 중 주차 앞뒤로 잘라서 보여 준다.
+           0단계는 아래 카드행이 통째로 빠져 카드가 커지므로 8줄로 채운다 */
+        var n = stage() === 0 ? 8 : 4;
+        var start = cur === 0 ? 0 : Math.max(0, Math.min(cur - 3, on.length - n));
         short.textContent = '';
-        on.slice(start, start + 4).forEach(function (w, i) {
+        on.slice(start, start + n).forEach(function (w, i) {
             var idx = start + i;
             short.appendChild(liOf(idx + 1, w.topic, stateOf(idx, cur)));
         });
@@ -100,7 +101,7 @@
         if (foot) {
             foot.textContent = on.length + '주 과정 중 '
                 + (cur === 0 ? '1주차 시작 전' : cur + '주차')
-                + ' · 이번 주 ' + (cur === 0 ? 0 : 2) + ' / 3 완료';
+                + ' · 이번 주 ' + [0, 1, 2][stage()] + ' / 3 완료';
         }
 
         var full = document.getElementById('dlgPlanList');
