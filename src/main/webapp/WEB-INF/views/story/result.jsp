@@ -30,7 +30,7 @@
             int sz = sizes[i % 4];
             String co = colors[i % 5];
     %>
-    <i style="left:<%= Math.round(cx * 10) / 10.0 %>px;top:<%= Math.round((cy - 26) * 10) / 10.0 %>px;width:<%= sz %>px;height:<%= sz %>px;background:<%= co %>"></i>
+    <i style="left:<%= Math.round(cx * 10) / 10.0 %>px;top:<%= Math.round((cy - 26) * 10) / 10.0 %>px;width:<%= sz %>px;height:<%= sz %>px;background:<%= co %>;--fall:<%= 140 + (i * 37) % 160 %>px;--spin:<%= 240 + (i * 53) % 420 %>deg;--dur:<%= 26 + (i * 7) % 18 %>00ms;--delay:<%= (i * 11) % 20 %>00ms"></i>
     <%
             cx += 639.3; if (cx > 1235) cx -= 1048.1;
             cy += 356.7; if (cy > 1000) cy -= 870;
@@ -38,9 +38,14 @@
     %>
 </div>
 
-<div class="done-art"><img src="/img/story-tori-proud.png?v=142" alt=""></div>
+<%-- 화면 어디를 눌러도 아동홈으로 — Figma 는 "3초 뒤 자동"이지만 아이가 칭찬을 다 보기 전에
+     넘어가면 안 되므로 터치로 넘긴다(story.js). --%>
+<div class="done-stage" data-home="/story/home?emo=<%= emo %>" role="button" tabindex="0" aria-label="아동 홈으로 돌아가기">
+    <div class="done-art"><img data-kd-char="proud" src="/img/char-tori-proud.png" alt=""></div>
 
-<h1 class="done-title">고마워, 지우야!</h1>
-<p class="done-sub">마음이 따뜻해졌어</p>
+    <h1 class="done-title">고마워, 지우야!</h1>
+    <p class="done-sub">마음이 따뜻해졌어</p>
+    <p class="done-tap">화면을 누르면 처음으로 돌아가요</p>
+</div>
 
 <%@ include file="../common/child-bottom.jsp" %>

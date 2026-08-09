@@ -19,7 +19,7 @@
 <div class="rpt-ai">
     <span class="ava"><img src="/img/char-tori-bear.png?v=1" alt=""></span>
     <div class="tx">
-        <h2>토리가 본 이번 주</h2>
+        <h2><span data-kd="charName">토리</span>가 본 이번 주</h2>
         <p>이번 주 지우는 속상한 마음을 말로 표현하는 순간이 눈에 띄게 늘었어요.<br>
            몸짓으로만 보여 주던 감정을 "속상해"라고 말한 장면이 세 번 있었어요.</p>
     </div>

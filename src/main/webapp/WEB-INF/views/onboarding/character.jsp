@@ -14,12 +14,12 @@
                  같은 세트의 토리·바다로 맞춘다(2026-08-09 요청). --%>
             <label class="onb-char">
                 <input type="radio" name="character" id="charTori" value="tori" data-nickname="토리">
-                <img src="/img/char-tori-icon.png?v=119" alt="">
+                <img src="/img/char-tori-neutral.png" alt="">
                 <span class="nm">토리</span>
             </label>
             <label class="onb-char">
                 <input type="radio" name="character" id="charBada" value="bada" data-nickname="바다">
-                <img src="/img/char-bada.png?v=119" alt="">
+                <img src="/img/char-bada-neutral.png" alt="">
                 <span class="nm">바다</span>
             </label>
         </div>

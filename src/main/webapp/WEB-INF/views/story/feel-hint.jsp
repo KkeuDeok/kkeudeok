@@ -11,9 +11,9 @@
     String feelPick = emo;   /* 힌트 화면은 정답을 짚어 준다 */
 
     String[][] feelHints = {
-        {"sad",   "토리가 살짝 알려줄게… 눈썹이 아래로 처져 있어."},
-        {"angry", "토리가 살짝 알려줄게… 눈썹이 뾰족하게 올라갔어."},
-        {"happy", "토리가 살짝 알려줄게… 입꼬리가 쭉 올라갔어."}
+        {"sad",   "{c}가 살짝 알려줄게… 눈썹이 아래로 처져 있어."},
+        {"angry", "{c}가 살짝 알려줄게… 눈썹이 뾰족하게 올라갔어."},
+        {"happy", "{c}가 살짝 알려줄게… 입꼬리가 쭉 올라갔어."}
     };
     String hint = feelHints[0][1];
     for (String[] row : feelHints) {
@@ -27,6 +27,6 @@
 <%@ include file="../common/child-top.jsp" %>
 <%@ include file="_feel-body.jspf" %>
 
-<p class="feel-hint"><%= hint %></p>
+<p class="feel-hint"><%= hint.replace("{c}", CHAR) %></p>
 
 <%@ include file="../common/child-bottom.jsp" %>

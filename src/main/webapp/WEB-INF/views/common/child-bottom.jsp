@@ -39,5 +39,6 @@
         </main>
     </div>
 </div>
+<script src="/js/story.js?v=146"></script>
 </body>
 </html>

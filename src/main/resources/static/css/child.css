@@ -15,7 +15,7 @@
 .child-body {
     height: 100vh;
     overflow: hidden;
-    background: #fff url("/img/story-bg.jpg?v=135") center bottom / cover no-repeat;
+    background: #fff url("/img/story-bg.jpg?v=146") center bottom / cover no-repeat;
 }
 
 .child-shell {
@@ -319,15 +319,17 @@
 }
 
 /* 주 CTA — 학습 흐름 공통 규격 h59 (보조 버튼 40/34 와 위계가 다르다) */
+/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
+   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
+   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .story-cta {
     position: absolute;
     left: 360px;            /* (1000 − 280) / 2 */
     top: 650px;
     width: 280px;
     height: 59px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 59px;
+    text-align: center;
     border-radius: 999px;
     background: var(--kd-primary);
     font-size: 19px;
@@ -633,6 +635,47 @@
     color: var(--kd-primary);
 }
 
+/* --- 듣는 중 파형 애니메이션 ------------------------------------------------
+   Figma 는 정지 그림이지만, 아이가 "지금 내 말을 듣고 있다"를 알아야 하므로 움직인다.
+   높이(10~32)는 그대로 두고 scaleY 만 건드린다 — 레이아웃을 다시 계산하지 않아 가볍다.
+   막대마다 주기를 조금씩 다르게 줘서 7개가 한 몸처럼 움직이지 않게 한다. */
+@keyframes why-wave {
+    0%, 100% { transform: scaleY(0.3); }
+    50%      { transform: scaleY(1); }
+}
+
+.why-listen .wave i {
+    transform-origin: center;
+    animation: why-wave 0.9s ease-in-out infinite;
+}
+
+.why-listen .wave i:nth-child(1) { animation-duration: 0.72s; animation-delay: -0.42s; }
+.why-listen .wave i:nth-child(2) { animation-duration: 0.95s; animation-delay: -0.15s; }
+.why-listen .wave i:nth-child(3) { animation-duration: 0.64s; animation-delay: -0.30s; }
+.why-listen .wave i:nth-child(4) { animation-duration: 0.86s; animation-delay: -0.05s; }
+.why-listen .wave i:nth-child(5) { animation-duration: 0.70s; animation-delay: -0.36s; }
+.why-listen .wave i:nth-child(6) { animation-duration: 1.02s; animation-delay: -0.20s; }
+.why-listen .wave i:nth-child(7) { animation-duration: 0.78s; animation-delay: -0.48s; }
+
+/* --- 버튼 → 듣는 중 모핑 ---------------------------------------------------
+   두 화면은 별개 URL 이라 원래는 깜빡 하고 갈린다. 같은 이름을 붙여 두면
+   브라우저가 페이지를 넘기면서 알약을 알약으로 이어 준다(View Transitions).
+   전환 스위치 자체는 두 화면이 request.setAttribute("viewTransition", true) 로 켠다
+   (child-top.jsp) — 앱 전체가 아니라 이 두 화면 사이에서만 걸리게 하려는 것이다.
+   미지원 브라우저는 그냥 예전처럼 넘어간다. */
+.why-mic,
+.why-listen { view-transition-name: why-mic; }
+
+/* 눌리는 느낌 — 아이 손가락에 반응이 있어야 한다 */
+.why-mic { transition: transform 0.12s ease, background-color 0.12s ease; }
+.why-mic:active { transform: scale(0.96); background: #f4f6f3; }
+
+/* 모션 최소화 설정이면 파형은 Figma 원본대로 멈춰 세운다 */
+@media (prefers-reduced-motion: reduce) {
+    .why-listen .wave i { animation: none; }
+    .why-mic:active { transform: none; }
+}
+
 /* ==========================================================================
    오답 모달 — 학습2c(Figma `24:17777` 위에 겹친 레이어 `24:17900`)
    본문(1000)보다 넓어야 해서 화면 폭 1440 을 직접 덮는다. 카드는 정중앙.
@@ -806,13 +849,14 @@
     border: 2px dashed rgba(255, 255, 255, .7);
 }
 
-/* 동작 시범 그림 — 학습5 에만 있다 */
+/* 동작 시범 그림 — Figma 는 전신 204×350 이었지만 새 캐릭터 그림이 상반신이라 비율을 맞췄다.
+   점선 가이드(x260~460) 왼쪽 공간에 세로 가운데로 앉힌다. */
 .cam-box .demo {
     position: absolute;
-    left: 76.5px;
-    top: 90.5px;
-    width: 204px;
-    height: 353px;
+    left: 12px;
+    top: 88px;              /* (440 − 264) / 2 */
+    width: 240px;
+    height: 264px;
     object-fit: contain;
 }
 
@@ -1077,15 +1121,17 @@
     color: var(--kd-text-sub);
 }
 
+/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
+   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
+   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .pick-card .go {
     position: absolute;
     left: 24px;
     top: 498.5px;
     width: 312px;
     height: 59px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 59px;
+    text-align: center;
     border-radius: 999px;
     background: var(--pick-key);
     font-size: 18px;
@@ -1138,12 +1184,12 @@
     box-shadow: inset 0 0 0 1px var(--kd-border), 0 4px 8px rgba(43, 58, 51, .08);
 }
 
-/* 카드 폭(550)을 거의 꽉 채우는 그림 */
+/* 캐릭터 그림은 세로 상반신이라 가로 548 자리에 넣으면 좌우가 크게 빈다 → 정사각 320 가운데 */
 .home-card .art {
     position: absolute;
-    left: 1px;
+    left: 115px;            /* (550 − 320) / 2 */
     top: 29px;
-    width: 548px;
+    width: 320px;
     height: 320px;
     object-fit: contain;
 }
@@ -1172,15 +1218,17 @@
 }
 
 /* 주 CTA — 학습 흐름 공통 h59, 카드 좌우 여백 33 을 뺀 폭 */
+/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
+   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
+   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .home-card .go {
     position: absolute;
     left: 33px;
     top: 461px;
     width: 484px;
     height: 59px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    line-height: 59px;
+    text-align: center;
     border-radius: 999px;
     background: var(--kd-primary);
     font-size: 19px;
@@ -1190,3 +1238,151 @@
 }
 
 .home-card .go:hover { background: var(--kd-primary-strong); color: #fff; }
+
+/* ==========================================================================
+   움직임 — 아이 화면이라 "눌렀더니 뭔가 일어났다"가 보여야 한다.
+   화면을 새로 띄우지 않고 그 자리에서 상태만 바꾸는 게 원칙(story.js).
+   ⚠ 접근성: 움직임을 줄이도록 설정한 사용자에게는 전부 끈다(맨 아래 규칙).
+   ========================================================================== */
+
+/* hidden 은 display:none 인데 .why-listen·.story-dim 은 자기 규칙에서 display:flex 라
+   그대로 두면 숨겨지지 않는다 — 명시적으로 눌러 준다. */
+.why-listen[hidden],
+.why-mic[hidden],
+.story-dim[hidden] { display: none !important; }
+
+/* 듣는 중 파형 — 가운데가 높은 산 모양을 유지한 채 출렁인다.
+   높이를 직접 흔들면 리플로가 나므로 scaleY 로 늘린다(변형만, 레이아웃 안 건드림). */
+@keyframes kd-wave {
+    0%, 100% { transform: scaleY(.45); }
+    50%      { transform: scaleY(1); }
+}
+
+.why-listen .wave i {
+    transform-origin: center;
+    animation: kd-wave 1s ease-in-out infinite;
+}
+
+.why-listen .wave i:nth-child(1) { animation-delay: 0s; }
+.why-listen .wave i:nth-child(2) { animation-delay: .09s; }
+.why-listen .wave i:nth-child(3) { animation-delay: .18s; }
+.why-listen .wave i:nth-child(4) { animation-delay: .27s; }
+.why-listen .wave i:nth-child(5) { animation-delay: .36s; }
+.why-listen .wave i:nth-child(6) { animation-delay: .45s; }
+.why-listen .wave i:nth-child(7) { animation-delay: .54s; }
+
+/* 듣는 중 알약도 숨쉬듯 — 마이크가 켜져 있다는 신호 */
+@keyframes kd-listen-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(38, 130, 84, .25); }
+    50%      { box-shadow: 0 0 0 10px rgba(38, 130, 84, 0); }
+}
+
+.why-listen:not([hidden]) {
+    animation: kd-listen-pulse 1.6s ease-out infinite;
+    cursor: pointer;                    /* 다시 누르면 버튼으로 돌아간다 */
+}
+
+/* 오답 모달 등장 — 배경은 스르르, 카드는 살짝 튀어오른다.
+   즉시 나타나면 아이가 "새로고침됐다"고 느낀다(실제 지적 받음). */
+@keyframes kd-dim-in { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes kd-modal-in {
+    from { opacity: 0; transform: translateY(16px) scale(.94); }
+    to   { opacity: 1; transform: none; }
+}
+
+.story-dim.is-on { animation: kd-dim-in .18s ease-out; }
+.story-dim.is-on .story-modal { animation: kd-modal-in .26s cubic-bezier(.2, .9, .3, 1.3); }
+
+/* 고른 카드 강조도 한 번 튕겨 준다 — 어느 걸 눌렀는지 보이게 */
+@keyframes kd-pick-pop {
+    0%   { transform: none; }
+    45%  { transform: scale(1.035); }
+    100% { transform: none; }
+}
+
+.feel-card.is-pick,
+.why-card.is-pick { animation: kd-pick-pop .3s ease-out; }
+
+/* ==========================================================================
+   세션 결과 — 팡파레. 색종이가 떨어지고 캐릭터가 톡 튀어나온다.
+   ========================================================================== */
+
+/* 화면 아무 데나 눌러 아동홈으로 — 본문 전체가 누를 자리다 */
+.done-stage {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+}
+
+.done-tap {
+    position: absolute;
+    left: 0;
+    top: 640px;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+    animation: kd-tap-blink 2s ease-in-out infinite;
+}
+
+@keyframes kd-tap-blink {
+    0%, 100% { opacity: .45; }
+    50%      { opacity: 1; }
+}
+
+/* 캐릭터 — 살짝 늦게 톡 나타난 뒤 계속 둥실거린다 */
+@keyframes kd-proud-in {
+    0%   { opacity: 0; transform: translateY(24px) scale(.8); }
+    70%  { opacity: 1; transform: translateY(-6px) scale(1.04); }
+    100% { opacity: 1; transform: none; }
+}
+
+@keyframes kd-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+.done-art {
+    animation: kd-proud-in .5s cubic-bezier(.2, .9, .3, 1.4) both,
+               kd-float 3s ease-in-out 0.5s infinite;
+}
+
+/* 문구는 캐릭터 다음에 차례로 올라온다 */
+@keyframes kd-rise {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: none; }
+}
+
+.done-title { animation: kd-rise .45s ease-out .35s both; }
+.done-sub   { animation: kd-rise .45s ease-out .5s both; }
+
+/* 색종이 — 위에서 떨어지며 돌아간다. 낙하 거리·시간은 칸마다 조금씩 다르게
+   (JSP 가 --fall / --spin / --dur 을 점마다 넣어 준다) 해야 한꺼번에 쏟아지지 않는다. */
+@keyframes kd-confetti {
+    0%   { opacity: 0; transform: translateY(-140px) rotate(0deg); }
+    12%  { opacity: 1; }
+    85%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(var(--fall, 180px)) rotate(var(--spin, 360deg)); }
+}
+
+.done-confetti i {
+    animation: kd-confetti var(--dur, 3s) ease-in var(--delay, 0s) infinite;
+}
+
+/* 움직임을 줄이도록 설정한 경우 — 전부 정지. 그림·글자는 그대로 보인다 */
+@media (prefers-reduced-motion: reduce) {
+    .why-listen .wave i,
+    .why-listen:not([hidden]),
+    .story-dim.is-on,
+    .story-dim.is-on .story-modal,
+    .feel-card.is-pick,
+    .why-card.is-pick,
+    .done-art,
+    .done-title,
+    .done-sub,
+    .done-tap,
+    .done-confetti i { animation: none !important; }
+}

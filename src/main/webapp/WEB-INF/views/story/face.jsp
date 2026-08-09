@@ -11,9 +11,9 @@
     if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
 
     String[][] faceTitles = {
-        {"sad",   "슬픈 표정으로 토리 마음을 느껴봐요"},
-        {"angry", "화난 표정으로 토리 마음을 느껴봐요"},
-        {"happy", "기쁜 표정으로 토리 마음을 느껴봐요"}
+        {"sad",   "슬픈 표정으로 {c} 마음을 느껴봐요"},
+        {"angry", "화난 표정으로 {c} 마음을 느껴봐요"},
+        {"happy", "기쁜 표정으로 {c} 마음을 느껴봐요"}
     };
     String faceTitle = faceTitles[0][1];
     for (String[] row : faceTitles) {
@@ -26,14 +26,14 @@
 %>
 <%@ include file="../common/child-top.jsp" %>
 
-<h1 class="cam-title"><%= faceTitle %></h1>
+<h1 class="cam-title"><%= faceTitle.replace("{c}", CHAR) %></h1>
 
 <div class="cam-box">
     <%-- TODO: 카메라 미리보기(getUserMedia). 지금은 얼굴 맞출 자리만 보여 준다 --%>
     <div class="guide" aria-hidden="true"></div>
     <div class="cam-hint">
-        <%-- Figma 는 감정과 무관하게 무표정 한 장을 쓴다. 감정별 그림은 자산이 없다 --%>
-        <img src="/img/story-tori-neutral.png?v=142" alt="">
+        <%-- 따라 할 표정을 그대로 보여 준다 — Figma 는 무표정 고정이었지만 감정별로 바꿨다 --%>
+        <img data-kd-char="<%= emo %>" src="/img/char-tori-<%= emo %>.png" alt="">
         <span>같이 해봐</span>
     </div>
 </div>

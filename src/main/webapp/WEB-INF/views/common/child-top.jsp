@@ -11,6 +11,13 @@
 <head>
     <title><%= pageTitle %> | 끄덕</title>
     <%@ include file="head.jsp" %>
+    <%-- 화면 사이 요소를 이어 주는 전환(View Transitions). 기본은 꺼짐 —
+         켜면 그 화면에서 나가고 들어오는 모든 이동에 걸리므로, 짝이 되는 두 화면에서만
+         include 전에 request.setAttribute("viewTransition", true) 로 켠다.
+         브라우저가 이 규칙을 <head> 에서 봐야 해서 여기에 둔다(본문에 두면 늦다). --%>
+    <% if (Boolean.TRUE.equals(request.getAttribute("viewTransition"))) { %>
+    <style>@view-transition { navigation: auto; }</style>
+    <% } %>
 </head>
 <body class="child-body">
 <div class="child-shell">
@@ -48,6 +55,12 @@
                여기서 기본값을 잡아 두면 각 화면은 필요할 때만 true 로 바꾸면 된다.
                ⚠ 스텝바 if 블록 안에 두면 아동홈에서 선언이 안 돼 컴파일이 깨진다. */
             boolean storyFootOff = false;
+
+            /* 캐릭터 이름 자리. 문구표에 `{c}` 로 적고 출력할 때 이걸로 바꾼다.
+               기본값은 토리 — JS 가 꺼져 있거나 아직 안 고른 상태에서도 화면이 멀쩡하다.
+               아이가 고른 친구가 있으면 auth-validate.js 의 renderChar() 가 글자만 갈아끼운다.
+               ⚠ 문자열을 통째로 치환하면 안 된다 — '스토리' 안에 '토리'가 들어 있다. */
+            String CHAR = "<span data-kd=\"charName\">토리</span>";
         %>
         <header class="child-head">
             <% if (!"home".equals(storyStep)) { %>

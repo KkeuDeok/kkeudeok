@@ -113,7 +113,7 @@
         <h2>오늘의 추천 학습</h2>
         <p>이야기 1편 + 표정 미션 1회</p>
         <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
-        <img class="ch" src="/img/char-tori-full.png?v=108" alt="">
+        <img class="ch" data-kd-char="neutral" src="/img/char-tori-neutral.png" alt="">
     </section>
 
     <section class="dash-streak">

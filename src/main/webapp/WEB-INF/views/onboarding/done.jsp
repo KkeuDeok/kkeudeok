@@ -29,7 +29,7 @@
     <% } %>
 </div>
 
-<img class="onb-done-char" id="doneChar" src="/img/char-tori-icon.png?v=119" alt="">
+<img class="onb-done-char" id="doneChar" src="/img/char-tori-neutral.png" alt="">
 <h1 class="onb-title">준비가 끝났어요!</h1>
 <p class="onb-sub" id="doneSub">지우에게 맞는 학습을 준비했어요</p>
 
@@ -42,7 +42,7 @@
     </thead>
     <tbody>
         <tr><td>1</td><td>아이 이름</td><td id="doneName">지우 (6세)</td></tr>
-        <tr><td>2</td><td>함께할 친구</td><td id="doneFriend">곰 토리</td></tr>
+        <tr><td>2</td><td>함께할 친구</td><td id="doneFriend">토리</td></tr>
     </tbody>
 </table>
 

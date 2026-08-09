@@ -8,7 +8,7 @@
 <% onbPrev = false; onbNextLabel = "카메라 켜기"; %>
 
 <h1 class="onb-title">표정을 등록할게요</h1>
-<p class="onb-sub">아이가 표정을 지으면 토리가 알아볼 수 있어요</p>
+<p class="onb-sub">아이가 표정을 지으면 <span data-kd="charName">토리</span>가 알아볼 수 있어요</p>
 
 <div class="onb-cam-icon">
     <img src="/img/icon-camera.png?v=1" alt="">

@@ -309,7 +309,10 @@
         clearAllErrors();
         var picked = document.querySelector('input[name="character"]:checked');
         if (!picked) {
-            setError($('charHaru'), '함께할 친구를 골라 주세요');
+            /* ⚠ 여기가 charHaru 였다 — 하루는 예전에 뺀 캐릭터라 그 id 가 없어서
+               $() 가 null 을 주고 setError 안에서 터졌다. 아무것도 안 고르고 [다음]을
+               누르면 오류 문구가 안 뜨고 조용히 죽던 원인. */
+            setError($('charTori'), '함께할 친구를 골라 주세요');
             return;
         }
         /* 애칭은 선택 항목(Figma 에 필수 표시 없음) */
@@ -478,7 +481,7 @@
        (라디오는 kd-input 이 아니라 실시간 검사 대상이 아니다) */
     document.addEventListener('change', function (e) {
         if (e.target.name !== 'character') return;
-        clearError($('charHaru'));
+        clearError($('charTori'));
         var name = $('characterName');
         if (name) name.placeholder = e.target.dataset.nickname;
     });
@@ -512,11 +515,55 @@
         return n + (i >= 0 && i < 11172 && i % 28 !== 0 ? '이' : '');
     }
 
-    /* 캐릭터 키 -> 이미지 경로. 토리만 파일명이 char-tori-icon.png 이라 규칙이 깨진다.
-       ?v 는 head.jsp 의 CSS 버전과 별개로 이미지 자체 버전(6장 재보정 = 119) */
-    function charImg(key) {
-        return '/img/char-' + (key === 'tori' ? 'tori-icon' : key) + '.png?v=119';
+    /* 캐릭터 키 + 포즈 -> 이미지 경로. 6명 × 12포즈 = 72장이 전부 이 한 규칙을 따른다
+       (neutral surprise angry sad happy sleepy hurt wave celebrate sorry comfort proud).
+       파일명이 새로 생긴 것들이라 ?v 는 붙이지 않는다 — 이름이 바뀐 것 자체가 캐시 무효화다. */
+    function charImg(key, pose) {
+        return '/img/char-' + (key || 'tori') + '-' + (pose || 'neutral') + '.png';
     }
+
+    /* 아이가 고른 캐릭터를 화면에 반영한다.
+       - 그림: data-kd-char="포즈" 가 붙은 <img> 의 src 를 갈아끼운다
+       - 이름: data-kd="charName" 안의 글자만 바꾼다
+
+       ⚠ 본문 전체 문자열 치환은 절대 금지 — '스토리' 안에 '토리'가 들어 있어서
+         'AI 스토리 학습' 이 'AI 스라라 학습' 이 된다(학습 홈·리포트에 5군데).
+       ⚠ 6명 이름이 전부 받침이 없어 조사(가/는/를/야)는 그대로 맞는다.
+         받침 있는 이름이 생기면 callName() 의 판정 규칙을 가져다 쓸 것.
+       ⚠ 마이페이지·온보딩의 '고르는 갤러리'에는 data-kd-char 를 붙이면 안 된다 —
+         6명을 다 보여주는 자리라 전부 한 캐릭터로 바뀌어 버린다.
+       renderAppOnb() 안에 두지 않은 이유: 그쪽은 아이 이름이 없으면 조기 반환한다.
+       캐릭터 반영이 이름 입력 여부에 묶이면 안 된다. */
+    function renderChar() {
+        var v = readOnb();
+        if (v.charKey) {
+            document.querySelectorAll('[data-kd-char]').forEach(function (el) {
+                el.src = charImg(v.charKey, el.getAttribute('data-kd-char'));
+            });
+        }
+        if (v.charName) {
+            document.querySelectorAll('[data-kd="charName"]').forEach(function (el) {
+                el.textContent = v.charName;
+            });
+        }
+    }
+
+    renderChar();
+
+    /* 마이페이지 캐릭터 관리 [저장] — 이게 없으면 골라도 저장이 안 돼
+       스토리 화면에 반영되지 않는다(토스트만 뜨고 있었다). */
+    window.kdSaveChar = function () {
+        var picked = document.querySelector('.mp-chars input[name="character"]:checked');
+        if (!picked) return;
+        var card = picked.closest('label') || picked.parentElement;
+        var nm = card ? card.querySelector('.nm') : null;
+        saveOnb({
+            charKey: picked.value,
+            charName: nm ? nm.textContent.trim() : picked.value,
+            nickname: $('charNick') ? $('charNick').value.trim() : ''
+        });
+        if (window.kdSaved) window.kdSaved('캐릭터를 저장했어요');
+    };
 
     function renderOnbDone() {
         if (!$('doneName')) return;

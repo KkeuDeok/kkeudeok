@@ -215,8 +215,7 @@ public class UserController {
             "scene",         // 학습1 상황 이야기
             "feel",          // 학습2 마음 읽기
             "feel-hint",     // 학습2b 힌트
-            "why",           // 학습3 이유 찾기
-            "why-listening", // 학습3b 듣는 중
+            "why",           // 학습3 이유 찾기 (듣는 중은 별도 화면이 아니라 같은 화면의 상태다)
             "face",          // 학습4 표정 따라하기
             "situation",     // 상황 선택
             "act",           // 학습5 동작 따라하기
