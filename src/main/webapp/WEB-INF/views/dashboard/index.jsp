@@ -5,7 +5,7 @@
 <%-- ponytail: 숫자·그래프·목록은 전부 Figma 예시값이다.
      주간 집계는 백엔드에서 내려줄 값이라 화면 골격만 만들어 둔다. --%>
 <div class="app-head">
-    <h1><span data-kd="childName">지우</span>의 이번 주</h1>
+    <h1><span data-kd="childCall">지우</span>의 이번 주</h1>
     <p>로드맵: 맞춤 (1순위 · 감정 표현)</p>
 </div>
 
@@ -85,23 +85,11 @@
             <h2>주차별 로드맵</h2>
             <button type="button" class="lk" onclick="dlgRoadmap.showModal()">전체 보기</button>
         </div>
-        <ol class="kd-has-data">
-            <li><span class="no no-done">5</span><span class="t">표정으로 표현하기</span><span class="chip chip-done">완료</span></li>
-            <li><span class="no no-done">6</span><span class="t">몸짓으로 표현하기</span><span class="chip chip-done">완료</span></li>
-            <li><span class="no no-now">7</span><span class="t">감정 표현하기 — 슬픔 연습</span><span class="chip chip-now">진행중</span></li>
-            <li><span class="no no-soon">8</span><span class="t">친구 위로하기</span><span class="chip chip-soon">예정</span></li>
-        </ol>
-        <p class="foot kd-has-data">12주 과정 중 7주차 · 이번 주 2 / 3 완료</p>
-
-        <%-- 신규 사용자에게도 12주 계획 자체는 보여 준다 — 앞으로 뭘 하는지가 가입 동기다.
-             1주차부터 전부 '예정'으로만 바뀐다(모달 안 전체 목록은 그대로 쓴다). --%>
-        <ol class="kd-no-data">
-            <li><span class="no no-now">1</span><span class="t">감정 알아보기 — 기쁨</span><span class="chip chip-soon">예정</span></li>
-            <li><span class="no no-soon">2</span><span class="t">감정 알아보기 — 슬픔</span><span class="chip chip-soon">예정</span></li>
-            <li><span class="no no-soon">3</span><span class="t">표정 구분하기</span><span class="chip chip-soon">예정</span></li>
-            <li><span class="no no-soon">4</span><span class="t">상황과 감정 잇기</span><span class="chip chip-soon">예정</span></li>
-        </ol>
-        <p class="foot kd-no-data">12주 과정 중 1주차 시작 전 · 이번 주 0 / 3 완료</p>
+        <%-- 목록·하단 문구는 kd-roadmap.js 가 localStorage.kdPlan 을 읽어 채운다.
+             보호자가 마이페이지 > 학습 로드맵에서 고친 결과가 그대로 반영된다.
+             JSP 에 12주를 또 박아 두면 두 벌 관리가 되므로 프리셋은 JS 한 곳에만 있다. --%>
+        <ol id="dashPlanList"></ol>
+        <p class="foot" id="dashPlanFoot"></p>
     </section>
 </div>
 
@@ -143,43 +131,17 @@
      빠진 `오늘의 관찰 확인` 가로 배너를 되살린 것이다. --%>
 <div class="dash-observe">
     <span class="ic"></span>
-    <p>오늘 <span data-kd="childName">지우</span>의 모습을 기록하면 다음 학습이 더 정확해져요</p>
+    <p>오늘 <span data-kd="childCall">지우</span>의 모습을 기록하면 다음 학습이 더 정확해져요</p>
     <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>
 </div>
 
 <%-- 로드맵 전체 보기 — 네이티브 <dialog>. 라우트를 새로 파면 서버 재시작이 필요해서 모달로 만들었다.
      .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다(mypage 모달과 같은 규칙).
-     ⚠ 1~4·9~12 주차 문구는 임시 — 팀장·기획 확정 필요. --%>
+     목록은 kd-roadmap.js 가 채운다(마이페이지 > 학습 로드맵에서 편집 가능). --%>
 <dialog id="dlgRoadmap" class="terms-dialog dash-dlg">
     <h2>12주 로드맵</h2>
-    <p>지우의 1순위 목표는 <b>감정 표현</b>이에요. 지금은 7주차예요.</p>
-    <ol>
-        <%
-            String[][] plan = {
-                {"1", "표정 알아보기",              "done"},
-                {"2", "기쁨 알아차리기",            "done"},
-                {"3", "슬픔 알아차리기",            "done"},
-                {"4", "화남 알아차리기",            "done"},
-                {"5", "표정으로 표현하기",          "done"},
-                {"6", "몸짓으로 표현하기",          "done"},
-                {"7", "감정 표현하기 — 슬픔 연습",  "now"},
-                {"8", "친구 위로하기",              "soon"},
-                {"9", "차례 지키기",                "soon"},
-                {"10", "다툰 뒤 화해하기",          "soon"},
-                {"11", "도움 요청하기",             "soon"},
-                {"12", "마음 이야기 나누기",        "soon"}
-            };
-            String[] chipLabel = {"완료", "진행중", "예정"};
-            for (String[] w : plan) {
-                int si = w[2].equals("done") ? 0 : w[2].equals("now") ? 1 : 2;
-        %>
-        <li>
-            <span class="no no-<%= w[2] %>"><%= w[0] %></span>
-            <span class="t"><%= w[1] %></span>
-            <span class="chip chip-<%= w[2] %>"><%= chipLabel[si] %></span>
-        </li>
-        <% } %>
-    </ol>
+    <p id="dlgPlanLead"></p>
+    <ol id="dlgPlanList"></ol>
     <button type="button" onclick="dlgRoadmap.close()">닫기</button>
 </dialog>
 

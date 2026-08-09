@@ -603,3 +603,104 @@
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
 }
+
+/* --------------------------------------------------------------------------
+   학습 로드맵 탭 — 커리큘럼 안 세그먼트 + 12주 편집 목록(2열 6행)
+   -------------------------------------------------------------------------- */
+/* 안 선택은 탭바(.mp-tabs)와 같은 pill 세그먼트로 — 온보딩의 큰 카드(420×450)는 세로가 없다 */
+.mp-plans {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.mp-plans label {
+    display: inline-flex;
+    align-items: center;
+    height: 41px;
+    padding: 0 24px;
+    border-radius: 999px;
+    background: #f1f5f2;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+    cursor: pointer;
+}
+
+.mp-plans input { position: absolute; opacity: 0; pointer-events: none; }
+
+.mp-plans label:has(input:checked) {
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-weight: 700;
+}
+
+.mp-plans label:has(input:focus-visible) { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+.mp-plans .ds { margin: 0 0 0 8px; font-size: 13px; line-height: 19px; color: var(--kd-text-sub); }
+
+/* 좌 1~6주 / 우 7~12주. 폭은 .mp-grid 와 같은 520+80+520 레일 */
+.mp-weeks {
+    display: grid;
+    grid-template-columns: 520px 520px;
+    grid-template-rows: repeat(6, auto);
+    grid-auto-flow: column;
+    gap: 8px 80px;
+}
+
+.mp-week {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 40px;
+}
+
+.mp-week .no {
+    flex: none;
+    width: 24px;
+    text-align: right;
+    font-size: 14px;
+    color: var(--kd-text-sub);
+}
+
+/* 드롭다운이 남는 폭을 다 먹는다 — .kd-select 는 onb-select.js 가 씌우는 래퍼 */
+.mp-week .kd-select { flex: 1; min-width: 0; }
+
+.mp-week .kd-select-btn,
+.mp-week select.onb-select {
+    width: 100%;
+    height: 40px;
+    padding-left: 12px;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.mp-week .kd-select-list { top: 44px; }
+
+/* ▲▼ — 드래그 정렬 대신. 전역 dragstart 차단(auth-validate.js)을 뚫지 않아도 된다 */
+.mp-week .mv {
+    flex: none;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid var(--kd-border);
+    border-radius: 6px;
+    background: #fff center / 12px no-repeat;
+    cursor: pointer;
+}
+
+.mp-week .mv:disabled { opacity: .35; cursor: default; }
+.mp-week .mv:not(:disabled):hover { border-color: var(--kd-primary-active); }
+
+.mp-week .up { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 15-6-6-6 6'/%3E%3C/svg%3E"); }
+.mp-week .dn { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
+
+/* 뺀 주차는 흐리게 — 목록에서 지우지 않고 남겨야 다시 켜기 쉽다 */
+.mp-week.is-off .no,
+.mp-week.is-off .kd-select { opacity: .4; }
+
+/* 되돌리기 링크 — .mp-links 버튼 규격 그대로 쓰되 위 여백만 준다 */
+#roadmapEdit .mp-links { margin-top: 20px; }
+#roadmapEdit .mp-links button { font-size: 14px; color: var(--kd-text-sub); text-decoration: underline; }
+#roadmapEdit .mp-links button:hover { color: var(--kd-primary); }
