@@ -483,10 +483,10 @@
 /* gap 은 64 고정 — 카드 그리드 실폭이 536(168×3+16×2)이라
    520 + 64 + 536 = 1120(콘텐츠 레일)로 딱 떨어진다.
    80 이면 그리드가 레일을 16px 넘어가 하단 저장 버튼과 오른쪽 끝이 어긋난다. */
-.mp-char { display: flex; gap: 64px; }
+.mp-char { display: flex; gap: 34px; }   /* 카드를 넓히려고 64 → 34 */
 
 /* flex column 인 이유: 아래 .kd-field 의 margin-top:auto 를 쓰려고. */
-.mp-char-view { width: 520px; flex: none; text-align: center; display: flex; flex-direction: column; }
+.mp-char-view { width: 470px; flex: none; text-align: center; display: flex; flex-direction: column; }
 
 /* 아이콘이 정사각(512)이라 박스도 정사각으로 둔다.
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
@@ -523,21 +523,21 @@
 
 /* 애칭 입력칸만 컬럼(520)보다 넓게 — 오른쪽 gap 64 중 48 을 먹고 그리드까지 16 남긴다.
    .mp-char 의 gap 을 줄이면 카드와 겹치니 같이 손볼 것. */
-.mp-char-view .kd-input { width: 568px; }
+.mp-char-view .kd-input { width: 470px; }   /* 예전엔 520 칸에 568 로 삐져나와 있었다 */
 
 /* 카드 그리드 — 168×216, gap 16 (3열 = 536) */
 .mp-char-pick { flex: 1; }
 
 .mp-chars {
     display: grid;
-    grid-template-columns: repeat(3, 168px);
+    grid-template-columns: repeat(3, 194px);   /* 168 → 194 (2026-08-10 더 크게) */
     gap: 16px;
     margin-top: 20px;
 }
 
 .mp-chars label {
     position: relative;
-    height: 216px;
+    height: 226px;
     box-sizing: border-box;
     padding-top: 21px;
     background: #fff;
@@ -549,8 +549,10 @@
 
 .mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
 
-.mp-chars img { display: block; width: 168px; height: 140px; margin: 0 auto;
-                object-fit: cover; object-position: center 60%; }   /* 칸이 168 이라 그 폭에 맞춘다 */
+/* ⚠ object-position 은 반드시 top. 60% 로 두면 위를 10% 잘라 **코코 올림머리(실루엣 8.6%)가
+   잘렸다**(2026-08-10 지적). top 이면 위는 한 톨도 안 자르고 남는 만큼 아래에서만 덜어 낸다. */
+.mp-chars img { display: block; width: 194px; height: 172px; margin: 0 auto;
+                object-fit: cover; object-position: center top; }
 
 .mp-chars .nm {
     display: block;

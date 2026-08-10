@@ -235,7 +235,9 @@ html[data-kd-stage="2"] .kd-hide2     { display: none !important; }
 
 .kd-empty .d {
     margin: 6px 0 0;
-    max-width: 440px;
+    /* 440 이면 리포트 0단계 문구가 두 줄로 갈리며 '계산돼요' 만 혼자 내려간다(2026-08-10 지적).
+       카드가 넓은 리포트에서는 한 줄로 들어가고, 좁은 대시보드 카드에서는 원래대로 접힌다. */
+    max-width: 760px;
     font-size: 14px;
     line-height: 21px;
     color: var(--kd-text-sub);
@@ -245,7 +247,7 @@ html[data-kd-stage="2"] .kd-hide2     { display: none !important; }
 .kd-empty .kd-btn {
     width: 220px;
     height: 44px;
-    margin-top: 16px;
+    margin-top: 12px;       /* 문구가 한 줄이 되면서 버튼이 멀어 보여 조금 올린다 */
     border-radius: 999px;
     font-size: 15px;
     font-weight: 700;
@@ -259,3 +261,19 @@ html[data-kd-stage="2"] .kd-hide2     { display: none !important; }
 .kd-empty-ic-list {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13'/%3E%3Cpath d='M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E");
 }
+
+
+/* --------------------------------------------------------------------------
+   아이 이름은 JS(auth-validate.js)가 sessionStorage 에서 채운다. 채우기 전 한 프레임 동안
+   JSP 기본값 "지우" 가 보여, 리포트 탭을 옮길 때마다 이름이 바뀌는 것처럼 깜빡였다
+   (2026-08-10 지적 "갑자기 지우가 됐다가 성현이 됐다가"). 채운 뒤에 드러낸다.
+   ⚠ display 가 아니라 visibility 다 — 자리를 잡아 둬야 글이 밀렸다 돌아오지 않는다.
+   -------------------------------------------------------------------------- */
+[data-kd="childCall"],
+[data-kd="childName"],
+[data-kd="childNameAge"],
+[data-kd="childAge"]            { visibility: hidden; }
+html.kd-named [data-kd="childCall"],
+html.kd-named [data-kd="childName"],
+html.kd-named [data-kd="childNameAge"],
+html.kd-named [data-kd="childAge"] { visibility: visible; }

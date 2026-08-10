@@ -655,6 +655,9 @@
     }
 
     renderAppOnb();
+    /* 치환이 끝났으니 이름을 드러낸다 — 그 전에는 CSS 가 감춰 둔다(위 kd-named 규칙).
+       kdOnb 가 비어 조기 return 한 경우에도 여기까지는 오므로 예시값이 그대로 보인다. */
+    document.documentElement.classList.add('kd-named');
 
     /* 리포트 5탭 부제 — 관찰 데이터가 0인데 '관찰 8주차'가 남아 있으면 안 된다.
        탭마다 같은 문장이라 JSP 5개를 고치는 대신 여기서 한 번에 바꾼다. */
