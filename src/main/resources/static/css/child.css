@@ -295,19 +295,25 @@
 }
 
 /* --- 이야기로 들어올 때 -------------------------------------------------------
-   학습 홈에서 토리가 날아와 이 자리에 앉는다(app.css .kd-enter-*).
-   날아온 토리와 크기가 맞아떨어져야 이어져 보이므로 위치는 안 건드리고 크기만 받는다.
-   문구는 그림 다음에 차례로 올라온다 — 세션 결과의 kd-rise 와 같은 패턴. */
-.story-art { animation: kd-scene-in 0.5s var(--kd-ease) both; }
+   무대가 차려지는 순서로 보여 준다: 배경(먼저 깔려 있다) → 토리 → 문구.
+   아이가 눈으로 따라가기 쉬우라고 한 번에 안 띄우고 순서를 준다.
+
+   ⚠ 학습 홈에서는 아무것도 하지 않는다 — 버튼을 누르면 곧바로 이동한다.
+     나가는 쪽에서 화면을 덮고 기다리면, 이 화면이 늦게 뜰 때 흰 화면에서
+     멈춘 것처럼 보인다(그래서 '토리가 날아가는' 안을 걷어냈다).
+   ⚠ 배경(story-bg)은 .child-body 의 background 라 이미 깔린 채로 그려진다.
+     그래서 따로 띄우지 않고, 나머지를 늦춰 배경이 먼저 읽히게 한다.
+   문구는 세션 결과의 kd-rise 를 그대로 쓴다. */
+.story-art { animation: kd-scene-in 0.46s var(--kd-ease) 0.18s both; }
 
 @keyframes kd-scene-in {
-    from { opacity: 0; transform: scale(0.9); }
+    from { opacity: 0; transform: scale(0.88); }
 }
 
-.story-title { animation: kd-rise 0.45s ease-out 0.10s both; }
-.story-sub   { animation: kd-rise 0.45s ease-out 0.18s both; }
-.story-ask   { animation: kd-rise 0.45s ease-out 0.26s both; }
-.story-cta   { animation: kd-rise 0.45s ease-out 0.34s both; }
+.story-title { animation: kd-rise 0.42s ease-out 0.38s both; }
+.story-sub   { animation: kd-rise 0.42s ease-out 0.44s both; }
+.story-ask   { animation: kd-rise 0.42s ease-out 0.50s both; }
+.story-cta   { animation: kd-rise 0.42s ease-out 0.56s both; }
 
 @media (prefers-reduced-motion: reduce) {
     .story-art,

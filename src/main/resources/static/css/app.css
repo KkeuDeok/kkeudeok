@@ -1464,38 +1464,3 @@ html[data-kd-stage="0"] .dash-streak { width: 100%; }
     overflow: hidden;
     text-overflow: ellipsis;
 }
-
-/* ==========================================================================
-   이야기로 들어가기 — 학습 홈 → /story/scene
-   보호자 앱(사이드바·흰 배경)에서 아이 화면(전체화면·수채 배경)으로 넘어가는 자리라
-   그냥 갈리면 다른 앱이 열린 것처럼 보인다. 두 화면에 같은 토리가 있는 걸 이용해
-   배너 속 토리가 그대로 커지며 이야기 화면 자리로 날아가게 한다(learn/index.jsp 가 태운다).
-
-   ⚠ View Transitions 를 쓰지 않는 이유: 그건 문서 단위 스위치라 학습 홈·이야기 화면에서
-     나가는 모든 이동에 걸린다. 여기는 이 한 경로만 필요하다.
-   ⚠ 배너 토리는 .learn-hero .art(overflow:hidden) 안에 있어 그대로 키우면 잘린다
-     → 같은 자리에 복제본을 띄워 그걸 날린다.
-   ========================================================================== */
-.kd-enter-veil {
-    position: fixed;
-    inset: 0;
-    z-index: 9000;
-    background: #fff;
-    opacity: 0;
-    transition: opacity 0.42s ease;
-    pointer-events: none;
-}
-
-.kd-enter-ch {
-    position: fixed;
-    z-index: 9001;
-    transition: transform 0.46s cubic-bezier(0.5, 0, 0.2, 1);
-    will-change: transform;
-    pointer-events: none;
-}
-
-/* 목적지 좌표·배율은 learn/index.jsp 가 재서 --kd-enter-* 로 넣어 준다 */
-.kd-entering .kd-enter-veil { opacity: 1; }
-.kd-entering .kd-enter-ch {
-    transform: translate(var(--kd-enter-dx), var(--kd-enter-dy)) scale(var(--kd-enter-s));
-}
