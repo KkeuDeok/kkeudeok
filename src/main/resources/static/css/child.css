@@ -1582,8 +1582,27 @@
 .story-quit .yes:hover { background: #f4f6f3; }
 
 
-/* [다시 들려줘] 읽는 중 — 지금 소리가 나오고 있다는 표시 */
-.kd-sub-listen.is-speaking { background: var(--kd-primary-tint); border-color: var(--kd-primary); }
+/* [다시 들려줘] 읽는 중 — 지금 소리가 나오고 있다는 표시.
+   색만 바뀌면 소리가 나오는 중인지 아이가 못 알아채서 알약이 숨쉬게 한다
+   (story.js 가 낭독 동안 .is-speaking 을 붙였다 뗀다).
+
+   ⚠ 주기를 2s 로 둔 이유: 「듣고 있어요」 알약이 같은 방식으로 1.6s 에 숨쉰다.
+     /story/why 에서 둘이 같이 떠 있을 수 있는데 주기까지 같으면 구분이 안 된다.
+     번지는 폭도 10 → 8 로 줄여 아이가 말하는 쪽(듣고 있어요)이 더 크게 보이게 남겨 둔다. */
+.kd-sub-listen.is-speaking {
+    background: var(--kd-primary-tint);
+    border-color: var(--kd-primary);
+    animation: kd-say-breathe 2s ease-out infinite;
+}
+
+@keyframes kd-say-breathe {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(38, 130, 84, 0.3); }
+    50%      { box-shadow: 0 0 0 8px rgba(38, 130, 84, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kd-sub-listen.is-speaking { animation: none; }
+}
 
 /* [잘 모르겠어] 가 짚어 주는 자리 — 초록 테두리와 두 번의 흔들림.
    아이 화면이라 색만 바꾸면 잘 못 알아채서 움직임을 같이 준다. */
