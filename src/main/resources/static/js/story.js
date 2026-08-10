@@ -99,12 +99,13 @@
        읽을 글은 화면마다 다르므로 '제목류' 를 위에서부터 모아 잇는다. */
     var SAY_SELECTORS = ['.story-title', '.story-sub', '.story-ask',
                          '.feel-recap', '.feel-q', '.feel-hint',
-                         '.why-title', '.why-sub', '.cam-title'];
+                         '.why-title', '.why-sub', '.why-hint', '.cam-title'];
 
     function screenText() {
         var out = [];
         SAY_SELECTORS.forEach(function (sel) {
             document.querySelectorAll(sel).forEach(function (el) {
+                if (el.hidden) return;               /* 아직 안 보여 준 힌트까지 읽으면 답을 알려 주는 셈이다 */
                 var t = (el.textContent || '').trim();
                 if (t && out.indexOf(t) === -1) out.push(t);
             });
@@ -112,8 +113,29 @@
         return out.join(' ');
     }
 
+    var canSay = 'speechSynthesis' in window;
+
+    /* 읽어 주기는 여기 한 곳 — [다시 들려줘] · 카드의 소리 배지 · 힌트가 같이 쓴다.
+       el 을 주면 읽는 동안 is-speaking 이 붙고, label 까지 주면 글자도 잠깐 바뀐다. */
+    function speak(text, el, label) {
+        if (!canSay || !text) return;
+        speechSynthesis.cancel();                 /* 앞의 낭독은 끊는다 — 두 소리가 겹치면 못 알아듣는다 */
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ko-KR';
+        u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
+        if (el) {
+            el.classList.add('is-speaking');
+            if (label) el.textContent = '읽는 중…';
+            u.onend = u.onerror = function () {
+                el.classList.remove('is-speaking');
+                if (label) el.textContent = label;
+            };
+        }
+        speechSynthesis.speak(u);
+    }
+
     var listenBtns = document.querySelectorAll('.kd-sub-listen');
-    if (listenBtns.length && 'speechSynthesis' in window) {
+    if (listenBtns.length && canSay) {
         listenBtns.forEach(function (btn) {
             var label = btn.textContent;
             btn.addEventListener('click', function () {
@@ -123,38 +145,55 @@
                     btn.classList.remove('is-speaking');
                     return;
                 }
-                var text = screenText();
-                if (!text) return;
-                var u = new SpeechSynthesisUtterance(text);
-                u.lang = 'ko-KR';
-                u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
-                btn.textContent = '읽는 중…';
-                btn.classList.add('is-speaking');
-                u.onend = u.onerror = function () {
-                    btn.textContent = label;
-                    btn.classList.remove('is-speaking');
-                };
-                speechSynthesis.speak(u);
+                speak(screenText(), btn, label);
             });
         });
         /* 화면을 떠날 때 소리가 따라다니면 안 된다 */
         window.addEventListener('pagehide', function () { speechSynthesis.cancel(); });
     }
 
+    /* ---------- 카드의 소리 배지 ----------
+       배지가 카드(<a>) 안의 span 이라 핸들러가 없는 동안 클릭이 카드로 새어
+       **그 카드를 고른 것으로 처리됐다** — 정답 배지를 누르면 다음 화면으로 넘어가고
+       오답 배지를 누르면 오답 모달이 떴다(2026-08-10 지적). 마음읽기 카드도 같은 구조다.
+       여기서 전파를 끊고 그 카드 글자를 읽어 준다.
+       ⚠ 접근성: 카드를 <div role="button"> 으로 바꾸기 전까지 배지는 마우스 전용이다
+         (<a> 안에 button 을 넣으면 중첩 인터랙티브라 HTML 이 깨진다). */
+    document.querySelectorAll('.feel-card .spk, .why-card .spk').forEach(function (sp) {
+        sp.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var card = sp.closest('.feel-card, .why-card'), words = [];
+            if (card) {
+                card.querySelectorAll('.nm, .ds').forEach(function (p) {
+                    words.push((p.textContent || '').trim());
+                });
+            }
+            speak(words.join(' '), sp);
+        });
+    });
+
     /* ---------- [잘 모르겠어] — 그 자리에서 짚어 준다 ----------
        마음 읽기에는 힌트 화면(학습2b)이 따로 있어 링크 그대로 두고, 나머지 화면은
        여기서 '어디를 보면 되는지' 를 짚어 준다. 예전엔 반응이 아예 없었다.
-         왜?    → 정답 카드에 테두리
+         왜?    → 힌트 문구를 보여 주고 읽어 준다(.why-hint)
          표정·행동 → 코너의 시범 카드를 두어 번 흔든다
          이야기  → 다음으로 가는 버튼 */
     function hintTarget() {
-        return document.querySelector('.why-card:not([data-wrong])')
-            || document.querySelector('.cam-hint')
+        return document.querySelector('.cam-hint')
             || document.querySelector('.story-cta');
     }
 
     document.querySelectorAll('button.kd-sub-hint').forEach(function (btn) {
         btn.addEventListener('click', function () {
+            /* 이유 찾기 — 정답 카드를 짚어 주면 그건 힌트가 아니라 답이다(2026-08-10 지적).
+               어디를 보면 되는지만 말해 준다. */
+            var hint = document.querySelector('.why-hint');
+            if (hint) {
+                hint.hidden = false;
+                speak(hint.textContent);
+                return;
+            }
             var t = hintTarget();
             if (!t) return;
             t.classList.remove('kd-point');
@@ -206,9 +245,12 @@
        ⚠ 아동홈으로 보내면 안 된다. 아동홈은 학습을 '시작'하는 입구라 곧바로 같은 이야기가
          다시 돌아 무한 루프가 된다(실제로 그렇게 만들었다가 지적받음).
        Figma 의 "3초 뒤 자동" 도 안 쓴다 — 아이가 칭찬을 다 보기 전에 넘어간다. */
-    /* 아동홈에 들어오면 '이번 세션은 아직 안 셌다' 로 표시해 둔다 — 칭찬 화면을 새로고침해도
-       두 번 세지 않게 하려는 것이다. */
-    if (document.querySelector('.home-card')) {
+    /* 이야기를 새로 시작하면 '이번 세션은 아직 안 셌다' 로 표시해 둔다 — 칭찬 화면을
+       새로고침해도 두 번 세지 않게 하려는 것이다.
+       ⚠ 예전엔 아동홈(.home-card)에서만 지웠다. 그런데 실제 진입은 학습 홈 → /story/scene 이라
+         아동홈을 안 거친다 → 한 탭에서 kdDone 이 1 에서 멈춰 3단계에 영영 못 갔다
+         (2026-08-10 "3번 해도 적용이 안 된다"의 원인). 이야기 시작 화면에서도 지운다. */
+    if (document.querySelector('.home-card') || location.pathname === '/story/scene') {
         try { sessionStorage.removeItem('kdCounted'); } catch (e) { }
     }
 
