@@ -1,20 +1,17 @@
 /* ==========================================================================
    성장 리포트 — Figma 24:16727(감정 표현) · 24:16480(사회성) · 24:16167(주간 변화)
-                 + 감정 이해 · AI 피드백 (Figma에 탭만 있고 화면이 없어 신규 설계)
+                 + 감정 이해 (Figma에 탭만 있고 화면이 없어 신규 설계)
    껍데기는 app.css(.app-shell 등)를 쓰고 이 파일은 리포트 화면 전용.
    ⚠ app.css는 병합 충돌 방지를 위해 수정 금지 — 가운데 정렬도 여기서 자체 선언.
    공통 레일: 제목 104 · 부제 149 · 탭 193(h49) · 지수 265.
-   (Figma는 제목 114·탭 180이지만 부제 한 줄을 더하며 8px 스케일로 재배치 — 5화면 동일)
+   (Figma는 제목 114·탭 180이지만 부제 한 줄을 더하며 8px 스케일로 재배치 — 4화면 동일)
    ========================================================================== */
 
 .rpt-head,
 .rpt-tabsrow,
 .rpt-score,
 .rpt-sec,
-.rpt-rule,
-.rpt-ai,
-.rpt-note,
-.rpt-cta {
+.rpt-rule {
     max-width: 1200px;
     margin-left: auto;
     margin-right: auto;
@@ -25,7 +22,7 @@
 .rpt-head { padding-top: 64px; }
 
 /* --------------------------------------------------------------------------
-   탭바 5개 — 컨테이너 h49 r999 #f1f5f2, 활성 = tint 배경 + 진초록 (Figma 실측)
+   탭바 4개 — 컨테이너 h49 r999 #f1f5f2, 활성 = tint 배경 + 진초록 (Figma 실측)
    -------------------------------------------------------------------------- */
 .rpt-tabsrow { margin-top: 24px; padding: 0 40px; }
 
@@ -132,7 +129,8 @@
 /* --------------------------------------------------------------------------
    가로 스택바 (표현 방법의 변화) — 말/표정/몸짓
    -------------------------------------------------------------------------- */
-.rpt-stackrow { margin-top: 18px; }
+/* CTA 배너를 걷어낸 만큼(2026-08-10) 여백을 되돌려 하단 레일 940 을 맞춘다 */
+.rpt-stackrow { margin-top: 32px; }
 
 .rpt-stackrow .cap {
     margin: 0 0 8px;
@@ -143,7 +141,7 @@
 
 .rpt-stack {
     display: flex;
-    height: 40px;
+    height: 48px;
     border-radius: 999px;
     overflow: hidden;
 }
@@ -178,7 +176,7 @@
 .st-body { background: #199ea7; }
 
 /* 범례 칩 — Figma 실측: 크림 배경 + 어두운 크림 테두리 */
-.rpt-legend { display: flex; gap: 12px; margin-top: 16px; }
+.rpt-legend { display: flex; gap: 12px; margin-top: 28px; }
 
 .rpt-legend span {
     display: inline-flex;
@@ -196,21 +194,24 @@
 .rpt-legend i { width: 10px; height: 10px; border-radius: 999px; }
 
 /* --------------------------------------------------------------------------
-   세로 막대 (감정별 표현 빈도) — 높이 = 값 × 4px 인라인
+   세로 막대 (감정별 표현 빈도) — 높이 = 값 × 4.5px 인라인
    -------------------------------------------------------------------------- */
+/* 좌측 절반만 쓰고 우측이 비어 보인다는 지적(2026-08-10)
+   -> 고정 gap 을 버리고 폭 전체(1120)에 5칸을 균등 배분한다. 칸당 224, 막대 88(≈39%) */
 .rpt-bars {
     display: flex;
     align-items: flex-end;
-    gap: 70px;
-    margin-top: 28px;
-    padding-left: 24px;
+    justify-content: space-between;
+    gap: 0;
+    margin-top: 52px;
+    /* padding-left 를 뺐다 — 위 가로 스택바와 좌우 끝을 맞춘다 */
 }
 
 .rpt-bar {
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 42px;
+    width: 88px;
 }
 
 .rpt-bar b {
@@ -221,9 +222,9 @@
 
 .rpt-bar span {
     display: block;
-    width: 42px;
+    width: 88px;
     margin-top: 8px;
-    border-radius: 10px 10px 0 0;
+    border-radius: 12px 12px 0 0;
 }
 
 .rpt-bar em {
@@ -232,7 +233,7 @@
     font-size: 14px;
     line-height: 21px;
     color: var(--kd-text-sub);
-    white-space: nowrap;    /* 막대(42px)보다 긴 '도움요청'이 꺾이지 않게 */
+    white-space: nowrap;
 }
 
 /* 감정색 — Figma 실측 (막대·히트맵·이해도 막대 공용) */
@@ -243,66 +244,17 @@
 .em-help { background: #0fa394; }   /* 도움요청 */
 
 /* --------------------------------------------------------------------------
-   하단 학습 유도 배너 — Figma에 없는 웹 추가분 (빈 하단 채움, 대시보드 배너와 동일 문법)
-   -------------------------------------------------------------------------- */
-.rpt-cta {
-    display: flex;
-    align-items: center;
-    width: calc(100% - 80px);
-    height: 88px;
-    margin-top: 24px;
-    margin-bottom: 16px;
-    padding: 0 24px;
-    background: var(--kd-primary-tint);
-    border-radius: 16px;
-}
-
-.rpt-cta .ic {
-    width: 48px;
-    height: 48px;
-    flex: none;
-    border-radius: 999px;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 3 14 9-14 9V3z'/%3E%3C/svg%3E") center / 22px no-repeat;
-}
-
-.rpt-cta p {
-    flex: 1;
-    margin: 0 24px;
-    font-size: 15px;
-    line-height: 23px;
-    color: var(--kd-text);
-}
-
-.rpt-cta .kd-btn {
-    width: 140px;
-    height: 40px;
-    flex: none;
-    border-radius: 999px;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-/* --------------------------------------------------------------------------
    사회성 — 레이더 차트 래퍼 + 장면 리스트 (감정 이해 화면과 공용)
    -------------------------------------------------------------------------- */
-/* 좌 차트 + 우 축별 점수 2열 — 세로를 안 늘리면서 오각형만 키운다 */
-/* 2026-08-09 지적 — 우측 열이 세로 가운데 정렬이라 차트(511px)에 밀려 아래로 내려가 있었다.
-   위로 붙여 사회성 지수 줄과 눈높이를 맞춘다. */
-.rpt-radar-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 32px;
-    margin-top: 4px;
-}
-
-.rpt-radar { flex: none; }
-.rpt-radar svg { display: block; }
+/* 2026-08-10 지적 — 우측 축별 점수 열을 걷어내고 오각형만 가운데에 크게 둔다 */
+.rpt-radar { margin-top: 8px; }
+.rpt-radar svg { display: block; margin: 0 auto; }
 
 .rpt-radar-legend {
     display: flex;
     justify-content: center;
     gap: 24px;
-    margin-top: 0;
+    margin-top: 4px;
     font-size: 13px;
     color: var(--kd-text-sub);
 }
@@ -311,40 +263,6 @@
 
 .rpt-radar-legend .ln { width: 18px; height: 0; border-top: 3px solid #34a36a; border-radius: 2px; }
 .rpt-radar-legend .ln-prev { border-top: 2px dashed #8b978f; }
-
-/* 장면 리스트 — 스토리명 + 결과/감정 칩 + 날짜 */
-.rpt-scenes { margin-top: 8px; }
-
-.rpt-scene {
-    display: flex;
-    align-items: center;
-    height: 48px;
-    border-bottom: 1px solid var(--kd-border);
-}
-
-.rpt-scene .t { flex: 1; font-size: 15px; line-height: 23px; color: var(--kd-text); }
-
-.rpt-scene .chip {
-    flex: none;
-    display: inline-flex;
-    align-items: center;
-    height: 26px;
-    padding: 0 10px;
-    white-space: nowrap;
-    border-radius: 999px;
-    background: var(--kd-primary-tint);
-    color: var(--kd-primary-strong);
-    font-size: 13px;
-}
-
-.rpt-scene .d {
-    flex: none;
-    width: 56px;
-    margin-left: 16px;
-    text-align: right;
-    font-size: 13px;
-    color: var(--kd-text-sub);
-}
 
 /* --------------------------------------------------------------------------
    주간 변화 — 감정별 히트맵 + 8주 추이 + 변화 리스트
@@ -363,17 +281,9 @@
     color: var(--kd-text);
 }
 
-/* 칸 진하기는 opacity 가 아니라 흰색과 섞어서 낸다 — opacity 를 쓰면 안에 적은 숫자까지 흐려진다.
-   가장 진한 단계(--o:.80)에서도 #1f2a25 글자 대비가 4.8:1 이상이라 WCAG AA 를 넘는다. */
 .rpt-heat .cell {
     height: 40px;
     border-radius: 10px;
-    display: grid;
-    place-items: center;
-    font-size: 13px;
-    font-weight: 600;
-    line-height: 1;
-    color: #1f2a25;
     background: color-mix(in srgb, var(--c) calc(var(--o) * 100%), #fff);
 }
 
@@ -381,13 +291,6 @@
 .rpt-heat .em-sad { --c: #3d8fe0; }
 .rpt-heat .em-mad { --c: #ec4b3f; }
 .rpt-heat .em-sup { --c: #8b5cf6; }
-
-.rpt-heat-note {
-    margin: 12px 0 0;
-    font-size: 13px;
-    line-height: 19px;
-    color: var(--kd-text-sub);
-}
 
 .rpt-heat .weeklb {
     text-align: center;
@@ -448,22 +351,22 @@
 /* --------------------------------------------------------------------------
    감정 이해 (신규 설계) — 감정별 이해도 가로 막대
    -------------------------------------------------------------------------- */
-.rpt-hbars { margin-top: 24px; }
+.rpt-hbars { margin-top: 32px; }
 
 .rpt-hbar { display: flex; align-items: center; }
-.rpt-hbar + .rpt-hbar { margin-top: 18px; }
+.rpt-hbar + .rpt-hbar { margin-top: 42px; }
 
 .rpt-hbar .lb {
     flex: none;
-    width: 90px;
-    font-size: 14px;
-    line-height: 21px;
+    width: 96px;
+    font-size: 17px;
+    line-height: 26px;
     color: var(--kd-text);
 }
 
 .rpt-hbar .track {
     flex: 1;
-    height: 14px;
+    height: 24px;
     border-radius: 999px;
     background: #f1f5f2;
     overflow: hidden;
@@ -471,191 +374,57 @@
 
 .rpt-hbar .track span { display: block; height: 100%; border-radius: 999px; }
 
-.rpt-hbar .pct {
-    flex: none;
-    width: 56px;
-    text-align: right;
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--kd-text);
-}
+/* 보호자 실천 팁 2장 — 문구 고정, 데이터 없음 */
+.rpt-tips { display: flex; gap: 16px; margin-top: 32px; }
 
-/* --------------------------------------------------------------------------
-   AI 피드백 (신규 설계) — 종합 코멘트 카드 · 지표 카드 3장 · 추천 활동 · 면책
-   -------------------------------------------------------------------------- */
-/* 2026-08-09 지적("길이 맞추기") — 아래 카드행과 좌우 끝을 맞춘다.
-   ⚠ 공통 규칙의 max-width 는 1200(=바깥 상자)인데, 카드행은 그 안에서 좌우 40 을 빼고 그린다.
-     배너에도 1200 을 쓰면 창이 1280 보다 넓어질 때 배너만 80px 더 벌어진다 → 1120 으로 맞춘다. */
-.rpt-ai {
-    display: flex;
-    align-items: flex-start;
-    width: calc(100% - 80px);
-    max-width: 1120px;
-    margin: 24px auto 0;
-    padding: 20px 24px;
-    box-sizing: border-box;
-    background: var(--kd-card-cream);
-    border: 1px solid #ece2cf;
-    border-radius: 20px;
-}
-
-.rpt-ai .ava {
-    width: 64px;
-    height: 64px;
-    flex: none;
-    border-radius: 999px;
+.rpt-tip {
+    flex: 1;
+    padding: 26px;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
     background: #fff;
-    overflow: hidden;
 }
 
-.rpt-ai .ava img { width: 100%; height: 100%; object-fit: cover; }
-
-.rpt-ai .tx { margin-left: 20px; }
-
-.rpt-ai h2 {
-    margin: 0;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 25px;
-    color: var(--kd-text);
+.rpt-tip .chip {
+    display: inline-flex;
+    align-items: center;
+    height: 26px;
+    padding: 0 10px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 13px;
 }
 
-.rpt-ai p {
-    margin: 8px 0 0;
-    font-size: 15px;
+.rpt-tip h3 {
+    margin: 12px 0 0;
+    font-size: 16px;
     line-height: 24px;
     color: var(--kd-text);
 }
 
-/* 지표 카드 3장 */
-.rpt-cards { display: flex; gap: 20px; margin-top: 20px; }
-
-.rpt-card {
-    flex: 1;
-    padding: 20px 24px 24px;
-    box-sizing: border-box;
-    background: #f1f5f2;
-    border-radius: 16px;
-}
-
-.rpt-card .lb { margin: 0; font-size: 14px; line-height: 21px; color: var(--kd-text-sub); }
-
-.rpt-card .v {
-    margin: 4px 0 0;
-    font-size: 30px;
-    font-weight: 700;
-    line-height: 38px;
-    letter-spacing: -1.2px;
-    color: var(--kd-text);
-}
-
-.rpt-card .v b { margin-left: 8px; font-size: 14px; }
-
-.rpt-card .ds {
+.rpt-tip p {
     margin: 8px 0 0;
     font-size: 14px;
-    line-height: 21px;
-    color: var(--kd-text-sub);
-}
-
-/* 추천 활동 — 번호원 + 제목 + 설명 */
-.rpt-todo { margin-top: 20px; }
-
-.rpt-todo-item { display: flex; align-items: flex-start; }
-.rpt-todo-item + .rpt-todo-item { margin-top: 18px; }
-
-.rpt-todo-item .no {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 28px;
-    height: 28px;
-    flex: none;
-    border-radius: 999px;
-    background: var(--kd-primary-tint);
-    color: var(--kd-primary-strong);
-    font-size: 15px;
-    font-weight: 700;
-}
-
-.rpt-todo-item .tx { margin-left: 16px; }
-.rpt-todo-item b { display: block; font-size: 15px; line-height: 28px; color: var(--kd-text); }
-
-.rpt-todo-item .ds {
-    display: block;
-    margin-top: 2px;
-    font-size: 13px;
-    line-height: 19px;
-    color: var(--kd-text-sub);
-}
-
-/* 면책 문구 */
-.rpt-note {
-    width: calc(100% - 80px);
-    margin: 24px auto;
-    font-size: 13px;
-    line-height: 20px;
-    color: var(--kd-text-sub);
-}
-
-
-/* --------------------------------------------------------------------------
-   사회성 — 축별 점수 리스트 (레이더 우측)
-   -------------------------------------------------------------------------- */
-.rpt-axis { flex: 0 0 370px; min-width: 0; }
-
-.rpt-axis h3 {
-    margin: 0 0 16px;
-    font-size: 15px;
-    font-weight: 700;
     line-height: 22px;
+    color: var(--kd-text-sub);
+}
+
+.rpt-hbar .pct {
+    flex: none;
+    width: 64px;
+    text-align: right;
+    font-size: 18px;
+    font-weight: 700;
     color: var(--kd-text);
 }
-
-/* 축 이름이 '신경증/정서 안정성' 처럼 길어 라벨 폭을 넓히고 증감 칸을 덧붙인다 */
-.rpt-axis .rpt-hbar .lb {
-    width: 108px;   /* 좌측 차트를 키우려고 우측 열을 370 으로 좁혔다 */
-    font-size: 13px;
-    color: var(--kd-text-sub);
-}
-
-.rpt-axis .rpt-hbar .track { height: 10px; }
-
-.rpt-axis .rpt-hbar .pct {
-    width: 34px;
-    font-size: 14px;
-}
-
-.rpt-axis .rpt-hbar .dt {
-    flex: none;
-    width: 38px;
-    text-align: right;
-    font-size: 12px;
-    font-weight: 700;
-}
-
-.rpt-axis .cap {
-    margin: 16px 0 0;
-    font-size: 12px;
-    line-height: 18px;
-    color: var(--kd-text-sub);
-}
-
-/* 축 점수 아래에 장면 리스트를 이어 붙인다 (우측 열 두 블록) */
-.rpt-axis h3.mt { margin-top: 24px; }
-
-.rpt-axis .rpt-scenes { margin-top: 0; }
-
-.rpt-axis .rpt-scene { height: 44px; }
-.rpt-axis .rpt-scene .t { font-size: 13px; }
-.rpt-axis .rpt-scene .d { width: 38px; margin-left: 10px; font-size: 12px; }
 
 /* --------------------------------------------------------------------------
    0·1 단계 — 리포트는 3회를 채워야 나온다. 본문을 숨기고 common/report-empty.jsp 안내만 남긴다.
-   5개 탭이 같은 블록 클래스만 쓰기 때문에 파일을 감쌀 필요 없이 여기서 한 번에 끊는다.
+   4개 탭이 같은 블록 클래스만 쓰기 때문에 파일을 감쌀 필요 없이 여기서 한 번에 끊는다.
    -------------------------------------------------------------------------- */
 :is(html[data-kd-stage="0"], html[data-kd-stage="1"]) :is(
-    .rpt-score, .rpt-sec, .rpt-rule, .rpt-cta, .rpt-ai, .rpt-note) { display: none !important; }
+    .rpt-score, .rpt-sec, .rpt-rule) { display: none !important; }
 
 .rpt-empty {
     max-width: 1200px;

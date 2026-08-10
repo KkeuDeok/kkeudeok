@@ -138,7 +138,7 @@ public class UserController {
         return "learn/index";
     }
 
-    /* ---------- 성장 리포트 (탭 5개, 첫 탭 = 감정 이해) ---------- */
+    /* ---------- 성장 리포트 (탭 4개, 첫 탭 = 감정 이해) ---------- */
 
     @GetMapping("/report")
     public String report() {
@@ -158,11 +158,6 @@ public class UserController {
     @GetMapping("/report/weekly")
     public String reportWeekly() {
         return "report/weekly";
-    }
-
-    @GetMapping("/report/ai")
-    public String reportAi() {
-        return "report/ai";
     }
 
     /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
