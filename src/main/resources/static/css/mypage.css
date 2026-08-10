@@ -255,36 +255,6 @@
     font-weight: 700;
 }
 
-/* 잠금 남은 시간 — 문구는 "4분 59초"처럼 숫자만 바뀌어 얼마나 남았는지 감이 안 온다.
-   바가 줄어드는 걸로 한눈에 보이게 한다. 오류 문구(예약석) 바로 아래에 얇게 깐다.
-   폭·시간은 gate.jsp 가 인라인 animation 으로 정한다 — 새로고침해도 음수 지연으로 이어진다. */
-.mp-lock {
-    display: block;
-    height: 4px;
-    margin-top: 26px;          /* 오류 문구 예약석(16) 아래로 내려 겹치지 않게 */
-    border-radius: 999px;
-    background: var(--kd-border);
-    overflow: hidden;
-}
-
-.mp-lock i {
-    display: block;
-    height: 100%;
-    border-radius: 999px;
-    background: var(--kd-danger);
-    transform-origin: left center;
-}
-
-@keyframes kd-lock-drain {
-    from { transform: scaleX(1); }
-    to   { transform: scaleX(0); }
-}
-
-/* 움직임을 줄이도록 설정한 경우 — 바는 그대로 두고 문구가 남은 시간을 말해 준다 */
-@media (prefers-reduced-motion: reduce) {
-    .mp-lock i { animation: none !important; }
-}
-
 .mp-gate .forgot {
     display: block;
     margin-top: 24px;
