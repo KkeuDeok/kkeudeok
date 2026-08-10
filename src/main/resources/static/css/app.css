@@ -371,12 +371,31 @@
 /* --------------------------------------------------------------------------
    로드맵 전체 보기 모달 — 12주. .dash-plan 안이 아니라서 목록 규칙을 따로 둔다.
    -------------------------------------------------------------------------- */
-.dash-dlg { width: 520px; max-height: 78vh; }
+/* <dialog> 기본값이 overflow:auto 라 12주 목록이 길어지면 모달 껍데기가 통째로 스크롤됐다.
+   제목과 닫기 버튼까지 같이 밀려 아래가 잘려 보이던 원인(2026-08-10 지적) → 목록만 스크롤시킨다.
+   max-height 의 vh 는 zoom(= 1/--fit-scale)에 다시 곱해져 창 높이를 넘길 수 있으니 배율을 되돌린다.
+   (fit-scale = 창높이/1024 이므로 보정 없이는 화면상 항상 799px 고정 = 짧은 창에서 위아래가 잘린다) */
+/* ⚠ display 는 [open] 에만 준다 — 그냥 주면 브라우저 기본값 dialog:not([open]){display:none} 을
+   덮어써 닫힌 모달이 본문에 904px 로 깔린다. 그러면 대시보드만 세로 스크롤이 생기고
+   스크롤바 15px 때문에 가운데정렬 본문이 7.5px 왼쪽으로 밀려 제목·초록 막대 위치가 학습 홈과 어긋난다. */
+.dash-dlg[open] {
+    width: 520px;
+    max-height: calc(90vh * var(--fit-scale, 1));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 제목·리드문·닫기 버튼은 줄어들지 않는다 — 줄어들 몫은 목록이 전부 가져간다 */
+.dash-dlg > :not(ol) { flex: none; }
 
 .dash-dlg ol {
     margin: 18px 0 0;
     padding: 0;
     list-style: none;
+    overflow-y: auto;
+    min-height: 0;              /* flex 아이템 기본 min-height:auto 면 안 줄어들어 스크롤이 안 생긴다 */
+    overscroll-behavior: contain;
 }
 
 .dash-dlg li {
@@ -426,6 +445,22 @@
 
 .dash-dlg li .chip { flex: none; margin-left: 12px; }
 
+/* 12주 목록의 단계 소제목 — 온보딩 로드맵·마이페이지 카드의 6단계와 같은 이름이다.
+   주차 항목이 아니라 묶음 이름이라 번호 원도 연결선도 없다. */
+.dash-dlg li.plan-stage {
+    padding-left: 0;
+    margin-top: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--kd-primary-strong);
+}
+
+.dash-dlg li.plan-stage:first-child { margin-top: 0; }
+.dash-dlg li.plan-stage::before { content: none; }
+
+/* 소제목 바로 앞 주차의 연결선은 갈 곳이 없다 — 다음 원이 아니라 글자로 이어진다 */
+.dash-dlg li:has(+ .plan-stage)::before { content: none; }
+
 .dash-plan ol {
     margin: 26px 0 0;
     padding: 0;
@@ -463,8 +498,8 @@
 }
 
 /* 번호 원도 칩과 같은 3단계 상태를 갖는다 (Figma 실측색) */
+/* 상태는 완료 / 미완료 둘뿐이다 — '진행중'(.no-now / .chip-now)은 2026-08-10 에 뺐다 */
 .no-done { background: var(--kd-primary-active); color: #fff; }
-.no-now  { background: #fff; border: 2px solid var(--kd-primary); color: var(--kd-primary); }
 .no-soon { background: var(--kd-border); color: #a8b4ad; }
 
 .dash-plan li:not(:last-child)::before {
@@ -496,8 +531,7 @@
 }
 
 .chip-done { background: #e3f6ec; color: #1f5c40; }
-.chip-now  { background: #fff6ea; color: #268254; }
-.chip-soon { background: #fff; color: #a8b4ad; }   /* 카드가 회록이라 예정 칩만 흰색 */
+.chip-soon { background: #fff; color: #a8b4ad; }   /* 카드가 회록이라 미완료 칩만 흰색 */
 
 .dash-plan .foot {
     margin: 30px 0 0;
@@ -528,16 +562,6 @@
     border: 1px solid var(--kd-border);
     border-radius: 16px;
     overflow: hidden;
-}
-
-/* 오른쪽 여백에 캐릭터 — 카드 아래에 발을 붙인다 */
-.dash-today .ch {
-    position: absolute;
-    right: 28px;
-    bottom: 0;
-    width: 116px;
-    object-fit: contain;
-    pointer-events: none;
 }
 
 .dash-today h2 {
@@ -808,7 +832,8 @@
     padding: 0 40px;
 }
 
-.learn-daily  { width: 657.6px; flex: none; }
+/* 안내문을 뺀 뒤 왼쪽이 74px 짧아졌다 — 카드가 남는 높이를 먹어 오른쪽 표와 밑단을 맞춘다 */
+.learn-daily  { width: 657.6px; flex: none; display: flex; flex-direction: column; }
 .learn-recent { width: 438.4px; flex: none; }
 
 /* 섹션 제목 + 아래 구분선 — 두 열이 같은 기준선을 쓴다 */
@@ -866,6 +891,7 @@
 .learn-entry {
     margin-top: 19px;
     height: 237px;
+    flex: 1;        /* 237 은 최소치 — 오른쪽 표가 길면 그만큼 늘어난다 */
     padding: 23px 24px;
     box-sizing: border-box;
     display: flex;
@@ -986,13 +1012,6 @@
     .learn-entry-done:not([hidden]) .row { animation: none; }
 }
 
-.learn-note {
-    margin: 12px 0 0;
-    font-size: 12px;
-    line-height: 18px;
-    color: var(--kd-text-sub);
-}
-
 
 
 /* --- 최근 학습 기록 표 --- */
@@ -1041,7 +1060,7 @@
     overflow: hidden;
 }
 
-/* 상태 칩 3종 — 완료 / 다른 방식 선택 / 이어서 하기 (Figma 개선판 실측색) */
+/* 상태 칩 2종 — 완료 / 미완료 (Figma 개선판 실측색) */
 .learn-recent .chip {
     display: inline-flex;
     align-items: center;
@@ -1055,7 +1074,6 @@
     white-space: nowrap;
 }
 
-.learn-recent .chip-alt  { background: #d7eee3; color: var(--kd-primary-strong); }
 .learn-recent .chip-cont { background: #f1f5f2; color: var(--kd-text-sub); }
 
 /* --- 스토리 학습 흐름 5단계 --- */
@@ -1415,7 +1433,7 @@ html[data-kd-stage="0"] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }
 /* --- 0단계 빈 화면 채우기 (2026-08-10 "너무 휑하다") ------------------------- */
 /* '오늘의 추천 학습'만 숨기므로 '연속 이용'이 한 줄을 다 쓴다 */
 html[data-kd-stage="0"] .dash-streak { width: 100%; }
-/* 빈 안내 카드에도 캐릭터를 얹는다 — dash-today 와 같은 처리 */
+/* 빈 안내 카드에는 캐릭터를 얹는다 (추천학습 카드 쪽은 2026-08-10 지적으로 삭제) */
 .dash-chart { position: relative; overflow: hidden; }
 .dash-chart > .ch {
     position: absolute;
@@ -1445,4 +1463,39 @@ html[data-kd-stage="0"] .dash-streak { width: 100%; }
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   이야기로 들어가기 — 학습 홈 → /story/scene
+   보호자 앱(사이드바·흰 배경)에서 아이 화면(전체화면·수채 배경)으로 넘어가는 자리라
+   그냥 갈리면 다른 앱이 열린 것처럼 보인다. 두 화면에 같은 토리가 있는 걸 이용해
+   배너 속 토리가 그대로 커지며 이야기 화면 자리로 날아가게 한다(learn/index.jsp 가 태운다).
+
+   ⚠ View Transitions 를 쓰지 않는 이유: 그건 문서 단위 스위치라 학습 홈·이야기 화면에서
+     나가는 모든 이동에 걸린다. 여기는 이 한 경로만 필요하다.
+   ⚠ 배너 토리는 .learn-hero .art(overflow:hidden) 안에 있어 그대로 키우면 잘린다
+     → 같은 자리에 복제본을 띄워 그걸 날린다.
+   ========================================================================== */
+.kd-enter-veil {
+    position: fixed;
+    inset: 0;
+    z-index: 9000;
+    background: #fff;
+    opacity: 0;
+    transition: opacity 0.42s ease;
+    pointer-events: none;
+}
+
+.kd-enter-ch {
+    position: fixed;
+    z-index: 9001;
+    transition: transform 0.46s cubic-bezier(0.5, 0, 0.2, 1);
+    will-change: transform;
+    pointer-events: none;
+}
+
+/* 목적지 좌표·배율은 learn/index.jsp 가 재서 --kd-enter-* 로 넣어 준다 */
+.kd-entering .kd-enter-veil { opacity: 1; }
+.kd-entering .kd-enter-ch {
+    transform: translate(var(--kd-enter-dx), var(--kd-enter-dy)) scale(var(--kd-enter-s));
 }

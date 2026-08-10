@@ -6,7 +6,6 @@
      주간 집계는 백엔드에서 내려줄 값이라 화면 골격만 만들어 둔다. --%>
 <div class="app-head">
     <h1><span data-kd="childCall">지우</span>의 이번 주</h1>
-    <p>로드맵: 맞춤 (1순위 · 감정 표현)</p>
 </div>
 
 <div class="dash-kpis kd-has-data">
@@ -44,12 +43,13 @@
         <img class="ch" data-kd-char="wave" src="/img/char-tori-wave.png" alt="">
     </div>
 
-    <%-- 1단계 — 한 번 해 봤지만 지수를 내기엔 이르다. 다음 행동을 딱 하나만 가리킨다 --%>
+    <%-- 1단계 — 일상 기록만 남긴 상태(이야기는 아직). 다음 행동을 딱 하나만 가리킨다.
+         2026-08-10: 이야기를 한 편이라도 마치면 곧바로 2단계로 가므로 여기는 '학습 전' 이다 --%>
     <div class="dash-chart kd-s1">
         <div class="kd-empty">
             <span class="ic kd-empty-ic-seed"></span>
-            <p class="t">첫 이야기를 마쳤어요</p>
-            <p class="d">이번 주 <b>1 / 3회</b> · 세 번을 채우면 감정 이해 · 표현 · 사회성 지수가 처음 계산돼요</p>
+            <p class="t">오늘 기록을 남겼어요</p>
+            <p class="d">이야기를 <b>한 편</b> 마치면 감정 이해 · 표현 · 사회성 지수가 계산돼요</p>
             <%-- 버튼을 두지 않는다 — 바로 아래 '오늘의 추천 학습' 에 같은 [학습 시작하기] 가 있어 겹친다.
                  CTA 는 화면당 하나로 (0단계에서 하단 카드를 통째로 숨긴 것도 같은 이유). --%>
         </div>
@@ -98,9 +98,9 @@
             <h2>주차별 로드맵</h2>
             <button type="button" class="lk" onclick="dlgRoadmap.showModal()">전체 보기</button>
         </div>
-        <%-- 목록·하단 문구는 kd-roadmap.js 가 localStorage.kdPlan 을 읽어 채운다.
-             보호자가 마이페이지 > 학습 로드맵에서 고친 결과가 그대로 반영된다.
-             JSP 에 12주를 또 박아 두면 두 벌 관리가 되므로 프리셋은 JS 한 곳에만 있다. --%>
+        <%-- 목록·하단 문구는 kd-roadmap.js 가 채운다. 커리큘럼은 그 파일 한 곳에만 있다.
+             2026-08-10: 로드맵을 고르고 고치던 화면 두 개(온보딩 선택 · 마이페이지 탭)를
+             삭제해서 이제 커리큘럼은 고정 1벌이다 — 보호자가 바꿀 경로가 없다. --%>
         <ol id="dashPlanList"></ol>
         <p class="foot" id="dashPlanFoot"></p>
     </section>
@@ -110,13 +110,10 @@
      그랬더니 화면이 너무 휑했다(2026-08-10 지적) → **겹치는 CTA 가 있는 '오늘의 추천 학습' 만**
      숨기고 '연속 이용' 은 0단계에도 보인다. 그쪽은 0단계 문구를 원래 갖고 있었다. --%>
 <div class="dash-bottom">
-    <%-- 카드 오른쪽이 휑하다는 지적(2026-08-09)으로 캐릭터를 얹었다.
-         지우가 고른 캐릭터라 백엔드 연동 시 선택값으로 바꿀 것. --%>
     <section class="dash-today kd-hide0">
         <h2>오늘의 추천 학습</h2>
         <p>이야기 1편 + 표정 미션 1회</p>
         <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
-        <img class="ch" data-kd-char="neutral" src="/img/char-tori-neutral.png" alt="">
     </section>
 
     <section class="dash-streak">

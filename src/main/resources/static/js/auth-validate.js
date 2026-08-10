@@ -489,31 +489,10 @@
     /* ---------- 온보딩 완료: 앞 단계 입력값 채우기 ----------
        JSP 에 적힌 값은 Figma 예시다. 보관된 값이 있을 때만 덮어쓴다
        — 주소로 바로 들어와도 화면이 비지 않는다 */
-    function ageOf(y, m, d) {
-        var t = new Date(), age = t.getFullYear() - y;
-        /* 만 나이 — 올해 생일이 아직 안 지났으면 한 살 뺀다 */
-        if (t.getMonth() + 1 < m || (t.getMonth() + 1 === m && t.getDate() < d)) age -= 1;
-        return age;
-    }
-
-    /* 부제는 아이를 부르는 말투로 — '박성현에게' 보다 '성현이에게'.
-       성을 떼고, 받침이 있으면 '이' 를 붙인다(성현이 / 지우).
-       표의 '아이 이름' 칸은 기록이라 적어 준 이름 그대로 둔다 */
-    var SURNAME2 = ['남궁', '황보', '제갈', '사공', '선우', '서문', '독고', '동방'];
-
-    function givenName(full) {
-        var n = (full || '').trim();
-        /* 두 글자 이하는 이미 이름만 적은 것으로 본다 (입력칸 안내도 '아이가 부르는 이름') */
-        if (n.length < 3) return n;
-        return SURNAME2.indexOf(n.slice(0, 2)) !== -1 ? n.slice(2) : n.slice(1);
-    }
-
-    function callName(full) {
-        var n = givenName(full);
-        /* 한글 음절은 (코드 - 가) % 28 이 0 이 아니면 받침이 있다. 한글이 아니면 안 붙인다 */
-        var i = n.charCodeAt(n.length - 1) - 0xAC00;
-        return n + (i >= 0 && i < 11172 && i % 28 !== 0 ? '이' : '');
-    }
+    /* 만 나이·부르는 말투('박성현' → '성현이')는 head.jsp 의 선행 스크립트가 주인이다.
+       화면의 이름을 첫 페인트 전에 채워야 해서 그쪽으로 옮겼다(깜빡임, 2026-08-10). */
+    var ageOf = window.kdName.age;
+    var callName = window.kdName.call;
 
     /* 캐릭터 키 + 포즈 -> 이미지 경로. 6명 × 12포즈 = 72장이 전부 이 한 규칙을 따른다
        (neutral surprise angry sad happy sleepy hurt wave celebrate sorry comfort proud).
@@ -610,22 +589,9 @@
 
         if (!v.name) return;
 
-        var age = v.birthY ? ageOf(v.birthY, v.birthM, v.birthD) : null;
-
-        document.querySelectorAll('[data-kd="childName"]').forEach(function (el) {
-            el.textContent = v.name;
-        });
-        document.querySelectorAll('[data-kd="childNameAge"]').forEach(function (el) {
-            el.textContent = v.name + (age === null ? '' : ' · ' + age + '세');
-        });
-        /* 소유격·호칭 자리는 부르는 말투로 — '박민준의 성장 리포트' 가 아니라 '민준이의 성장 리포트'.
-           본명 그대로 둬야 하는 곳(사이드바·아동 프로필 이름)은 childName / childNameAge 를 쓴다 */
-        document.querySelectorAll('[data-kd="childCall"]').forEach(function (el) {
-            el.textContent = callName(v.name);
-        });
-        document.querySelectorAll('[data-kd="childAge"]').forEach(function (el) {
-            if (age !== null) el.textContent = age;
-        });
+        /* 화면에 보이는 이름·나이(data-kd="childName|childNameAge|childCall|childAge")는
+           head.jsp 선행 스크립트가 파싱 즉시 채운다 — 여기서 또 채우면 깜빡임이 돌아온다.
+           여기 남은 건 폼 입력값처럼 첫 페인트와 상관없는 것들뿐이다. */
 
         /* 마이페이지 아동 프로필 폼 — 이 화면에서만. 온보딩 입력 화면과 id 가 같아서 가드가 필요하다.
            select 값은 onb-select.js 가 드롭다운을 만들기 전에 넣어야 버튼 글씨까지 따라온다
@@ -661,13 +627,6 @@
     /* 치환이 끝났으니 이름을 드러낸다 — 그 전에는 CSS 가 감춰 둔다(위 kd-named 규칙).
        kdOnb 가 비어 조기 return 한 경우에도 여기까지는 오므로 예시값이 그대로 보인다. */
     document.documentElement.classList.add('kd-named');
-
-    /* 리포트 5탭 부제 — 관찰 데이터가 0인데 '관찰 8주차'가 남아 있으면 안 된다.
-       탭마다 같은 문장이라 JSP 5개를 고치는 대신 여기서 한 번에 바꾼다. */
-    if (document.documentElement.dataset.kdStage !== '2') {
-        var rptSub = document.querySelector('.rpt-head p');
-        if (rptSub) rptSub.textContent = '관찰 시작 전 · 첫 주 학습을 마치면 리포트가 만들어져요';
-    }
 
     /* ---------- 실시간 오류 해제 — 오류가 떠 있는 필드만 입력 시 재검증 ---------- */
     function notBlank(el) { return !!el.value.trim(); }
