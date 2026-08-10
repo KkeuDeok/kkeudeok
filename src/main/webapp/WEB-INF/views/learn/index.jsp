@@ -170,6 +170,9 @@
         var emo = document.querySelector('#dailyEmos input:checked');
         var text = document.getElementById('dailyText');
         var memo = text.value.trim() || text.placeholder;
+        /* 요약 한 줄에 통째로 붙이던 탓에 길게 쓰면 카드가 늘어지고 글이 흘러넘쳤다
+           (2026-08-10 지적). 여기서는 앞부분만 보여 준다 — 원문은 모달에 그대로 남아 있다. */
+        if (memo.length > 40) memo = memo.slice(0, 40).trim() + '…';
 
         document.getElementById('dailySummary').textContent =
             chip.value + ' · ' + emo.value + ' · "' + memo + '"';
@@ -184,7 +187,8 @@
         dlgDaily.close();
 
         /* 실제로 기록을 남겼으면 '아무것도 없음(0)' 은 더 이상 맞지 않다 -> 1단계로 올린다.
-           스토리 화면이 미완이라 '이야기 완료 -> 2단계' 트리거는 아직 붙일 곳이 없다. */
+           이야기를 끝까지 마치면 story.js 가 localStorage.kdDone 을 올려 3회에 2단계가 된다
+           (2026-08-10 추가). 여기 sessionStorage.kdStage 는 그 전까지의 임시 승격이다. */
         if (document.documentElement.dataset.kdStage === '0') {
             try { sessionStorage.setItem('kdStage', '1'); } catch (e) { }
             document.documentElement.dataset.kdStage = '1';
