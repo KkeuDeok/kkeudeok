@@ -49,6 +49,8 @@
                 <span class="onb-pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
             </div>
             <p class="kd-hint" id="newPinHint">본인 확인을 마치면 입력할 수 있어요</p>
+            <%-- 자릿수 오류가 붙을 자리. 없으면 '새 PIN 확인' 칸으로 밀려나 엉뚱한 곳이 빨개진다 --%>
+            <p class="kd-error" id="newPinError" hidden></p>
         </div>
 
         <div class="kd-field">
@@ -154,18 +156,51 @@
     function kdPinResetSubmit(e) {
         e.preventDefault();
         var a = $k('newPin'), b = $k('newPinCheck');
-        var hint = $k('resetHint'), error = $k('resetError');
 
-        function fail(msg) {
-            hint.hidden = true;
-            error.hidden = false;
-            error.textContent = msg;
-            b.classList.add('kd-input--error');
+        /* 오류는 그 오류가 난 칸에 붙인다.
+           ⚠ 전에는 무슨 오류든 '새 PIN 확인' 칸(resetError)에 몰아 넣어서,
+             본인 확인을 안 했을 때도 엉뚱하게 마지막 칸이 빨개지고
+             "이메일 본인 확인을 먼저 해 주세요" 가 거기 떴다(2026-08-10 지적). */
+        function fail(input, errEl, hintEl, msg) {
+            if (hintEl) hintEl.hidden = true;
+            errEl.hidden = false;
+            errEl.textContent = msg;
+            if (input) { input.classList.add('kd-input--error'); input.focus(); }
         }
 
-        if (!kdCodeVerified) { fail('이메일 본인 확인을 먼저 해 주세요'); return false; }
-        if (!/^\d{4}$/.test(a.value)) { fail('새 PIN 을 숫자 4자리로 입력해 주세요'); return false; }
-        if (a.value !== b.value) { fail('PIN 이 일치하지 않습니다'); return false; }
+        /* 누른 순간 앞선 오류 표시는 전부 지운다 — 안 지우면 고친 칸이 계속 빨갛다 */
+        ['resetCodeError', 'newPinError', 'resetError'].forEach(function (id) { $k(id).hidden = true; });
+        ['resetHint', 'newPinHint'].forEach(function (id) { $k(id).hidden = false; });
+        [$k('resetCode'), a, b].forEach(function (el) { el.classList.remove('kd-input--error'); });
+
+        /* 본인 확인 전 — 인증번호 칸이 떠 있으면 거기에, 아직이면 [인증번호 전송] 버튼에 붙인다.
+           .onb-pin-box 클릭 안내(위)와 같은 판단이라 문구도 맞춰 둔다. */
+        if (!kdCodeVerified) {
+            if ($k('resetCodeField').classList.contains('is-hidden')) {
+                var btn = document.querySelector('.mp-gate .kd-btn-pill');
+                $k('resetMailHint').textContent = '[인증번호 전송]을 눌러 본인 확인을 먼저 해 주세요';
+                btn.classList.add('kd-input--error');
+                btn.focus();
+                setTimeout(function () {
+                    btn.classList.remove('kd-input--error');
+                    $k('resetMailHint').textContent = '가입할 때 등록한 이메일이에요';
+                }, 2400);
+            } else {
+                fail($k('resetCode'), $k('resetCodeError'), $k('resetCodeHint'),
+                     '메일로 받은 인증번호 6자리를 먼저 입력해 주세요');
+            }
+            return false;
+        }
+
+        /* 자릿수는 '새 PIN' 칸의 문제다 — 확인 칸에 붙이면 엉뚱한 곳이 빨개진다 */
+        if (!/^\d{4}$/.test(a.value)) {
+            fail(a, $k('newPinError'), $k('newPinHint'), '새 PIN 을 숫자 4자리로 입력해 주세요');
+            return false;
+        }
+        if (a.value !== b.value) {
+            fail(b, $k('resetError'), $k('resetHint'), 'PIN 이 일치하지 않습니다');
+            return false;
+        }
 
         /* 데모 — 백엔드가 붙으면 POST 로 바꾼다.
            바꾼 PIN 을 저장하지 않으면 게이트가 계속 옛 값만 받아 "바꿨는데 안 들어가진다"가 된다.
