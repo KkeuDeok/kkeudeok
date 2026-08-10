@@ -362,21 +362,22 @@
    ⚠ 박스만 키우는 방식(255)은 회상 문구에 딱 붙어 버린다 — 그래서 안 쓴다. */
 .feel-art {
     position: absolute;
-    left: 380px;            /* (1000 − 240) / 2 */
-    top: 6px;
-    width: 240px;
-    height: 240px;
-    overflow: hidden;       /* 확대해 삐져나온 가슴 아래를 자른다 */
+    left: 374px;            /* (1000 - 252) / 2 */
+    top: 2px;
+    width: 252px;
+    height: 252px;
+
 }
 
-/* 박스보다 크게 그린 뒤 위쪽을 기준으로 맞춘다 — 머리가 잘리면 안 된다.
-   가로 margin 은 (145 − 100) / 2 로 가운데를 잡는다. */
+/* ⚠ 예전엔 240 박스에 그림을 145% 로 키워 넣었다. 얼굴은 커졌지만 **목에서 몸이 잘려**
+   얼굴만 떠 있었다(2026-08-10 지적 "상체가 다 나오게"). 확대를 걷고 캔버스 전체를 보여 준다.
+   252 는 아래 회상 문구(259)까지의 자리를 다 쓴 값이다 — 여기가 이 화면의 천장이다. */
 .feel-art img {
-    width: 145%;
-    height: 145%;
-    margin-left: -22.5%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    object-position: top;
+
+
 }
 
 .feel-recap,
@@ -753,10 +754,15 @@
     color: var(--kd-text);
 }
 
+/* 두 문장이 이어져 '어떤 마음일' / '까?' 로 단어 중간이 끊겼다(2026-08-10 지적).
+   keep-all 로 어절을 지키고, 문장마다 줄을 나눠 읽기 좋게 한다. */
+.story-modal .clue > span { display: block; }
 .story-modal .clue {
     position: absolute;
     left: 25px;
     top: 232px;
+    word-break: keep-all;
+    flex-direction: column;
     box-sizing: border-box;
     width: 510px;
     height: 52px;

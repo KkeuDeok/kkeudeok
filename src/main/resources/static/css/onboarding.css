@@ -1211,10 +1211,9 @@
 .onb-char img {
     display: block;
     width: 240px;
-    height: 200px;
-    margin: 16px auto 0;
-    object-fit: cover;
-    object-position: center 60%;
+    height: 240px;
+    margin: 8px auto 0;
+    object-fit: contain;    /* cover 로 자르면 코코 올림머리가 날아간다(마이페이지와 같은 이유) */
 }
 
 .onb-char .nm {

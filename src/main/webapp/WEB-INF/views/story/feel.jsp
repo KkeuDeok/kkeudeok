@@ -52,7 +52,7 @@
             <%-- 오답 모달은 3벌 공통으로 미안해하는 표정을 쓴다 --%>
             <img data-kd-char="sorry" src="/img/char-tori-sorry.png" alt="">
             <p class="say">"음... 내 마음은 조금 다른 것 같아"</p>
-            <p class="clue"><%= trait %> <%= clue %></p>
+            <p class="clue"><span><%= trait %></span><span><%= clue %></span></p>
             <p class="more">가까워지고 있어! 조금만 더 살펴보자.</p>
         </div>
         <div class="ft">

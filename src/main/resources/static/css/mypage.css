@@ -494,11 +494,13 @@
    6명 모두 같은 자리에서 잘린다. contain 이면 그 여백까지 들어와 작아 보인다. */
 .mp-char-view .big {
     display: block;
+    /* ⚠ cover + center 60% 는 위를 잘라 코코 올림머리가 날아갔고, 잘리는 양이 머리숱마다
+       달라 캐릭터를 바꿀 때 위아래로 튀었다(2026-08-10 지적). contain 으로 캔버스 전체를 본다.
+       얼굴 높이는 자산에서 33.7% 로 맞춰 놨으므로 이래도 눈높이는 안 흔들린다. */
     width: 360px;
-    height: 300px;
+    height: 360px;
     margin: 0 auto;
-    object-fit: cover;
-    object-position: center 60%;
+    object-fit: contain;
 }
 
 .mp-char-view .nm {
@@ -537,7 +539,7 @@
 
 .mp-chars label {
     position: relative;
-    height: 226px;
+    height: 250px;
     box-sizing: border-box;
     padding-top: 21px;
     background: #fff;
@@ -551,8 +553,7 @@
 
 /* ⚠ object-position 은 반드시 top. 60% 로 두면 위를 10% 잘라 **코코 올림머리(실루엣 8.6%)가
    잘렸다**(2026-08-10 지적). top 이면 위는 한 톨도 안 자르고 남는 만큼 아래에서만 덜어 낸다. */
-.mp-chars img { display: block; width: 194px; height: 172px; margin: 0 auto;
-                object-fit: cover; object-position: center top; }
+.mp-chars img { display: block; width: 194px; height: 194px; margin: 0 auto; object-fit: contain; }
 
 .mp-chars .nm {
     display: block;
