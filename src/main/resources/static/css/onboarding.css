@@ -1192,6 +1192,7 @@
     border-radius: 20px;
     text-align: center;
     cursor: pointer;
+    overflow: hidden;       /* 위로 끌어올린 그림의 빈 여백을 걷어 낸다 */
 }
 
 /* 테두리가 1→2px 로 바뀌어도 box-sizing: border-box 라 카드 크기는 그대로다 */
@@ -1210,10 +1211,12 @@
    얼굴이 33.7% 에 고정돼 있어 6명 모두 같은 자리에서 잘린다. */
 .onb-char img {
     display: block;
-    width: 240px;
-    height: 240px;
-    margin: 8px auto 0;
-    object-fit: contain;    /* cover 로 자르면 코코 올림머리가 날아간다(마이페이지와 같은 이유) */
+    /* 위 빈 여백 8% 만 잘라 올려 그만큼 크게 — 261 − 21 = 240 이라 자리는 그대로다.
+       cover 로 자르면 코코 올림머리가 날아간다(마이페이지와 같은 이유) → contain 유지. */
+    width: 261px;
+    height: 261px;
+    margin: -13px auto 0;
+    object-fit: contain;
 }
 
 .onb-char .nm {

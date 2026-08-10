@@ -41,7 +41,7 @@
 <div class="why-cards">
     <%-- 왼쪽이 정답(원인), 오른쪽이 오답. Figma 도 이 순서다.
          오답을 누르면 학습2 와 똑같이 오답 모달로 되돌아온다(라우트가 아니라 ?wrong= 상태). --%>
-    <a class="why-card<%= "cause".equals(whyPick) ? " is-pick" : "" %>" href="/story/face?emo=<%= emo %>">
+    <a class="why-card<%= "cause".equals(whyPick) ? " is-pick" : "" %>" data-right href="/story/face?emo=<%= emo %>">
         <img class="ic" data-kd-char="<%= whyCause[2] %>" src="/img/char-tori-<%= whyCause[2] %>.png" alt="">
         <p class="nm"><%= whyCause[1] %></p>
         <span class="spk" aria-hidden="true"></span>

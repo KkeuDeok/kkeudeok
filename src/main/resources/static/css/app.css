@@ -1392,11 +1392,18 @@ html[data-kd-stage="0"] .dash-row { min-height: 620px; }
 html[data-kd-stage="0"] .dash-plan { height: auto; margin-top: 0; padding-bottom: 22px; }   /* 위 끝도 왼쪽 카드와 맞춘다 */
 
 /* 1단계는 KPI 3장만 빠져 그만큼 아래가 비었다 — 차트 자리를 늘려 2단계와 같은 바닥(971)에서 끝낸다 */
-html[data-kd-stage="1"] .dash-row { min-height: 500px; }
+/* 2026-08-10 "카드가 안 맞고 / 밑으로 내려서 더 길고 크게" — 500 → 560,
+   로드맵도 0단계처럼 늘여 위·아래 끝을 맞춘다(줄 수는 kd-roadmap.js 가 7줄로 채운다). */
+html[data-kd-stage="1"] .dash-row  { min-height: 560px; }
+html[data-kd-stage="1"] .dash-plan { height: auto; margin-top: 0; padding-bottom: 22px; }
 
 /* 빈 카드는 옆 로드맵 카드와 같은 높이로 늘어나야 한다 */
-.dash-chart.kd-no-data { display: flex; }
-.dash-chart.kd-no-data .kd-empty { flex: 1; }
+/* 빈 안내 카드가 행 높이를 그대로 채우게 — 안 그러면 카드는 큰데 안내만 위에 붙어
+   아래가 텅 빈다. 1단계(kd-s1)에도 같은 규칙이 필요하다(2026-08-10 지적). */
+.dash-chart.kd-no-data,
+.dash-chart.kd-s1 { display: flex; }
+.dash-chart.kd-no-data .kd-empty,
+.dash-chart.kd-s1 .kd-empty { flex: 1; }
 
 /* 최근 학습 기록이 0건일 때 — 표 대신 들어간 빈 카드가 왼쪽 일상 카드와 아래 선을 맞추도록 늘린다 */
 html[data-kd-stage="0"] .learn-recent,
@@ -1418,3 +1425,12 @@ html[data-kd-stage="0"] .dash-streak { width: 100%; }
     object-fit: contain;
     pointer-events: none;
 }
+
+
+/* 대시보드 빈 카드 안 글자 — 카드가 660×560 인데 17/14px 이라 너무 작았다(2026-08-10 지적).
+   .kd-empty 공용 크기는 리포트·학습홈에서도 쓰므로 여기서만 키운다. */
+.dash-chart .kd-empty .t { font-size: 22px; line-height: 33px; }
+.dash-chart .kd-empty .d { font-size: 16px; line-height: 25px; max-width: 520px;
+                            text-wrap: balance; }  /* 마지막 줄에 한 낱말만 남는 걸 막는다 */
+.dash-chart .kd-empty .ic { transform: scale(1.25); }
+.dash-chart .kd-empty .kd-btn { width: 240px; height: 50px; font-size: 16px; margin-top: 18px; }

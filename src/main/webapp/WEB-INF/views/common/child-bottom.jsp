@@ -11,10 +11,16 @@
             <div class="child-foot">
                 <div class="side">
                     <% if (camStep) {
-                           /* TODO: '하기 싫어' 목적지는 기획 미정. 지금은 다음 단계로 건너뛴다 */
-                           String skipTo = "face".equals(storyStep) ? "/story/situation" : "/story/result";
+                           /* 표정은 아직 흐름 중간이라 다음 단계(상황 선택)로 건너뛴다.
+                              행동은 마지막 단계다 — 예전엔 칭찬으로 직행해 **안 했는데 칭찬을 받았다**.
+                              (2026-08-10 사용자 확정) 확인을 물어보고 학습을 끝낸다. */
+                           boolean isFace = "face".equals(storyStep);
                     %>
-                    <a class="kd-skip" href="<%= skipTo %>?emo=<%= emo %>">이 <%= "face".equals(storyStep) ? "표정" : "동작" %>은 하기 싫어</a>
+                    <% if (isFace) { %>
+                    <a class="kd-skip" href="/story/situation?emo=<%= emo %>">이 표정은 하기 싫어</a>
+                    <% } else { %>
+                    <button type="button" class="kd-skip" data-ask>이 동작은 하기 싫어</button>
+                    <% } %>
                     <% } else { %>
                     <%-- TODO: 이야기 음성 재생은 백엔드/TTS 붙을 때 동작을 넣는다 --%>
                     <button type="button" class="kd-sub kd-sub-listen">다시 들려줘</button>
@@ -28,17 +34,31 @@
                     <% } %>
                 </div>
                 <div class="side">
-                    <%-- TODO: 종료 확인 팝업(Figma 237:402 안에 겹쳐 그려져 있음) 미구현 --%>
-                    <button type="button" class="kd-later">다음에 할래</button>
+                    <%-- 누르면 확인 팝업(.story-quit) 을 연다 — 아이가 실수로 눌러 학습이
+                         통째로 끝나면 안 된다. 예전엔 핸들러가 없어 아무 반응이 없었다. --%>
+                    <button type="button" class="kd-later" data-ask>다음에 할래</button>
                     <% if (!storyCount.isEmpty()) { %>
                     <p class="child-count"><%= storyCount %></p>
                     <% } %>
+                </div>
+            </div>
+
+            <%-- 학습을 끝낼지 물어보는 공통 팝업. [다음에 할래]·[이 동작은 하기 싫어] 가 연다.
+                 기본은 '더 할래' 에 초점이 가게 두 버튼 순서를 잡았다 — 실수로 끝나면 안 된다. --%>
+            <div class="story-quit" hidden role="dialog" aria-modal="true" aria-labelledby="askTitle">
+                <div class="box">
+                    <p class="t" id="askTitle">오늘은 여기까지 할까?</p>
+                    <p class="d">지금까지 한 건 남아 있어요. 다음에 이어서 하면 돼요.</p>
+                    <div class="ft">
+                        <button type="button" class="no" data-ask-no>더 할래</button>
+                        <a class="yes" href="/dashboard">그만할래</a>
+                    </div>
                 </div>
             </div>
 <% } %>
         </main>
     </div>
 </div>
-<script src="/js/story.js?v=146"></script>
+<script src="/js/story.js?v=173"></script>
 </body>
 </html>

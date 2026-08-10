@@ -486,7 +486,7 @@
 .mp-char { display: flex; gap: 34px; }   /* 카드를 넓히려고 64 → 34 */
 
 /* flex column 인 이유: 아래 .kd-field 의 margin-top:auto 를 쓰려고. */
-.mp-char-view { width: 470px; flex: none; text-align: center; display: flex; flex-direction: column; }
+.mp-char-view { width: 470px; flex: none; text-align: center; display: flex; flex-direction: column; overflow: hidden; }
 
 /* 아이콘이 정사각(512)이라 박스도 정사각으로 둔다.
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
@@ -497,9 +497,9 @@
     /* ⚠ cover + center 60% 는 위를 잘라 코코 올림머리가 날아갔고, 잘리는 양이 머리숱마다
        달라 캐릭터를 바꿀 때 위아래로 튀었다(2026-08-10 지적). contain 으로 캔버스 전체를 본다.
        얼굴 높이는 자산에서 33.7% 로 맞춰 놨으므로 이래도 눈높이는 안 흔들린다. */
-    width: 360px;
-    height: 360px;
-    margin: 0 auto;
+    width: 391px;           /* 위 빈 여백 8% 를 잘라 올린 만큼 크게 — 391 − 31 = 360 */
+    height: 391px;
+    margin: -31px auto 0;
     object-fit: contain;
 }
 
@@ -540,6 +540,7 @@
 .mp-chars label {
     position: relative;
     height: 250px;
+    overflow: hidden;   /* 위로 끌어올린 그림의 빈 여백을 걷어 낸다 */
     box-sizing: border-box;
     padding-top: 21px;
     background: #fff;
@@ -553,7 +554,10 @@
 
 /* ⚠ object-position 은 반드시 top. 60% 로 두면 위를 10% 잘라 **코코 올림머리(실루엣 8.6%)가
    잘렸다**(2026-08-10 지적). top 이면 위는 한 톨도 안 자르고 남는 만큼 아래에서만 덜어 낸다. */
-.mp-chars img { display: block; width: 194px; height: 194px; margin: 0 auto; object-fit: contain; }
+/* 2026-08-10 "위에가 조금 비는 느낌" — 캔버스 위쪽이 neutral 기준 최소 8.6% 비어 있다.
+   그 8% 만큼 위로 끌어올려 잘라 내고 그만큼 크게 그린다. 211 − 17 = 194 라 **자리는 그대로**고,
+   잘리는 건 빈 여백뿐이라 머리는 안 잘린다(라벨의 overflow 가 걷어 낸다). */
+.mp-chars img { display: block; width: 211px; height: 211px; margin: -17px auto 0; object-fit: contain; }
 
 .mp-chars .nm {
     display: block;

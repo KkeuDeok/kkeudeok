@@ -91,8 +91,10 @@
         var on = p.weeks.filter(function (w) { return w.on; });
 
         /* 카드에는 진행 중 주차 앞뒤로 잘라서 보여 준다.
-           0단계는 아래 카드행이 통째로 빠져 카드가 커지므로 8줄로 채운다 */
-        var n = stage() === 0 ? 8 : 4;
+           줄 수는 **옆 카드 높이에 맞춰** 정한다 — 짧으면 로드맵 카드만 작아져 나란히 안 맞는다
+           (2026-08-10 지적: 1단계에서 왼쪽 500 / 로드맵 346 으로 어긋나 있었다).
+           0단계 8줄(620) · 1단계 7줄(560) · 2단계는 위에 지표행이 있어 4줄(346). */
+        var n = stage() === 0 ? 8 : (stage() === 1 ? 7 : 4);
         var start = cur === 0 ? 0 : Math.max(0, Math.min(cur - 3, on.length - n));
         short.textContent = '';
         on.slice(start, start + n).forEach(function (w, i) {

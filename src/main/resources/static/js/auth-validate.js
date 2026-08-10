@@ -557,6 +557,9 @@
     }
 
     renderChar();
+    /* 교체가 끝났으니 그림을 드러낸다 — 그 전에는 CSS 가 감춰 둔다(kd-char-ready 규칙).
+       renderChar 안에서 조기 return 하는 경우에도 여기까지는 오므로 기본 그림이 보인다. */
+    document.documentElement.classList.add('kd-char-ready');
 
     /* 마이페이지 캐릭터 관리 [저장] — 이게 없으면 골라도 저장이 안 돼
        스토리 화면에 반영되지 않는다(토스트만 뜨고 있었다). */

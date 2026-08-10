@@ -45,7 +45,7 @@
                                 : "/story/feel?emo=" + emo + "&wrong=" + card[0];
             String cls = "feel-card is-" + card[0] + (card[0].equals(feelPick) ? " is-pick" : "");
     %>
-    <a class="<%= cls %>"<%= right ? "" : " data-wrong=\"" + card[0] + "\"" %> href="<%= href %>">
+    <a class="<%= cls %>"<%= right ? " data-right" : " data-wrong=\"" + card[0] + "\"" %> href="<%= href %>">
         <img class="ic" data-kd-char="<%= card[0] %>" src="/img/char-tori-<%= card[0] %>.png" alt="">
         <p class="nm"><%= card[1] %></p>
         <p class="ds"><%= card[2] %></p>

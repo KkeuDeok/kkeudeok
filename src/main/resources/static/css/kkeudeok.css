@@ -277,3 +277,9 @@ html.kd-named [data-kd="childCall"],
 html.kd-named [data-kd="childName"],
 html.kd-named [data-kd="childNameAge"],
 html.kd-named [data-kd="childAge"] { visibility: visible; }
+
+/* 캐릭터 그림도 이름과 같은 문제였다. JSP 는 기본값으로 토리를 박아 두고 renderChar() 가
+   로드 뒤 src 를 고른 친구로 바꾼다 → 토리가 먼저 그려졌다가 바뀌어 **잔상**처럼 보였다
+   (2026-08-10 지적, 실측으로 토리 5장이 실제로 내려받아져 그려지는 걸 확인). 교체 뒤 드러낸다. */
+[data-kd-char]                          { visibility: hidden; }
+html.kd-char-ready [data-kd-char]       { visibility: visible; }
