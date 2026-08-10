@@ -28,8 +28,6 @@
         '스스로 돌아보기'                                               /* 자기 평가 */
     ];
 
-    var FOCUS = '감정 표현';        /* 모달 첫 줄의 '1순위 목표' */
-
     /* 주차(0부터)가 속한 단계 이름 — 12주 목록에 소제목을 끼울 자리를 정한다 */
     function stageNameAt(idx) {
         var wk = 0;
@@ -102,12 +100,6 @@
                 }
                 full.appendChild(liOf(i + 1, topic, stateOf(i, cur)));
             });
-        }
-
-        var lead = document.getElementById('dlgPlanLead');
-        if (lead) {
-            lead.textContent = '1순위 목표는 ' + FOCUS + '예요. '
-                + (cur === 0 ? '아직 시작 전이에요.' : '지금은 ' + cur + '주차예요.');
         }
     }
 
