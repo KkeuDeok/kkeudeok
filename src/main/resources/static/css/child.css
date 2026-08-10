@@ -1663,3 +1663,34 @@
 @media (prefers-reduced-motion: reduce) {
     .feel-card.is-right, .why-card.is-right, .kd-yay { animation: none; }
 }
+
+/* --------------------------------------------------------------------------
+   표정·동작 되짚어 주기 띠 (2026-08-10 피드백 4)
+   아이 화면이라 '틀렸다'가 아니라 '이렇게 해보자'로 말한다. 글자는 본문급으로 크게.
+   -------------------------------------------------------------------------- */
+.child-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 120px;
+    z-index: 60;
+    max-width: 640px;
+    padding: 18px 32px;
+    border-radius: 999px;
+    background: var(--kd-text);
+    color: #fff;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 33px;
+    text-align: center;
+    word-break: keep-all;
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+}
+
+.child-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (prefers-reduced-motion: reduce) {
+    .child-toast { transition: none; }
+}

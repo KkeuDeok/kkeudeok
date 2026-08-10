@@ -23,6 +23,10 @@
         <%-- 2026-08-10 피드백 8 — "매일 하는 건지 루틴인지 기준이 있냐"는 지적.
              확정: **하루 한 편 권장**. 이 기준을 전 화면 문구가 따른다. --%>
         <p class="min">예상 소요 약 7분 · 하루 한 편 권장</p>
+        <%-- 2026-08-10 피드백 7 — "장애 종류에 따라 학습을 다르게 하는지, 왜 구분했는지".
+             팀장 확정: 자폐면 사회성·감정 표현 시나리오를 더 넣는다. 화면은 새로 만들지 않고
+             고른 유형이 학습에 반영된다는 사실만 여기서 밝힌다. 아래 스크립트가 켠다. --%>
+        <p class="learn-fit" id="learnFit" hidden></p>
         <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
@@ -99,7 +103,7 @@
     <span class="ic"></span>
     <%-- 세 문구 모두 '하루 한 편' 기준으로 통일했다(2026-08-10 피드백 8).
          전에는 다음에 뭘 하면 되는지가 kd-has-data 에만 있었다. --%>
-    <p class="kd-has-data">오늘 한 편을 마쳤어요 · 내일 새 이야기가 열려요 (지난 기록은 그대로 남아요)</p>
+    <p class="kd-has-data" id="ctaDone">오늘 한 편을 마쳤어요 · 내일 새 이야기가 열려요 (지난 기록은 그대로 남아요)</p>
     <p class="kd-no-data">하루 한 편이 기본이에요 · 오늘의 첫 이야기를 시작해 볼까요?</p>
     <p class="kd-s1">오늘 기록을 남겼어요 · 이어서 오늘의 한 편을 해 볼까요?</p>
     <%-- 오늘 몫을 끝낸 뒤에도 더 할 수 있다 — 막지 않고 글자만 바꾼다.
@@ -232,6 +236,28 @@
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
     }
+</script>
+
+<script>
+    /* 고른 장애 유형이 학습에 실제로 반영된다는 것을 화면이 말하게 한다(2026-08-10 피드백 7).
+       팀장 확정: 자폐면 사회성·감정 표현 시나리오를 더 넣는다. 화면은 새로 만들지 않는다.
+       유형은 온보딩이 sessionStorage.kdOnb 에 배열로 넣어 둔다(중복 진단이라 여러 개일 수 있다).
+       ponytail: 백엔드가 붙으면 이 판단은 서버가 내려주면 된다. */
+    (function () {
+        var types = [];
+        try {
+            types = [].concat(JSON.parse(sessionStorage.getItem('kdOnb') || '{}').disType || []);
+        } catch (e) { }
+        if (types.indexOf('자폐 장애') < 0) return;
+
+        var fit = document.getElementById('learnFit');
+        fit.textContent = '자폐 유형에 맞춰 사회성·감정 표현 이야기가 더 들어가요';
+        fit.hidden = false;
+
+        /* 오늘 몫을 끝냈을 때 '내일 뭘 하는지'까지 알려 준다 */
+        document.getElementById('ctaDone').textContent =
+            '오늘 한 편을 마쳤어요 · 내일은 \'놀이터에서 차례 기다리기\'(사회성) 이야기예요';
+    })();
 </script>
 
 <%@ include file="../common/app-bottom.jsp" %>

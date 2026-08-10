@@ -56,9 +56,16 @@
                 </div>
             </div>
 <% } %>
+
+            <%-- 표정·동작이 어긋났을 때 그 자리에서 알려 주는 띠 (2026-08-10 피드백 4).
+                 화면을 바꾸지 않는다 — 아이 입장에선 페이지가 넘어가면 '새로고침'으로 느껴진다.
+                 ponytail: 마이페이지에도 같은 모양(.mp-toast)이 있지만 그건 탭바 include 에
+                 묶여 있어 아동 화면이 못 쓴다. 껍데기가 갈리는 동안은 이대로 두고,
+                 공통 조각으로 뺄 일이 생기면 그때 합칠 것. --%>
+            <div class="child-toast" hidden role="status" aria-live="polite"></div>
         </main>
     </div>
 </div>
-<script src="/js/story.js?v=183"></script>
+<script src="/js/story.js?v=208"></script>
 </body>
 </html>

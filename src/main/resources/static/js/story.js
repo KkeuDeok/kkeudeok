@@ -115,6 +115,25 @@
 
     var canSay = 'speechSynthesis' in window;
 
+    /* 낭독 음색 — 기본 음성이 "너무 기괴하다"는 지적(2026-08-10 피드백 3).
+       아이 목소리 파일을 따로 만드는 대신 음높이를 올려 아이 톤에 가깝게 만든다.
+       파일이 0개라 문구가 바뀌어도 따라오고, 감정 3벌 × 화면 10개를 다시 뽑을 일이 없다.
+       ⚠ getVoices() 는 첫 호출에 **빈 배열**을 준다 — voiceschanged 에서 한 번 더 잡지 않으면
+         조용히 기본(영어) 음성으로 읽어 발음이 뭉갠다. */
+    var koVoice = null;
+
+    function pickVoice() {
+        var vs = speechSynthesis.getVoices();
+        for (var i = 0; i < vs.length; i++) {
+            if (/^ko/i.test(vs[i].lang)) { koVoice = vs[i]; return; }
+        }
+    }
+
+    if (canSay) {
+        pickVoice();
+        speechSynthesis.addEventListener('voiceschanged', pickVoice);
+    }
+
     /* 읽어 주기는 여기 한 곳 — [다시 들려줘] · 카드의 소리 배지 · 힌트가 같이 쓴다.
        el 을 주면 읽는 동안 is-speaking 이 붙고, label 까지 주면 글자도 잠깐 바뀐다. */
     function speak(text, el, label) {
@@ -123,6 +142,8 @@
         var u = new SpeechSynthesisUtterance(text);
         u.lang = 'ko-KR';
         u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
+        u.pitch = 1.4;                            /* 어른 목소리 그대로면 아이가 무서워한다 */
+        if (koVoice) u.voice = koVoice;           /* 한국어 음성이 없으면 브라우저 기본에 맡긴다 */
         if (el) {
             el.classList.add('is-speaking');
             if (label) el.textContent = '읽는 중…';
@@ -266,6 +287,52 @@
         } catch (e) { }
         done.addEventListener('click', function () {
             location.href = done.getAttribute('data-home');
+        });
+    }
+
+    /* ---------- 표정·동작이 어긋났을 때 (2026-08-10 피드백 4) ----------
+       "실제 카메라가 다른 표정을 잡으면 어떻게 되냐"에 대한 답이다.
+       표정 인식은 아직 없으므로 첫 시도에 한 번 되짚어 주고, 다시 누르면 통과한다
+       (온보딩 카메라 게이트도 '한 번 더 누르면 통과'라 흐름이 같다).
+       ⚠ 인식이 붙으면 이 자리를 실제 판정 결과로 바꾼다 — 지금은 '틀렸을 때 무슨 일이
+         일어나는지'를 보여 주는 자리지, 무조건 한 번 막으라는 규칙이 아니다. */
+    var toastEl = document.querySelector('.child-toast');
+    var toastTimer = null;
+
+    function toast(msg) {
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.hidden = false;
+        /* 같은 문구를 다시 띄울 때도 나타나는 동작이 걸리게 클래스를 뗐다 붙인다 */
+        toastEl.classList.remove('is-on');
+        void toastEl.offsetWidth;
+        toastEl.classList.add('is-on');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toastEl.classList.remove('is-on'); }, 2800);
+    }
+
+    /* 감정별로 짚어 줄 곳이 다르다. 동작(act)은 감정과 무관하게 한 문구. */
+    var FACE_TIP = {
+        sad:   '입꼬리를 조금만 더 아래로 내려 볼까?',
+        angry: '눈썹을 가운데로 모아 볼까?',
+        happy: '입꼬리를 조금만 더 올려 볼까?'
+    };
+
+    var camCta = document.querySelector('.cam-actions .kd-cta');
+    if (camCta && toastEl) {
+        var isFaceStep = /\/story\/face/.test(location.pathname);
+        var emo = (location.search.match(/[?&]emo=(\w+)/) || [])[1];
+        var tip = isFaceStep
+            ? (FACE_TIP[emo] || FACE_TIP.sad)
+            : '팔을 조금만 더 크게 움직여 볼까?';
+        var tried = false;
+
+        camCta.addEventListener('click', function (e) {
+            if (tried) return;                    /* 두 번째부터는 그대로 넘어간다 */
+            tried = true;
+            e.preventDefault();
+            toast(tip);
+            speak(tip);                           /* 글을 못 읽는 아이도 있다 */
         });
     }
 }());

@@ -1214,6 +1214,21 @@
 }
 
 
+/* 고른 장애 유형이 학습에 반영된다는 안내 (2026-08-10 피드백 7).
+   히어로 안이라 한 줄을 넘기면 배너가 늘어난다 — 문구를 늘릴 땐 스크롤 0 을 다시 잴 것 */
+.learn-fit {
+    display: inline-flex;
+    align-items: center;
+    margin: 12px 0 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 20px;
+}
+
 /* 칸 라벨 — 상황 칩을 걷어내면서 "이 칸이 뭘 받는지"를 글로 밝혔다(2026-08-10 피드백 6).
    간격은 8px 배수 스케일: 위 24 / 라벨↔칸 16 */
 .daily-lb {

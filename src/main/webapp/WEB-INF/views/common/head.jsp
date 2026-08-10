@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것. ⚠ 절대 낮추지 말 것 --%>
-<link href="/css/kkeudeok.css?v=207" rel="stylesheet">
-<link href="/css/auth.css?v=207" rel="stylesheet">
-<link href="/css/onboarding.css?v=207" rel="stylesheet">
-<link href="/css/app.css?v=207" rel="stylesheet">
-<link href="/css/report.css?v=207" rel="stylesheet">
-<link href="/css/mypage.css?v=207" rel="stylesheet">
-<link href="/css/child.css?v=207" rel="stylesheet">
+<link href="/css/kkeudeok.css?v=208" rel="stylesheet">
+<link href="/css/auth.css?v=208" rel="stylesheet">
+<link href="/css/onboarding.css?v=208" rel="stylesheet">
+<link href="/css/app.css?v=208" rel="stylesheet">
+<link href="/css/report.css?v=208" rel="stylesheet">
+<link href="/css/mypage.css?v=208" rel="stylesheet">
+<link href="/css/child.css?v=208" rel="stylesheet">
 <%-- 사용 단계 스위치 — 0 신규(아무것도 없음) · 1 일상 기록만 남김 · 2 이야기 1편 이상(수치 대시보드).
      ?stage=0|1|2 로 바꾸면 탭 단위로 유지돼 화면을 옮겨도 따라간다.
      ?empty=1 → 0 · ?empty=0 → 2 별칭은 예전 주소를 안 깨려고 남겨 둔다.
@@ -106,8 +106,8 @@
         }).observe(document.documentElement, { childList: true, subtree: true });
     })();
 </script>
-<script src="/js/fit-frame.js?v=207"></script>
-<script src="/js/auth-validate.js?v=207" defer></script>
-<script src="/js/onb-select.js?v=207" defer></script>
+<script src="/js/fit-frame.js?v=208"></script>
+<script src="/js/auth-validate.js?v=208" defer></script>
+<script src="/js/onb-select.js?v=208" defer></script>
 <%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제) --%>
-<script src="/js/kd-roadmap.js?v=207" defer></script>
+<script src="/js/kd-roadmap.js?v=208" defer></script>
