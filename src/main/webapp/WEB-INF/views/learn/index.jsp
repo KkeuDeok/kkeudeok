@@ -20,7 +20,9 @@
     <div class="txt">
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
-        <p class="min">예상 소요 약 7분</p>
+        <%-- 2026-08-10 피드백 8 — "매일 하는 건지 루틴인지 기준이 있냐"는 지적.
+             확정: **하루 한 편 권장**. 이 기준을 전 화면 문구가 따른다. --%>
+        <p class="min">예상 소요 약 7분 · 하루 한 편 권장</p>
         <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
@@ -95,10 +97,18 @@
 
 <div class="learn-cta">
     <span class="ic"></span>
-    <p class="kd-has-data">이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
-    <p class="kd-no-data">첫 이야기를 시작해 볼까요? · 오늘의 일상을 적으면 더 딱 맞는 이야기가 나와요</p>
-    <p class="kd-s1">오늘 기록을 남겼어요 · 이야기를 한 편 마치면 성장 리포트가 만들어져요</p>
-    <a class="kd-btn kd-btn-primary" href="/story/scene">학습 시작</a>
+    <%-- 세 문구 모두 '하루 한 편' 기준으로 통일했다(2026-08-10 피드백 8).
+         전에는 다음에 뭘 하면 되는지가 kd-has-data 에만 있었다. --%>
+    <p class="kd-has-data">오늘 한 편을 마쳤어요 · 내일 새 이야기가 열려요 (지난 기록은 그대로 남아요)</p>
+    <p class="kd-no-data">하루 한 편이 기본이에요 · 오늘의 첫 이야기를 시작해 볼까요?</p>
+    <p class="kd-s1">오늘 기록을 남겼어요 · 이어서 오늘의 한 편을 해 볼까요?</p>
+    <%-- 오늘 몫을 끝낸 뒤에도 더 할 수 있다 — 막지 않고 글자만 바꾼다.
+         ⚠ 버튼 자체를 두 개로 두면 `.learn-cta .kd-btn` 이 2개로 잡혀
+           숨은 쪽이 먼저 걸린다(검증 스크립트가 클릭 못 함). 버튼은 하나, 글자만 교체.
+         .kd-hide2 = 0·1 단계에서만 보임 (kkeudeok.css 단계 규칙) --%>
+    <a class="kd-btn kd-btn-primary" href="/story/scene">
+        <span class="kd-hide2">학습 시작</span><span class="kd-has-data">한 번 더 하기</span>
+    </a>
 </div>
 
 <%-- 오늘의 일상 입력 모달 (Figma 24:20619).
@@ -113,12 +123,11 @@
     <div class="bd">
         <h3>오늘은 어떤 일이 있었나요?</h3>
 
-        <div class="learn-chips" id="dailyChips">
-            <label><input type="radio" name="situation" value="유치원" checked><span>유치원</span></label>
-            <label><input type="radio" name="situation" value="친구랑 다퉜어"><span>친구랑 다퉜어</span></label>
-            <label><input type="radio" name="situation" value="가족 나들이"><span>가족 나들이</span></label>
-            <label><input type="radio" name="situation" value="새로운 곳"><span>새로운 곳</span></label>
-        </div>
+        <%-- 2026-08-10 피드백 6 — 상황 칩(유치원·친구랑 다퉜어…) 4개를 걷어냈다.
+             무엇을 고르는 칸인지 안 읽혀 헷갈린다는 지적이었고, 실제 역할은
+             아래 메모의 예시 문구를 바꾸는 것뿐이라 지워도 잃는 기능이 없다.
+             대신 남은 두 칸에 라벨을 달아 무엇을 넣는 칸인지 분명히 했다. --%>
+        <p class="daily-lb">아이의 기분</p>
 
         <div class="daily-emos" id="dailyEmos">
             <label><img src="/img/face-happy.png" alt=""><span class="nm">기쁨</span><input type="radio" name="emotion" value="기쁨" checked></label>
@@ -128,8 +137,12 @@
             <label><img src="/img/face-neutral.png" alt=""><span class="nm">무표정</span><input type="radio" name="emotion" value="무표정"></label>
         </div>
 
+        <%-- 팀장 확정: 일일 회고는 선택 입력이다("꼭 안 적어도 됨") --%>
+        <p class="daily-lb">무슨 일이 있었나요? <span class="opt">선택 · 안 적어도 괜찮아요</span></p>
+
         <div class="daily-memo">
-            <textarea id="dailyText" maxlength="200" placeholder="유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요"></textarea>
+            <textarea id="dailyText" maxlength="200" aria-label="오늘 있었던 일"
+                      placeholder="유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요"></textarea>
             <span class="daily-count" id="dailyCount">0 / 200</span>
         </div>
     </div>
@@ -141,24 +154,11 @@
 </dialog>
 
 <script>
-    /* 상황 칩 -> 예시 문구.
-       감정은 칩을 따라 바뀌지 않는다 — 기본값 기쁨으로 두고 보호자가 직접 고른다(사용자 요청).
-       ponytail: 백엔드가 붙으면 이 표는 서버에서 내려주면 된다. */
-    var KD_DAILY = {
-        '유치원':        '유치원에서 선생님이 칭찬해 주셔서 어깨가 으쓱했어요',
-        '친구랑 다퉜어': '블록놀이하다 민수가 내 성을 무너뜨려서 속상했어요',
-        '가족 나들이':   '할머니 댁에 갔는데 강아지가 갑자기 짖어서 깜짝 놀랐어요',
-        '새로운 곳':     '처음 간 수영장이 너무 시끄러워서 나가고 싶어 했어요'
-    };
-
+    /* 상황 칩이 사라지면서 예시 문구 표(KD_DAILY)도 같이 걷어냈다 —
+       칩의 유일한 역할이 placeholder 를 바꾸는 것이었다. 이제 예시는 고정 한 개다. */
     (function () {
         var text = document.getElementById('dailyText');
         var count = document.getElementById('dailyCount');
-
-        document.getElementById('dailyChips').addEventListener('change', function (e) {
-            var ex = KD_DAILY[e.target.value];
-            if (ex) text.placeholder = ex;
-        });
 
         text.addEventListener('input', function () {
             count.textContent = text.value.length + ' / 200';
@@ -176,24 +176,29 @@
     function kdDailyPeek(e) {
         if (e.target.closest('button, a')) return;
         var full = document.getElementById('dailyFull');
+        if (!full.textContent) return;      /* 메모는 선택 입력 — 비어 있으면 펼칠 게 없다 */
         full.hidden = !full.hidden;
     }
 
     function kdDailySave() {
-        var chip = document.querySelector('#dailyChips input:checked');
         var emo = document.querySelector('#dailyEmos input:checked');
         var text = document.getElementById('dailyText');
-        var memo = text.value.trim() || text.placeholder;
 
-        document.getElementById('dailyFull').textContent = '"' + memo + '"';
-        document.getElementById('dailyFull').hidden = true;
+        /* ⚠ 예전엔 `text.value.trim() || text.placeholder` 였다 — 빈칸으로 저장하면
+           예시문("유치원에서 선생님이 칭찬…")이 **진짜 기록인 것처럼** 카드에 박혔다.
+           메모는 선택 입력이므로 비었으면 비운 채로 둔다. */
+        var memo = text.value.trim();
+        var full = document.getElementById('dailyFull');
+
+        full.textContent = memo ? '"' + memo + '"' : '';
+        full.hidden = true;
 
         /* 요약 한 줄에 통째로 붙이던 탓에 길게 쓰면 카드가 늘어지고 글이 흘러넘쳤다
            (2026-08-10 지적). 여기서는 앞부분만 보여 준다 — 원문은 카드를 누르면 펼쳐진다. */
-        if (memo.length > 40) memo = memo.slice(0, 40).trim() + '…';
+        var shortMemo = memo.length > 40 ? memo.slice(0, 40).trim() + '…' : memo;
 
         document.getElementById('dailySummary').textContent =
-            chip.value + ' · ' + emo.value + ' · "' + memo + '"';
+            shortMemo ? emo.value + ' · "' + shortMemo + '"' : emo.value;
 
         /* 고른 감정 → 학습1 감정 벌. 슬픔·놀람·무표정은 아직 벌이 없어 슬픔으로 보낸다. */
         var KD_EMO = { '기쁨': 'happy', '화남': 'angry' };
@@ -221,7 +226,7 @@
        (0·2 단계는 JSP 기본값 그대로 = 아직 기록 안 함) */
     if (document.documentElement.dataset.kdStage === '1') {
         document.getElementById('dailySummary').textContent =
-            '유치원 · 기쁨 · "선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
+            '기쁨 · "선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
         document.getElementById('dailyFull').textContent =
             '"선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
         document.getElementById('dailyEmpty').hidden = true;

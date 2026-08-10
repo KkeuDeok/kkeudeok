@@ -74,15 +74,27 @@
             </div>
         </div>
 
-        <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백) --%>
+        <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백).
+             ⚠ 온보딩 child-profile.jsp 와 **같은 목록이 두 곳에 하드코딩**돼 있다. 한쪽만 고치면 어긋난다.
+             2026-08-10 피드백 2 — 중복 진단 대응으로 유형은 복수 선택. --%>
         <div class="kd-field">
-            <label class="kd-label" for="disabilityType">장애 정보</label>
+            <span class="kd-label">장애 정보
+                <span class="onb-note">중복 진단이면 여러 개 고를 수 있어요</span></span>
             <div class="onb-row onb-row--gap">
-                <select class="kd-input onb-select" id="disabilityType" name="disabilityType">
-                    <option selected>자폐 장애</option>
-                    <option>지적 장애</option>
-                    <option>발달 장애</option>
-                </select>
+                <div class="onb-radios onb-radios--dis">
+                    <span class="onb-radio-item">
+                        <input class="onb-radio" type="checkbox" id="disAutism" name="disabilityType" value="자폐 장애" checked>
+                        <label for="disAutism">자폐</label>
+                    </span>
+                    <span class="onb-radio-item">
+                        <input class="onb-radio" type="checkbox" id="disIntel" name="disabilityType" value="지적 장애">
+                        <label for="disIntel">지적</label>
+                    </span>
+                    <span class="onb-radio-item">
+                        <input class="onb-radio" type="checkbox" id="disDev" name="disabilityType" value="발달 장애">
+                        <label for="disDev">발달</label>
+                    </span>
+                </div>
                 <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel">
                     <option>경증</option>
                     <option selected>중증</option>

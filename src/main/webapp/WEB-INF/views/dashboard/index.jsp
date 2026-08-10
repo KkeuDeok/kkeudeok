@@ -13,7 +13,8 @@
         <p class="lb">감정 표현</p>
         <p class="v">64%</p>
         <div class="track"><span class="c-express" style="width:64%"></span></div>
-        <p class="cap">지난주 대비 <b class="dl-up">+5%p</b></p>
+        <%-- 리포트(express.jsp)는 ▲4 인데 여기만 +5%p 였다 — 근거 숫자를 넣으면서 드러나 맞췄다 --%>
+        <p class="cap">지난주 대비 <b class="dl-up">+4%p</b></p>
     </div>
     <div class="dash-kpi">
         <p class="lb">감정 이해</p>
@@ -28,6 +29,10 @@
         <p class="cap">지난주 대비 <b class="dl-down">-3%p</b></p>
     </div>
 </div>
+
+<%-- 2026-08-10 피드백 5 — KPI 3칸이 공유하는 기준이라 카드마다 넣지 않고 아래 한 줄로.
+     자세한 계산 근거(몇 회 중 몇 회)는 성장 리포트 각 화면에 있다 --%>
+<p class="dash-basis kd-has-data">이번 주 미션 25회 기준 · 감정 이해·표현은 성공률, 사회성은 SRS-2(사회반응성 척도) 환산 점수예요</p>
 
 <div class="dash-row">
     <%-- 데이터 0일 때 KPI·추이 그래프 자리를 대신하는 카드. .dash-row 가 flex 라

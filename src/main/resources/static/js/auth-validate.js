@@ -285,7 +285,13 @@
         clearAllErrors();
         var ok = checkRequired($('childName'), '아이 이름을 입력해 주세요');
         ok = checkGroup([$('birthYear'), $('birthMonth'), $('birthDay')], '생년월일을 모두 선택해 주세요') && ok;
-        ok = checkGroup([$('disabilityType'), $('disabilityLevel')], '장애 유형과 정도를 선택해 주세요') && ok;
+        /* 장애 유형은 복수 선택이라(중복 진단, 2026-08-10 피드백 2) checkGroup 을 못 쓴다 —
+           그건 value 가 있는 input 용이다. 하나도 안 고르면 정도 칸에 오류를 띄운다(같은 kd-field). */
+        var types = [].map.call(
+            document.querySelectorAll('input[name="disabilityType"]:checked'),
+            function (c) { return c.value; });
+        if (!types.length) { setError($('disabilityLevel'), '장애 유형을 하나 이상 골라 주세요'); ok = false; }
+        else ok = checkGroup([$('disabilityLevel')], '장애 정도를 선택해 주세요') && ok;
         if (!ok) return;
         var g = document.querySelector('input[name="gender"]:checked');
         saveOnb({
@@ -295,7 +301,8 @@
             birthD: +$('birthDay').value,
             /* 마이페이지 아동 프로필에서 그대로 다시 보여 줘야 해서 같이 담는다 */
             gender: g ? g.value : '',
-            disType: $('disabilityType').value,
+            /* 배열이다 — 중복 진단이면 여러 개. 화면에 쓸 땐 join(' · ') */
+            disType: types,
             disLevel: $('disabilityLevel').value
         });
         location.href = '/onboarding/character';
@@ -608,7 +615,13 @@
                 var r = document.querySelector('input[name="gender"][value="' + v.gender + '"]');
                 if (r) r.checked = true;
             }
-            if (v.disType && $('disabilityType')) $('disabilityType').value = v.disType;
+            /* 유형은 체크박스 여러 개 — 옛 저장값(문자열 하나)도 그대로 살려 받는다 */
+            if (v.disType) {
+                var picked = [].concat(v.disType);
+                document.querySelectorAll('input[name="disabilityType"]').forEach(function (c) {
+                    c.checked = picked.indexOf(c.value) >= 0;
+                });
+            }
             if (v.disLevel && $('disabilityLevel')) $('disabilityLevel').value = v.disLevel;
         }
 

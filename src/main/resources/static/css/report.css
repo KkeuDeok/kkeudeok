@@ -97,6 +97,22 @@
     color: var(--kd-text-sub);
 }
 
+/* 지수 산정 기준 한 줄 (2026-08-10 피드백 5).
+   .rpt-score 안에 넣으면 flex 아이템이 하나 더 늘어 가로로 붙는다 -> 형제 블록으로 둔다.
+   좌우 정렬은 .rpt-score 와 같은 max-width 1200 + padding 40. */
+.rpt-basis {
+    max-width: 1200px;
+    margin: 6px auto 0;
+    padding: 0 40px;
+    box-sizing: border-box;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+/* 성공 횟수만 진하게 — 심사·보호자 눈이 여기 먼저 닿아야 한다 */
+.rpt-basis b { font-weight: 700; color: var(--kd-text); }
+
 /* 증감색 — app.css의 .dl-up/.dl-down 과 같은 값 (그 클래스는 dash-kpi 스코프가 아니라 재사용 가능하지만
    리포트 파일 단독으로도 성립하도록 자체 선언) */
 .rpt-up   { color: #268254; }

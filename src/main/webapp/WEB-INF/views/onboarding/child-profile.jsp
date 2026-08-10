@@ -44,16 +44,28 @@
         </div>
     </div>
 
-    <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백) --%>
+    <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백).
+         2026-08-10 피드백 2 — "중복 장애면 어떻게 하냐". 지적+자폐 동반 진단이 흔해서
+         유형만 select → 체크박스 복수 선택으로 바꿨다. 정도는 그대로 하나.
+         ⚠ 안내 문구는 라벨 안에 넣는다 — 아래 줄로 빼면 필드가 밀려 온보딩 레일(내용 끝 785)이 깨진다. --%>
     <div class="kd-field onb-field">
-        <label class="onb-label" for="disabilityType">장애 정보 <span class="req">*</span></label>
+        <span class="onb-label">장애 정보 <span class="req">*</span>
+            <span class="onb-note">중복 진단이면 여러 개 고를 수 있어요</span></span>
         <div class="onb-row onb-row--gap">
-            <select class="kd-input onb-select" id="disabilityType" name="disabilityType">
-                <option value="">유형 선택</option>
-                <option>자폐 장애</option>
-                <option>지적 장애</option>
-                <option>발달 장애</option>
-            </select>
+            <div class="onb-radios onb-radios--dis">
+                <span class="onb-radio-item">
+                    <input class="onb-radio" type="checkbox" id="disAutism" name="disabilityType" value="자폐 장애">
+                    <label for="disAutism">자폐</label>
+                </span>
+                <span class="onb-radio-item">
+                    <input class="onb-radio" type="checkbox" id="disIntel" name="disabilityType" value="지적 장애">
+                    <label for="disIntel">지적</label>
+                </span>
+                <span class="onb-radio-item">
+                    <input class="onb-radio" type="checkbox" id="disDev" name="disabilityType" value="발달 장애">
+                    <label for="disDev">발달</label>
+                </span>
+            </div>
             <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel">
                 <option value="">정도 선택</option>
                 <option>경증</option>
