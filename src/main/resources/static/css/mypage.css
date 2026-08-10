@@ -482,9 +482,11 @@
 /* 성별 라디오 행 — 입력칸 높이(48)와 눈높이를 맞춘다 */
 .mp-radios { display: flex; align-items: center; height: 48px; gap: 32px; }
 
-/* 네모칸도 이름 칸과 같은 무게로 — 온보딩(20)보다 크다 */
-.mp-radios .onb-radio { width: 24px; height: 24px; border-radius: 6px; }
-.mp-radios .onb-radio:checked::after { width: 12px; height: 12px; }
+/* 네모칸도 이름 칸과 같은 무게로 — 온보딩(20)보다 크다.
+   24 는 옆 글자(17)에 비해 작아 보인다는 지적으로 28 로 키웠다(2026-08-10).
+   행 높이가 48 로 고정이라 더 키워도 아래가 안 밀린다. */
+.mp-radios .onb-radio { width: 28px; height: 28px; border-radius: 7px; }
+.mp-radios .onb-radio:checked::after { width: 14px; height: 14px; }
 .mp-radios label { font-size: 17px; line-height: 25.5px; }
 
 /* --------------------------------------------------------------------------
