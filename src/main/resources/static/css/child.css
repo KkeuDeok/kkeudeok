@@ -294,6 +294,29 @@
     object-fit: contain;    /* Figma 도 FIT — 세로 380 에 맞고 가로는 남는다 */
 }
 
+/* --- 이야기로 들어올 때 -------------------------------------------------------
+   학습 홈에서 토리가 날아와 이 자리에 앉는다(app.css .kd-enter-*).
+   날아온 토리와 크기가 맞아떨어져야 이어져 보이므로 위치는 안 건드리고 크기만 받는다.
+   문구는 그림 다음에 차례로 올라온다 — 세션 결과의 kd-rise 와 같은 패턴. */
+.story-art { animation: kd-scene-in 0.5s var(--kd-ease) both; }
+
+@keyframes kd-scene-in {
+    from { opacity: 0; transform: scale(0.9); }
+}
+
+.story-title { animation: kd-rise 0.45s ease-out 0.10s both; }
+.story-sub   { animation: kd-rise 0.45s ease-out 0.18s both; }
+.story-ask   { animation: kd-rise 0.45s ease-out 0.26s both; }
+.story-cta   { animation: kd-rise 0.45s ease-out 0.34s both; }
+
+@media (prefers-reduced-motion: reduce) {
+    .story-art,
+    .story-title,
+    .story-sub,
+    .story-ask,
+    .story-cta { animation: none; }
+}
+
 .story-title,
 .story-sub,
 .story-ask {
@@ -468,7 +491,9 @@
 .feel-card.is-pick { box-shadow: inset 0 0 0 3px var(--kd-primary-strong); }
 
 /* 카드마다 있는 읽어주기 배지 — 카드 자체가 링크라 안에 button 을 또 넣지 않는다.
-   TODO: TTS 가 붙으면 카드를 <div>+JS 로 바꾸고 이 배지를 실제 버튼으로. */
+   story.js 가 클릭을 받아 전파를 끊고 카드 글자를 읽어 준다(예전엔 핸들러가 없어
+   누르면 그 카드를 고른 것으로 처리됐다 — 2026-08-10 지적).
+   TODO: 카드를 <div role="button">+JS 로 바꾸면 이 배지도 진짜 버튼으로 — 그래야 키보드로도 눌린다. */
 .feel-card .spk,
 .why-card .spk {
     position: absolute;
@@ -482,7 +507,18 @@
     border: 1px solid var(--kd-border);
     border-radius: 999px;
     background: #fff;
+    cursor: pointer;
 }
+
+/* 읽는 중 — 눌린 게 보여야 아이가 두 번 안 누른다 */
+.feel-card .spk.is-speaking,
+.why-card .spk.is-speaking {
+    border-color: var(--kd-primary-strong);
+    background: var(--kd-primary-tint);
+}
+
+.feel-card .spk.is-speaking::before,
+.why-card .spk.is-speaking::before { background: var(--kd-primary-strong); }
 
 .feel-card .spk::before,
 .why-card .spk::before {
@@ -589,6 +625,23 @@
     line-height: 45px;
     font-weight: 700;
     color: var(--kd-text);
+}
+
+/* [잘 모르겠어] 힌트 — 카드 하단(535)과 [말로 알려줄래!](616) 사이 빈 띠(81) 한가운데.
+   한 줄 30 이므로 535 + (81 − 30) / 2 = 560.5 (실측으로 위아래 25.5 씩).
+   display 를 선언하지 않는다 — 주면 hidden 속성(UA 의 display:none)을 이겨 처음부터 보인다. */
+.why-hint {
+    position: absolute;
+    left: 0;
+    top: 560.5px;
+    width: 100%;
+    margin: 0;
+    text-align: center;
+    word-break: keep-all;
+    font-size: 20px;
+    line-height: 30px;
+    font-weight: 500;
+    color: var(--kd-primary-strong);
 }
 
 /* 말로 알려줄래! / 듣는 중 — 같은 자리(240×40)에서 상태만 바뀐다 */
@@ -755,7 +808,10 @@
 }
 
 /* 두 문장이 이어져 '어떤 마음일' / '까?' 로 단어 중간이 끊겼다(2026-08-10 지적).
-   keep-all 로 어절을 지키고, 문장마다 줄을 나눠 읽기 좋게 한다. */
+   keep-all 로 어절을 지키고, 문장마다 줄을 나눠 읽기 좋게 한다.
+   ⚠ 초록 알약 배경은 걷어 냈다(2026-08-10 요청 "초록색칸 없애주세요").
+     자리(left/top/width/height)는 그대로 둔다 — 아래 `.more` 가 top:302 절대 좌표라
+     흐름을 건드리면 문구가 겹친다. 글자색도 진초록이면 배경 없이 링크처럼 보여 본문색으로. */
 .story-modal .clue > span { display: block; }
 .story-modal .clue {
     position: absolute;
@@ -770,11 +826,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 16px;
-    background: var(--kd-primary-tint);
     font-size: 16px;
     font-weight: 500;
-    color: var(--kd-primary-strong);
+    color: var(--kd-text-sub);
 }
 
 .story-modal .more {
@@ -1007,8 +1061,12 @@
 
 .done-art img { width: 100%; height: 100%; object-fit: contain; }
 
-.done-title,
-.done-sub {
+/* ⚠ 반드시 `.done-stage` 안으로 한정할 것 — auth 완료형 3화면(가입완료·아이디찾기 결과·
+   비밀번호 변경완료)도 `.done-title`/`.done-sub` 를 쓴다. head.jsp 가 child.css 를
+   auth.css 뒤에 싣고 특이도가 같아서, 스코프가 없으면 이 절대배치가 그쪽까지 덮어
+   제목이 흐름에서 빠지고 top:520 에 못 박혀 안내 카드와 겹쳤다(2026-08-10 지적). */
+.done-stage .done-title,
+.done-stage .done-sub {
     position: absolute;
     left: 0;
     width: 100%;
@@ -1016,7 +1074,7 @@
     text-align: center;
 }
 
-.done-title {
+.done-stage .done-title {
     top: 520px;
     font-size: 38px;
     line-height: 57px;
@@ -1024,7 +1082,7 @@
     color: var(--kd-text);
 }
 
-.done-sub {
+.done-stage .done-sub {
     top: 585px;
     font-size: 26px;
     line-height: 39px;
@@ -1393,14 +1451,16 @@
                kd-float 3s ease-in-out 0.5s infinite;
 }
 
-/* 문구는 캐릭터 다음에 차례로 올라온다 */
+/* 문구는 캐릭터 다음에 차례로 올라온다.
+   ⚠ 위 절대배치와 같은 이유로 `.done-stage` 안에서만 — 스코프가 없으면 회원가입 완료·
+     아이디 찾기 결과 화면의 제목까지 0.35초 늦게 떠올라 "애니메이션 없애 달라" 지적을 받았다. */
 @keyframes kd-rise {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: none; }
 }
 
-.done-title { animation: kd-rise .45s ease-out .35s both; }
-.done-sub   { animation: kd-rise .45s ease-out .5s both; }
+.done-stage .done-title { animation: kd-rise .45s ease-out .35s both; }
+.done-stage .done-sub   { animation: kd-rise .45s ease-out .5s both; }
 
 /* 색종이 — 위에서 떨어지며 돌아간다. 낙하 거리·시간은 칸마다 조금씩 다르게
    (JSP 가 --fall / --spin / --dur 을 점마다 넣어 준다) 해야 한꺼번에 쏟아지지 않는다. */
@@ -1439,8 +1499,8 @@
     .feel-card.is-pick,
     .why-card.is-pick,
     .done-art,
-    .done-title,
-    .done-sub,
+    .done-stage .done-title,
+    .done-stage .done-sub,
     .done-tap,
     .done-confetti i { animation: none !important; }
 }

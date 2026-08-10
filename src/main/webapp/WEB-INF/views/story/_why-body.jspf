@@ -33,6 +33,19 @@
     for (String[] row : whyCauses) {
         if (row[0].equals(emo)) whyCause = row;
     }
+
+    /* [잘 모르겠어] 힌트 — 정답을 말하지 않고 **어디를 볼지**만 알려 준다.
+       예전엔 정답 카드에 테두리를 둘렀는데 그건 힌트가 아니라 답이다(2026-08-10 지적).
+       ⚠ 문구는 Figma 에 없다. 임시 — 기획·팀장 확정 필요. */
+    String[][] whyHints = {
+        {"sad",   "그림 속 표정을 잘 봐. 아파서 찡그린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"angry", "그림 속 표정을 잘 봐. 속상해서 찌푸린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"happy", "그림 속 표정을 잘 봐. 좋아서 웃는 얼굴일까, 졸려서 하품하는 얼굴일까?"}
+    };
+    String whyHint = whyHints[0][1];
+    for (String[] row : whyHints) {
+        if (row[0].equals(emo)) whyHint = row[1];
+    }
 %>
 
 <h1 class="why-title"><%= whyTitle.replace("{c}", CHAR) %></h1>
@@ -52,3 +65,7 @@
         <span class="spk" aria-hidden="true"></span>
     </a>
 </div>
+
+<%-- 하단바 [잘 모르겠어] 를 누르면 story.js 가 보여 주고 읽어 준다.
+     ⚠ 화면을 새로 띄우지 않는다 — 아이 입장에서 페이지가 바뀌면 '새로고침'으로 보인다 --%>
+<p class="why-hint" hidden><%= whyHint %></p>
