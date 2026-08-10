@@ -2,9 +2,11 @@
 <% String pageTitle = "보호자 PIN 재설정"; String appNav = "mypage"; %>
 <%@ include file="../common/app-top.jsp" %>
 
-<%-- PIN 재설정 — Figma 에 없는 화면이라 기존 자산만 조합했다.
-     레이아웃은 보호자 확인 게이트(.mp-gate), 입력은 온보딩 PIN 설정(.onb-pin + .onb-pin-dots),
-     인증번호 줄은 아이디·비밀번호 찾기(.kd-input-row + .kd-btn-pill + .kd-timer) 그대로다.
+<%-- PIN 재설정 1단계 — 본인 확인. 새 PIN 입력은 /mypage/pin-reset/new 로 넘어간다
+     (비밀번호 찾기의 find-pw-email → find-pw-new 와 같은 구조).
+
+     레이아웃은 보호자 확인 게이트(.mp-gate), 인증번호 줄은 아이디·비밀번호 찾기
+     (.kd-input-row + .kd-btn-pill + .kd-timer) 그대로다.
 
      ⚠ 인증 단계가 없으면 게이트가 무의미해진다 — PIN 을 몰라도 [PIN을 잊었어요] 로 들어와
        아무 값이나 새로 정하면 그만이라, 5회 잠금이 통째로 우회된다(2026-08-09 추가한 이유).
@@ -12,9 +14,10 @@
 <div class="mp-gate">
     <span class="ic"><img src="/img/icon-hand.png" alt=""></span>
     <h1>보호자 PIN을 다시 만들어요</h1>
-    <p class="sub">가입할 때 쓴 이메일로 본인 확인을 한 뒤<br>새 PIN 4자리를 설정합니다.</p>
+    <p class="sub">가입할 때 쓴 이메일로 본인 확인을 해 주세요.<br>확인이 끝나면 새 PIN을 설정합니다.</p>
 
-    <form onsubmit="return kdPinResetSubmit(event)">
+    <%-- 인증번호 6자리가 맞으면 곧바로 2단계로 넘어간다 — [다음] 버튼은 없다 --%>
+    <form onsubmit="return false">
         <div class="kd-field">
             <label class="kd-label" for="resetEmail">이메일 <span class="req">*</span></label>
             <div class="kd-input-row">
@@ -40,34 +43,6 @@
             <p class="kd-hint" id="resetCodeHint" hidden></p>
             <p class="kd-error" id="resetCodeError" hidden></p>
         </div>
-
-        <div class="kd-field">
-            <label class="kd-label" for="newPin">새 PIN 4자리 <span class="req">*</span></label>
-            <div class="onb-pin-box">
-                <input class="kd-input onb-pin" type="password" id="newPin" name="newPin"
-                       inputmode="numeric" maxlength="4" autocomplete="new-password" data-nocopy disabled>
-                <span class="onb-pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            </div>
-            <p class="kd-hint" id="newPinHint">본인 확인을 마치면 입력할 수 있어요</p>
-            <%-- 자릿수 오류가 붙을 자리. 없으면 '새 PIN 확인' 칸으로 밀려나 엉뚱한 곳이 빨개진다 --%>
-            <p class="kd-error" id="newPinError" hidden></p>
-        </div>
-
-        <div class="kd-field">
-            <label class="kd-label" for="newPinCheck">새 PIN 확인 <span class="req">*</span></label>
-            <div class="onb-pin-box">
-                <input class="kd-input onb-pin" type="password" id="newPinCheck" name="newPinCheck"
-                       inputmode="numeric" maxlength="4" autocomplete="new-password" data-nocopy disabled>
-                <span class="onb-pin-dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
-            </div>
-            <p class="kd-hint" id="resetHint">한 번 더 똑같이 입력해 주세요</p>
-            <p class="kd-error" id="resetError" hidden></p>
-        </div>
-
-        <div class="row">
-            <a class="kd-btn kd-btn-outline" href="/mypage">취소</a>
-            <button type="submit" class="kd-btn kd-btn-primary">변경</button>
-        </div>
     </form>
 </div>
 
@@ -80,6 +55,9 @@
     var kdCodeTimer = null;
 
     function $k(id) { return document.getElementById(id); }
+
+    /* 뒤로 돌아왔을 때 이전 통과 기록이 남아 있으면 안 된다 — 다시 인증해야 한다 */
+    sessionStorage.removeItem('kdPinResetOk');
 
     window.kdPinSendCode = function () {
         kdCodeVerified = false;
@@ -112,9 +90,9 @@
         }, 1000);
     };
 
-    /* 6자리를 다 넣으면 바로 대조 — 맞으면 새 PIN 칸이 열린다 */
+    /* 6자리를 다 넣으면 바로 대조 — 맞으면 그대로 2단계로 넘어간다 */
     document.getElementById('resetCode').addEventListener('input', function () {
-        if (this.value.length < 6 || kdCodeExpired) return;
+        if (this.value.length < 6 || kdCodeExpired || kdCodeVerified) return;
         if (this.value.trim() !== KD_DEMO_CODE) {
             $k('resetCodeHint').hidden = true;
             $k('resetCodeError').hidden = false;
@@ -130,87 +108,13 @@
         $k('resetCodeError').hidden = true;
         $k('resetCodeHint').hidden = false;
         $k('resetCodeHint').textContent = '본인 확인이 끝났어요';
-        $k('newPin').disabled = $k('newPinCheck').disabled = false;
-        $k('newPinHint').textContent = '숫자 4자리를 입력해 주세요';
-        $k('newPin').focus();
+
+        /* 데모 — 백엔드가 붙으면 서버가 준 1회용 토큰으로 바꾼다.
+           이 값이 없으면 2단계 페이지는 주소를 직접 쳐도 열리지 않는다. */
+        sessionStorage.setItem('kdPinResetOk', '1');
+        /* 통과 문구를 한 박자 보여 주고 넘긴다 — 즉시 이동하면 확인됐는지 모른 채 화면이 바뀐다 */
+        setTimeout(function () { location.href = '/mypage/pin-reset/new'; }, 600);
     });
-
-    /* 잠긴 칸은 클릭 이벤트가 안 올라온다 → 감싸는 .onb-pin-box 에서 받는다.
-       눌러도 아무 반응이 없으면 고장으로 오해한다("클릭이 안 돼요" 제보). */
-    document.querySelectorAll('.mp-gate .onb-pin-box').forEach(function (box) {
-        box.addEventListener('click', function () {
-            if (kdCodeVerified) return;
-            var sent = !$k('resetCodeField').classList.contains('is-hidden');
-            $k('resetHint').hidden = true;
-            $k('resetError').hidden = false;
-            $k('resetError').textContent = sent
-                ? '메일로 받은 인증번호 6자리를 먼저 입력해 주세요'
-                : '[인증번호 전송]을 눌러 본인 확인을 먼저 해 주세요';
-            var target = sent ? $k('resetCode') : document.querySelector('.mp-gate .kd-btn-pill');
-            target.classList.add('kd-input--error');
-            setTimeout(function () { target.classList.remove('kd-input--error'); }, 1200);
-            if (sent) target.focus();
-        });
-    });
-
-    function kdPinResetSubmit(e) {
-        e.preventDefault();
-        var a = $k('newPin'), b = $k('newPinCheck');
-
-        /* 오류는 그 오류가 난 칸에 붙인다.
-           ⚠ 전에는 무슨 오류든 '새 PIN 확인' 칸(resetError)에 몰아 넣어서,
-             본인 확인을 안 했을 때도 엉뚱하게 마지막 칸이 빨개지고
-             "이메일 본인 확인을 먼저 해 주세요" 가 거기 떴다(2026-08-10 지적). */
-        function fail(input, errEl, hintEl, msg) {
-            if (hintEl) hintEl.hidden = true;
-            errEl.hidden = false;
-            errEl.textContent = msg;
-            if (input) { input.classList.add('kd-input--error'); input.focus(); }
-        }
-
-        /* 누른 순간 앞선 오류 표시는 전부 지운다 — 안 지우면 고친 칸이 계속 빨갛다 */
-        ['resetCodeError', 'newPinError', 'resetError'].forEach(function (id) { $k(id).hidden = true; });
-        ['resetHint', 'newPinHint'].forEach(function (id) { $k(id).hidden = false; });
-        [$k('resetCode'), a, b].forEach(function (el) { el.classList.remove('kd-input--error'); });
-
-        /* 본인 확인 전 — 인증번호 칸이 떠 있으면 거기에, 아직이면 [인증번호 전송] 버튼에 붙인다.
-           .onb-pin-box 클릭 안내(위)와 같은 판단이라 문구도 맞춰 둔다. */
-        if (!kdCodeVerified) {
-            if ($k('resetCodeField').classList.contains('is-hidden')) {
-                var btn = document.querySelector('.mp-gate .kd-btn-pill');
-                $k('resetMailHint').textContent = '[인증번호 전송]을 눌러 본인 확인을 먼저 해 주세요';
-                btn.classList.add('kd-input--error');
-                btn.focus();
-                setTimeout(function () {
-                    btn.classList.remove('kd-input--error');
-                    $k('resetMailHint').textContent = '가입할 때 등록한 이메일이에요';
-                }, 2400);
-            } else {
-                fail($k('resetCode'), $k('resetCodeError'), $k('resetCodeHint'),
-                     '메일로 받은 인증번호 6자리를 먼저 입력해 주세요');
-            }
-            return false;
-        }
-
-        /* 자릿수는 '새 PIN' 칸의 문제다 — 확인 칸에 붙이면 엉뚱한 곳이 빨개진다 */
-        if (!/^\d{4}$/.test(a.value)) {
-            fail(a, $k('newPinError'), $k('newPinHint'), '새 PIN 을 숫자 4자리로 입력해 주세요');
-            return false;
-        }
-        if (a.value !== b.value) {
-            fail(b, $k('resetError'), $k('resetHint'), 'PIN 이 일치하지 않습니다');
-            return false;
-        }
-
-        /* 데모 — 백엔드가 붙으면 POST 로 바꾼다.
-           바꾼 PIN 을 저장하지 않으면 게이트가 계속 옛 값만 받아 "바꿨는데 안 들어가진다"가 된다.
-           재설정에 성공했으니 5회 실패 잠금과 시도 횟수도 같이 푼다. */
-        sessionStorage.setItem('kdPin', a.value);
-        sessionStorage.removeItem('kdGateTries');
-        sessionStorage.removeItem('kdGateLock');
-        location.href = '/mypage';
-        return false;
-    }
 </script>
 
 <%@ include file="../common/app-bottom.jsp" %>

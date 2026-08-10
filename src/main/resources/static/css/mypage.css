@@ -101,6 +101,13 @@
     gap: 20px 80px;
 }
 
+/* 아동 프로필만 좌 420 / 우 660 (420 + 40 + 660 = 1120 레일 유지).
+   이름 칸은 짧아도 되고, 오른쪽 3분할·2분할이 좁아 답답하다는 지적 (2026-08-10) */
+.mp-grid--child {
+    grid-template-columns: 420px 660px;
+    column-gap: 40px;
+}
+
 /* 읽기 전용 입력칸 (이메일) — Figma 실측 #f1f5f2 */
 .mp-input-ro {
     background: #f1f5f2;
@@ -465,21 +472,20 @@
    ⚠ 폭은 .kd-select(래퍼)에 줘야 한다 — .onb-select 는 래퍼 안에 숨겨진 select 다. */
 .mp-grid .onb-row { display: flex; align-items: center; }
 
-.mp-grid .onb-row .kd-select { width: 135px; flex: none; }
-.mp-grid .onb-row--gap .kd-select { width: 239px; }   /* 239 + 42 + 239 = 520 */
+/* 남는 폭을 드롭다운끼리 똑같이 나눠 갖는다 — 열 폭을 바꿔도 따라온다
+   (예전엔 135 / 239 를 열 폭 520 에 맞춰 손으로 박아 뒀다) */
+.mp-grid .onb-row .kd-select { flex: 1; width: auto; min-width: 0; }
 
-/* 이 두 행만 온보딩 규격(h34)을 유지한다 — 3분할·2분할이라 48이면 답답하다 */
-.mp-grid .onb-row .kd-select-btn,
-.mp-grid .onb-row .onb-select {
-    height: 34px;
-    padding-left: 14px;
-    font-size: 14px;
-}
-
-.mp-grid .onb-row .kd-select-list { top: 38px; }
+/* 높이·글자는 위 `.mp-grid .kd-select-btn`(48/17)을 그대로 받는다 —
+   예전엔 온보딩 규격(34/14)으로 되돌렸는데 옆의 이름 칸(48)보다 납작해 보인다는 지적을 받았다 */
 
 /* 성별 라디오 행 — 입력칸 높이(48)와 눈높이를 맞춘다 */
 .mp-radios { display: flex; align-items: center; height: 48px; gap: 32px; }
+
+/* 네모칸도 이름 칸과 같은 무게로 — 온보딩(20)보다 크다 */
+.mp-radios .onb-radio { width: 24px; height: 24px; border-radius: 6px; }
+.mp-radios .onb-radio:checked::after { width: 12px; height: 12px; }
+.mp-radios label { font-size: 17px; line-height: 25.5px; }
 
 /* --------------------------------------------------------------------------
    캐릭터 관리 — 좌 미리보기 + 우 카드 6개(3×2)
@@ -496,19 +502,44 @@
    350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
 /* cover + 세로를 줄인 창 = 캔버스 위쪽 빈 여백을 잘라 낸다. 얼굴은 33.7% 에 고정돼 있어
    6명 모두 같은 자리에서 잘린다. contain 이면 그 여백까지 들어와 작아 보인다. */
-.mp-char-view .big {
-    display: block;
-    /* ⚠ cover + center 60% 는 위를 잘라 코코 올림머리가 날아갔고, 잘리는 양이 머리숱마다
-       달라 캐릭터를 바꿀 때 위아래로 튀었다(2026-08-10 지적). contain 으로 캔버스 전체를 본다.
-       얼굴 높이는 자산에서 33.7% 로 맞춰 놨으므로 이래도 눈높이는 안 흔들린다. */
-    width: 391px;           /* 위 빈 여백 8% 를 잘라 올린 만큼 크게 — 391 − 31 = 360 */
-    height: 391px;
-    margin: -31px auto 0;
-    object-fit: contain;
+/* 투명 네모 칸 — 왼쪽 미리보기의 기준틀(2026-08-10 "간격이 하나도 안 맞는다").
+   margin-top 47 = 오른쪽 h2(27) + .mp-chars margin-top(20) → 칸 윗선이 카드 첫 줄 윗선과 같다.
+   아랫선(칸 + 32)에서 이름이 시작한다. 남는 세로는 .kd-field 의 margin-top:auto 가 먹어
+   애칭칸 바닥은 그대로 카드 아랫줄 바닥과 맞는다. */
+.mp-char-box {
+    position: relative;
+    width: 312px;
+    height: 312px;
+    margin: 47px auto 32px;
+    overflow: hidden;   /* 캔버스 위 빈 여백을 걷어 낸다 — 카드(.mp-chars label)와 같은 방식 */
 }
 
+/* 2026-08-10 "여기가 자꾸 움직여요" — 원인은 크기가 아니라 자산의 빈 여백이다.
+   6명 다 얼굴은 이미 원본 y 158~316 으로 같은데(측정), 실루엣은 제각각이라:
+     머리 꼭대기 y = 코코 28 · 보미 40 · 바다 52 · 루비 53 · 토리 71 · 라라 76
+     몸통 잘린 끝 y = 보미 413 … 바다 445
+   기존(338px, -26) 은 원본 39~512 를 보여 줘서 ① 코코 올림머리가 칸 위로 7px 잘리고
+   ② 잘린 밑동이 칸 바닥에서 44~65px 떠 있어 캐릭터마다 달라 보였다.
+   → 원본 창을 18.5 ~ 403.5 로 잡는다. 위는 제일 높은 코코(28)보다 위, 아래는 제일 짧은
+     보미(413)보다 위 → 6명 모두 머리는 안 잘리고 밑동은 전부 칸 아랫선에서 잘린다(=안 보인다).
+   ⚠ 이 세 값은 세트다. 자산을 바꾸면 alpha bbox 를 다시 재고 같이 고칠 것. */
+.mp-char-view .big {
+    position: absolute;
+    top: -15px;             /* 원본 y 18.5 가 칸 윗선 */
+    left: -51.5px;          /* 원본 가로중앙 256 이 칸 가로중앙 — margin:auto 는 칸보다 넓어 안 먹었다 */
+    width: 415px;           /* 512 × 0.8105 — 창(385) 이 칸 312 에 딱 맞는 배율 */
+    height: 415px;
+}
+
+/* 보미만 20px 아래로 — 2026-08-10 "보미 더 내리기".
+   보미는 원본 실루엣이 40~413 으로 6명 중 가장 짧고 위로 쏠려 있다(다른 5명 밑동 433~445).
+   얼굴 기준으로 맞추면 몸통 밑동이 칸 바닥(312)에 겨우 7.8px 걸쳐 혼자 떠 보인다.
+   20 = (437 − 413) × 0.8105 → 밑동이 루비와 같은 선에 온다.
+   ⚠ 대가로 보미 얼굴만 20px 아래다. 얼굴 통일 규칙의 유일한 예외 — 눈으로 보고 정한 값. */
+.mp-char-view .big[src*="bomi"] { top: 5px; }
+
 .mp-char-view .nm {
-    margin: 8px 0 0;
+    margin: 0;   /* 칸 아래 간격은 .mp-char-box 의 margin-bottom(32) 하나로만 정한다 */
     font-size: 26px;
     font-weight: 700;
     line-height: 39px;
@@ -544,9 +575,8 @@
 .mp-chars label {
     position: relative;
     height: 250px;
-    overflow: hidden;   /* 위로 끌어올린 그림의 빈 여백을 걷어 낸다 */
+    overflow: hidden;   /* 카드보다 넓은 그림(240)의 좌우 빈 여백을 걷어 낸다 */
     box-sizing: border-box;
-    padding-top: 21px;
     background: #fff;
     border: 1px solid var(--kd-border);
     border-radius: 12px;
@@ -556,16 +586,28 @@
 
 .mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
 
-/* ⚠ object-position 은 반드시 top. 60% 로 두면 위를 10% 잘라 **코코 올림머리(실루엣 8.6%)가
-   잘렸다**(2026-08-10 지적). top 이면 위는 한 톨도 안 자르고 남는 만큼 아래에서만 덜어 낸다. */
-/* 2026-08-10 "위에가 조금 비는 느낌" — 캔버스 위쪽이 neutral 기준 최소 8.6% 비어 있다.
-   그 8% 만큼 위로 끌어올려 잘라 내고 그만큼 크게 그린다. 211 − 17 = 194 라 **자리는 그대로**고,
-   잘리는 건 빈 여백뿐이라 머리는 안 잘린다(라벨의 overflow 가 걷어 낸다). */
-.mp-chars img { display: block; width: 211px; height: 211px; margin: -17px auto 0; object-fit: contain; }
+/* 2026-08-10 "더 크게, 더 밑으로, 카드 안에서 중앙 정렬" —
+   211 을 흐름에 두면 padding(21) + 이름(8+20) 때문에 그림이 5~216 에 갇혀 위로 몰렸다.
+   이름을 카드 바닥에 붙박고(아래 .nm) 그림은 카드를 꽉 채우게 240 으로 띄운다.
+   ⚠ 자르지 않는다 — 캔버스 위 여백이 코코 5.5% / 라라 14.8% 로 제각각이라 일괄로 자르면
+     머리숱 많은 코코만 잘린다. 6명 모두 렌더 세로 240(얼굴 폭 111.6) 로 같다.
+   가로 240 은 카드(194)보다 넓지만 자산 좌우 여백이 최소 19.5% 라 실루엣(최대 145)은 안 잘린다. */
+.mp-chars img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 240px;
+    height: 240px;
+    margin-left: -120px;
+    object-fit: contain;
+}
 
+/* 카드 바닥 붙박이 — 그림이 이름 자리를 밀어내지 않게. 아래 10 은 카드 하단 여백 */
 .mp-chars .nm {
-    display: block;
-    margin-top: 8px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
     font-size: 13px;
     line-height: 20px;
     color: var(--kd-text);
@@ -628,181 +670,3 @@
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
 }
-
-/* --------------------------------------------------------------------------
-   학습 로드맵 탭 — 카드 3장(온보딩 .onb-plan 재사용) + 주차 편집 모달
-   -------------------------------------------------------------------------- */
-/* 온보딩 카드는 420 폭이라 3장이 안 들어간다. 340×3 + 40×2 = 1100 (레일 1120) */
-.mp-plans { margin-top: 0; gap: 40px; }
-.mp-plan  { width: 340px; }
-
-/* ⚠ .onb-plan 은 height:448 고정이다(온보딩은 6단계라 그걸로 충분했다).
-   min-height 로는 바닥만 올라갈 뿐 내용이 넘치면 카드 밖으로 삐져나온다 —
-   실제로 12번째 줄이 테두리 밖에 찍혔다. height:auto 로 풀어 내용을 따라가게 한다. */
-.mp-plan { height: auto; padding-bottom: 20px; box-sizing: border-box; }
-
-/* 두 카드 높이를 맞춘다 — 한쪽에 두 줄짜리 제목이 있으면 그만큼 어긋난다 */
-.mp-plans { align-items: stretch; }
-
-/* 제목은 한 줄로 자른다. 12행 × 같은 높이라야 카드 높이가 계산대로 나오고 두 카드가 딱 맞는다.
-   ('감정 표현하기 — 슬픔 연습' 하나 때문에 AI 카드만 18px 길어져 있었다) */
-.mp-plan .onb-step-item .t {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-/* 주차 라벨은 제목 첫 줄에 붙는다 — 가운데 정렬이면 제목이 두 줄인 행만 라벨이 아래로 내려가
-   옆 행들과 눈높이가 어긋난다('7주' 만 처져 보이던 문제) */
-.mp-plan .onb-step-item .hd { align-items: flex-start; }
-.mp-plan .onb-step-item .wk { line-height: 24px; }
-
-/* 삭제 — 배지 반대쪽 모서리 */
-.mp-plan--custom .del {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 0;
-    border-radius: 999px;
-    background: center / 14px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b978f' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M6 6l12 12M18 6L6 18'/%3E%3C/svg%3E");
-    cursor: pointer;
-}
-
-.mp-plan--custom .del:hover { background-color: #f1f5f2; }
-
-/* ⚠ 온보딩 카드는 420 폭이라 .onb-step-item 높이 48 고정으로 충분했지만
-   여기는 340 이라 '감정 표현하기 — 슬픔 연습' 같은 긴 제목이 두 줄이 되며 아랫 항목과 겹쳤다.
-   높이를 내용에 맡기고 연결선도 항목 바닥까지 늘린다. */
-.mp-plan .onb-step-item { height: 44px; padding-bottom: 0; }
-
-/* 카드에 안 담은 나머지 주차 — 전체는 편집 모달에서 본다 */
-.mp-plan .steps-more {
-    margin: 8px 0 0 38px;
-    font-size: 13px;
-    line-height: 20px;
-    color: var(--kd-text-sub);
-    text-decoration: underline;
-}
-
-.mp-plan:hover .steps-more { color: var(--kd-primary); }
-.mp-plan .onb-step-item:not(:last-of-type)::before { top: 32px; bottom: 6px; height: auto; }
-
-/* 직접 구성 카드 — 표준(파랑)·AI(초록)와 구분되게 배지만 회색 계열 */
-.mp-plan--custom .badge { background: #eef2f0; color: var(--kd-text-sub); }
-.mp-plan--custom:has(input:checked) .badge { background: var(--kd-primary-active); color: #fff; }
-
-.mp-plan-links { margin-top: 24px; }
-.mp-plan-links button { font-size: 14px; color: var(--kd-text-sub); text-decoration: underline; }
-.mp-plan-links button:hover { color: var(--kd-primary); }
-
-/* 주차 편집 모달 — 12주를 2열 6행으로. 카드와 같은 화면에 두면 세로 예산을 넘긴다 */
-.roadmap-dlg { width: 820px; }
-.roadmap-dlg > h2 { margin: 0; font-size: 20px; font-weight: 700; line-height: 30px; color: var(--kd-text); }
-.roadmap-dlg > .ds { margin: 6px 0 20px; font-size: 13px; line-height: 20px; color: var(--kd-text-sub); }
-.roadmap-dlg .ft { display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px; }
-.roadmap-dlg .ft .kd-btn { width: 96px; height: 44px; margin-top: 0; border-radius: 999px; font-size: 15px; font-weight: 700; }
-
-/* ⚠ auth.css:328 의 `.terms-dialog button` 이 모달 안 모든 button 을
-   width:100% · margin-top:14 · 초록 배경 알약으로 만든다(원래는 '닫기' 하나만 있던 모달이라 그랬다).
-   주제 드롭다운과 ▲▼ 는 그 대상이 아니다 — 14px 이 행마다 밀려 칸이 움직여 보였다. */
-.roadmap-dlg .kd-select-btn {
-    margin-top: 0;
-    background: #fff;
-    border: 1px solid var(--kd-border);
-    color: var(--kd-text);
-    font-weight: 400;
-    text-align: left;
-}
-.roadmap-dlg .kd-select-btn:hover { border-color: var(--kd-primary-active); }
-.roadmap-dlg .mv { margin-top: 0; }
-
-/* 같은 이유로 '취소' 까지 초록으로 칠해졌다 — .kd-btn-outline(0,1,0) 이
-   .terms-dialog button(0,1,1) 에 밀린다. 여기서 되돌린다 */
-.roadmap-dlg .ft .kd-btn-outline {
-    background: #fff;
-    border: 1px solid var(--kd-border);
-    color: var(--kd-text);
-    font-weight: 500;
-}
-
-.mp-weeks {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: repeat(6, auto);
-    grid-auto-flow: column;
-    gap: 8px 24px;
-}
-
-.mp-week { display: flex; align-items: center; gap: 8px; height: 40px; }
-
-.mp-week .no { flex: none; width: 24px; text-align: right; font-size: 14px; color: var(--kd-text-sub); }
-
-/* 끌기 손잡이 — HTML5 draggable 이 아니라 포인터 이벤트로 옮긴다.
-   이 프로젝트는 auth-validate.js 가 전역으로 dragstart 를 막아 두는데, 그건 이미지 끌기 방지라
-   포인터 방식과는 상관이 없다. */
-/* 손잡이가 16px 이라 '어디를 잡아야 하는지' 안 보인다는 지적(2026-08-09) —
-   번호까지 묶어 44px 폭으로 넓히고 배경을 줘서 잡는 자리임을 드러낸다 */
-.mp-week .grip {
-    flex: none;
-    width: 20px;
-    height: 32px;
-    border-radius: 6px;
-    cursor: grab;
-    background: center / 12px no-repeat url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a8b4ad'%3E%3Ccircle cx='9' cy='5' r='1.6'/%3E%3Ccircle cx='15' cy='5' r='1.6'/%3E%3Ccircle cx='9' cy='12' r='1.6'/%3E%3Ccircle cx='15' cy='12' r='1.6'/%3E%3Ccircle cx='9' cy='19' r='1.6'/%3E%3Ccircle cx='15' cy='19' r='1.6'/%3E%3C/svg%3E");
-}
-
-.mp-week .grip:hover { background-color: #eef2f0; }
-
-/* 번호도 잡는 자리 — 손잡이만으로는 목표가 너무 작다 */
-.mp-week .no { cursor: grab; }
-
-.mp-week.is-drag {
-    opacity: .55;
-    cursor: grabbing;
-}
-
-/* 끌고 온 행이 놓일 자리 */
-.mp-week.is-over {
-    outline: 2px dashed var(--kd-primary-active);
-    outline-offset: 2px;
-    border-radius: 8px;
-}
-
-/* 드롭다운이 남는 폭을 다 먹는다 — .kd-select 는 onb-select.js 가 씌우는 래퍼 */
-.mp-week .kd-select { flex: 1; min-width: 0; }
-
-.mp-week .kd-select-btn,
-.mp-week select.onb-select {
-    width: 100%;
-    height: 40px;
-    padding-left: 12px;
-    border-radius: 6px;
-    font-size: 15px;
-}
-
-.mp-week .kd-select-list { top: 44px; }
-
-/* ▲▼ — 드래그 정렬 대신. 전역 dragstart 차단(auth-validate.js)을 뚫지 않아도 된다 */
-.mp-week .mv {
-    flex: none;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 1px solid var(--kd-border);
-    border-radius: 6px;
-    background: #fff center / 12px no-repeat;
-    cursor: pointer;
-}
-
-.mp-week .mv:disabled { opacity: .35; cursor: default; }
-.mp-week .mv:not(:disabled):hover { border-color: var(--kd-primary-active); }
-
-.mp-week .up { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m18 15-6-6-6 6'/%3E%3C/svg%3E"); }
-.mp-week .dn { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E"); }
-
-/* 뺀 주차는 흐리게 — 목록에서 지우지 않고 남겨야 다시 켜기 쉽다 */
-.mp-week.is-off .no,
-.mp-week.is-off .kd-select { opacity: .4; }
