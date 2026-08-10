@@ -953,6 +953,39 @@
 
 .learn-entry-done .row .kd-btn-outline { background: #fff; }
 
+/* --- 기록 전 → 기록 후 -------------------------------------------------------
+   저장하면 두 카드가 갈리는데(learn/index.jsp kdDailySave) 아무 반응이 없어
+   "됐나?" 싶다. 체크만 도장처럼 찍고 나머지는 조용히 뜬다 — 보호자 화면은
+   정보를 읽는 곳이라 절제한다.
+   ⚠ 두 카드는 hidden(display:none) 으로 갈린다. display 는 transition 이 안 걸리므로
+     나타나는 카드에 animation 을 건다 — 보이는 순간 한 번 돈다(PIN 점과 같은 함정).
+   ⚠ 사라지는 카드는 건드리지 않는다. 두 카드 높이가 237 로 같아 주변이 안 튀고,
+     저장 순간 모달이 같이 닫혀 시선이 그쪽에 있다. */
+.learn-entry-done:not([hidden]) .ic {
+    animation: kd-entry-stamp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.learn-entry-done:not([hidden]) .t,
+.learn-entry-done:not([hidden]) .d,
+.learn-entry-done:not([hidden]) .row {
+    animation: kd-entry-fade 0.35s 0.12s ease both;
+}
+
+@keyframes kd-entry-stamp {
+    from { opacity: 0; transform: scale(0.3) rotate(-12deg); }
+}
+
+@keyframes kd-entry-fade {
+    from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .learn-entry-done:not([hidden]) .ic,
+    .learn-entry-done:not([hidden]) .t,
+    .learn-entry-done:not([hidden]) .d,
+    .learn-entry-done:not([hidden]) .row { animation: none; }
+}
+
 .learn-note {
     margin: 12px 0 0;
     font-size: 12px;
@@ -1370,3 +1403,18 @@ html[data-kd-stage="0"] .learn-recent,
 html[data-kd-stage="1"] .learn-recent { display: flex; flex-direction: column; }
 /* margin-top 7 = 표가 있던 자리(디자인 y478)와 같은 높이. 왼쪽 일상 카드와 윗선이 맞는다 */
 html[data-kd-stage="0"] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }
+
+
+/* --- 0단계 빈 화면 채우기 (2026-08-10 "너무 휑하다") ------------------------- */
+/* '오늘의 추천 학습'만 숨기므로 '연속 이용'이 한 줄을 다 쓴다 */
+html[data-kd-stage="0"] .dash-streak { width: 100%; }
+/* 빈 안내 카드에도 캐릭터를 얹는다 — dash-today 와 같은 처리 */
+.dash-chart { position: relative; overflow: hidden; }
+.dash-chart > .ch {
+    position: absolute;
+    right: 24px;
+    bottom: 0;
+    width: 150px;
+    object-fit: contain;
+    pointer-events: none;
+}

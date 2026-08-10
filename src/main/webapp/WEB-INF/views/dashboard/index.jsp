@@ -40,6 +40,8 @@
             <p class="d">첫 이야기를 마치면 감정 이해 · 표현 · 사회성이 주차별로 여기에 쌓여요</p>
             <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
         </div>
+        <%-- 카드가 휑하다는 지적(2026-08-10) — dash-today 와 같은 방식으로 캐릭터를 얹는다 --%>
+        <img class="ch" data-kd-char="wave" src="/img/char-tori-wave.png" alt="">
     </div>
 
     <%-- 1단계 — 한 번 해 봤지만 지수를 내기엔 이르다. 다음 행동을 딱 하나만 가리킨다 --%>
@@ -104,12 +106,13 @@
     </section>
 </div>
 
-<%-- 0단계에서는 숨긴다 — 갈 곳을 [학습 시작하기] 하나로 좁히려고(2026-08-09 요청).
-     비워진 세로는 위 .dash-row 가 흡수해 빈 카드가 그만큼 커진다. --%>
-<div class="dash-bottom kd-hide0">
+<%-- 2026-08-09 에는 이 행을 0단계에서 통째로 숨겼다(갈 곳을 [학습 시작하기] 하나로 좁히려고).
+     그랬더니 화면이 너무 휑했다(2026-08-10 지적) → **겹치는 CTA 가 있는 '오늘의 추천 학습' 만**
+     숨기고 '연속 이용' 은 0단계에도 보인다. 그쪽은 0단계 문구를 원래 갖고 있었다. --%>
+<div class="dash-bottom">
     <%-- 카드 오른쪽이 휑하다는 지적(2026-08-09)으로 캐릭터를 얹었다.
          지우가 고른 캐릭터라 백엔드 연동 시 선택값으로 바꿀 것. --%>
-    <section class="dash-today">
+    <section class="dash-today kd-hide0">
         <h2>오늘의 추천 학습</h2>
         <p>이야기 1편 + 표정 미션 1회</p>
         <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
