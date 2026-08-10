@@ -110,4 +110,4 @@
 <script src="/js/auth-validate.js?v=205" defer></script>
 <script src="/js/onb-select.js?v=205" defer></script>
 <%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제) --%>
-<script src="/js/kd-roadmap.js?v=205" defer></script>
+<script src="/js/kd-roadmap.js?v=206" defer></script>

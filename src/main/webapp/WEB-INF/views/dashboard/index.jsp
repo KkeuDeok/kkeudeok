@@ -160,10 +160,9 @@
 
 <%-- 로드맵 전체 보기 — 네이티브 <dialog>. 라우트를 새로 파면 서버 재시작이 필요해서 모달로 만들었다.
      .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다(mypage 모달과 같은 규칙).
-     목록은 kd-roadmap.js 가 채운다(마이페이지 > 학습 로드맵에서 편집 가능). --%>
+     목록은 kd-roadmap.js 가 채운다 — 커리큘럼은 그 파일 한 곳에만 있다. --%>
 <dialog id="dlgRoadmap" class="terms-dialog dash-dlg">
     <h2>12주 로드맵</h2>
-    <p id="dlgPlanLead"></p>
     <ol id="dlgPlanList"></ol>
     <button type="button" onclick="dlgRoadmap.close()">닫기</button>
 </dialog>
