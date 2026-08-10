@@ -18,7 +18,10 @@
 <section class="mp-sec">
     <div class="mp-char">
         <div class="mp-char-view">
-            <img class="big" id="charBig" src="/img/char-tori-neutral.png" alt="토리">
+            <%-- 투명 정사각 칸(.mp-char-box) — 카드 그리드 상단·하단선에 맞추는 기준틀. 그림은 이 칸 안에 딱 맞게 들어간다 --%>
+            <div class="mp-char-box">
+                <img class="big" id="charBig" src="/img/char-tori-neutral.png" alt="토리">
+            </div>
             <p class="nm" id="charName">토리</p>
             <p class="ds" id="charDesc">마음을 함께 읽어주는 다정한 친구예요</p>
             <div class="kd-field">

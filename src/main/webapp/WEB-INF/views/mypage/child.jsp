@@ -28,7 +28,7 @@
 <section class="mp-sec">
     <%-- 보호자 정보 탭과 대칭 — 어느 쪽이 누구 정보인지 제목에서 갈린다 --%>
     <h2>아이 정보</h2>
-    <div class="mp-grid">
+    <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
             <input class="kd-input" type="text" id="childName" value="지우">
@@ -82,7 +82,6 @@
                     <option selected>자폐 장애</option>
                     <option>지적 장애</option>
                     <option>발달 장애</option>
-                    <option>기타</option>
                 </select>
                 <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel">
                     <option>경증</option>
