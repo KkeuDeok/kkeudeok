@@ -55,9 +55,11 @@
    6단계 스텝바 — 블록 96 + 연결선 56, 총 856 중앙(중심 720)
    상단 5 + 높이 58 + 하단 7 = 70 → 내용 행이 142에서 시작한다
    -------------------------------------------------------------------------- */
+/* ⚠ 폭을 고정하지 말 것 — 예전 856px 은 6칸 기준이라 2026-08-10 에 로드맵 칸을 빼자
+   내용(704)이 그 안에서 왼쪽으로 몰렸다. 칸 수가 바뀌어도 가운데를 지키게 flex 로 맡긴다. */
 .onb-steps {
     display: flex;
-    width: 856px;
+    justify-content: center;
     height: 58px;
     margin: 5px auto 7px;
 }
@@ -862,162 +864,6 @@
 .onb-emotion.is-wait .st { color: #67766e; }
 
 /* --------------------------------------------------------------------------
-   온보딩6 AI 로드맵 — 비교 카드 380×384 두 장 (x 320·740, 간격 40), y=328
-   -------------------------------------------------------------------------- */
-.onb-plans {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-top: 22.5px;     /* 부제 하단 305.5 → 328 */
-}
-
-.onb-plan {
-    position: relative;
-    display: block;
-    width: 420px;
-    height: 448px;          /* 328 + 448 = 776, 온보딩 내용 한계(785) 안 */
-    padding: 22px;
-    background: #fff;
-    border: 1px solid var(--kd-border);
-    border-radius: 16px;
-    box-sizing: border-box;
-    cursor: pointer;
-}
-
-.onb-plan input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* 고른 커리큘럼만 초록 테두리 + 진한 단계 번호 */
-.onb-plan:has(input:checked) {
-    border: 2px solid var(--kd-primary-active);
-}
-
-.onb-plan:hover {
-    border-color: var(--kd-primary-active);
-}
-
-.onb-plan .badge {
-    display: inline-flex;
-    align-items: center;
-    height: 28px;
-    padding: 0 14px;
-    border-radius: 999px;
-    background: var(--kd-border);
-    color: var(--kd-text-sub);
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.onb-plan--ai .badge {
-    background: var(--kd-primary-active);
-    color: #fff;
-}
-
-.onb-plan h2 {
-    margin: 10px 0 0;
-    font-size: 20px;
-    font-weight: 700;
-    line-height: 28px;
-    color: var(--kd-text);
-}
-
-.onb-plan .lead {
-    margin: 2px 0 0;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--kd-text-sub);
-}
-
-.onb-plan .rule {
-    height: 1px;
-    margin: 12px 0 0;
-    background: var(--kd-border);
-}
-
-/* ⚠ flex 로 두면 제목(.t)과 설명(.d)이 나란히 붙어 한 줄로 이어져 버린다.
-   블록으로 둬서 위아래로 쌓이게 할 것 */
-.onb-step-item {
-    position: relative;
-    height: 48px;           /* 단계 간격 48 */
-    padding-left: 38px;
-}
-
-/* .onb-step-item:first-of-type 은 안 먹는다 — .rule 도 div 라 그쪽이 first-of-type 이다 */
-.rule + .onb-step-item { margin-top: 14px; }
-
-.onb-step-item .no {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 28px;
-    height: 28px;
-    border-radius: 999px;
-    background: var(--kd-primary-tint);
-    color: var(--kd-primary-strong);
-    font-size: 14px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.onb-plan:has(input:checked) .onb-step-item .no {
-    background: var(--kd-primary-active);
-    color: #fff;
-}
-
-/* 단계 사이 연결선 — 마지막 항목엔 없다 */
-.onb-step-item:not(:last-of-type)::before {
-    content: "";
-    position: absolute;
-    left: 13px;
-    top: 30px;
-    width: 2px;
-    height: 18px;
-    background: var(--kd-border);
-}
-
-/* 제목은 왼쪽, 기간은 오른쪽 열로 정렬.
-   기간을 절대배치(position:absolute)로 오른쪽에 붙이면 제목 상자와 겹쳐서
-   제목이 길어질 때 글자가 파고든다 → flex 로 밀어내야 절대 안 겹친다 */
-.onb-step-item .hd {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.onb-step-item .t {
-    flex: 1;
-    min-width: 0;           /* 긴 제목이 기간을 밀어내지 않고 줄어들게 */
-    margin: 0;
-    font-size: 17px;
-    font-weight: 700;
-    line-height: 24px;
-    color: var(--kd-text);
-}
-
-.onb-step-item .d {
-    margin: 2px 0 0;
-    font-size: 14px;
-    line-height: 19px;
-    color: var(--kd-text-sub);
-}
-
-/* 기간 열 — 가장 긴 '11-12주' 가 들어가는 폭을 고정해 6줄의 열이 나란히 맞는다 */
-.onb-step-item .wk {
-    flex: none;
-    min-width: 58px;
-    text-align: right;
-    font-size: 14px;
-    line-height: 20px;
-    color: var(--kd-text-sub);
-}
-
-/* --------------------------------------------------------------------------
    온보딩 완료 — 캐릭터 + 요약표
    -------------------------------------------------------------------------- */
 .onb-done-char {
@@ -1172,13 +1018,16 @@
 
 /* --------------------------------------------------------------------------
    온보딩2 캐릭터 선택 — 카드 212×264 두 장이 520 축 양끝(간격 96)
-   카드 401 / 애칭 716 / 버튼 845
+   카드 363 / 애칭 716 / 버튼 845
    선택 표시는 라디오 + :has() 로 처리한다(JS 0줄)
    -------------------------------------------------------------------------- */
+/* ⚠ 이 값은 `.onb-sub` 의 margin-bottom(57.5)과 **마진 겹침**이라 큰 쪽이 이긴다.
+   예전 95.5 는 겹침을 이기고 카드를 401 로 밀어내 이 화면만 혼자 내려와 있었다
+   (2026-08-10 "더 위로" 지적). 57.5 = 온보딩 기본 레일 → 카드 363. */
 .onb-chars {
     display: flex;
     justify-content: space-between;
-    margin-top: 95.5px;     /* 부제 하단 305.5 → 카드 401 */
+    margin-top: 57.5px;     /* 부제 하단 305.5 → 카드 363 */
 }
 
 /* 카드 248 + 간격 24 + 248 = 520 축 */
@@ -1215,7 +1064,11 @@
        cover 로 자르면 코코 올림머리가 날아간다(마이페이지와 같은 이유) → contain 유지. */
     width: 261px;
     height: 261px;
-    margin: -13px auto 0;
+    /* 그림(261)이 카드 안쪽(246)보다 넓어 margin:auto 는 0 으로 풀린다 → 왼쪽에 붙고
+       오른쪽으로만 삐져나가 7.5px 우측으로 치우쳐 보였다. 선택 시 테두리가 2px 로
+       바뀌어 안쪽 폭이 달라져도 어긋나지 않게 50% + translate 로 잡는다. */
+    margin: -13px 0 0 50%;
+    transform: translateX(-50%);
     object-fit: contain;
 }
 

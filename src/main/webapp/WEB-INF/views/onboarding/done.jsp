@@ -1,13 +1,19 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- onbStep = 7 → 스텝바 여섯 칸이 모두 완료 표시된다 --%>
+<%-- onbStep = 6 → 스텝바 다섯 칸이 모두 완료 표시된다 --%>
 <%-- ⚠ JSP 주석은 스크립틀릿 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다.
         주석 닫는 기호를 주석 본문에 글자로 적어도 안 된다. 거기서 주석이 끝나 버려
         뒷문장이 화면에 그대로 찍힌다 (실제로 이 주석이 그렇게 새고 있었다) --%>
-<% String pageTitle = "온보딩 - 완료"; int onbStep = 7;
+<% String pageTitle = "온보딩 - 완료"; int onbStep = 6;
    String onbCol = "onb-col--w800 onb-col--center onb-col--done";
-   /* 온보딩을 실제로 통과했으면 데이터가 0인 게 맞다 — 대시보드를 신규 상태로 띄운다.
+   /* 온보딩을 실제로 통과했으면 데이터가 0인 게 맞다 — 학습 횟수를 0으로 되돌린다.
+      예전엔 sessionStorage.kdStage 에 '0' 을 박았는데, 그건 head.jsp 의 **시연 스위치**라
+      그 탭에서 학습을 몇 번 해도 계산이 통째로 무시됐다(2026-08-10 지적의 직접 원인).
       해제는 주소에 ?stage=2 (head.jsp 스위치). 위 경고대로 여기는 자바 주석이어야 한다. */
-   String onbNext = "sessionStorage.setItem('kdStage','0');location.href='/dashboard'"; %>
+   String onbNext = "localStorage.setItem('kdDone','0');"
+                  + "sessionStorage.removeItem('kdStage');"
+                  + "sessionStorage.removeItem('kdDaily');"
+                  + "sessionStorage.removeItem('kdCounted');"
+                  + "location.href='/dashboard'"; %>
 <%@ include file="../common/onb-top.jsp" %>
 <% onbPrev = false; onbNextLabel = "대시보드로 가기"; %>
 

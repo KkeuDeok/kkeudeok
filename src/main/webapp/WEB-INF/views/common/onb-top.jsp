@@ -1,8 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 온보딩(보호자) 공통 껍데기(위쪽) — 브랜드 바 + 6단계 스텝바까지.
+<%-- 온보딩(보호자) 공통 껍데기(위쪽) — 브랜드 바 + 5단계 스텝바까지.
      사용법: include 전에 스크립틀릿으로
          String pageTitle = "아이 정보";
-         int onbStep = 1;          0 = 스텝바 없음(PIN) · 1~6 = 진행 · 7 = 전부 완료
+         int onbStep = 1;          0 = 스텝바 없음(PIN) · 1~5 = 진행 · 6 = 전부 완료
          String onbCol = "";       본문 열 폭 변형 (onb-col--w560 / --w740 / --w800 / --center)
      반드시 onb-bottom.jsp 와 짝으로 쓸 것.
      include 다음 줄에서 onbPrev(=false 면 [이전] 없음)·onbNextLabel 을 바꿀 수 있다. --%>
@@ -24,10 +24,12 @@
 
         <nav class="onb-steps" aria-label="온보딩 진행 단계">
             <%
-                String[] onbLabels = {"아이 정보", "캐릭터", "발달 체크", "표정 안내", "표정 등록", "로드맵"};
+                /* 2026-08-10: '로드맵' 칸을 뺐다(사용자 요청으로 로드맵 선택 화면 삭제).
+                   표정 등록을 마치면 바로 완료 화면으로 간다 — auth-validate.js 의 kdOnbFaceNext. */
+                String[] onbLabels = {"아이 정보", "캐릭터", "발달 체크", "표정 안내", "표정 등록"};
                 for (int i = 0; i < onbLabels.length; i++) {
                     int no = i + 1;
-                    /* onbStep = 7 이면 여섯 단계가 모두 완료 상태가 된다 (완료 화면) */
+                    /* onbStep = 6 이면 다섯 단계가 모두 완료 상태가 된다 (완료 화면) */
                     String state = no < onbStep ? "is-done" : (no == onbStep ? "is-current" : "");
             %>
             <div class="onb-step <%= state %>"<%= no == onbStep ? " aria-current=\"step\"" : "" %>>
