@@ -53,7 +53,6 @@
                 <option>자폐 장애</option>
                 <option>지적 장애</option>
                 <option>발달 장애</option>
-                <option>기타</option>
             </select>
             <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel">
                 <option value="">정도 선택</option>

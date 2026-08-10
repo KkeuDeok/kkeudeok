@@ -121,11 +121,6 @@ public class UserController {
         return "onboarding/face-capture";
     }
 
-    @GetMapping("/onboarding/roadmap")
-    public String onboardingRoadmap() {
-        return "onboarding/roadmap";
-    }
-
     @GetMapping("/onboarding/done")
     public String onboardingDone() {
         return "onboarding/done";

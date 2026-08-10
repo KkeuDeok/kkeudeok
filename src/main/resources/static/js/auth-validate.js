@@ -465,7 +465,8 @@
 
     window.kdOnbFaceNext = function () {
         faceIdx += 1;
-        if (faceIdx >= faceRows().length) { location.href = '/onboarding/roadmap'; return; }
+        /* 2026-08-10: 로드맵 선택 화면을 없애서 표정 등록이 마지막 단계다 → 바로 완료 화면 */
+        if (faceIdx >= faceRows().length) { location.href = '/onboarding/done'; return; }
         renderFaces();
     };
 
