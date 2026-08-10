@@ -3,11 +3,10 @@
 <%@ include file="../common/app-top.jsp" %>
 
 <%-- ⚠ Figma에 이 화면은 없다(탭바에 '감정 이해'만 존재) — 기존 3화면 문법으로 신규 설계.
-     이해도 5개 평균 = 72 로 지수와 일치. 장면 리스트는 학습 홈 최근 기록과 동일 데이터.
+     이해도 5개 평균 = 72 로 지수와 일치.
      ponytail: 수치는 전부 예시값. --%>
 <div class="app-head rpt-head">
     <h1><span data-kd="childCall">지우</span>의 성장 리포트</h1>
-    <p>관찰 8주차 · 매주 월요일에 갱신돼요</p>
 </div>
 
 <div class="rpt-tabsrow">
@@ -35,33 +34,21 @@
     </div>
 </section>
 
-<hr class="rpt-rule">
-
+<%-- 문구는 하드코딩(고정). 이해도 최저 2개(도움요청·화남)에 맞춘 예시 --%>
 <section class="rpt-sec">
-    <h2>이번 주 이해한 장면</h2>
-    <div class="rpt-scenes">
-        <div class="rpt-scene">
-            <p class="t">친구가 내 블록을 무너뜨렸어요</p>
-            <span class="chip">화남 이해</span>
-            <span class="d">7.22</span>
+    <h2>집에서 해볼 수 있어요</h2>
+    <div class="rpt-tips">
+        <div class="rpt-tip">
+            <span class="chip">도움요청</span>
+            <h3>"도와줘" 먼저 말해보기</h3>
+            <p>블록이 안 끼워질 때 바로 도와주지 말고, 3초만 기다렸다가 "뭐라고 말하면 될까?" 하고 물어봐 주세요.</p>
         </div>
-        <div class="rpt-scene">
-            <p class="t">처음 간 곳에서 길을 잃을 뻔했어요</p>
-            <span class="chip">놀람 이해</span>
-            <span class="d">7.21</span>
-        </div>
-        <div class="rpt-scene">
-            <p class="t">놀이터에서 차례를 기다렸어요</p>
-            <span class="chip">기쁨 이해</span>
-            <span class="d">7.19</span>
+        <div class="rpt-tip">
+            <span class="chip">화남</span>
+            <h3>화난 마음에 이름 붙이기</h3>
+            <p>아이가 화를 낼 때 "속상했구나"처럼 감정 이름을 대신 말해주면, 표정과 감정을 연결하는 데 도움이 돼요.</p>
         </div>
     </div>
 </section>
-
-<div class="rpt-cta">
-    <span class="ic"></span>
-    <p>아직 어려운 감정은 '도움요청'이에요 · 다음 이야기 '친구와 다툰 날'로 연습을 이어가요</p>
-    <a class="kd-btn kd-btn-primary" href="/learn">학습 홈 가기</a>
-</div>
 
 <%@ include file="../common/app-bottom.jsp" %>
