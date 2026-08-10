@@ -40,18 +40,18 @@
 
         <%-- 기록 후 상태 — Figma 에 없는 추가분.
              "다음으로 넘어가는 느낌"을 만들기 위한 블록이라 통째로 빼기 쉽게 분리해 뒀다. --%>
-        <div class="learn-entry learn-entry-done" id="dailyDone" hidden>
+        <div class="learn-entry learn-entry-done" id="dailyDone" hidden style="cursor:pointer" onclick="kdDailyPeek(event)">
             <span class="ic ic-check"></span>
             <p class="t">오늘 기록을 남겼어요</p>
             <p class="d" id="dailySummary"></p>
+            <%-- 카드를 누르면 펼쳐지는 원문. 요약은 40자에서 잘리니 여기서 전체를 보여 준다. --%>
+            <p class="d" id="dailyFull" hidden></p>
             <div class="row">
-                <button type="button" class="kd-btn kd-btn-outline" onclick="dlgDaily.showModal()">다시 쓰기</button>
+                <button type="button" class="kd-btn kd-btn-outline" onclick="kdDailyNew()">다시 쓰기</button>
                 <%-- 고른 감정이 그대로 학습 흐름의 감정 벌로 이어진다 — href 는 kdDailySave() 가 채운다 --%>
                 <a class="kd-btn kd-btn-primary" id="dailyStart" href="/story/scene">이 이야기로 학습 시작</a>
             </div>
         </div>
-
-        <p class="learn-note">기록은 이야기 생성에만 쓰이고 30일 후 자동 삭제돼요</p>
     </section>
 
     <section class="learn-recent">
@@ -74,9 +74,9 @@
             <tbody class="kd-has-data">
             <tr><td class="c-no">1</td><td class="c-date">7.22</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
             <tr><td class="c-no">2</td><td class="c-date">7.21</td><td class="c-story">처음 간 곳에서 길을 잃을 뻔했어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-alt">다른 방식 선택</span></td></tr>
+            <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-cont">미완료</span></td></tr>
             <tr><td class="c-no">4</td><td class="c-date">7.18</td><td class="c-story">동생이 내 장난감을 가져갔어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">5</td><td class="c-date">7.16</td><td class="c-story">블록으로 높은 탑을 쌓았어요</td><td class="c-state"><span class="chip chip-cont">이어서 하기</span></td></tr>
+            <tr><td class="c-no">5</td><td class="c-date">7.16</td><td class="c-story">블록으로 높은 탑을 쌓았어요</td><td class="c-state"><span class="chip chip-cont">미완료</span></td></tr>
             </tbody>
         </table>
     </section>
@@ -97,7 +97,7 @@
     <span class="ic"></span>
     <p class="kd-has-data">이번 주 학습을 3번 함께했어요 · 다음 이야기는 '친구와 다툰 날'이에요</p>
     <p class="kd-no-data">첫 이야기를 시작해 볼까요? · 오늘의 일상을 적으면 더 딱 맞는 이야기가 나와요</p>
-    <p class="kd-s1">이야기를 한 편 마쳤어요 · 이번 주 3회를 채우면 성장 리포트가 만들어져요</p>
+    <p class="kd-s1">오늘 기록을 남겼어요 · 이야기를 한 편 마치면 성장 리포트가 만들어져요</p>
     <a class="kd-btn kd-btn-primary" href="/story/scene">학습 시작</a>
 </div>
 
@@ -165,13 +165,31 @@
         });
     })();
 
+    /* '다시 쓰기'는 말 그대로 새로 쓰는 것 — 지난 내용을 비우고 연다 (2026-08-10 지적). */
+    function kdDailyNew() {
+        document.getElementById('dailyText').value = '';
+        document.getElementById('dailyCount').textContent = '0 / 200';
+        dlgDaily.showModal();
+    }
+
+    /* 기록 카드를 누르면 원문을 폈다 접는다. 카드 안의 버튼·링크 클릭은 그대로 통과시킨다. */
+    function kdDailyPeek(e) {
+        if (e.target.closest('button, a')) return;
+        var full = document.getElementById('dailyFull');
+        full.hidden = !full.hidden;
+    }
+
     function kdDailySave() {
         var chip = document.querySelector('#dailyChips input:checked');
         var emo = document.querySelector('#dailyEmos input:checked');
         var text = document.getElementById('dailyText');
         var memo = text.value.trim() || text.placeholder;
+
+        document.getElementById('dailyFull').textContent = '"' + memo + '"';
+        document.getElementById('dailyFull').hidden = true;
+
         /* 요약 한 줄에 통째로 붙이던 탓에 길게 쓰면 카드가 늘어지고 글이 흘러넘쳤다
-           (2026-08-10 지적). 여기서는 앞부분만 보여 준다 — 원문은 모달에 그대로 남아 있다. */
+           (2026-08-10 지적). 여기서는 앞부분만 보여 준다 — 원문은 카드를 누르면 펼쳐진다. */
         if (memo.length > 40) memo = memo.slice(0, 40).trim() + '…';
 
         document.getElementById('dailySummary').textContent =
@@ -187,10 +205,12 @@
         dlgDaily.close();
 
         /* 실제로 기록을 남겼으면 '아무것도 없음(0)' 은 더 이상 맞지 않다 -> 1단계로 올린다.
-           이야기를 끝까지 마치면 story.js 가 localStorage.kdDone 을 올려 3회에 2단계가 된다
-           (2026-08-10 추가). 여기 sessionStorage.kdStage 는 그 전까지의 임시 승격이다. */
+           이야기를 끝까지 마치면 story.js 가 localStorage.kdDone 을 올려 **한 편에 2단계**가 된다
+           (2026-08-10 요청으로 3회 → 1회).
+           ⚠ 예전엔 여기서 sessionStorage.kdStage 에 썼다 — 그건 head.jsp 의 **시연 스위치**라
+             한 번 쓰면 학습 횟수 계산을 영영 가로챈다. 자기 키(kdDaily)로 분리했다. */
         if (document.documentElement.dataset.kdStage === '0') {
-            try { sessionStorage.setItem('kdStage', '1'); } catch (e) { }
+            try { sessionStorage.setItem('kdDaily', '1'); } catch (e) { }
             document.documentElement.dataset.kdStage = '1';
         }
     }
@@ -202,9 +222,64 @@
     if (document.documentElement.dataset.kdStage === '1') {
         document.getElementById('dailySummary').textContent =
             '유치원 · 기쁨 · "선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
+        document.getElementById('dailyFull').textContent =
+            '"선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
     }
+</script>
+
+<script>
+    /* 이야기로 들어가기 — 배너 속 토리가 그대로 커지며 이야기 화면 자리로 날아간다.
+       보호자 앱에서 아이 화면으로 넘어가는 자리라 그냥 갈리면 다른 앱이 열린 것처럼 보인다.
+       두 화면에 같은 토리가 있는 걸 이용한 것이다(app.css .kd-enter-*).
+
+       ⚠ 배너 토리는 .learn-hero .art(overflow:hidden) 안이라 그대로 키우면 잘린다
+         → 같은 자리에 복제본을 fixed 로 띄워 그걸 날린다.
+       ⚠ JS 가 없거나 그림을 못 찾으면 그냥 주소로 이동한다(점진적 향상) — 화면은 안 깨진다. */
+    (function () {
+        /* 도착 좌표는 아이 화면 규격에서 그대로 계산한다.
+           .story-art 는 본문 1000 안 720×426, object-fit:contain 이라 실제 그림은 426 정사각.
+           본문은 가운데 정렬이고 위에 스텝바 72 가 있으므로 캔버스 세로 중심은 72 + 213 = 285.
+           아이 화면 배율은 창높이/1024 (fit-frame.js 와 같은 규칙). */
+        var ART = 426, CENTER_Y = 285, CANVAS_H = 1024;
+
+        document.querySelectorAll('.learn-hero a[href^="/story/scene"], #dailyStart').forEach(function (link) {
+            link.addEventListener('click', function (e) {
+                var ch = document.querySelector('.learn-hero .art .ch');
+                if (!ch || !ch.complete) return;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+                e.preventDefault();
+
+                var r = ch.getBoundingClientRect();
+                var s = window.innerHeight / CANVAS_H;
+
+                var fly = ch.cloneNode();
+                fly.className = 'kd-enter-ch';
+                fly.style.left = r.left + 'px';
+                fly.style.top = r.top + 'px';
+                fly.style.width = r.width + 'px';
+                fly.style.height = r.height + 'px';
+                fly.style.setProperty('--kd-enter-s', (ART * s) / r.width);
+                fly.style.setProperty('--kd-enter-dx', (window.innerWidth / 2 - (r.left + r.width / 2)) + 'px');
+                fly.style.setProperty('--kd-enter-dy', (CENTER_Y * s - (r.top + r.height / 2)) + 'px');
+
+                var veil = document.createElement('div');
+                veil.className = 'kd-enter-veil';
+
+                document.body.appendChild(veil);
+                document.body.appendChild(fly);
+
+                /* 한 프레임 뒤에 켜야 시작 상태가 그려진 뒤 전환이 걸린다 */
+                requestAnimationFrame(function () {
+                    document.body.classList.add('kd-entering');
+                });
+
+                var href = link.getAttribute('href');
+                setTimeout(function () { location.href = href; }, 460);
+            });
+        });
+    })();
 </script>
 
 <%@ include file="../common/app-bottom.jsp" %>
