@@ -79,7 +79,7 @@
              2026-08-10 피드백 2 — 중복 진단 대응으로 유형은 복수 선택. --%>
         <div class="kd-field">
             <span class="kd-label">장애 정보
-                <span class="onb-note">중복 진단이면 여러 개 고를 수 있어요</span></span>
+                <span class="onb-sublabel">중복 진단이면 여러 개 고를 수 있어요</span></span>
             <div class="onb-row onb-row--gap">
                 <div class="onb-radios onb-radios--dis">
                     <span class="onb-radio-item">

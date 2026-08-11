@@ -50,7 +50,7 @@
          ⚠ 안내 문구는 라벨 안에 넣는다 — 아래 줄로 빼면 필드가 밀려 온보딩 레일(내용 끝 785)이 깨진다. --%>
     <div class="kd-field onb-field">
         <span class="onb-label">장애 정보 <span class="req">*</span>
-            <span class="onb-note">중복 진단이면 여러 개 고를 수 있어요</span></span>
+            <span class="onb-sublabel">중복 진단이면 여러 개 고를 수 있어요</span></span>
         <div class="onb-row onb-row--gap">
             <div class="onb-radios onb-radios--dis">
                 <span class="onb-radio-item">

@@ -1172,8 +1172,12 @@ input[type="checkbox"].onb-radio:checked::after {
     margin-right: 42px;
 }
 
-/* 라벨 옆 보조 안내 — 줄을 새로 먹지 않는다 */
-.onb-note {
+/* 라벨 옆 보조 안내 — 줄을 새로 먹지 않는다.
+   ⚠ 처음엔 .onb-note 로 지었다가 **이미 쓰이는 이름**이었다(613~630행, 체크리스트 안내 3줄).
+     그쪽이 display:flex 라 줄을 통째로 먹어 라벨이 2줄이 되고 아래 칸이 20px 밀렸다.
+     새 클래스를 만들 땐 CSS 전체를 먼저 grep 할 것. */
+.onb-sublabel {
+    display: inline;
     margin-left: 8px;
     font-size: 12px;
     font-weight: 400;
