@@ -281,16 +281,56 @@
         try { sessionStorage.setItem(ONB_KEY, JSON.stringify(cur)); } catch (e) { }
     }
 
+    /* ---------- 장애 유형 · 정도 (온보딩 1 · 마이페이지 아동 프로필 공통) ----------
+       정도는 유형에 딸린다 (팀장 확정 2026-08-11) — 자폐·지적은 중증만, 발달만 경증/중증.
+       ⚠ 이 표가 정도 목록의 유일한 주인이다. JSP 두 곳에 <option> 을 도로 박으면 또 어긋난다. */
+    var DIS_LEVELS = {
+        '자폐 장애': ['중증'],
+        '지적 장애': ['중증'],
+        '발달 장애': ['경증', '중증']
+    };
+
+    /* 안내 칸('정도 선택')을 쓰는 화면인지 — 마크업 첫 옵션이 빈 값이면 그렇다(온보딩).
+       마이페이지는 안내 칸 없이 값이 바로 박힌다. 다시 그릴 때마다 이 값을 살려 쓴다. */
+    var disPlaceholder = null;
+
+    function syncDisLevels() {
+        var type = $('disabilityType'), level = $('disabilityLevel');
+        if (!type || !level) return;
+        var levels = DIS_LEVELS[type.value] || [];
+        var keep = level.value;
+        /* 고를 게 하나뿐인 유형(자폐·지적)은 안내 칸을 빼고 그 값을 바로 박는다 —
+           '정도 선택'을 도로 고를 수 있으면 통과 못 하는 선택지를 남기는 셈이다 */
+        var ph = disPlaceholder !== null && levels.length !== 1 ? disPlaceholder : null;
+        level.innerHTML = '';
+        if (ph !== null) level.add(new Option(ph, ''));
+        levels.forEach(function (v) { level.add(new Option(v, v)); });
+        /* 고르던 정도가 새 유형에도 있으면 유지 — 없으면 안내 칸이 있는 쪽은 다시 고르게 비운다 */
+        if (levels.indexOf(keep) >= 0) level.value = keep;
+        else if (ph === null) level.selectedIndex = 0;
+        else level.value = '';
+        /* 옵션을 갈아끼웠으니 씌워 둔 드롭다운 목록도 다시 그린다(onb-select.js) */
+        if (level.__kdSync) level.__kdSync();
+    }
+
+    (function initDisLevels() {
+        var type = $('disabilityType'), level = $('disabilityLevel');
+        if (!type || !level) return;
+        disPlaceholder = level.options.length && !level.options[0].value
+            ? level.options[0].textContent : null;
+        type.addEventListener('change', function () {
+            syncDisLevels();
+            if (level.value) clearError(level);
+        });
+        syncDisLevels();
+    })();
+
     window.kdSubmitOnbProfile = function () {
         clearAllErrors();
         var ok = checkRequired($('childName'), '아이 이름을 입력해 주세요');
         ok = checkGroup([$('birthYear'), $('birthMonth'), $('birthDay')], '생년월일을 모두 선택해 주세요') && ok;
-        /* 장애 유형은 복수 선택이라(중복 진단, 2026-08-10 피드백 2) checkGroup 을 못 쓴다 —
-           그건 value 가 있는 input 용이다. 하나도 안 고르면 정도 칸에 오류를 띄운다(같은 kd-field). */
-        var types = [].map.call(
-            document.querySelectorAll('input[name="disabilityType"]:checked'),
-            function (c) { return c.value; });
-        if (!types.length) { setError($('disabilityLevel'), '장애 유형을 하나 이상 골라 주세요'); ok = false; }
+        /* 유형·정도는 한 kd-field 라 오류 문구 자리가 하나뿐이다 — 유형부터 순서대로 본다 */
+        if (!$('disabilityType').value) { setError($('disabilityType'), '장애 유형을 선택해 주세요'); ok = false; }
         else ok = checkGroup([$('disabilityLevel')], '장애 정도를 선택해 주세요') && ok;
         if (!ok) return;
         var g = document.querySelector('input[name="gender"]:checked');
@@ -301,8 +341,7 @@
             birthD: +$('birthDay').value,
             /* 마이페이지 아동 프로필에서 그대로 다시 보여 줘야 해서 같이 담는다 */
             gender: g ? g.value : '',
-            /* 배열이다 — 중복 진단이면 여러 개. 화면에 쓸 땐 join(' · ') */
-            disType: types,
+            disType: $('disabilityType').value,
             disLevel: $('disabilityLevel').value
         });
         location.href = '/onboarding/character';
@@ -615,14 +654,17 @@
                 var r = document.querySelector('input[name="gender"][value="' + v.gender + '"]');
                 if (r) r.checked = true;
             }
-            /* 유형은 체크박스 여러 개 — 옛 저장값(문자열 하나)도 그대로 살려 받는다 */
-            if (v.disType) {
-                var picked = [].concat(v.disType);
-                document.querySelectorAll('input[name="disabilityType"]').forEach(function (c) {
-                    c.checked = picked.indexOf(c.value) >= 0;
-                });
+            /* 유형은 드롭다운 하나 — 옛 저장값(중복 진단 배열)은 첫 항목만 받아 살린다.
+               정도 옵션이 유형에 딸리므로 유형을 넣은 **뒤** 다시 그려야 아래 disLevel 이 붙는다 */
+            if (v.disType && $('disabilityType')) {
+                $('disabilityType').value = [].concat(v.disType)[0] || '';
+                syncDisLevels();
             }
-            if (v.disLevel && $('disabilityLevel')) $('disabilityLevel').value = v.disLevel;
+            if (v.disLevel && $('disabilityLevel')) {
+                $('disabilityLevel').value = v.disLevel;
+                /* 그 유형에 없는 정도면(옛 값: 자폐 + 경증) 빈 칸이 된다 — 유형 기본값으로 되돌린다 */
+                if (!$('disabilityLevel').value) syncDisLevels();
+            }
         }
 
         /* 마이페이지 캐릭터 관리 — 온보딩에서 고른 친구를 선택 상태로.

@@ -32,14 +32,19 @@
         var list = document.createElement('ul');
         list.className = 'kd-select-list';
         list.setAttribute('role', 'listbox');
-        [].forEach.call(sel.options, function (o, i) {
-            var li = document.createElement('li');
-            li.setAttribute('role', 'option');
-            li.textContent = o.textContent;
-            li.dataset.index = i;
-            list.appendChild(li);
-        });
         wrap.appendChild(list);
+
+        /* 옵션이 통째로 바뀌는 select 가 있다 (장애 정도 — 유형에 따라 목록이 다르다) */
+        function renderList() {
+            list.innerHTML = '';
+            [].forEach.call(sel.options, function (o, i) {
+                var li = document.createElement('li');
+                li.setAttribute('role', 'option');
+                li.textContent = o.textContent;
+                li.dataset.index = i;
+                list.appendChild(li);
+            });
+        }
 
         function sync() {
             var o = sel.options[sel.selectedIndex];
@@ -86,9 +91,12 @@
             closeOpen();
         });
 
+        renderList();
         sync();
-        /* 값이 코드로 바뀐 뒤 버튼 글씨를 다시 맞출 수 있게 붙여 둔다 (kdBuildSelects 가 쓴다) */
-        sel.__kdSync = sync;
+        /* 값·옵션이 코드로 바뀐 뒤 목록과 버튼 글씨를 다시 맞출 수 있게 붙여 둔다
+           (kdBuildSelects 와 auth-validate.js 의 syncDisLevels 가 쓴다).
+           ⚠ 목록까지 다시 그리므로 pick() 안에서는 부르지 말 것 — 열려 있는 목록이 통째로 갈린다 */
+        sel.__kdSync = function () { renderList(); sync(); };
     }
 
     document.addEventListener('click', function (e) {

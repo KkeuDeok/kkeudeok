@@ -1145,44 +1145,9 @@
     cursor: pointer;
 }
 
-/* --- 장애 유형 복수 선택 (2026-08-10 피드백 2 — 중복 진단) ---------------------
-   상자 모양은 .onb-radio 를 그대로 물려받고 안쪽 표시만 점 → 체크로 바꾼다.
-   "여러 개 고를 수 있다"가 모양으로도 읽혀야 한다. */
-input[type="checkbox"].onb-radio:checked {
-    border-color: var(--kd-primary);
-    background: var(--kd-primary);
-}
-
-input[type="checkbox"].onb-radio:checked::after {
-    width: 10px;
-    height: 5px;
-    border: 2px solid #fff;
-    border-top: 0;
-    border-right: 0;
-    border-radius: 0;
-    background: none;
-    /* 체크는 회전하면 무게중심이 아래로 쏠린다 — -60% 로 올려야 상자 정중앙으로 보인다 */
-    transform: translate(-50%, -60%) rotate(-45deg);
-}
-
-/* 유형 3개 + 정도 select 를 한 줄에 둔다 — 아래로 내리면 온보딩 레일이 밀린다.
-   간격 24 는 8px 배수 스케일, select 앞 42 는 .onb-row--gap 의 select↔select 값과 같다 */
-.onb-radios--dis {
-    gap: 24px;
-    margin-right: 42px;
-}
-
-/* 라벨 옆 보조 안내 — 줄을 새로 먹지 않는다.
-   ⚠ 처음엔 .onb-note 로 지었다가 **이미 쓰이는 이름**이었다(613~630행, 체크리스트 안내 3줄).
-     그쪽이 display:flex 라 줄을 통째로 먹어 라벨이 2줄이 되고 아래 칸이 20px 밀렸다.
-     새 클래스를 만들 땐 CSS 전체를 먼저 grep 할 것. */
-.onb-sublabel {
-    display: inline;
-    margin-left: 8px;
-    font-size: 12px;
-    font-weight: 400;
-    color: var(--kd-text-sub);
-}
+/* 장애 유형 체크박스(중복 진단) · 라벨 옆 .onb-sublabel 안내는 2026-08-11 에 걷어냈다 —
+   유형이 드롭다운 하나로 돌아가면서 둘 다 쓰는 곳이 없어졌다.
+   유형·정도 두 칸의 간격은 위 .onb-row--gap 이 맡는다(42). */
 
 /* --------------------------------------------------------------------------
    버튼 레일 — 온보딩 진행 화면 공통 고정 Y=845 (내용 길이와 무관하게 안 움직임)
