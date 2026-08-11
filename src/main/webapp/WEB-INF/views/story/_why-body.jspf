@@ -1,0 +1,71 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  학습3 이유 찾기 본문 — 기본(why)·듣는 중(why-listening)·오답 모달이 같은 그림을 쓴다.
+  include 하기 전에 스크립틀릿으로 아래를 준비할 것:
+      String emo     정답 감정(sad|angry|happy)
+      String whyPick 테두리로 짚어 줄 카드 키("cause"|"other"). null 이면 강조 없음
+
+  문구의 `{c}` 는 캐릭터 이름 자리 — child-top.jsp 의 CHAR 로 바꿔 출력한다.
+
+  ⚠ 문구 출처
+    제목은 Figma 3벌 원문 그대로(감정마다 다르다).
+    카드 2장은 Figma 가 3벌 모두 "넘어져서 아파서 / 졸려서" 로 같다 — 슬픔 시나리오용이라
+    화남·기쁨에는 맞지 않아 시나리오에 맞게 갈아 두었다. 기획 확정 필요.
+--%>
+<%
+    String[][] whyTitles = {
+        {"sad",   "{c}는 왜 슬퍼졌을까?"},
+        {"angry", "{c}는 왜 화가 났을까?"},
+        {"happy", "{c}는 왜 기뻐졌을까?"}
+    };
+    String whyTitle = whyTitles[0][1];
+    for (String[] row : whyTitles) {
+        if (row[0].equals(emo)) whyTitle = row[1];
+    }
+
+    /* 정답(원인) — 문구 · 그림 포즈. 오답은 3벌 공통으로 '졸려서'(sleepy) 하나다 */
+    String[][] whyCauses = {
+        {"sad",   "넘어져서 아파서",        "hurt"},
+        {"angry", "내가 블록을 무너뜨려서", "angry"},
+        {"happy", "선물을 받아서",          "happy"}
+    };
+    String[] whyCause = whyCauses[0];
+    for (String[] row : whyCauses) {
+        if (row[0].equals(emo)) whyCause = row;
+    }
+
+    /* [잘 모르겠어] 힌트 — 정답을 말하지 않고 **어디를 볼지**만 알려 준다.
+       예전엔 정답 카드에 테두리를 둘렀는데 그건 힌트가 아니라 답이다(2026-08-10 지적).
+       ⚠ 문구는 Figma 에 없다. 임시 — 기획·팀장 확정 필요. */
+    String[][] whyHints = {
+        {"sad",   "그림 속 표정을 잘 봐. 아파서 찡그린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"angry", "그림 속 표정을 잘 봐. 속상해서 찌푸린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"happy", "그림 속 표정을 잘 봐. 좋아서 웃는 얼굴일까, 졸려서 하품하는 얼굴일까?"}
+    };
+    String whyHint = whyHints[0][1];
+    for (String[] row : whyHints) {
+        if (row[0].equals(emo)) whyHint = row[1];
+    }
+%>
+
+<h1 class="why-title"><%= whyTitle.replace("{c}", CHAR) %></h1>
+<p class="why-sub">말로 해도 되고, 그림을 눌러도 돼</p>
+
+<div class="why-cards">
+    <%-- 왼쪽이 정답(원인), 오른쪽이 오답. Figma 도 이 순서다.
+         오답을 누르면 학습2 와 똑같이 오답 모달로 되돌아온다(라우트가 아니라 ?wrong= 상태). --%>
+    <a class="why-card<%= "cause".equals(whyPick) ? " is-pick" : "" %>" data-right href="/story/face?emo=<%= emo %>">
+        <img class="ic" data-kd-char="<%= whyCause[2] %>" src="/img/char-tori-<%= whyCause[2] %>.png" alt="">
+        <p class="nm"><%= whyCause[1] %></p>
+        <span class="spk" aria-hidden="true"></span>
+    </a>
+    <a class="why-card<%= "other".equals(whyPick) ? " is-pick" : "" %>" data-wrong="other" href="/story/why?emo=<%= emo %>&wrong=other">
+        <img class="ic" data-kd-char="sleepy" src="/img/char-tori-sleepy.png" alt="">
+        <p class="nm">졸려서</p>
+        <span class="spk" aria-hidden="true"></span>
+    </a>
+</div>
+
+<%-- 하단바 [잘 모르겠어] 를 누르면 story.js 가 보여 주고 읽어 준다.
+     ⚠ 화면을 새로 띄우지 않는다 — 아이 입장에서 페이지가 바뀌면 '새로고침'으로 보인다 --%>
+<p class="why-hint" hidden><%= whyHint %></p>

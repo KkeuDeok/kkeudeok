@@ -1,0 +1,674 @@
+/* ==========================================================================
+   마이페이지 — Figma 24:15067(게이트) · 24:15148(회원정보) · 24:15283(아동 프로필)
+                 · 24:15532(캐릭터 관리) · 439:2129/439:2259(모달 2)
+   껍데기는 app.css(.app-shell 등)를 쓰고 이 파일은 마이페이지 전용.
+   ⚠ app.css는 병합 충돌 방지를 위해 수정 금지 — 가운데 정렬도 여기서 자체 선언.
+   공통 레일: 제목 104 · 탭 178(h49) · 본문 시작 251
+   ========================================================================== */
+
+.mp-head,
+.mp-tabsrow,
+.mp-sec,
+.mp-rule,
+.mp-actions,
+.mp-gate {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+/* 제목 레일 64 — 다른 화면과 통일 (사용자 요청 2026-08-08) */
+.mp-head { padding-top: 64px; }
+
+/* --------------------------------------------------------------------------
+   탭바 3개 — 리포트와 같은 규격(h49 r999 #f1f5f2, 활성 tint)
+   -------------------------------------------------------------------------- */
+.mp-tabsrow { margin-top: 24px; padding: 0 40px; }
+
+.mp-tabs {
+    display: inline-flex;
+    height: 49px;
+    padding: 4px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    background: #f1f5f2;
+}
+
+.mp-tabs a {
+    display: flex;
+    align-items: center;
+    height: 41px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.mp-tabs a.is-on {
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   섹션 / 구분선 / 하단 버튼행
+   -------------------------------------------------------------------------- */
+/* 1024 한 화면에 담기게 압축 (사용자 요청) */
+.mp-sec { margin-top: 28px; padding: 0 40px; }
+
+.mp-sec h2 {
+    margin: 0 0 16px;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.mp-rule {
+    width: calc(100% - 80px);
+    height: 1px;
+    margin-top: 28px;
+    border: 0;
+    background: var(--kd-border);
+}
+
+.mp-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 0 40px;
+}
+
+.mp-actions .kd-btn {
+    width: 96px;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* --------------------------------------------------------------------------
+   2열 폼 그리드 — 좌 520 / 우 520 (gap 80 = 본문 1120)
+   -------------------------------------------------------------------------- */
+.mp-grid {
+    display: grid;
+    grid-template-columns: 520px 520px;
+    gap: 20px 80px;
+}
+
+/* 아동 프로필만 좌 420 / 우 660 (420 + 40 + 660 = 1120 레일 유지).
+   이름 칸은 짧아도 되고, 오른쪽 3분할·2분할이 좁아 답답하다는 지적 (2026-08-10) */
+.mp-grid--child {
+    grid-template-columns: 420px 660px;
+    column-gap: 40px;
+}
+
+/* 읽기 전용 입력칸 (이메일) — Figma 실측 #f1f5f2 */
+.mp-input-ro {
+    background: #f1f5f2;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   알림 설정 — 제목/설명 좌, 토글 우, 행 구분선
+   -------------------------------------------------------------------------- */
+.mp-switch {
+    display: flex;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.mp-switch:first-of-type { border-top: 1px solid var(--kd-border); }
+
+.mp-switch .tx { flex: 1; }
+.mp-switch b { display: block; font-size: 15px; line-height: 23px; color: var(--kd-text); }
+
+.mp-switch .ds {
+    display: block;
+    margin-top: 2px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+/* 토글 — 체크박스를 감춘 순수 CSS 스위치 */
+.mp-toggle { position: relative; flex: none; width: 44px; height: 24px; }
+
+.mp-toggle input { position: absolute; opacity: 0; width: 0; height: 0; }
+
+.mp-toggle span {
+    display: block;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--kd-border);
+    cursor: pointer;
+    transition: background .15s;
+}
+
+.mp-toggle span::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 2px;
+    width: 20px;
+    height: 20px;
+    border-radius: 999px;
+    background: #fff;
+    transition: transform .15s;
+}
+
+.mp-toggle input:checked + span { background: var(--kd-primary-active); }
+.mp-toggle input:checked + span::after { transform: translateX(20px); }
+.mp-toggle input:focus-visible + span { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+/* --------------------------------------------------------------------------
+   계정 링크 행 — "로그아웃 | 비밀번호 변경 →"
+   -------------------------------------------------------------------------- */
+.mp-links { display: flex; align-items: center; }
+.mp-links + .mp-links { margin-top: 16px; }
+
+.mp-links a,
+.mp-links button {
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mp-links .sep {
+    width: 1px;
+    height: 14px;
+    margin: 0 16px;
+    background: var(--kd-border);
+}
+
+.mp-links .danger { color: var(--kd-danger); }
+
+.mp-links .arrow::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    vertical-align: -3px;
+    background: currentColor;
+    -webkit-mask: var(--kd-icon-chevron) center / 16px no-repeat;
+    mask: var(--kd-icon-chevron) center / 16px no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   보호자 확인 게이트 — 본문 가운데
+   -------------------------------------------------------------------------- */
+.mp-gate {
+    padding: 150px 40px 0;
+    text-align: center;
+}
+
+/* 온보딩 PIN 설정 화면(.onb-hero)과 똑같이 — 초록 원 없이 아이콘만 120px */
+.mp-gate .ic {
+    display: block;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.mp-gate .ic img { display: block; width: 120px; height: 120px; }
+
+.mp-gate h1 {
+    margin: 20px 0 0;   /* .onb-hero 의 아래 여백 20 과 같게 */
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 42px;
+    color: var(--kd-text);
+}
+
+.mp-gate .sub {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.mp-gate form {
+    width: 520px;
+    margin: 40px auto 0;
+    text-align: left;
+}
+
+.mp-gate .row {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.mp-gate .row .kd-btn {
+    width: 96px;
+    height: 44px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.mp-gate .forgot {
+    display: block;
+    margin-top: 24px;
+    text-align: right;
+    font-size: 15px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+.mp-gate .forgot::after {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    vertical-align: -3px;
+    background: currentColor;
+    -webkit-mask: var(--kd-icon-chevron) center / 16px no-repeat;
+    mask: var(--kd-icon-chevron) center / 16px no-repeat;
+}
+
+.mp-gate .forgot:hover { color: var(--kd-primary); }
+
+/* 2열 폼 안의 드롭다운 — onb-select.js 가 select 를 .kd-select 래퍼로 감싸므로
+   폭·높이는 select 가 아니라 래퍼와 버튼에 줘야 한다(w135·h34 가 기본값이라 그냥 두면 좁다).
+   목록 top 은 입력 높이 34 기준 38 이므로 48 로 키운 만큼 같이 내린다. */
+.mp-grid .kd-select { width: 100%; }
+.mp-grid .kd-select-btn,
+.mp-grid .onb-select {
+    width: 100%;
+    height: 48px;
+    padding-left: 16px;
+    border-radius: 6px;
+    font-size: 17px;
+}
+.mp-grid .kd-select-list { top: 52px; }
+
+/* kkeudeok.css 의 `.kd-field + .kd-field{margin-top:16}` 이 그리드 안에서도 걸려
+   2·3·4번째 칸만 16px 내려간다(첫 행 좌우 라벨이 어긋나 보이던 원인).
+   그리드에서는 행 간격을 gap 이 지므로 여기서만 끈다. */
+.mp-grid .kd-field + .kd-field { margin-top: 0; }
+
+/* --------------------------------------------------------------------------
+   확인 모달 — 로그아웃(439:2129) · 계정 삭제(439:2259)
+   auth.css 의 .terms-dialog 를 함께 붙여 backdrop 과 zoom 상쇄를 물려받는다.
+   (새 클래스만 쓰면 --fit-scale 배율이 두 번 걸려 모달이 작아진다)
+   -------------------------------------------------------------------------- */
+.mp-modal {
+    width: 480px;
+    max-height: none;
+    padding: 40px 32px 32px;
+    border-radius: 24px;
+    text-align: center;
+}
+
+.mp-modal .ic {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+}
+
+.mp-modal .ic::after {
+    content: "";
+    width: 28px;
+    height: 28px;
+    background: var(--kd-primary);
+    -webkit-mask: var(--kd-icon-logout) center / 28px no-repeat;
+    mask: var(--kd-icon-logout) center / 28px no-repeat;
+}
+
+.mp-modal h2 {
+    margin: 20px 0 0;
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 33px;
+    color: var(--kd-text);
+}
+
+.mp-modal p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.mp-modal .warn { color: var(--kd-danger); }
+
+.mp-modal .row { display: flex; gap: 16px; margin-top: 28px; }
+
+.mp-modal .row .kd-btn {
+    flex: 1;
+    width: auto;
+    height: 52px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+/* 삭제 확인 — 위험 동작이라 주색 대신 danger */
+.kd-btn-danger {
+    background: var(--kd-danger);
+    color: #fff;
+}
+
+.kd-btn-danger:hover { background: #c33d31; }
+
+/* 로그아웃 아이콘 (lucide log-out) — 토큰이 kkeudeok.css 에 없어 여기서 선언 */
+:root {
+    --kd-icon-logout: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E");
+}
+
+/* auth.css 의 `.terms-dialog button { width:100%; height:44px; background:var(--kd-primary) … }`
+   이 모달 안 모든 button 을 초록 알약으로 덮어쓴다. 취소 버튼이 초록 원이 되던 원인.
+   구체성을 올려 다시 지정하고, form 래퍼도 flex 아이템으로 늘린다. */
+.mp-modal .row > form { flex: 1; display: flex; }
+
+.mp-modal .row .kd-btn,
+.mp-modal .row form button.kd-btn {
+    flex: 1;
+    width: 100%;
+    height: 52px;
+    border-radius: 999px;
+    font-size: 16px;
+    font-weight: 700;
+}
+
+.mp-modal .row .kd-btn-outline,
+.mp-modal .row form button.kd-btn-outline {
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+}
+
+.mp-modal .row .kd-btn-outline:hover { border-color: var(--kd-primary-active); }
+.mp-modal .row .kd-btn-primary { background: var(--kd-primary); color: #fff; }
+.mp-modal .row .kd-btn-danger  { background: var(--kd-danger); color: #fff; }
+
+/* showModal() 이 첫 버튼에 자동 포커스를 준다 — 브라우저 기본 검은 링 대신 브랜드 링으로 */
+.mp-modal .row .kd-btn:focus { outline: none; }
+.mp-modal .row .kd-btn:focus-visible {
+    outline: 2px solid var(--kd-primary);
+    outline-offset: 2px;
+}
+
+/* 경고 문구는 길어서 480 폭에서 줄이 어색하게 끊긴다 — 한글 단어 단위로 접는다 */
+.mp-modal p { word-break: keep-all; }
+
+/* --------------------------------------------------------------------------
+   아동 프로필 — 프로필 헤더 + 2열 폼
+   -------------------------------------------------------------------------- */
+.mp-profile {
+    display: flex;
+    align-items: center;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+/* 2026-08-09 팀장 피드백 "콘텐츠 더 키워도 될 것 같음 — 캐릭터 얼굴이라던지".
+   아이콘 원본이 150px 이라 140 까지는 확대 없이 커진다. */
+.mp-profile .ava {
+    width: 140px;
+    height: 140px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    overflow: hidden;
+}
+
+/* ⚠ 100% 로 넣으면 캔버스의 빈 여백까지 들어와 캐릭터가 원 안에 **붕 떠 보인다**
+   (2026-08-10 사용자 지적). 원보다 크게 그려 아래를 원 밖으로 빼면
+   보이는 경계가 그림의 여백이 아니라 **원의 곡선**이 된다 — 상황선택 카드와 같은 처리. */
+/* 2026-08-10 "얼굴이 너무 밑에 있다 / 상체 보이도록".
+   캔버스는 얼굴이 33.7% 에 있고 **위 8.6% 가 비어 있다**(neutral 6명 실측 8.6~17%).
+   그 빈 여백만 위로 잘라 내면 얼굴이 원 안에서 16px 올라오고, 몸이 원 아래까지 찬다.
+   177 · −14 인 이유: 실루엣 7.9%~82%(=몸이 가장 짧은 보미 기준)를 원 140 에 담는 값이다.
+   ⚠ 더 잘라 올리면 코코 올림머리(8.6%)가 날아간다 — 여기가 한계다. */
+.mp-profile .ava img {
+    display: block;
+    width: 177px;
+    height: 177px;
+    margin: -14px 0 0 -19px;    /* 가로 (177 − 140) / 2 */
+    object-fit: contain;
+}
+
+.mp-profile .tx { margin-left: 28px; }
+
+.mp-profile b {
+    display: block;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 48px;
+    color: var(--kd-text);
+}
+
+.mp-profile .ds {
+    display: block;
+    margin-top: 4px;
+    font-size: 15px;
+    line-height: 22px;
+    color: var(--kd-text-sub);
+}
+
+/* 생년월일 3분할·장애 2분할은 온보딩 마크업을 그대로 쓰되 520 열에 맞춘다.
+   ⚠ 폭은 .kd-select(래퍼)에 줘야 한다 — .onb-select 는 래퍼 안에 숨겨진 select 다. */
+.mp-grid .onb-row { display: flex; align-items: center; }
+
+/* 남는 폭을 드롭다운끼리 똑같이 나눠 갖는다 — 열 폭을 바꿔도 따라온다
+   (예전엔 135 / 239 를 열 폭 520 에 맞춰 손으로 박아 뒀다) */
+.mp-grid .onb-row .kd-select { flex: 1; width: auto; min-width: 0; }
+
+/* 높이·글자는 위 `.mp-grid .kd-select-btn`(48/17)을 그대로 받는다 —
+   예전엔 온보딩 규격(34/14)으로 되돌렸는데 옆의 이름 칸(48)보다 납작해 보인다는 지적을 받았다 */
+
+/* 성별 라디오 행 — 입력칸 높이(48)와 눈높이를 맞춘다 */
+.mp-radios { display: flex; align-items: center; height: 48px; gap: 32px; }
+
+/* 네모칸도 이름 칸과 같은 무게로 — 온보딩(20)보다 크다.
+   24 는 옆 글자(17)에 비해 작아 보인다는 지적으로 28 로 키웠다(2026-08-10).
+   행 높이가 48 로 고정이라 더 키워도 아래가 안 밀린다. */
+.mp-radios .onb-radio { width: 28px; height: 28px; border-radius: 7px; }
+.mp-radios .onb-radio:checked::after { width: 14px; height: 14px; }
+.mp-radios label { font-size: 17px; line-height: 25.5px; }
+
+/* --------------------------------------------------------------------------
+   캐릭터 관리 — 좌 미리보기 + 우 카드 6개(3×2)
+   -------------------------------------------------------------------------- */
+/* gap 은 64 고정 — 카드 그리드 실폭이 536(168×3+16×2)이라
+   520 + 64 + 536 = 1120(콘텐츠 레일)로 딱 떨어진다.
+   80 이면 그리드가 레일을 16px 넘어가 하단 저장 버튼과 오른쪽 끝이 어긋난다. */
+.mp-char { display: flex; gap: 34px; }   /* 카드를 넓히려고 64 → 34 */
+
+/* flex column 인 이유: 아래 .kd-field 의 margin-top:auto 를 쓰려고. */
+.mp-char-view { width: 470px; flex: none; text-align: center; display: flex; flex-direction: column; overflow: hidden; }
+
+/* 아이콘이 정사각(512)이라 박스도 정사각으로 둔다.
+   350 으로 두면 토리(세로형 260×350)만 90px 크게 렌더돼 카드를 바꿀 때 크기가 튄다. */
+/* cover + 세로를 줄인 창 = 캔버스 위쪽 빈 여백을 잘라 낸다. 얼굴은 33.7% 에 고정돼 있어
+   6명 모두 같은 자리에서 잘린다. contain 이면 그 여백까지 들어와 작아 보인다. */
+/* 투명 네모 칸 — 왼쪽 미리보기의 기준틀(2026-08-10 "간격이 하나도 안 맞는다").
+   margin-top 47 = 오른쪽 h2(27) + .mp-chars margin-top(20) → 칸 윗선이 카드 첫 줄 윗선과 같다.
+   아랫선(칸 + 32)에서 이름이 시작한다. 남는 세로는 .kd-field 의 margin-top:auto 가 먹어
+   애칭칸 바닥은 그대로 카드 아랫줄 바닥과 맞는다. */
+.mp-char-box {
+    position: relative;
+    width: 312px;
+    height: 312px;
+    margin: 47px auto 32px;
+    overflow: hidden;   /* 캔버스 위 빈 여백을 걷어 낸다 — 카드(.mp-chars label)와 같은 방식 */
+}
+
+/* 2026-08-10 "여기가 자꾸 움직여요" — 원인은 크기가 아니라 자산의 빈 여백이다.
+   6명 다 얼굴은 이미 원본 y 158~316 으로 같은데(측정), 실루엣은 제각각이라:
+     머리 꼭대기 y = 코코 28 · 보미 40 · 바다 52 · 루비 53 · 토리 71 · 라라 76
+     몸통 잘린 끝 y = 보미 413 … 바다 445
+   기존(338px, -26) 은 원본 39~512 를 보여 줘서 ① 코코 올림머리가 칸 위로 7px 잘리고
+   ② 잘린 밑동이 칸 바닥에서 44~65px 떠 있어 캐릭터마다 달라 보였다.
+   → 원본 창을 18.5 ~ 403.5 로 잡는다. 위는 제일 높은 코코(28)보다 위, 아래는 제일 짧은
+     보미(413)보다 위 → 6명 모두 머리는 안 잘리고 밑동은 전부 칸 아랫선에서 잘린다(=안 보인다).
+   ⚠ 이 세 값은 세트다. 자산을 바꾸면 alpha bbox 를 다시 재고 같이 고칠 것. */
+.mp-char-view .big {
+    position: absolute;
+    top: -15px;             /* 원본 y 18.5 가 칸 윗선 */
+    left: -51.5px;          /* 원본 가로중앙 256 이 칸 가로중앙 — margin:auto 는 칸보다 넓어 안 먹었다 */
+    width: 415px;           /* 512 × 0.8105 — 창(385) 이 칸 312 에 딱 맞는 배율 */
+    height: 415px;
+}
+
+/* 보미만 20px 아래로 — 2026-08-10 "보미 더 내리기".
+   보미는 원본 실루엣이 40~413 으로 6명 중 가장 짧고 위로 쏠려 있다(다른 5명 밑동 433~445).
+   얼굴 기준으로 맞추면 몸통 밑동이 칸 바닥(312)에 겨우 7.8px 걸쳐 혼자 떠 보인다.
+   20 = (437 − 413) × 0.8105 → 밑동이 루비와 같은 선에 온다.
+   ⚠ 대가로 보미 얼굴만 20px 아래다. 얼굴 통일 규칙의 유일한 예외 — 눈으로 보고 정한 값. */
+.mp-char-view .big[src*="bomi"] { top: 5px; }
+
+.mp-char-view .nm {
+    margin: 0;   /* 칸 아래 간격은 .mp-char-box 의 margin-bottom(32) 하나로만 정한다 */
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 39px;
+    color: var(--kd-text);
+}
+
+.mp-char-view .ds {
+    margin: 4px 0 0;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+}
+
+/* margin-top:auto — 애칭 칸을 컬럼 바닥으로 밀어 오른쪽 카드 그리드 아래 선과 맞춘다.
+   padding-bottom:0 — auth.css 의 오류문구 예약석(16). 이 화면엔 .kd-error 가 없어
+   그대로 두면 입력칸 바닥이 카드 바닥보다 16px 위에 뜬다. */
+.mp-char-view .kd-field { margin-top: auto; text-align: left; padding-bottom: 0; }
+
+/* 애칭 입력칸만 컬럼(520)보다 넓게 — 오른쪽 gap 64 중 48 을 먹고 그리드까지 16 남긴다.
+   .mp-char 의 gap 을 줄이면 카드와 겹치니 같이 손볼 것. */
+.mp-char-view .kd-input { width: 470px; }   /* 예전엔 520 칸에 568 로 삐져나와 있었다 */
+
+/* 카드 그리드 — 168×216, gap 16 (3열 = 536) */
+.mp-char-pick { flex: 1; }
+
+.mp-chars {
+    display: grid;
+    grid-template-columns: repeat(3, 194px);   /* 168 → 194 (2026-08-10 더 크게) */
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.mp-chars label {
+    position: relative;
+    height: 250px;
+    overflow: hidden;   /* 카드보다 넓은 그림(240)의 좌우 빈 여백을 걷어 낸다 */
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.mp-chars input { position: absolute; opacity: 0; pointer-events: none; }
+
+/* 2026-08-10 "더 크게, 더 밑으로, 카드 안에서 중앙 정렬" —
+   211 을 흐름에 두면 padding(21) + 이름(8+20) 때문에 그림이 5~216 에 갇혀 위로 몰렸다.
+   이름을 카드 바닥에 붙박고(아래 .nm) 그림은 카드를 꽉 채우게 240 으로 띄운다.
+   ⚠ 자르지 않는다 — 캔버스 위 여백이 코코 5.5% / 라라 14.8% 로 제각각이라 일괄로 자르면
+     머리숱 많은 코코만 잘린다. 6명 모두 렌더 세로 240(얼굴 폭 111.6) 로 같다.
+   가로 240 은 카드(194)보다 넓지만 자산 좌우 여백이 최소 19.5% 라 실루엣(최대 145)은 안 잘린다. */
+.mp-chars img {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 240px;
+    height: 240px;
+    margin-left: -120px;
+    object-fit: contain;
+}
+
+/* 카드 바닥 붙박이 — 그림이 이름 자리를 밀어내지 않게. 아래 10 은 카드 하단 여백 */
+.mp-chars .nm {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 10px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text);
+}
+
+/* 선택 상태 — box-sizing:border-box 라 테두리가 굵어져도 카드 크기는 그대로 */
+.mp-chars label:has(input:checked) {
+    background: var(--kd-primary-tint);
+    border: 2px solid var(--kd-primary-active);
+}
+
+.mp-chars label:has(input:focus-visible) { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+/* 선택 배지 — 체크된 카드에만 우상단에 뜬다.
+   icon-check-sm.svg 는 stroke 가 #34A36A(초록)라 초록 원 위에서는 안 보인다 → 흰 체크를 직접 넣는다 */
+.mp-chars label:has(input:checked)::after {
+    content: "";
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--kd-primary-active) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 16 16' fill='none'%3E%3Cpath d='M13.3333 4L6 11.3333L2.66667 8' stroke='%23ffffff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / 13px no-repeat;
+}
+
+/* --------------------------------------------------------------------------
+   저장 알림 — 백엔드가 없어 실제 저장은 안 되지만, 눌러도 아무 반응이 없으면
+   고장으로 오해한다. 최소한의 피드백만 준다.
+   -------------------------------------------------------------------------- */
+.mp-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 48px;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
+    border-radius: 999px;
+    background: var(--kd-text);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 500;
+    white-space: nowrap;
+    transform: translate(-50%, 12px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .18s, transform .18s;
+}
+
+.mp-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
+
+.mp-toast::before {
+    content: "";
+    width: 18px;
+    height: 18px;
+    background: var(--kd-primary-active);
+    border-radius: 999px;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E") center / 14px no-repeat;
+}

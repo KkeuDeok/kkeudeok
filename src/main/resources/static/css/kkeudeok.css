@@ -1,0 +1,285 @@
+/* ==========================================================================
+   끄덕 공통 디자인 토큰 + 컴포넌트
+   - Figma(끄덕_프론트엔드) 실측 기반. 모든 화면이 공유한다.
+   - Bootstrap은 레이아웃 유틸리티만 사용, 컴포넌트 외형은 여기서 정의.
+   ========================================================================== */
+
+:root {
+    /* 색상 */
+    --kd-primary: #268254;        /* 주색 (버튼 채움) */
+    --kd-primary-strong: #1f5c40; /* 로고·강조 텍스트 */
+    --kd-primary-active: #34a36a; /* 활성 상태 */
+    --kd-primary-tint: #e3f6ec;   /* 연한 초록 배경 */
+    --kd-text: #2b3a33;           /* 본문 */
+    --kd-text-sub: #6b7a72;       /* 보조 텍스트·플레이스홀더 */
+    --kd-border: #e6ebe8;         /* 테두리 */
+    --kd-bg-page: #eef1ee;        /* 프레임 바깥 배경 */
+    --kd-danger: #e0483b;         /* 필수 표시·타이머 */
+    --kd-card-cream: #fff6ea;     /* 크림색 안내 카드 */
+
+    /* 폰트 */
+    --kd-font: "Noto Sans KR", sans-serif;
+
+    /* 모션 — 화면마다 속도·감속이 제각각이 되지 않게 여기서 정한다.
+       튀는 느낌(팝·흔들림)은 성격이 달라 각자 값을 쓴다. */
+    --kd-dur-fast: 0.12s;                        /* 눌림·색 변화 같은 즉각 반응 */
+    --kd-dur-base: 0.22s;                        /* 나타남·사라짐 */
+    --kd-ease: cubic-bezier(0.22, 1, 0.36, 1);   /* 빨리 시작해 부드럽게 멈춘다 */
+
+    /* 아이콘 — Iconify lucide:chevron-right. mask로 쓰므로 색은 currentColor가 정한다 */
+    --kd-icon-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m9 18l6-6l-6-6'/%3E%3C/svg%3E");
+}
+
+body {
+    font-family: var(--kd-font);
+    color: var(--kd-text);
+}
+
+/* 그림은 끌어서 옮길 수 없게 — 브라우저 기본 드래그가 반투명 복사본을 만들어
+   커서를 따라다녀서 화면이 깨진 것처럼 보인다.
+   이 속성을 무시하는 브라우저는 auth-validate.js 의 dragstart 차단이 받아 준다.
+   글자 선택·복사는 그대로 둔다(이미지만 막는다). */
+img {
+    -webkit-user-drag: none;
+    user-select: none;
+}
+
+/* --------------------------------------------------------------------------
+   입력칸 공통 규격: 520×48 · radius 6 · 테두리 1px · 글자 17px
+   -------------------------------------------------------------------------- */
+.kd-label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 22.5px;
+    color: var(--kd-text);
+    margin-bottom: 8px;
+}
+
+.kd-input {
+    display: block;
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    font-family: var(--kd-font);
+    font-size: 17px;
+    line-height: 25.5px;
+    color: var(--kd-text);
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 6px;
+    outline: none;
+}
+
+.kd-input::placeholder {
+    color: var(--kd-text-sub);
+}
+
+.kd-input:focus {
+    border-color: var(--kd-primary-active);
+}
+
+/* ⚠ opacity 만 낮추면 **빈 칸일 때 잠긴 티가 전혀 안 난다** — 실제로 "클릭이 안 된다"는
+   제보를 받았다(PIN 재설정의 새 PIN 칸). 회색으로 채워 잠긴 것을 눈에 보이게 한다.
+   color 는 건드리지 않는다 — .onb-pin 은 글자를 transparent 로 두고 점을 CSS 로 그린다. */
+.kd-input:disabled {
+    background: #f1f4f2;
+    border-color: #e6ebe8;
+    /* ⚠ 잠긴 input 은 클릭 이벤트를 삼킨다(브라우저 규칙) — 감싸는 칸이 대신 받아
+       "인증을 먼저 하세요" 를 띄울 수 있도록 통과시킨다. */
+    pointer-events: none;
+}
+
+.onb-pin-box:has(.kd-input:disabled) { cursor: not-allowed; }
+
+/* 라벨↓입력 8은 .kd-label margin. 필드 하단에 문구 예약석 17px이 있고(auth.css)
+   그 아래 12px 여백 — 오류 문구가 자기 입력칸(3px)에 붙고 다음 라벨(12px)과는 떨어져 보인다 */
+.kd-field + .kd-field {
+    margin-top: 16px;
+}
+
+/* 회원가입 정보입력처럼 필드가 많은 화면은 간격을 8로 압축 (기본 12) */
+.kd-field--tight {
+    margin-top: 8px !important;
+}
+
+/* --------------------------------------------------------------------------
+   버튼: 주 CTA 높이 59 · pill / 보조 40·34
+   -------------------------------------------------------------------------- */
+.kd-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--kd-font);
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.kd-btn-primary {
+    height: 59px;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    color: #fff;
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.kd-btn-primary:hover {
+    background: var(--kd-primary-strong);
+    color: #fff;
+}
+
+/* 흰 배경 보조 버튼 (온보딩 '이전' 등에서 재사용 예정) */
+.kd-btn-outline {
+    height: 59px;
+    border-radius: 999px;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+    font-size: 19px;
+    font-weight: 500;
+}
+
+.kd-btn-outline:hover {
+    border-color: var(--kd-primary-active);
+    color: var(--kd-text);
+}
+
+/* --------------------------------------------------------------------------
+   체크박스: 24×24 · radius 4 · 연초록 배경 + 진초록 테두리
+   -------------------------------------------------------------------------- */
+.kd-check {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 24px;
+    height: 24px;
+    flex: none;
+    background: var(--kd-primary-tint);
+    border: 2px solid var(--kd-primary-strong);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+}
+
+.kd-check:checked {
+    background: var(--kd-primary);
+    border-color: var(--kd-primary);
+}
+
+.kd-check:checked::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 2px;
+    width: 7px;
+    height: 12px;
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+}
+
+/* --------------------------------------------------------------------------
+   사용 단계 — head.jsp 가 html[data-kd-stage="0|1|2"] 를 켠다
+     0 신규(아무것도 없음) · 1 시작함(일상 1건+이야기 1편) · 2 익숙함(기본)
+   마크업에는 그 단계에서만 보일 클래스 하나만 붙인다
+     .kd-no-data = 0 전용 · .kd-s1 = 1 전용 · .kd-has-data = 2 전용
+     .kd-hide0   = 0 에서만 숨김 · .kd-hide2 = 2 에서만 숨김(0·1 에 보임)
+   -------------------------------------------------------------------------- */
+html[data-kd-stage="0"] .kd-has-data,
+html[data-kd-stage="0"] .kd-s1,
+html[data-kd-stage="0"] .kd-hide0     { display: none !important; }
+
+html[data-kd-stage="1"] .kd-has-data,
+html[data-kd-stage="1"] .kd-no-data   { display: none !important; }
+
+html[data-kd-stage="2"] .kd-no-data,
+html[data-kd-stage="2"] .kd-s1,
+html[data-kd-stage="2"] .kd-hide2     { display: none !important; }
+
+/* 공통 빈 카드 — 학습 홈 .learn-entry 형태를 그대로 따른다(아이콘 원 + 제목 + 설명 + CTA) */
+.kd-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    box-sizing: border-box;
+    background: #f9fbfa;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+    text-align: center;
+}
+
+/* ⚠ background 단축 속성을 쓰면 아래 .kd-empty-ic-* 의 background-image 가 리셋된다
+   (app.css 에서 이미 한 번 겪은 함정) — 반드시 background-color 로 따로 쓸 것 */
+.kd-empty .ic {
+    display: inline-flex;
+    width: 56px;
+    height: 56px;
+    flex: none;
+    border-radius: 999px;
+    background-color: var(--kd-primary-tint);
+    background-position: center;
+    background-size: 26px;
+    background-repeat: no-repeat;
+}
+
+.kd-empty .t {
+    margin: 16px 0 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 26px;
+    color: var(--kd-text);
+}
+
+.kd-empty .d {
+    margin: 6px 0 0;
+    /* 440 이면 리포트 0단계 문구가 두 줄로 갈리며 '계산돼요' 만 혼자 내려간다(2026-08-10 지적).
+       카드가 넓은 리포트에서는 한 줄로 들어가고, 좁은 대시보드 카드에서는 원래대로 접힌다. */
+    max-width: 760px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+    word-break: keep-all;
+}
+
+.kd-empty .kd-btn {
+    width: 220px;
+    height: 44px;
+    margin-top: 12px;       /* 문구가 한 줄이 되면서 버튼이 멀어 보여 조금 올린다 */
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 아이콘 — 새싹(성장 데이터 없음) / 목록(기록 없음) */
+.kd-empty-ic-seed {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22V9'/%3E%3Cpath d='M12 9C12 5 9 3 5 3c0 4 3 6 7 6Z'/%3E%3Cpath d='M12 13c0-3.3 2.7-6 6-6 0 3.3-2.7 6-6 6Z'/%3E%3C/svg%3E");
+}
+
+.kd-empty-ic-list {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 6h13M8 12h13M8 18h13'/%3E%3Cpath d='M3 6h.01M3 12h.01M3 18h.01'/%3E%3C/svg%3E");
+}
+
+
+/* --------------------------------------------------------------------------
+   아이 이름은 JS(auth-validate.js)가 sessionStorage 에서 채운다. 채우기 전 한 프레임 동안
+   JSP 기본값 "지우" 가 보여, 리포트 탭을 옮길 때마다 이름이 바뀌는 것처럼 깜빡였다
+   (2026-08-10 지적 "갑자기 지우가 됐다가 성현이 됐다가"). 채운 뒤에 드러낸다.
+   ⚠ display 가 아니라 visibility 다 — 자리를 잡아 둬야 글이 밀렸다 돌아오지 않는다.
+   -------------------------------------------------------------------------- */
+[data-kd="childCall"],
+[data-kd="childName"],
+[data-kd="childNameAge"],
+[data-kd="childAge"]            { visibility: hidden; }
+html.kd-named [data-kd="childCall"],
+html.kd-named [data-kd="childName"],
+html.kd-named [data-kd="childNameAge"],
+html.kd-named [data-kd="childAge"] { visibility: visible; }
+
+/* 캐릭터 그림도 이름과 같은 문제였다. JSP 는 기본값으로 토리를 박아 두고 renderChar() 가
+   로드 뒤 src 를 고른 친구로 바꾼다 → 토리가 먼저 그려졌다가 바뀌어 **잔상**처럼 보였다
+   (2026-08-10 지적, 실측으로 토리 5장이 실제로 내려받아져 그려지는 걸 확인). 교체 뒤 드러낸다. */
+[data-kd-char]                          { visibility: hidden; }
+html.kd-char-ready [data-kd-char]       { visibility: visible; }

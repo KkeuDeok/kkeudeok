@@ -1,0 +1,55 @@
+<%@ page pageEncoding="UTF-8" %>
+<%--
+  학습2 마음 읽기 본문 — 기본(feel)·힌트(feel-hint)·오답 모달이 같은 그림을 쓴다.
+  include 하기 전에 스크립틀릿으로 아래 두 개를 준비할 것:
+      String emo      정답 감정(sad|angry|happy) — 학습1 에서 ?emo= 로 넘어온다
+      String feelPick 테두리로 짚어 줄 카드 키. null 이면 아무 카드도 강조하지 않는다
+
+  문구의 `{c}` 는 캐릭터 이름 자리 — child-top.jsp 의 CHAR 로 바꿔 출력한다.
+
+  ⚠ 문구 출처
+    카드 3장(이름·설명)은 Figma `24:18040` 원문. 벌이 하나뿐이라 감정별로 바뀌지 않는다.
+    상황 요약(recap)은 sad 만 Figma 원문이고 angry·happy 는 임시 — 기획 확정 필요.
+  ⚠ Figma sad 원문이 "넘어진 뒤"인데 학습1 sad 시나리오는 "길을 잃을 뻔"이라 이야기가
+    안 이어진다. 원문을 함부로 고치지 않고 그대로 뒀다 — 팀장 확정 필요.
+--%>
+<%
+    String[][] feelRecaps = {
+        {"sad",   "{c}는 넘어진 뒤 가만히 앉아 눈물이 맺혔어요"},
+        {"angry", "{c}는 쌓아 올린 블록이 무너져 주먹을 꼭 쥐었어요"},
+        {"happy", "{c}는 선물을 받고 깡충깡충 뛰었어요"}
+    };
+    String feelRecap = feelRecaps[0][1];
+    for (String[] row : feelRecaps) {
+        if (row[0].equals(emo)) feelRecap = row[1];
+    }
+
+    /* 키 · 이름 · 설명 — 카드 순서는 Figma 그대로 기쁨 → 슬픔 → 화남 */
+    String[][] feelCards = {
+        {"happy", "기뻐요", "마음이 콩콩 뛰어요"},
+        {"sad",   "슬퍼요", "가슴이 콕콕 아파요"},
+        {"angry", "화나요", "얼굴이 뜨거워져요"}
+    };
+%>
+
+<%-- 상황을 다시 떠올리게 하는 그림. Figma 는 놀란 표정 한 장을 벌 구분 없이 쓴다 --%>
+<div class="feel-art"><img data-kd-char="surprise" src="/img/char-tori-surprise.png" alt=""></div>
+
+<p class="feel-recap"><%= feelRecap.replace("{c}", CHAR) %></p>
+<h1 class="feel-q"><%= "{c}는 지금 어떤 마음일까?".replace("{c}", CHAR) %></h1>
+
+<div class="feel-cards">
+    <%  for (String[] card : feelCards) {
+            boolean right = card[0].equals(emo);
+            String href = right ? "/story/why?emo=" + emo
+                                : "/story/feel?emo=" + emo + "&wrong=" + card[0];
+            String cls = "feel-card is-" + card[0] + (card[0].equals(feelPick) ? " is-pick" : "");
+    %>
+    <a class="<%= cls %>"<%= right ? " data-right" : " data-wrong=\"" + card[0] + "\"" %> href="<%= href %>">
+        <img class="ic" data-kd-char="<%= card[0] %>" src="/img/char-tori-<%= card[0] %>.png" alt="">
+        <p class="nm"><%= card[1] %></p>
+        <p class="ds"><%= card[2] %></p>
+        <span class="spk" aria-hidden="true"></span>
+    </a>
+    <% } %>
+</div>
