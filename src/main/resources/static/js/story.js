@@ -171,6 +171,26 @@
         });
         /* 화면을 떠날 때 소리가 따라다니면 안 된다 */
         window.addEventListener('pagehide', function () { speechSynthesis.cancel(); });
+
+        /* ---------- 화면에 들어오면 바로 읽어 준다 (2026-08-11 요청) ----------
+           글을 아직 못 읽는 아이가 대상이라 먼저 들려주는 게 기본이고,
+           그래야 [다시 들려줘] 라는 이름이 말이 된다(전에는 '처음 들려줘' 가 없었다).
+           ⚠ 브라우저 자동재생 정책 — 아직 아무것도 누르지 않은 문서에서는 낭독이 막힌다.
+             막혔으면 아이가 화면 어디든 처음 누를 때 대신 읽어 준다. */
+        var first = listenBtns[0];
+        var firstLabel = first.textContent;
+
+        function sayScreen() { speak(screenText(), first, firstLabel); }
+
+        sayScreen();
+
+        setTimeout(function () {
+            if (speechSynthesis.speaking || speechSynthesis.pending) return;   /* 잘 나갔다 */
+            document.addEventListener('pointerdown', function once() {
+                document.removeEventListener('pointerdown', once);
+                sayScreen();
+            });
+        }, 500);
     }
 
     /* ---------- 카드의 소리 배지 ----------
