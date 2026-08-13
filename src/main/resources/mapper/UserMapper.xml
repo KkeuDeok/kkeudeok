@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kopo.poly.mapper.IUserMapper">
+    <!-- 회원 가입전 이메일 중복-->
+    <select id="getEmailExists" parameterType="UserDTO" resultType="UserDTO">
+        SELECT
+            IF(COUNT(USER_ID) > 0,'Y','N') AS EXISTS_YN
+        FROM USER
+        WHERE EMAIL = #{email}
+    </select>
+    <!-- 회원 가입-->
+    <insert id="insertUser" parameterType="UserDTO">
+        INSERT INTO member (
+            LOGIN_ID,
+            PASSWORD,
+            PARENT_PIN,
+            NAME,
+            EMAIL,
+            PHONE,
+            RELATION,
+            AGREE_SERVICE,
+            AGREE_PRIVACY,
+            AGREE_SENSITIVE,
+            AGREED_AT,
+            NOTIFY_WEEKLY_REPORT,
+            NOTIFY_REMINDER,
+            AGREE_MARKETING,
+            CREATED_AT
+        ) VALUES (
+                     #{loginId},
+                     #{password},
+                     #{parentPin},
+                     #{name},
+                     #{email},
+                     #{phone},
+                     #{relation},
+                     #{agreeService},
+                     #{agreePrivacy},
+                     #{agreeSensitive},
+                     NOW(),
+                     #{notifyWeeklyReport},
+                     #{notifyReminder},
+                     #{agreeMarketing},
+                     NOW()
+                 )
+    </insert>
+
+
+    <update id="updatepassword" parameterType="UserDTO">
+        UPDATE USER
+        SET PASSWORD = #{password}
+        WHERE LOGIN_ID = #{loginId}
+    </update>
+</mapper>
