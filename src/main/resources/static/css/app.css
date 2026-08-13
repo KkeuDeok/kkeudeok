@@ -1,0 +1,1483 @@
+/* ==========================================================================
+   보호자 앱 공통 껍데기 — 좌측 사이드바 240 + 본문 1200
+   온보딩과 같은 방식으로 창높이/1024 배율(--fit-scale)을 걸어 Figma 좌표를 그대로 쓴다.
+   성장 리포트·마이페이지도 이 껍데기를 재사용한다.
+   ========================================================================== */
+
+.app-body {
+    background: #fff;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-shell {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-scale {
+    flex: 1;
+    min-height: 0;          /* 없으면 flex 자식이 내용 높이만큼 부풀어 .app-main 이 스크롤하지 않고
+                               .app-shell 에서 잘려 버린다 (학습 홈 하단 배너가 사라지던 원인) */
+    display: flex;
+    zoom: var(--fit-scale, 1);
+}
+
+/* --------------------------------------------------------------------------
+   사이드바 240 — 세로 그라데이션 + 하단에 흐린 캐릭터
+   -------------------------------------------------------------------------- */
+.app-side {
+    position: relative;
+    width: 240px;
+    flex: none;
+    overflow: hidden;
+    background: linear-gradient(180deg, #1f5c40 0%, #123a29 100%);
+}
+
+.app-brand {
+    position: absolute;
+    left: 20px;
+    top: 20px;
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 40px;
+    text-decoration: none;      /* 대시보드로 가는 링크 */
+}
+
+.app-brand .ava {
+    width: 40px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+    overflow: hidden;
+}
+
+.app-brand .ava img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.app-brand .nm {
+    margin-left: 10px;      /* 아이콘 40 + 10 = 텍스트 x 50 */
+    font-size: 22px;
+    font-weight: 700;
+    line-height: 33px;
+    color: #fff;
+}
+
+/* 메뉴 — 항목 200×47, 간격 6 (y 0/53/106/159/212) */
+.app-nav {
+    position: absolute;
+    left: 20px;
+    top: 96px;
+    width: 200px;
+}
+
+.app-nav a {
+    position: relative;
+    display: block;
+    height: 47px;
+    border-radius: 12px;
+    opacity: 0.75;
+    font-size: 15px;
+    line-height: 22.5px;
+    color: #fff;
+    text-decoration: none;
+    padding: 12px 0 0 14px;
+}
+
+.app-nav a + a { margin-top: 6px; }
+
+.app-nav a:hover { opacity: 1; }
+
+.app-nav a.is-on {
+    opacity: 1;
+    border-radius: 6px;
+    background: var(--kd-primary-active);
+    font-weight: 700;
+    padding-left: 20px;
+}
+
+/* 활성 항목 왼쪽의 노란 막대 — 사이드바 가장자리(x=0)에 붙는다 */
+.app-nav a.is-on::before {
+    content: "";
+    position: absolute;
+    left: -20px;
+    top: 11.5px;
+    width: 4px;
+    height: 24px;
+    border-radius: 999px;
+    background: #ffc53d;
+}
+
+.app-profile {
+    position: absolute;
+    left: 20px;
+    top: 953px;             /* 블록 904 + 49 */
+    display: flex;
+    align-items: center;
+    width: 200px;
+    height: 52px;
+    border-radius: 85px;
+    background: rgba(251, 245, 233, 0.12);
+}
+
+.app-profile .ava {
+    width: 28px;
+    height: 28px;
+    flex: none;
+    margin-left: 20px;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+    overflow: hidden;
+}
+
+.app-profile .ava img { width: 100%; height: 100%; object-fit: cover; }
+
+.app-profile .nm {
+    margin-left: 10px;      /* 28 + 10 = 텍스트 x 58 */
+    font-size: 14px;
+    line-height: 21px;
+    color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   본문 1200 — 상단 120px 만 옅은 초록 띠
+   -------------------------------------------------------------------------- */
+/* 대시보드는 1024 에 딱 맞지만 학습 홈은 본문이 1115 라 넘친다.
+   Figma 는 프레임 밖을 잘라 버리지만 웹에서는 스크롤로 끝까지 보여 준다.
+   scrollbar-gutter: 스크롤바 자리를 항상 비워 둔다. 없으면 스크롤이 생기는 화면에서만
+   본문이 15px 좁아져, 메뉴를 옮겨 다닐 때 화면이 좌우로 움찔한다. */
+.app-main {
+    position: relative;
+    flex: 1;
+    background: #fff;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* ⚠ scrollbar-gutter:stable 을 뺐다 — 거터 15px 때문에 본문 폭이 1200 이 아니라 1185 가 되어
+       카드행(1120+여백80=1200)이 우측으로 15px 삐져나가고, 폭을 %로 잡는 `오늘의 관찰` 배너만
+       그 15px 을 반영해 카드와 오른쪽 끝이 어긋났다. 모든 화면이 1024 안(스크롤 0)이라 거터가 필요 없다.
+       화면을 고칠 때마다 kkeudeok-tools/verify 로 스크롤 0 을 다시 확인할 것. */
+}
+
+.app-main::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 120px;
+    background: linear-gradient(180deg, #eaf5ee 0%, #fff 100%);
+}
+
+/* 본문 열은 1200 고정 — 와이드 화면(배율이 세로 기준이라 캔버스보다 창이 넓을 때)은
+   왼쪽에 붙이지 않고 남는 공간 가운데에 둔다. 1440 창에서는 지금과 동일하다.
+   초록 띠(::before)는 이 제한 밖이라 계속 전체 폭을 채운다 */
+.app-head,
+.dash-kpis,
+.dash-basis,
+.dash-row,
+.dash-bottom,
+.dash-observe,
+.learn-hero,
+.learn-row,
+.learn-flow,
+.learn-cta {
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+}
+
+.app-head {
+    position: relative;
+    padding: 64px 0 0 40px;
+}
+
+.app-head h1 {
+    position: relative;
+    margin: 0;
+    padding-left: 16px;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 39px;
+    color: var(--kd-text);
+}
+
+.app-head h1::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 7.5px;
+    width: 4px;
+    height: 24px;
+    border-radius: 999px;
+    background: var(--kd-primary-active);
+}
+
+.app-head p {
+    margin: 6px 0 0;
+    padding-left: 16px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   지표 3칸 — 첫 칸이 주지표라 숫자·막대가 더 크다
+   -------------------------------------------------------------------------- */
+.dash-kpis {
+    display: flex;
+    margin-top: 48px;
+    padding: 0 40px;
+}
+
+.dash-kpi {
+    padding: 0 28px;
+    box-sizing: border-box;
+}
+
+/* KPI 산정 기준 한 줄 (2026-08-10 피드백 5) — 가운데정렬은 위 공용 규칙이 준다 */
+.dash-basis {
+    margin: 8px 0 0;
+    padding: 0 40px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.dash-kpi:first-child { width: 479px; }
+.dash-kpi + .dash-kpi { width: 320px; border-left: 1px solid var(--kd-border); }
+
+.dash-kpi .lb {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+.dash-kpi .v {
+    margin: 0;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 34px;
+    letter-spacing: -1.36px;
+    color: var(--kd-text);
+}
+
+.dash-kpi:first-child .v {
+    font-size: 52px;
+    line-height: 52px;
+    letter-spacing: -2.08px;
+}
+
+.dash-kpi .track {
+    height: 6px;
+    margin-top: 24px;
+    border-radius: 999px;
+    background: #f1f5f2;
+    overflow: hidden;
+}
+
+/* 트랙 폭은 세 칸 모두 264 — 첫 칸은 카드가 넓지만 트랙까지 넓히면
+   64% 막대가 72% 막대보다 길어져 지표가 거꾸로 읽힌다.
+   (Figma 원본은 423이라 이 한 줄이 원본과 다른 유일한 곳 — 되돌리려면 이 줄만 지우면 된다) */
+/* 첫 칸은 글자가 52px 이라 22 로는 붙어 보인다 -> 2·3번째 칸(34px 글자 + 24)과 눈높이를 맞춘다 */
+.dash-kpi:first-child .track { width: 264px; height: 10px; margin-top: 30px; }
+
+.dash-kpi .track span { display: block; height: 100%; border-radius: 999px; }
+
+.dash-kpi .cap {
+    margin: 8px 0 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+/* 지난주 대비 증감 — 세 지표 모두 높을수록 좋으므로 오름이 초록이다.
+   ponytail: 값은 백엔드가 내려줄 자리라 JSP 에 예시로 박아 뒀다. */
+.dash-kpi .cap b { font-weight: 700; }
+.dl-up   { color: #268254; }
+.dl-down { color: #c0392b; }
+.dl-flat { color: #8b978f; }
+
+/* 지표별 색 — 차트 선 색과 같다 */
+.c-express { background: #3d8fe0; }
+.c-understand { background: #e8a317; }
+.c-social { background: #0fa394; }
+
+/* --------------------------------------------------------------------------
+   차트 행 — 좌 660 차트 + 우 440 로드맵 카드
+   -------------------------------------------------------------------------- */
+.dash-row {
+    display: flex;
+    gap: 20px;
+    padding: 0 40px;
+}
+
+.dash-chart { width: 660px; flex: none; }
+
+.dash-chart h2 {
+    margin: 24px 0 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.dash-chart svg { display: block; margin-top: 13px; }
+
+/* 우측 카드(로드맵·연속이용)는 Figma 기준 연한 회록 채움 + 테두리 없음.
+   흰 카드는 좌측 `오늘의 추천 학습` 하나뿐이다. */
+.dash-card {
+    width: 440px;
+    flex: none;
+    background: #f1f5f2;
+    border-radius: 16px;
+    box-sizing: border-box;
+}
+
+.dash-plan { margin-top: 18.5px; padding: 22px 24px 0; height: 346px; }
+
+.dash-plan .hd {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.dash-plan .hd h2 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 20px;
+    color: var(--kd-text);
+}
+
+.dash-plan .hd a,
+.dash-plan .hd .lk {
+    font-size: 12px;
+    line-height: 14px;
+    color: var(--kd-text-sub);
+    text-decoration: none;
+}
+
+/* 링크처럼 보이는 버튼 — 모달을 여는 데는 button 이 맞다 */
+.dash-plan .hd .lk {
+    padding: 0;
+    border: none;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.dash-plan .hd .lk:hover { color: var(--kd-primary); text-decoration: underline; }
+
+/* --------------------------------------------------------------------------
+   로드맵 전체 보기 모달 — 12주. .dash-plan 안이 아니라서 목록 규칙을 따로 둔다.
+   -------------------------------------------------------------------------- */
+/* <dialog> 기본값이 overflow:auto 라 12주 목록이 길어지면 모달 껍데기가 통째로 스크롤됐다.
+   제목과 닫기 버튼까지 같이 밀려 아래가 잘려 보이던 원인(2026-08-10 지적) → 목록만 스크롤시킨다.
+   max-height 의 vh 는 zoom(= 1/--fit-scale)에 다시 곱해져 창 높이를 넘길 수 있으니 배율을 되돌린다.
+   (fit-scale = 창높이/1024 이므로 보정 없이는 화면상 항상 799px 고정 = 짧은 창에서 위아래가 잘린다) */
+/* ⚠ display 는 [open] 에만 준다 — 그냥 주면 브라우저 기본값 dialog:not([open]){display:none} 을
+   덮어써 닫힌 모달이 본문에 904px 로 깔린다. 그러면 대시보드만 세로 스크롤이 생기고
+   스크롤바 15px 때문에 가운데정렬 본문이 7.5px 왼쪽으로 밀려 제목·초록 막대 위치가 학습 홈과 어긋난다. */
+.dash-dlg[open] {
+    width: 520px;
+    max-height: calc(90vh * var(--fit-scale, 1));
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* 제목·리드문·닫기 버튼은 줄어들지 않는다 — 줄어들 몫은 목록이 전부 가져간다 */
+.dash-dlg > :not(ol) { flex: none; }
+
+.dash-dlg ol {
+    margin: 18px 0 0;
+    padding: 0;
+    list-style: none;
+    overflow-y: auto;
+    min-height: 0;              /* flex 아이템 기본 min-height:auto 면 안 줄어들어 스크롤이 안 생긴다 */
+    overscroll-behavior: contain;
+}
+
+.dash-dlg li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 22px;
+    padding-left: 34px;
+}
+
+.dash-dlg li + li { margin-top: 18px; }
+
+.dash-dlg li .no {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    box-sizing: border-box;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 2px;        /* 대시보드 카드와 같은 1px 보정 */
+}
+
+.dash-dlg li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 26px;
+    width: 2px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+.dash-dlg li .t {
+    flex: 1;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text);
+}
+
+.dash-dlg li .chip { flex: none; margin-left: 12px; }
+
+/* 12주 목록의 단계 소제목 — 온보딩 로드맵·마이페이지 카드의 6단계와 같은 이름이다.
+   주차 항목이 아니라 묶음 이름이라 번호 원도 연결선도 없다. */
+.dash-dlg li.plan-stage {
+    padding-left: 0;
+    margin-top: 24px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--kd-primary-strong);
+}
+
+.dash-dlg li.plan-stage:first-child { margin-top: 0; }
+.dash-dlg li.plan-stage::before { content: none; }
+
+/* 소제목 바로 앞 주차의 연결선은 갈 곳이 없다 — 다음 원이 아니라 글자로 이어진다 */
+.dash-dlg li:has(+ .plan-stage)::before { content: none; }
+
+.dash-plan ol {
+    margin: 26px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.dash-plan li {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 22px;
+    padding-left: 34px;
+}
+
+.dash-plan li + li { margin-top: 42px; }    /* 단계 간격 64 — 카드 아래가 68px 비어 있던 것을 채운다 */
+
+.dash-plan li .no {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    box-sizing: border-box;
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* flex 는 글자의 '줄상자'를 가운데 두는데, 폰트의 위/아래 여백이 15:4 로 비대칭이라
+       숫자 잉크가 정확히 1px 아래로 내려간다(캔버스 actualBoundingBox 로 실측).
+       아래쪽에 2px 을 물려 줄상자를 1px 끌어올린다. */
+    padding-bottom: 2px;
+}
+
+/* 번호 원도 칩과 같은 3단계 상태를 갖는다 (Figma 실측색) */
+/* 상태는 완료 / 미완료 둘뿐이다 — '진행중'(.no-now / .chip-now)은 2026-08-10 에 뺐다 */
+.no-done { background: var(--kd-primary-active); color: #fff; }
+.no-soon { background: var(--kd-border); color: #a8b4ad; }
+
+.dash-plan li:not(:last-child)::before {
+    content: "";
+    position: absolute;
+    left: 10px;
+    top: 26px;
+    width: 2px;
+    height: 34px;        /* 단계 간격 64 에 맞춘 연결선 (원 아래 4 ~ 다음 원 위 4) */
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+.dash-plan li .t {
+    flex: 1;
+    font-size: 14px;
+    line-height: 17px;
+    color: var(--kd-text);
+}
+
+.dash-plan .chip {
+    flex: none;
+    height: 24px;
+    padding: 0 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    line-height: 24px;
+    text-align: center;
+}
+
+.chip-done { background: #e3f6ec; color: #1f5c40; }
+.chip-soon { background: #fff; color: #a8b4ad; }   /* 카드가 회록이라 미완료 칩만 흰색 */
+
+.dash-plan .foot {
+    margin: 30px 0 0;
+    font-size: 12px;
+    line-height: 14px;
+    color: var(--kd-text-sub);
+}
+
+/* --------------------------------------------------------------------------
+   하단 행 — 오늘의 추천 학습 660 + 연속 이용 440
+   -------------------------------------------------------------------------- */
+/* 위 행의 높이는 차트(629)가 아니라 더 긴 로드맵 카드(669.5)가 정한다 → 683 까지 13.5 */
+.dash-bottom {
+    display: flex;
+    gap: 20px;
+    margin-top: 13.5px;
+    padding: 0 40px;
+}
+
+.dash-today {
+    position: relative;
+    width: 660px;
+    height: 168px;
+    flex: none;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.dash-today h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 27px;
+    color: var(--kd-text);
+}
+
+.dash-today p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text-sub);
+}
+
+.dash-today .kd-btn {
+    width: 200px;
+    height: 40px;
+    margin-top: 18px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.dash-streak {
+    width: 440px;
+    height: 168px;
+    flex: none;
+    padding: 24px;
+    box-sizing: border-box;
+    background: #f1f5f2;
+    border-radius: 16px;
+}
+
+.dash-streak .big {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.dash-streak .big b {
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 44px;
+    color: var(--kd-text);
+}
+
+.dash-streak .big span {
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.dash-week {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 18px;
+}
+
+.dash-week div {
+    width: 24px;
+    text-align: center;
+}
+
+.dash-week .d {
+    font-size: 12px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.dash-week .mk {
+    width: 24px;
+    height: 24px;
+    margin-top: 8px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dash-week .mk.on { background: var(--kd-primary-active); }
+
+.dash-week .mk.on::after {
+    content: "";
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) translate(-1px, -1px);
+}
+
+.dash-week .mk.off::after {
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+/* --------------------------------------------------------------------------
+   오늘의 관찰 확인 배너 — 하단 851 아래로 남던 173px 을 쓴다
+   -------------------------------------------------------------------------- */
+.dash-observe {
+    display: flex;
+    align-items: center;
+    width: calc(100% - 80px);   /* 좌우 40 — 위 블록들은 padding 으로 주지만
+                                   여긴 카드 자체가 여백을 져야 해서 폭으로 뺀다 */
+    height: 88px;
+    margin-top: 24px;           /* 851 → 875, 아래 61 여백 */
+    padding: 0 24px;
+    box-sizing: border-box;
+    background: var(--kd-primary-tint);
+    border-radius: 16px;
+}
+
+.dash-observe .ic {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 999px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+
+.dash-observe p {
+    flex: 1;
+    margin: 0 24px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+}
+
+.dash-observe .kd-btn {
+    width: 140px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+
+/* ==========================================================================
+   학습 홈 — Figma 307:871
+   본문 열 1200(좌우 패딩 40 → 내용 1120). 세로 좌표는 Figma 실측 그대로.
+   ========================================================================== */
+
+/* 제목 레일은 4개 화면 모두 64 로 통일한다 (사용자 요청 2026-08-08).
+   Figma 는 대시보드 64 / 학습 홈·리포트·마이페이지 104 로 제각각이었다. */
+.app-head-lg { padding-top: 64px; }
+
+/* --- AI 스토리 학습 배너 (1120×240 = 그림 340 + 텍스트 780) ---
+   Figma 개선판(24:20391)에서 배너 전체가 크림 카드(#fff6ea, r28)로 바뀌었다. */
+.learn-hero {
+    display: flex;
+    margin-top: 28px;       /* 부제 아래 143+20=163 → 배너 193 */
+    padding: 0 40px;
+}
+
+.learn-hero > .art,
+.learn-hero > .txt { position: relative; z-index: 1; }
+
+/* 카드 배경은 padding(40) 안쪽 1120 에만 깔려야 해서 ::before 로 그린다 */
+.learn-hero { position: relative; }
+
+/* 2026-08-09 지적("그라데이션 후짐함") — 그림 340 옆으로 크림색 780px 이 그대로 비어
+   싸구려로 보였다. 흰 카드 + 1px 테두리로 바꾸고 그림을 키워 여백을 줄였다.
+   되돌리려면 background 를 var(--kd-card-cream) 로, .art 폭을 340 으로. */
+.learn-hero::before {
+    content: "";
+    position: absolute;
+    left: 40px;
+    right: 40px;
+    top: 0;
+    bottom: 0;
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    box-sizing: border-box;
+    border-radius: 28px;
+}
+
+/* 배경 + 캐릭터 2겹 — 제공받은 배경 그림에 캐릭터가 없어서 위에 얹는다 */
+.learn-hero .art {
+    position: relative;
+    display: block;
+    width: 460px;
+    height: 240px;
+    flex: none;
+    border-radius: 28px 0 0 28px;   /* 카드 왼쪽 모서리와 맞춘다 */
+    overflow: hidden;
+}
+
+/* 배경을 learn-hero-bg2.jpg(1000×500, 2:1)로 바꿨다 — 배너 460×240(1.92:1)과 비율이 거의 같아
+   예전처럼 위아래를 85px 씩 잘라내지 않는다(옛 그림은 680×480 액자형이라 해·구름이 날아갔다).
+   object-position 은 아래 정렬 유지 — 잔디선에 캐릭터 발을 맞추기 위해서다. */
+.learn-hero .art .bg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center bottom;
+}
+
+/* 그림과 흰 카드 사이 세로 경계선이 뚝 끊겨 보인다는 지적(2026-08-09) → 오른쪽 끝을 흰색으로 흘린다 */
+.learn-hero .art::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 130px;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), #fff);
+    pointer-events: none;
+}
+
+/* 캐릭터는 잔디선에 발이 닿게 아래 정렬.
+   bottom 이 음수인 이유: 원본(260×350) 하단에 투명 4px 이 있어 8px 로는 12px 떠 보였다.
+   180 폭이면 높이가 242 라 배너(240)보다 커서 상체 끝이 아래로 잠긴다 = 잔디에 묻힌 느낌.
+   .art 가 overflow:hidden 이라 넘친 만큼만 잘린다. */
+.learn-hero .art .ch {
+    position: absolute;
+    left: 50%;
+    bottom: -6px;
+    width: 180px;
+    transform: translateX(-50%);
+    object-fit: contain;
+}
+
+.learn-hero .txt { padding: 44px 0 0 40px; }
+
+.learn-hero h2 {
+    margin: 0;
+    font-size: 24px;        /* Figma 개선판 실측 */
+    font-weight: 700;
+    line-height: 36px;
+    color: var(--kd-text);
+}
+
+.learn-hero .txt p {
+    margin: 8px 0 0;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text-sub);
+}
+
+/* 예상 소요 — 개선판에서 추가된 줄 (부제 아래 13px) */
+.learn-hero .txt .min {
+    margin: 12px 0 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+.learn-hero .kd-btn {
+    width: 200px;
+    height: 40px;
+    margin-top: 16px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* --- 일상 입력 657.6 + 최근 기록 438.4 (gap 24) --- */
+.learn-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 20px;       /* 배너 끝 433 → 제목 457 */
+    padding: 0 40px;
+}
+
+/* 안내문을 뺀 뒤 왼쪽이 74px 짧아졌다 — 카드가 남는 높이를 먹어 오른쪽 표와 밑단을 맞춘다 */
+.learn-daily  { width: 657.6px; flex: none; display: flex; flex-direction: column; }
+.learn-recent { width: 438.4px; flex: none; }
+
+/* 섹션 제목 + 아래 구분선 — 두 열이 같은 기준선을 쓴다 */
+.learn-sec {
+    margin: 0 0 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--kd-border);
+    font-size: 19px;        /* Figma 개선판 실측 */
+    font-weight: 700;
+    line-height: 29px;
+    color: var(--kd-text);
+}
+
+.learn-sec-plain { border-bottom: 0; padding-bottom: 0; }
+
+/* 상황 칩(.learn-chips)은 2026-08-10 피드백 6 으로 걷어냈다 —
+   "유치원·친구랑 다퉜어" 4개가 무엇을 고르는 건지 안 읽혀 헷갈린다는 지적.
+   되살리려면 이 커밋의 부모에서 규칙을 가져올 것. */
+
+/* --- 일상 입력 진입 카드 (모달 전환 후) --- */
+/* 2026-08-09 지적("칸 맞추기") — 왼쪽 카드와 오른쪽 표의 위·아래가 5px / 49px 어긋나 있었다.
+   margin-top 을 표(19)와 같게 하고, 패딩으로 높이를 키워 안내문 아랫줄이 표 아랫줄과 만나게 한다. */
+/* 높이 237 고정 + 세로 가운데 정렬 — 기록 전/후 두 상태가 같은 자리에 같은 크기로 보여야 한다.
+   내용 높이에 맡기면 완료 카드가 10px 더 커져 오른쪽 표 아랫선과 어긋난다(2026-08-09 지적). */
+.learn-entry {
+    margin-top: 19px;
+    height: 237px;
+    flex: 1;        /* 237 은 최소치 — 오른쪽 표가 길면 그만큼 늘어난다 */
+    padding: 23px 24px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f9fbfa;
+    border: 1px solid var(--kd-border);
+    border-radius: 16px;
+    text-align: center;
+}
+
+.learn-entry .ic {
+    display: inline-flex;
+    width: 56px;
+    height: 56px;
+    flex: none;   /* flex 컨테이너에서 원이 눌리지 않게 */
+    border-radius: 999px;
+    background: var(--kd-primary-tint) center / 26px no-repeat;
+}
+
+.ic-pen {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E");
+}
+
+.ic-check {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+.learn-entry .t {
+    margin: 16px 0 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 26px;
+    color: var(--kd-text);
+}
+
+/* 2줄로 잘라 둔다 — 완료 카드의 요약문은 사용자가 쓴 메모라 길이를 예측할 수 없고,
+   길어지면 고정 높이(237)를 밀어 카드가 다시 삐죽해진다. */
+.learn-entry .d {
+    margin: 6px 0 0;
+    max-width: 440px;
+    font-size: 14px;
+    line-height: 21px;
+    color: var(--kd-text-sub);
+    word-break: keep-all;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.learn-entry > .kd-btn {
+    width: 220px;
+    height: 44px;
+    margin-top: 14px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 기록 후 — 여기서 '다음 단계'로 이어진다 */
+.learn-entry-done { background: var(--kd-primary-tint); border-color: transparent; }
+
+.learn-entry-done .d {
+    color: var(--kd-text);
+    font-size: 14px;
+}
+
+/* margin-top 은 빈 상태 버튼(.learn-entry > .kd-btn)과 같은 14 — 두 상태의 버튼줄이 같은 높이에 온다 */
+.learn-entry-done .row {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 14px;
+}
+
+.learn-entry-done .row .kd-btn {
+    height: 44px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.learn-entry-done .row .kd-btn-outline { background: #fff; }
+
+/* --- 기록 전 → 기록 후 -------------------------------------------------------
+   저장하면 두 카드가 갈리는데(learn/index.jsp kdDailySave) 아무 반응이 없어
+   "됐나?" 싶다. 체크만 도장처럼 찍고 나머지는 조용히 뜬다 — 보호자 화면은
+   정보를 읽는 곳이라 절제한다.
+   ⚠ 두 카드는 hidden(display:none) 으로 갈린다. display 는 transition 이 안 걸리므로
+     나타나는 카드에 animation 을 건다 — 보이는 순간 한 번 돈다(PIN 점과 같은 함정).
+   ⚠ 사라지는 카드는 건드리지 않는다. 두 카드 높이가 237 로 같아 주변이 안 튀고,
+     저장 순간 모달이 같이 닫혀 시선이 그쪽에 있다. */
+.learn-entry-done:not([hidden]) .ic {
+    animation: kd-entry-stamp 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.learn-entry-done:not([hidden]) .t,
+.learn-entry-done:not([hidden]) .d,
+.learn-entry-done:not([hidden]) .row {
+    animation: kd-entry-fade 0.35s 0.12s ease both;
+}
+
+@keyframes kd-entry-stamp {
+    from { opacity: 0; transform: scale(0.3) rotate(-12deg); }
+}
+
+@keyframes kd-entry-fade {
+    from { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .learn-entry-done:not([hidden]) .ic,
+    .learn-entry-done:not([hidden]) .t,
+    .learn-entry-done:not([hidden]) .d,
+    .learn-entry-done:not([hidden]) .row { animation: none; }
+}
+
+
+
+/* --- 최근 학습 기록 표 --- */
+.learn-recent table {
+    width: 100%;
+    margin-top: 19px;
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
+    border-collapse: separate;
+    border-spacing: 0;
+    overflow: hidden;
+    table-layout: fixed;
+    font-size: 14px;
+}
+
+.learn-recent th,
+.learn-recent td {
+    height: 44px;
+    padding: 0 14px;
+    text-align: left;
+    vertical-align: middle;
+    color: var(--kd-text);
+}
+
+.learn-recent thead th {
+    background: #f1f5f2;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+.learn-recent tbody tr + tr td { border-top: 1px solid var(--kd-border); }
+
+.learn-recent .c-no    { width: 48px;  text-align: center; padding: 0; }
+.learn-recent .c-date  { width: 129px; text-align: center; padding: 0; }
+.learn-recent .c-state { width: 129px; text-align: center; padding: 0; }
+
+.learn-recent th.c-story { line-height: 20px; }
+
+/* 줄 제한은 본문 칸에만 — th 에까지 걸면 헤더 글자가 위로 붙는다 */
+.learn-recent td.c-story {
+    line-height: 20px;
+    /* 두 줄까지만 — 세 줄이 되면 행 높이가 흔들린다 */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* 상태 칩 2종 — 완료 / 미완료 (Figma 개선판 실측색) */
+.learn-recent .chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    height: 26px;
+    padding: 0 10px;
+    box-sizing: border-box;
+    border-radius: 999px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.learn-recent .chip-cont { background: #f1f5f2; color: var(--kd-text-sub); }
+
+/* --- 스토리 학습 흐름 5단계 --- */
+.learn-flow {
+    margin-top: 20px;
+    padding: 0 40px;
+}
+
+.learn-flow ol {
+    display: flex;
+    margin: 14px 0 0;       /* 제목 끝 855.5 → 원 876 */
+    padding: 0;
+    list-style: none;
+}
+
+.learn-flow li {
+    width: 224px;
+    flex: none;
+    padding-right: 18px;
+    box-sizing: border-box;
+}
+
+.learn-flow .no {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.learn-flow b {
+    display: block;
+    margin-top: 10px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+}
+
+.learn-flow .ds {
+    display: block;
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 19px;
+    color: var(--kd-text-sub);
+}
+
+/* --- 하단 학습 유도 배너 --- */
+/* 하단 배너 — 개선판은 tint 가 아니라 크림 + r28 이다 */
+.learn-cta {
+    display: flex;
+    align-items: center;
+    height: 88px;
+    /* 아래 여백 12 면 콘텐츠가 1025 가 되어 예산(.app-main 1024)을 1px 넘겨 스크롤바가 생겼다.
+       8 로 줄여 3px 여유를 둔다 — 스크롤 확인은 반드시 .app-main 기준으로 할 것 */
+    margin: 14px 0 8px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    background: var(--kd-card-cream);
+    border-radius: 28px;
+}
+
+/* 좌우 40 패딩은 위 블록들과 달리 카드 자체가 져야 해서 폭으로 뺀다 */
+.learn-cta { width: calc(100% - 80px); margin-left: auto; margin-right: auto; }
+
+.learn-cta .ic {
+    width: 48px;
+    height: 48px;
+    flex: none;
+    border-radius: 999px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 3 14 9-14 9V3z'/%3E%3C/svg%3E") center / 22px no-repeat;
+}
+
+.learn-cta p {
+    flex: 1;
+    margin: 0 24px;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+}
+
+.learn-cta .kd-btn {
+    width: 121px;
+    height: 40px;
+    flex: none;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+/* 학습 홈 상단 띠 제거 (2026-08-08 결정, 08-09 배너를 흰 카드로 바꾸며 확정).
+   되살리려면 아래 한 줄을 살리면 된다:
+   .app-main:has(.learn-hero)::before { height: 64px; background: var(--kd-card-cream); }
+   ⚠ CSS 는 주석 중첩이 안 된다 — 주석 안에 또 주석 기호를 넣으면 첫 번째 닫힘에서 끝나고,
+     남은 닫힘 기호가 바로 뒤 규칙 하나를 통째로 삼킨다.
+     실제로 이것 때문에 .daily-modal 의 width:640 이 사라져 일상 입력 모달이 480 으로 좁아졌고,
+     상황 칩 글자가 세로로 쪼개졌다(2026-08-09). */
+
+/* ==========================================================================
+   오늘의 일상 입력 모달 — Figma 24:20619 (카드 640, 헤더 63 / 본문 / 푸터 67)
+   .terms-dialog 를 함께 붙여 backdrop 과 zoom 상쇄를 상속받는다.
+   ========================================================================== */
+.daily-modal {
+    width: 640px;
+    max-height: none;
+    padding: 0;
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.daily-modal .hd {
+    display: flex;
+    align-items: center;
+    height: 63px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    border-bottom: 1px solid var(--kd-border);
+}
+
+.daily-modal .hd h2 {
+    flex: 1;
+    margin: 0;
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 26px;
+    color: var(--kd-text);
+}
+
+/* X 닫기 — auth.css 의 .terms-dialog button 규칙을 이겨야 해서 구체적으로 재선언 */
+.daily-modal .hd .x {
+    width: 20px;
+    height: 20px;
+    flex: none;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: var(--kd-text-sub);
+    font-size: 0;
+    cursor: pointer;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+    mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M18 6 6 18M6 6l12 12'/%3E%3C/svg%3E") center / 20px no-repeat;
+}
+
+.daily-modal .hd .x:hover { background: var(--kd-text); }
+
+.daily-modal .bd { padding: 24px; }
+
+.daily-modal .bd h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 29px;
+    color: var(--kd-text);
+}
+
+
+/* 고른 장애 유형이 학습에 반영된다는 안내 (2026-08-10 피드백 7).
+   히어로 안이라 한 줄을 넘기면 배너가 늘어난다 — 문구를 늘릴 땐 스크롤 0 을 다시 잴 것 */
+.learn-fit {
+    display: inline-flex;
+    align-items: center;
+    margin: 12px 0 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: var(--kd-primary-tint);
+    color: var(--kd-primary-strong);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 20px;
+}
+
+/* 칸 라벨 — 상황 칩을 걷어내면서 "이 칸이 뭘 받는지"를 글로 밝혔다(2026-08-10 피드백 6).
+   간격은 8px 배수 스케일: 위 24 / 라벨↔칸 16 */
+.daily-lb {
+    margin: 24px 0 0;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 21px;
+    color: var(--kd-text);
+}
+
+.daily-lb .opt {
+    margin-left: 8px;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--kd-text-sub);
+}
+
+/* --- 감정 5칸 (얼굴 48 + 이름 + 라디오 22) --- */
+.daily-emos {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.daily-lb + .daily-emos,
+.daily-lb + .daily-memo { margin-top: 16px; }
+
+/* 감정 라디오 바로 아래에 다음 라벨이 붙으면 라디오 줄의 일부처럼 읽힌다 —
+   칸과 칸 사이는 32 로 벌려 두 덩어리로 보이게 한다(8px 배수 스케일) */
+.daily-emos + .daily-lb { margin-top: 32px; }
+
+.daily-emos label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+}
+
+.daily-emos img {
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    /* 선택 전에는 살짝 흐리게 — 고른 것이 또렷하게 보이도록 */
+    opacity: 0.45;
+    transition: opacity .12s;
+}
+
+.daily-emos .nm {
+    margin-top: 8px;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--kd-text-sub);
+}
+
+/* 라디오는 온보딩 규격(20 사각 + 안쪽 원)과 같게 직접 그린다 */
+.daily-emos input {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 22px;
+    height: 22px;
+    margin: 8px 0 0;
+    border: 2px solid var(--kd-border);
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+}
+
+.daily-emos input:checked { border-color: var(--kd-primary); }
+
+.daily-emos input:checked::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--kd-primary);
+    transform: translate(-50%, -50%);
+}
+
+.daily-emos input:focus-visible { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+.daily-emos label:has(input:checked) img { opacity: 1; }
+
+.daily-emos label:has(input:checked) .nm {
+    color: var(--kd-primary-strong);
+    font-weight: 700;
+}
+
+/* --- 메모 + 글자수 --- */
+.daily-memo { position: relative; margin-top: 24px; }
+
+.daily-memo textarea {
+    display: block;
+    width: 100%;
+    height: 100px;
+    padding: 15px 15px 28px;
+    box-sizing: border-box;
+    border: 1px solid var(--kd-border);
+    border-radius: 12px;
+    font: inherit;
+    font-size: 15px;
+    line-height: 23px;
+    color: var(--kd-text);
+    resize: none;
+}
+
+.daily-memo textarea::placeholder { color: var(--kd-text-sub); }
+.daily-memo textarea:focus { outline: none; border-color: var(--kd-primary-active); }
+
+.daily-count {
+    position: absolute;
+    right: 16px;
+    bottom: 10px;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--kd-text-sub);
+}
+
+/* --- 푸터 --- */
+.daily-modal .ft {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    height: 67px;
+    padding: 0 24px;
+    box-sizing: border-box;
+    align-items: center;
+}
+
+/* auth.css 의 .terms-dialog button (w100% h44 초록 알약) 을 이겨야 한다 */
+.daily-modal .ft .kd-btn {
+    width: auto;
+    height: 34px;
+    padding: 0 24px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.daily-modal .ft .kd-btn-outline {
+    background: #fff;
+    border: 1px solid var(--kd-border);
+    color: var(--kd-text);
+}
+
+.daily-modal .ft .kd-btn-primary { background: var(--kd-primary); color: #fff; }
+.daily-modal .ft .kd-btn:focus { outline: none; }
+.daily-modal .ft .kd-btn:focus-visible { outline: 2px solid var(--kd-primary); outline-offset: 2px; }
+
+/* 기록 완료 카드 보정 2가지
+   1) 아이콘 원이 카드와 같은 tint 라 안 보였다 -> 흰색 원
+   2) .kd-btn 이 inline-flex 라 flex 아이템으로 늘어나 두 버튼이 각각 전체 폭을 먹었다 */
+.learn-entry-done .ic { background-color: #fff; }
+
+.learn-entry-done .row {
+    flex-direction: row;
+    flex-wrap: nowrap;
+}
+
+.learn-entry-done .row .kd-btn {
+    width: auto;
+    flex: 0 0 auto;
+}
+
+/* ⚠ `.learn-entry .ic` 의 background 단축 속성이 background-image 를 none 으로 리셋하는데
+   구체성이 .ic-pen/.ic-check(클래스 1개)보다 높아 아이콘이 통째로 사라졌다.
+   같은 구체성으로 다시 선언해 이긴다. */
+.learn-entry .ic-pen {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E");
+}
+
+.learn-entry .ic-check {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 6 9 17l-5-5'/%3E%3C/svg%3E");
+}
+
+/* 빈 상태에서 KPI 3장(.dash-kpis)이 사라지면 차트 행이 제목에 붙어 버린다 —
+   .dash-kpis 가 갖고 있던 위 여백 48 을 대신 준다 */
+/* 0·1 단계에는 KPI 3장이 없어 차트 행이 제목에 붙는다 — .dash-kpis 가 갖고 있던 위 여백 48 을 대신 준다 */
+html[data-kd-stage="0"] .dash-row,
+html[data-kd-stage="1"] .dash-row { margin-top: 48px; }
+
+/* 0단계는 아래 카드행·관찰 배너가 통째로 빠지므로 그 세로를 빈 카드가 먹는다.
+   min-height 값은 마지막 요소 바닥이 2단계(디자인 y971)와 비슷하게 끝나도록 실측해 정했다. */
+/* 2026-08-10 "조금 더 깔끔하게" — 794 는 2단계와 페이지 바닥을 맞추려던 값인데,
+   0단계는 내용이 적어 카드 둘이 텅 빈 채로 늘어났다(로드맵 카드 아래 194px 이 죽은 공간).
+   내용 높이에 맞춘다 — 로드맵 8행 + 여백이 620 이다. */
+html[data-kd-stage="0"] .dash-row { min-height: 620px; }
+
+/* ⚠ .dash-plan 은 height:346 고정이다(4행 기준). 0단계는 8행을 그리므로 뒤 4행이 카드 밖으로
+   삐져나온다 — .onb-plan 에서 겪은 것과 같은 함정이다. 여기서만 풀고, 옆 빈 카드와
+   높이를 맞추려 stretch 로 늘린다(.dash-row 는 flex 라 align-items 기본값이 stretch). */
+html[data-kd-stage="0"] .dash-plan { height: auto; margin-top: 0; padding-bottom: 22px; }   /* 위 끝도 왼쪽 카드와 맞춘다 */
+
+/* 1단계는 KPI 3장만 빠져 그만큼 아래가 비었다 — 차트 자리를 늘려 2단계와 같은 바닥(971)에서 끝낸다 */
+/* 2026-08-10 "카드가 안 맞고 / 밑으로 내려서 더 길고 크게" — 500 → 560,
+   로드맵도 0단계처럼 늘여 위·아래 끝을 맞춘다(줄 수는 kd-roadmap.js 가 7줄로 채운다). */
+html[data-kd-stage="1"] .dash-row  { min-height: 552px; }   /* 560 이면 본문이 7px 넘쳐 스크롤이 생긴다 */
+html[data-kd-stage="1"] .dash-plan { height: auto; margin-top: 0; padding-bottom: 22px; }
+
+/* 빈 카드는 옆 로드맵 카드와 같은 높이로 늘어나야 한다 */
+/* 빈 안내 카드가 행 높이를 그대로 채우게 — 안 그러면 카드는 큰데 안내만 위에 붙어
+   아래가 텅 빈다. 1단계(kd-s1)에도 같은 규칙이 필요하다(2026-08-10 지적). */
+.dash-chart.kd-no-data,
+.dash-chart.kd-s1 { display: flex; }
+.dash-chart.kd-no-data .kd-empty,
+.dash-chart.kd-s1 .kd-empty { flex: 1; }
+
+/* 최근 학습 기록이 0건일 때 — 표 대신 들어간 빈 카드가 왼쪽 일상 카드와 아래 선을 맞추도록 늘린다 */
+html[data-kd-stage="0"] .learn-recent,
+html[data-kd-stage="1"] .learn-recent { display: flex; flex-direction: column; }
+/* margin-top 7 = 표가 있던 자리(디자인 y478)와 같은 높이. 왼쪽 일상 카드와 윗선이 맞는다 */
+html[data-kd-stage="0"] .learn-recent .kd-empty { flex: 1; margin-top: 7px; }
+
+
+/* --- 0단계 빈 화면 채우기 (2026-08-10 "너무 휑하다") ------------------------- */
+/* '오늘의 추천 학습'만 숨기므로 '연속 이용'이 한 줄을 다 쓴다 */
+html[data-kd-stage="0"] .dash-streak { width: 100%; }
+/* 빈 안내 카드에는 캐릭터를 얹는다 (추천학습 카드 쪽은 2026-08-10 지적으로 삭제) */
+.dash-chart { position: relative; overflow: hidden; }
+.dash-chart > .ch {
+    position: absolute;
+    right: 24px;
+    bottom: 0;
+    width: 150px;
+    object-fit: contain;
+    pointer-events: none;
+}
+
+
+/* 대시보드 빈 카드 안 글자 — 카드가 660×560 인데 17/14px 이라 너무 작았다(2026-08-10 지적).
+   .kd-empty 공용 크기는 리포트·학습홈에서도 쓰므로 여기서만 키운다. */
+.dash-chart .kd-empty .t { font-size: 22px; line-height: 33px; }
+.dash-chart .kd-empty .d { font-size: 16px; line-height: 25px; max-width: 520px;
+                            text-wrap: balance; }  /* 마지막 줄에 한 낱말만 남는 걸 막는다 */
+.dash-chart .kd-empty .ic { transform: scale(1.25); }
+.dash-chart .kd-empty .kd-btn { width: 240px; height: 50px; font-size: 16px; margin-top: 18px; }
+
+
+/* 오늘 기록 요약 — 아이 이름·상황·메모가 붙어 길어질 수 있다. 두 줄에서 끊는다
+   (JS 가 메모를 40자로 자르지만 상황·감정 글자가 길면 그래도 넘칠 수 있다). */
+/* ⚠ -webkit-line-clamp 로 두 줄 제한을 걸었더니 flex 부모 안에서 높이가 한 줄(21px)로
+   눌려 둘째 줄이 반만 보였다. 한 줄 + 말줄임이 확실하다. 원문은 [다시 쓰기] 모달에 그대로 있다. */
+#dailySummary {
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

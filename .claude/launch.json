@@ -1,0 +1,14 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "kkeudeok",
+      "runtimeExecutable": "cmd",
+      "runtimeArgs": [
+        "/c",
+        "set \"JAVA_HOME=C:\\IntelliJ IDEA 2025.3.3\\jbr\" && mvnw.cmd spring-boot:run"
+      ],
+      "port": 8080
+    }
+  ]
+}
