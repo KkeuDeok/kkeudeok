@@ -5,13 +5,13 @@ import kopo.kkeudeok.dto.UserDTO;
 import kopo.kkeudeok.mapper.IUserMapper;
 import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
+import kopo.kkeudeok.util.CmmUtil;
 import kopo.kkeudeok.util.EncryptUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -20,69 +20,81 @@ public class UserService implements IUserService {
 
     private final IUserMapper userMapper;
     private final IMailService mailService;
-    // 메일 발송을 위한 자바 객체 가져오는데 아직 없음
+
+    /* ---------- 회원가입 ---------- */
 
     @Override
     public UserDTO getLoginIdExists(UserDTO pDTO) throws Exception {
-        log.info("{}getLoginIdExists Start!", this.getClass().getName());
-        UserDTO rDTO = userMapper.getLoginIdExists(pDTO);
-        log.info("{}.getUserIdExists End", this.getClass().getName());
+        log.info("{}.getLoginIdExists Start!", this.getClass().getName());
+
+        UserDTO rDTO = Optional.ofNullable(userMapper.getLoginIdExists(pDTO)).orElseGet(UserDTO::new);
+
+        log.info("{}.getLoginIdExists End!", this.getClass().getName());
         return rDTO;
     }
 
     @Override
     public UserDTO getEmailExists(UserDTO pDTO) throws Exception {
-        log.info("{}.email Start!", this.getClass().getName());
+        log.info("{}.getEmailExists Start!", this.getClass().getName());
+
+        // 인증번호 발송은 AuthApiController 가 세션 기반으로 처리한다.
+        // 여기서는 "이미 가입된 메일인지"만 본다.
         UserDTO rDTO = Optional.ofNullable(userMapper.getEmailExists(pDTO)).orElseGet(UserDTO::new);
-        log.info("rDTO : {}",rDTO);
 
-        if(kopo.poly.util.CmmUtil.nvl(rDTO.getExistsYn()).equals("N")) {
-            int authNumber = ThreadLocalRandom.current().nextInt(100000,1000000);
-            log.info("authNumber : {}",authNumber);
-            MailDTO dto = new MailDTO();
-            dto.setTitle("아매알 중복 확인 인증번호 발송 메일");
-            dto.setContents("인증번호"+authNumber+"입니다");
-            dto.setToMail(EncryptUtil.decAES128CBC(kopo.poly.util.CmmUtil.nvl(pDTO.getEmail())));
-
-            mailService.doSendMail(dto);
-
-            rDTO.setAuthNumber(authNumber);//인증번호를 결과 값에 넣어주기
-        }
-        log.info("{}.emilAuth End!",this.getClass().getName());
+        log.info("{}.getEmailExists End!", this.getClass().getName());
         return rDTO;
     }
 
     @Override
     public int insertUser(UserDTO pDTO) throws Exception {
-        log.info("{}.insertUserInfo Start!",this.getClass().getName());
-        int res;
-        int success = userMapper.insertUser(pDTO);
-        //
-        if (success > 0){
-            res = 1;
-            MailDTO mDTO  = new MailDTO();
+        log.info("{}.insertUser Start!", this.getClass().getName());
 
-            mDTO.setToMail(EncryptUtil.decAES128CBC(kopo.poly.util.CmmUtil.nvl(pDTO.getEmail())));
-            mDTO.setTitle("회원 가입을 축하드립니다.");
-            mDTO.setContents(kopo.poly.util.CmmUtil.nvl(pDTO.getName())+ "님의 회원가입 ㅊㅋㅊㅋ");
+        int res = 0;
+
+        if (userMapper.insertUser(pDTO) > 0) {
+            res = 1;
+
+            // 가입 축하 메일 — 실패해도 가입 자체는 성공으로 둔다(MailService 가 예외를 삼킨다).
+            MailDTO mDTO = new MailDTO();
+            mDTO.setToMail(EncryptUtil.decAES128CBC(CmmUtil.nvl(pDTO.getEmail())));
+            mDTO.setTitle("[끄덕] 회원가입을 축하합니다");
+            mDTO.setContents(MailService.welcomeHtml(CmmUtil.nvl(pDTO.getName())));
             mailService.doSendMail(mDTO);
-        } else {
-            res = 0;
         }
-        log.info("{}.insertUserInfo End",this.getClass().getName());
+
+        log.info("{}.insertUser End! res={}", this.getClass().getName(), res);
         return res;
     }
-    //private final IMailService mailService;
-    // 메일 발송을 위한 객체 가져오는데 이건 아직 없음
 
-    //비번 함수 구현
+    /* ---------- 로그인 · 아이디 찾기 ---------- */
+
     @Override
-    public int newPasswordProc(UserDTO pDTO) throws Exception{
-        log.info("{}.newPasswordProc Strart!", this.getClass().getName());
-        int success = userMapper.updatePassword(pDTO);
-        log.info("{}.newPasswordProc End!",this.getClass().getName());
-        return success;
+    public UserDTO getLogin(UserDTO pDTO) throws Exception {
+        log.info("{}.getLogin Start!", this.getClass().getName());
+        return userMapper.getLogin(pDTO);
     }
 
+    @Override
+    public UserDTO getFindId(UserDTO pDTO) throws Exception {
+        log.info("{}.getFindId Start!", this.getClass().getName());
+        return userMapper.getFindId(pDTO);
+    }
 
+    /* ---------- 비밀번호 찾기 ---------- */
+
+    @Override
+    public UserDTO getFindPwUser(UserDTO pDTO) throws Exception {
+        log.info("{}.getFindPwUser Start!", this.getClass().getName());
+        return userMapper.getFindPwUser(pDTO);
+    }
+
+    @Override
+    public int newPasswordProc(UserDTO pDTO) throws Exception {
+        log.info("{}.newPasswordProc Start!", this.getClass().getName());
+
+        int success = userMapper.updatePassword(pDTO);
+
+        log.info("{}.newPasswordProc End! success={}", this.getClass().getName(), success);
+        return success;
+    }
 }

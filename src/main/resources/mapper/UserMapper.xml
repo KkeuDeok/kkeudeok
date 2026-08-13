@@ -1,54 +1,104 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="kopo.poly.mapper.IUserMapper">
-    <!-- 회원 가입전 이메일 중복-->
-    <select id="getEmailExists" parameterType="UserDTO" resultType="UserDTO">
-        SELECT
-            IF(COUNT(USER_ID) > 0,'Y','N') AS EXISTS_YN
-        FROM USER
-        WHERE EMAIL = #{email}
+
+<!-- namespace = 짝이 되는 자바 인터페이스의 전체 이름. id = 그 인터페이스의 메서드명.
+     ⚠ 둘 중 하나라도 어긋나면 기동할 때 BindingException 이 난다.
+     컬럼은 snake_case, DTO 는 camelCase — application.properties 의
+     mybatis.configuration.map-underscore-to-camel-case=true 가 이어 준다. -->
+<mapper namespace="kopo.kkeudeok.mapper.IUserMapper">
+
+    <!-- ================= 회원가입 ================= -->
+
+    <!-- 아이디 중복 확인.
+         ⚠ MariaDB 의 IF() 대신 CASE WHEN 을 쓴다 — IF() 는 표준이 아니라
+            테스트가 도는 H2 에서 문법 오류가 난다(2026-08-13에 실제로 깨졌다). -->
+    <select id="getLoginIdExists" parameterType="UserDTO" resultType="UserDTO">
+        SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
+        FROM member
+        WHERE login_id = #{loginId}
+          AND deleted_at IS NULL
     </select>
-    <!-- 회원 가입-->
+
+    <!-- 이메일 중복 확인 — email 은 AES 암호문으로 들어온다 -->
+    <select id="getEmailExists" parameterType="UserDTO" resultType="UserDTO">
+        SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
+        FROM member
+        WHERE email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- 회원 저장. 컬럼은 실제 MariaDB 스키마 기준(2026-08-13 information_schema 확인).
+         넣지 않는 컬럼은 DB 기본값으로 채워진다
+           · parent_pin·phone·relation → NULL (온보딩·마이페이지에서 나중에 채운다)
+           · created_at·updated_at     → CURRENT_TIMESTAMP
+         ⚠ email 에 uq_member_email UNIQUE 가 걸려 있다. AES 는 IV 가 고정이라 같은 주소가
+           항상 같은 암호문이 되므로 중복이 제대로 걸린다. -->
     <insert id="insertUser" parameterType="UserDTO">
         INSERT INTO member (
-            LOGIN_ID,
-            PASSWORD,
-            PARENT_PIN,
-            NAME,
-            EMAIL,
-            PHONE,
-            RELATION,
-            AGREE_SERVICE,
-            AGREE_PRIVACY,
-            AGREE_SENSITIVE,
-            AGREED_AT,
-            NOTIFY_WEEKLY_REPORT,
-            NOTIFY_REMINDER,
-            AGREE_MARKETING,
-            CREATED_AT
+            login_id,
+            password,
+            name,
+            email,
+            agree_service,
+            agree_privacy,
+            agree_sensitive,
+            agreed_at,
+            notify_weekly_report,
+            notify_reminder,
+            agree_marketing
         ) VALUES (
-                     #{loginId},
-                     #{password},
-                     #{parentPin},
-                     #{name},
-                     #{email},
-                     #{phone},
-                     #{relation},
-                     #{agreeService},
-                     #{agreePrivacy},
-                     #{agreeSensitive},
-                     NOW(),
-                     #{notifyWeeklyReport},
-                     #{notifyReminder},
-                     #{agreeMarketing},
-                     NOW()
-                 )
+            #{loginId},
+            #{password},
+            #{name},
+            #{email},
+            #{agreeService},
+            #{agreePrivacy},
+            #{agreeSensitive},
+            NOW(),
+            #{notifyWeeklyReport},
+            #{notifyReminder},
+            #{agreeMarketing}
+        )
     </insert>
 
+    <!-- ================= 로그인 · 아이디 찾기 ================= -->
 
-    <update id="updatepassword" parameterType="UserDTO">
-        UPDATE USER
-        SET PASSWORD = #{password}
-        WHERE LOGIN_ID = #{loginId}
+    <!-- 아이디·비밀번호가 맞는 회원 1명. 없으면 null.
+         password 는 EncryptUtil.encHashSHA256 을 거친 해시로 들어온다. -->
+    <select id="getLogin" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE login_id = #{loginId}
+          AND password = #{password}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- 이름·이메일이 맞는 회원 1명. email 은 AES 암호문. -->
+    <select id="getFindId" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE name = #{name}
+          AND email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- ================= 비밀번호 찾기 ================= -->
+
+    <!-- 화면(find-pw-email.jsp)이 이메일만 받으므로 이메일로만 찾는다.
+         메일 인증을 통과해야 여기까지 오므로 본인 확인은 끝난 상태다. -->
+    <select id="getFindPwUser" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- updated_at 은 ON UPDATE CURRENT_TIMESTAMP 라 DB 가 알아서 올린다 — 여기서 건드리지 않는다. -->
+    <update id="updatePassword" parameterType="UserDTO">
+        UPDATE member
+        SET password = #{password}
+        WHERE login_id = #{loginId}
+          AND deleted_at IS NULL
     </update>
+
 </mapper>

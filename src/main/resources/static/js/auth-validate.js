@@ -1,11 +1,33 @@
-/* 로그인·회원가입·아이디/비밀번호찾기·온보딩 클라이언트 유효성 검사 (데모)
-   - 백엔드 연동 시 서버 검증으로 대체하고, 인증번호는 실제 발송·대조로 교체할 것
-   - 데모 규칙: 임시 인증번호 040505만 통과 */
+/* 로그인·회원가입·아이디/비밀번호찾기·온보딩 클라이언트 유효성 검사
+   - 여기 검사는 사용자 편의용이다. 개발자도구로 우회되므로 서버(AuthApiController)가 반드시 다시 본다.
+   - 로그인·회원가입·아이디찾기·비밀번호찾기·인증번호 모두 서버 연동 완료(2026-08-13). */
 (function () {
     'use strict';
 
     /* ---------- 공통 헬퍼 ---------- */
     function $(id) { return document.getElementById(id); }
+
+    /* 폼 인코딩으로 POST 하고 MsgDTO(JSON)를 돌려준다 — 인증 API 6개가 전부 같은 모양이라 뺐다.
+       @RequestParam 이 받으려면 application/x-www-form-urlencoded 여야 한다(JSON 아님). */
+    function postForm(url, params) {
+        var body = Object.keys(params).map(function (k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        }).then(function (res) { return res.json(); });
+    }
+
+    /* 통신 자체가 실패했을 때(서버 다운·네트워크) 조용히 아무 일도 안 일어나면 원인을 못 찾는다 */
+    function onFail(input) {
+        return function (err) {
+            console.error(err);
+            setError(input, '통신에 실패했습니다. 잠시 후 다시 시도해 주세요');
+        };
+    }
 
     function fieldOf(input) { return input.closest('.kd-field'); }
 
@@ -55,7 +77,8 @@
     var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;   /* 이름: 한글·영문 2~20자 */
     var ID_RE = /^[a-z0-9]{4,12}$/;          /* 아이디: 영문 소문자·숫자 4~12자 */
     var CODE_RE = /^\d{6}$/;
-    var DEMO_CODE = '040505';   /* 임시 인증번호 — 백엔드 연동 시 제거 */
+    /* 인증번호 정답은 서버가 만들어 메일로 보내고 세션에 보관한다(AuthApiController.sendAuthCodeProc).
+       화면은 6자리 형식과 3분 타이머만 본다. */
 
     function checkRequired(input, msg) {
         if (!input.value.trim()) { setError(input, msg); return false; }
@@ -123,9 +146,7 @@
         if (codeExpired) {
             setError(code, '인증 시간이 지났습니다. 인증번호를 다시 전송해 주세요'); return false;
         }
-        if (code.value.trim() !== DEMO_CODE) {
-            setError(code, '인증번호가 일치하지 않습니다'); return false;
-        }
+        /* 값이 맞는지는 서버가 판정한다(세션에 정답이 있다) — 여기서는 형식·시간만 본다 */
         clearError(code); return true;
     }
 
@@ -158,21 +179,38 @@
         if (kind === 'findId') ok = checkUserName($('userName')) && ok;
         ok = checkEmail($('email')) && ok;
         if (!ok) return;
-        codeExpired = false;
-        var field = $('authCodeField');
-        field.classList.remove('is-hidden');
-        startTimer(field);
-        setInfo($('email'), '인증번호를 보냈습니다. 메일함을 확인해 주세요');
-        $('authCode').focus();
+
+        /* 서버가 메일을 실제로 보낸 뒤에 칸을 열고 타이머를 돌린다 —
+           먼저 열어 두면 발송이 실패했는데도 입력할 수 있는 것처럼 보인다. */
+        postForm('/sendAuthCodeProc', { email: $('email').value.trim(), kind: kind })
+            .then(function (data) {
+                if (data.result !== 1) { setError($('email'), data.msg); return; }
+
+                codeExpired = false;
+                var field = $('authCodeField');
+                field.classList.remove('is-hidden');
+                startTimer(field);
+                setInfo($('email'), data.msg);
+                $('authCode').focus();
+            })
+            .catch(onFail($('email')));
     };
 
     /* ---------- 폼별 제출 검증 ---------- */
     window.kdSubmitLogin = function () {
         clearAllErrors();
-        /* 실제 인증은 백엔드 몫 — 데모에서는 입력 검사만 하고 최초 1회 흐름(PIN 설정)으로 넘긴다 */
         var ok = checkRequired($('loginId'), '아이디를 입력해 주세요');
         ok = checkRequired($('password'), '비밀번호를 입력해 주세요') && ok;
-        if (ok) location.href = '/onboarding/pin';
+        if (!ok) return;
+
+        postForm('/loginProc', {
+            loginId: $('loginId').value.trim(),
+            password: $('password').value
+        }).then(function (data) {
+            /* 어느 쪽이 틀렸는지 알려 주지 않는다(계정 존재 여부가 새어 나간다) — 서버 문구를 그대로 쓴다 */
+            if (data.result === 1) location.href = '/onboarding/pin';
+            else setError($('password'), data.msg);
+        }).catch(onFail($('password')));
     };
 
     window.kdSubmitSignup = function () {
@@ -184,10 +222,24 @@
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
         if (!ok) return;
-        /* 가입 폼에 적은 보호자 이름·이메일을 마이페이지에서 그대로 보여 준다.
-           예전에는 버려져서 아이 이름과 같은 예시값('김지우')이 남아 두 탭이 같은 사람처럼 보였다 */
-        saveOnb({ guardianName: $('userName').value.trim(), email: $('email').value.trim() });
-        location.href = '/signup/done';
+
+        postForm('/signupProc', {
+            userName: $('userName').value.trim(),
+            loginId: $('loginId').value.trim(),
+            password: $('password').value,
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            if (data.result !== 1) {
+                /* 아이디 중복은 아이디 칸에, 나머지는 인증번호 칸에 붙여야 눈이 그리로 간다 */
+                setError(data.msg.indexOf('아이디') >= 0 ? $('loginId') : $('authCode'), data.msg);
+                return;
+            }
+            /* 가입 폼에 적은 보호자 이름·이메일을 마이페이지에서 그대로 보여 준다.
+               예전에는 버려져서 아이 이름과 같은 예시값('김지우')이 남아 두 탭이 같은 사람처럼 보였다 */
+            saveOnb({ guardianName: $('userName').value.trim(), email: $('email').value.trim() });
+            location.href = '/signup/done';
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindId = function () {
@@ -195,21 +247,47 @@
         var ok = checkUserName($('userName'));
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
-        if (ok) location.href = '/find-id/result';
+        if (!ok) return;
+
+        postForm('/findIdProc', {
+            userName: $('userName').value.trim(),
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            /* 찾은 아이디는 세션에 담겨 있다 — 결과 화면이 꺼내 보여 준다(주소창에 싣지 않는다) */
+            if (data.result === 1) location.href = '/find-id/result';
+            else setError($('authCode'), data.msg);
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindPwEmail = function () {
         clearAllErrors();
         var emailOk = checkEmail($('email'));
         var ok = checkCode(emailOk) && emailOk;
-        if (ok) location.href = '/find-pw/new';
+        if (!ok) return;
+
+        postForm('/findPwProc', {
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            /* 통과하면 서버가 세션에 재설정 표를 끊어 준다 — 그 표가 있어야 다음 화면이 저장된다 */
+            if (data.result === 1) location.href = '/find-pw/new';
+            else setError($('authCode'), data.msg);
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindPwNew = function () {
         clearAllErrors();
         var ok = checkPassword($('newPassword'));
         ok = checkMatch($('newPassword'), $('newPasswordCheck')) && ok;
-        if (ok) location.href = '/find-pw/done';
+        if (!ok) return;
+
+        postForm('/newPasswordProc', { newPassword: $('newPassword').value })
+            .then(function (data) {
+                if (data.result === 1) location.href = '/find-pw/done';
+                else setError($('newPassword'), data.msg);
+            })
+            .catch(onFail($('newPassword')));
     };
 
     /* ---------- 그림 드래그 차단 (전 화면 공통) ----------
@@ -698,7 +776,8 @@
         newPassword: pwLive,
         passwordCheck: function (el) { return !!el.value && el.value === $('password').value; },
         newPasswordCheck: function (el) { return !!el.value && el.value === $('newPassword').value; },
-        authCode: function (el) { return !codeExpired && el.value.trim() === DEMO_CODE; },
+        /* 정답 대조는 서버가 한다 — 여기서는 6자리 형식과 시간만 본다 */
+        authCode: function (el) { return !codeExpired && CODE_RE.test(el.value.trim()); },
         pin: function (el) { return PIN_RE.test(el.value); },
         pinCheck: function (el) { return !!el.value && el.value === $('pin').value; },
         childName: notBlank,

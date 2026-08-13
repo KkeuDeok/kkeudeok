@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <% String pageTitle = "아이디 찾기"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
@@ -8,7 +9,9 @@
 </div>
 <h1 class="done-title" style="margin-bottom: 0;">아이디를 찾았어요</h1>
 
-<div class="done-id-card">pa****</div>
+<%-- findIdProc 이 세션에 넣어 둔 값을 UserController 가 꺼내 모델에 담아 준다.
+     DB 에서 온 값이라 c:out 으로 이스케이프한다(그냥 찍으면 XSS). --%>
+<div class="done-id-card"><c:out value="${foundId}"/></div>
 
 <a href="/find-pw" class="kd-btn kd-btn-outline auth-cta">비밀번호 찾기</a>
 <a href="/login" class="kd-btn kd-btn-primary auth-cta" style="margin-top: 16px;">로그인하기</a>

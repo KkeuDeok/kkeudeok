@@ -3,6 +3,7 @@ package kopo.kkeudeok.service.impl;
 import jakarta.mail.internet.MimeMessage;
 import kopo.kkeudeok.dto.MailDTO;
 import kopo.kkeudeok.service.IMailService;
+import kopo.kkeudeok.util.CmmUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,47 +11,139 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
+/**
+ * 메일 발송. 회원가입 축하·인증번호 안내를 모두 여기서 보낸다.
+ *
+ * 메일 발송은 실패해도 예외를 밖으로 던지지 않는다 — 메일 서버가 죽었다고
+ * 회원가입까지 실패시킬 이유가 없다. 실패는 로그와 리턴값(0)으로만 알린다.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class MailService implements IMailService {
+
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
+    /** 보내는 사람 = SMTP 로그인 계정과 같아야 Gmail 이 거부하지 않는다. */
+    @Value("${spring.mail.username:}")
     private String fromMail;
 
     @Override
     public int doSendMail(MailDTO pDTO) {
-        //로그 찍기(이후 찍은 로그를 통해 이 함수에 접근했는지 파악하기 용이 하다.)
-        log.info("{}.doSendMail start!", this.getClass().getName());
-        //메일 발송 성공 여부(발송 성공 : 1 / 발송 실패 : 0)
+        log.info("{}.doSendMail Start!", this.getClass().getName());
+
         int res = 1;
-        //전달 받은 DTO로부터 데이터 가져오기(DTO객체가 메모리에 올라가지 않아 Null이 발생할수 있기 떄문에
-        //에러 방지 차원으로 if사용
+
         if (pDTO == null) {
             pDTO = new MailDTO();
         }
-        String toMail = kopo.poly.util.CmmUtil.nvl(pDTO.getToMail()); //받는 사람
-        String title = kopo.poly.util.CmmUtil.nvl(pDTO.getTitle()); //메일 제목
-        String contents = kopo.poly.util.CmmUtil.nvl(pDTO.getContents()); //메일 제목? 내용 아님?
-        log.info("toMail: {} / title : {} / contents : {}", toMail, title, contents);
-        //메일 발송 메시지 구조 (파일 첨부 가능)
-        MimeMessage message = mailSender.createMimeMessage();
-        //메일 발송 메시지 구조를 쉽게 생성하게 도와주는 객체
-        MimeMessageHelper messageHelper = new MimeMessageHelper(message, "UTF-8");
+
+        String toMail = CmmUtil.nvl(pDTO.getToMail());
+        String title = CmmUtil.nvl(pDTO.getTitle());
+        String contents = CmmUtil.nvl(pDTO.getContents());
+
+        log.info("toMail : {} / title : {}", toMail, title);
+
         try {
-            messageHelper.setTo(toMail); //받는 사람
-            messageHelper.setFrom(fromMail); //보내는 사람
-            messageHelper.setSubject(title);// 메일 제목
-            messageHelper.setText(contents); //메일 내용
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
+
+            helper.setTo(toMail);
+            helper.setFrom(fromMail);
+            helper.setSubject(title);
+            helper.setText(contents, true);   // true = HTML 본문
 
             mailSender.send(message);
-        } catch (Exception e) {//모든 에러 다 잡기
-            res = 0; //메일 발송이 실패하기 때문에 0으로 변경
-            log.info("[ERROR] doSendMail", e);
+
+        } catch (Exception e) {
+            res = 0;
+            log.error("[ERROR] doSendMail toMail={}", toMail, e);
         }
-        //로그 찍기(추후 찍은 로그를 통해 이 함수 호출이 끝났는지 파악하기 용이함)
-        log.info("{}.doSendMail end!", this.getClass().getName());
+
+        log.info("{}.doSendMail End! res={}", this.getClass().getName(), res);
         return res;
+    }
+
+    @Override
+    public int sendAuthCode(String toEmail, String code) {
+        MailDTO dto = new MailDTO();
+        dto.setToMail(toEmail);
+        dto.setTitle("[끄덕] 인증번호 안내");
+        dto.setContents(authCodeHtml(code));
+        return doSendMail(dto);
+    }
+
+    /* ====================================================================
+     * 메일 템플릿
+     *
+     * 메일 클라이언트(특히 Gmail)는 <style> 블록과 외부 CSS 를 자주 지운다.
+     * 그래서 표 레이아웃 + 인라인 style 로만 짠다. 화면용 CSS 를 쓰면 안 된다.
+     * ==================================================================== */
+
+    /** 브랜드 색 — auth.css 의 기본 초록과 맞춘다. */
+    private static final String BRAND = "#3FB27F";
+
+    /** 바깥 껍데기(제목줄 + 본문 + 꼬리말). 안쪽 내용만 갈아 끼워 쓴다. */
+    private static String layout(String heading, String bodyHtml) {
+        return """
+                <div style="margin:0;padding:24px 12px;background:#F5F7F6;
+                            font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0"
+                         style="width:100%%;max-width:480px;margin:0 auto;background:#FFFFFF;
+                                border-radius:16px;overflow:hidden;">
+                    <tr>
+                      <td style="padding:28px 28px 8px;text-align:center;">
+                        <div style="font-size:22px;font-weight:700;color:%s;">끄덕</div>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:8px 28px 0;text-align:center;">
+                        <h1 style="margin:0;font-size:19px;line-height:1.5;color:#1F2A24;font-weight:700;">%s</h1>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:16px 28px 28px;color:#4A5A52;font-size:15px;line-height:1.7;text-align:center;">
+                        %s
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding:16px 28px 24px;border-top:1px solid #ECEFED;
+                                 color:#9AA8A1;font-size:12px;line-height:1.6;text-align:center;">
+                        본 메일은 발신 전용입니다.<br>요청하지 않으셨다면 이 메일을 무시해 주세요.
+                      </td>
+                    </tr>
+                  </table>
+                </div>
+                """.formatted(BRAND, heading, bodyHtml);
+    }
+
+    /** 인증번호 안내 — 회원가입·아이디찾기·비밀번호찾기 공통. */
+    static String authCodeHtml(String code) {
+        String body = """
+                <p style="margin:0 0 18px;">아래 인증번호를 입력해 주세요.</p>
+                <div style="display:inline-block;padding:14px 28px;background:#F1F8F5;
+                            border:1px solid %s;border-radius:12px;
+                            font-size:30px;font-weight:700;letter-spacing:8px;color:%s;">%s</div>
+                <p style="margin:18px 0 0;font-size:13px;color:#7B8A83;">
+                  인증번호는 <b>3분간</b> 유효합니다.
+                </p>
+                """.formatted(BRAND, BRAND, CmmUtil.nvl(code));
+
+        return layout("인증번호를 입력해 주세요", body);
+    }
+
+    /** 회원가입 축하. */
+    static String welcomeHtml(String name) {
+        String body = """
+                <p style="margin:0 0 8px;"><b>%s</b>님, 반가워요!</p>
+                <p style="margin:0 0 20px;">끄덕과 함께 아이의 마음 읽기 연습을 시작해 보세요.</p>
+                <a href="http://localhost:8080/login"
+                   style="display:inline-block;padding:13px 30px;background:%s;color:#FFFFFF;
+                          border-radius:999px;font-size:15px;font-weight:700;text-decoration:none;">
+                  로그인하러 가기
+                </a>
+                """.formatted(CmmUtil.nvl(name), BRAND);
+
+        return layout("회원가입이 완료되었어요", body);
     }
 }

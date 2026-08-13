@@ -6,42 +6,53 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+/**
+ * member 테이블 1행.
+ *
+ * 저장 규칙 — 화면에서 받은 값을 그대로 넣지 않는다.
+ *  - password : EncryptUtil.encHashSHA256 (단방향, 복호화 불가)
+ *  - email    : EncryptUtil.encAES128CBC (양방향, 메일 보낼 때 복호화)
+ * 조회할 때도 같은 방식으로 암호화한 값으로 WHERE 를 걸어야 맞는다.
+ */
 @Getter
 @Setter
-@JsonInclude(JsonInclude.Include.NON_DEFAULT)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
-    //회원 고유 번호
+
+    /** 회원 고유 번호 */
     private Long memberId;
-    //아이디
+    /** 아이디 */
     private String loginId;
-    //비번
+    /** 비밀번호(해시) */
     private String password;
-    //보호자 핀 번호
+    /** 보호자 PIN */
     private String parentPin;
-    //이름
+    /** 이름 */
     private String name;
-    //메일
+    /** 이메일(AES 암호문) */
     private String email;
-    //연락처
+    /** 연락처 */
     private String phone;
-    //아동과 관계
+    /** 아동과의 관계 */
     private String relation;
-    //약관 동의들
+
+    /* 약관 동의 */
     private Integer agreeService;
     private Integer agreePrivacy;
     private Integer agreeSensitive;
     private LocalDateTime agreedAt;
-    //알람 설정들
+
+    /* 알림 설정 */
     private Integer notifyWeeklyReport;
     private Integer notifyReminder;
     private Integer agreeMarketing;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 
-    //DB안들어가는거
-    //DB를 조회해서 존재하면 y값 반환
+    /* ---------- DB 컬럼이 아닌 값 ---------- */
+
+    /** 중복 조회 결과 — 존재하면 "Y", 없으면 "N" */
     private String existsYn;
-    // 이메일 중복체크를 위한 인증번호
-    private int authNumber;
 }
