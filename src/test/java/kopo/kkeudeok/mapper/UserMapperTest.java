@@ -9,7 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 // Boot 4 에서 패키지가 옮겨졌다 — 3.x 의 org.springframework.boot.test.autoconfigure.jdbc 가 아니다
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
+
+import javax.sql.DataSource;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,6 +35,10 @@ class UserMapperTest {
     @Autowired
     private IUserMapper userMapper;
 
+    /** 매퍼가 안 돌려주는 컬럼(시각)을 직접 확인하려고 쓴다. */
+    @Autowired
+    private DataSource dataSource;
+
     private static final String LOGIN_ID = "pa1234";
     private static final String NAME = "김보호";
     private static final String RAW_EMAIL = "test.parent9@kkeudeok.local";
@@ -49,6 +58,11 @@ class UserMapperTest {
         pDTO.setNotifyWeeklyReport(1);
         pDTO.setNotifyReminder(1);
         pDTO.setAgreeMarketing(0);
+        // 시각은 DB 의 NOW() 가 아니라 앱이 넣는다(UserService.insertUser 와 같은 방식)
+        LocalDateTime now = LocalDateTime.now();
+        pDTO.setAgreedAt(now);
+        pDTO.setCreatedAt(now);
+        pDTO.setUpdatedAt(now);
         return pDTO;
     }
 
@@ -64,6 +78,32 @@ class UserMapperTest {
 
         assertThat(userMapper.getLoginIdExists(pDTO).getExistsYn()).isEqualTo("Y");
         assertThat(userMapper.getEmailExists(pDTO).getExistsYn()).isEqualTo("Y");
+    }
+
+    /**
+     * VM 의 MariaDB 시계가 실제보다 하루 넘게 뒤처져 있어(2026-08-13 확인) 가입 시각이
+     * 과거로 찍혔다. SQL 에서 NOW() 를 쓰면 다시 그 시계를 읽게 되므로, 앱이 넘긴 값을
+     * 그대로 쓰는지 못 박아 둔다. 현재 시각으로 검사하면 H2 의 NOW() 와 구분이 안 돼서
+     * 일부러 한참 떨어진 시각을 넣어 본다.
+     */
+    @Test
+    @DisplayName("가입 시각은 DB 의 NOW() 가 아니라 앱이 넘긴 값으로 저장된다")
+    void timestampsComeFromApp() throws Exception {
+        LocalDateTime marker = LocalDateTime.of(2020, 1, 2, 3, 4, 5);
+
+        UserDTO pDTO = signupDTO();
+        pDTO.setAgreedAt(marker);
+        pDTO.setCreatedAt(marker);
+        pDTO.setUpdatedAt(marker);
+        userMapper.insertUser(pDTO);
+
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        for (String col : new String[]{"agreed_at", "created_at", "updated_at"}) {
+            Timestamp saved = jdbc.queryForObject(
+                    "SELECT " + col + " FROM member WHERE login_id = ?", Timestamp.class, LOGIN_ID);
+            assertThat(saved).as(col).isNotNull();
+            assertThat(saved.toLocalDateTime()).as(col).isEqualTo(marker);
+        }
     }
 
     @Test
@@ -124,6 +164,7 @@ class UserMapperTest {
         UserDTO upd = new UserDTO();
         upd.setLoginId(target.getLoginId());
         upd.setPassword(EncryptUtil.encHashSHA256(newRawPw));
+        upd.setUpdatedAt(LocalDateTime.now());
 
         assertThat(userMapper.updatePassword(upd)).isEqualTo(1);
 
