@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--xml 안에 데이터베이스 안에 데이터 저장하듯 이것도 하나의 데이터 저장 방식이며 이거는 자바와 분류하기 위해서. 자바 코드와 분류하러고-->
+<!--관리하기 어려우니까 분리 해놓은 느낌. -->
+
+<!--xml  : 자바와 데이터베이스를 연결해주는데 필요한 설정을 하는 녀석-->
+
+<!-- namespace = 짝이 되는 자바 인터페이스. id = 그 인터페이스의 함수명. -->
+<mapper namespace="kopo.kkeudeok.mapper.IUserMapper">
+
+    <!-- 아이디·비밀번호가 맞는 회원 1명. 없으면 null. -->
+    <select id="getLogin" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE login_id = #{loginId} <!-- loginID 와 paassword userDTO 에 있음 -->
+          AND password = #{password}
+          AND deleted_at IS NULL   <!-- 탈퇴 회원 제외 -->
+    </select>
+
+    <select id="getFindId" parameterType="UserDTO" resultType="UserDTO">
+        SELECT login_id, name, email
+        FROM member
+        WHERE name = #{name} <!-- 여기서는 이름이랑 이메일을 가져오는 것 같음.  -->
+          AND email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+</mapper>

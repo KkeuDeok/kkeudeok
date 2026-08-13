@@ -1,6 +1,6 @@
-/* 로그인·회원가입·아이디/비밀번호찾기·온보딩 클라이언트 유효성 검사 (데모)
-   - 백엔드 연동 시 서버 검증으로 대체하고, 인증번호는 실제 발송·대조로 교체할 것
-   - 데모 규칙: 임시 인증번호 040505만 통과 */
+/* 로그인·회원가입·아이디/비밀번호찾기·온보딩 클라이언트 유효성 검사
+   - 여기 검사는 사용자 편의용이다. 개발자도구로 우회되므로 서버가 반드시 다시 본다.
+   - 로그인·아이디찾기·인증번호는 서버 연동 완료. 회원가입·비번찾기는 아직 화면 검사만 한다. */
 (function () {
     'use strict';
 
@@ -55,7 +55,7 @@
     var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;   /* 이름: 한글·영문 2~20자 */
     var ID_RE = /^[a-z0-9]{4,12}$/;          /* 아이디: 영문 소문자·숫자 4~12자 */
     var CODE_RE = /^\d{6}$/;
-    var DEMO_CODE = '040505';   /* 임시 인증번호 — 백엔드 연동 시 제거 */
+    /* 인증번호는 서버가 만들어 메일로 보내고 세션에 보관한다 (LoginController.sendAuthCodeProc) */
 
     function checkRequired(input, msg) {
         if (!input.value.trim()) { setError(input, msg); return false; }
@@ -123,9 +123,7 @@
         if (codeExpired) {
             setError(code, '인증 시간이 지났습니다. 인증번호를 다시 전송해 주세요'); return false;
         }
-        if (code.value.trim() !== DEMO_CODE) {
-            setError(code, '인증번호가 일치하지 않습니다'); return false;
-        }
+        /* 값이 맞는지는 서버가 판정한다(세션에 정답이 있다). 여기서는 형식·시간만 본다. */
         clearError(code); return true;
     }
 
@@ -158,21 +156,50 @@
         if (kind === 'findId') ok = checkUserName($('userName')) && ok;
         ok = checkEmail($('email')) && ok;
         if (!ok) return;
-        codeExpired = false;
-        var field = $('authCodeField');
-        field.classList.remove('is-hidden');
-        startTimer(field);
-        setInfo($('email'), '인증번호를 보냈습니다. 메일함을 확인해 주세요');
-        $('authCode').focus();
+
+        fetch('/sendAuthCodeProc', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'email=' + encodeURIComponent($('email').value)
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.result !== 1) {
+                    setError($('email'), data.msg);
+                    return;
+                }
+                codeExpired = false;
+                var field = $('authCodeField');
+                field.classList.remove('is-hidden');
+                startTimer(field);
+                setInfo($('email'), data.msg);
+                $('authCode').focus();
+            });
     };
 
     /* ---------- 폼별 제출 검증 ---------- */
     window.kdSubmitLogin = function () {
         clearAllErrors();
-        /* 실제 인증은 백엔드 몫 — 데모에서는 입력 검사만 하고 최초 1회 흐름(PIN 설정)으로 넘긴다 */
         var ok = checkRequired($('loginId'), '아이디를 입력해 주세요');
         ok = checkRequired($('password'), '비밀번호를 입력해 주세요') && ok;
-        if (ok) location.href = '/onboarding/pin';
+        if (!ok) return;
+
+        fetch('/loginProc', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'loginId=' + encodeURIComponent($('loginId').value) +
+                '&password=' + encodeURIComponent($('password').value)
+        })
+            .then(function (res) {
+                return res.json();
+            })
+            .then(function (data) {
+                if (data.result === 1) {
+                    location.href = '/onboarding/pin';
+                } else {
+                    setError($('password'), data.msg);    // ← alert 대신 이걸로
+                }
+            });
     };
 
     window.kdSubmitSignup = function () {
@@ -195,7 +222,23 @@
         var ok = checkUserName($('userName'));
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
-        if (ok) location.href = '/find-id/result';
+        if (!ok) return;
+
+        fetch('/findIdProc', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'userName=' + encodeURIComponent($('userName').value) +
+                '&email=' + encodeURIComponent($('email').value) +
+                '&authCode=' + encodeURIComponent($('authCode').value.trim())
+        })
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
+                if (data.result === 1) {
+                    location.href = '/find-id/result?id=' + encodeURIComponent(data.msg);
+                } else {
+                    setError($('email'), data.msg);
+                }
+            });
     };
 
     window.kdSubmitFindPwEmail = function () {
@@ -656,7 +699,8 @@
         newPassword: pwLive,
         passwordCheck: function (el) { return !!el.value && el.value === $('password').value; },
         newPasswordCheck: function (el) { return !!el.value && el.value === $('newPassword').value; },
-        authCode: function (el) { return !codeExpired && el.value.trim() === DEMO_CODE; },
+        /* 정답 대조는 서버가 한다 — 여기서는 6자리 형식과 시간만 본다 */
+        authCode: function (el) { return !codeExpired && CODE_RE.test(el.value.trim()); },
         pin: function (el) { return PIN_RE.test(el.value); },
         pinCheck: function (el) { return !!el.value && el.value === $('pin').value; },
         childName: notBlank,

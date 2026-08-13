@@ -25,22 +25,24 @@ public class UserController {
         return "redirect:/login";
     }
 
+    /** auth/login.jsp 화면을 열어준다 */
     @GetMapping("/login")
     public String login() {
         return "auth/login";
     }
 
-    @GetMapping("/signup/terms")
+    /** 회원가입 흐름 3단계 */
+    @GetMapping("/signup/terms")    /** 1단계 약관동의 */
     public String signupTerms() {
         return "auth/signup-terms";
     }
 
-    @GetMapping("/signup/form")
+    @GetMapping("/signup/form")     /** 2단계 정보입력 */
     public String signupForm() {
         return "auth/signup-form";
     }
 
-    @GetMapping("/signup/done")
+    @GetMapping("/signup/done")     /** 3단계 가입완료 */
     public String signupDone() {
         return "auth/signup-done";
     }
