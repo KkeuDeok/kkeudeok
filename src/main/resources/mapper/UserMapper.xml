@@ -32,7 +32,9 @@
            · parent_pin·phone·relation → NULL (온보딩·마이페이지에서 나중에 채운다)
            · created_at·updated_at     → CURRENT_TIMESTAMP
          ⚠ email 에 uq_member_email UNIQUE 가 걸려 있다. AES 는 IV 가 고정이라 같은 주소가
-           항상 같은 암호문이 되므로 중복이 제대로 걸린다. -->
+           항상 같은 암호문이 되므로 중복이 제대로 걸린다.
+         ⚠ 시각은 NOW() 가 아니라 앱에서 받은 값을 쓴다 — VM 의 DB 시계가 어긋나 있다
+           (UserService.insertUser 주석 참고). -->
     <insert id="insertUser" parameterType="UserDTO">
         INSERT INTO member (
             login_id,
@@ -45,7 +47,9 @@
             agreed_at,
             notify_weekly_report,
             notify_reminder,
-            agree_marketing
+            agree_marketing,
+            created_at,
+            updated_at
         ) VALUES (
             #{loginId},
             #{password},
@@ -54,10 +58,12 @@
             #{agreeService},
             #{agreePrivacy},
             #{agreeSensitive},
-            NOW(),
+            #{agreedAt},
             #{notifyWeeklyReport},
             #{notifyReminder},
-            #{agreeMarketing}
+            #{agreeMarketing},
+            #{createdAt},
+            #{updatedAt}
         )
     </insert>
 
@@ -93,10 +99,12 @@
           AND deleted_at IS NULL
     </select>
 
-    <!-- updated_at 은 ON UPDATE CURRENT_TIMESTAMP 라 DB 가 알아서 올린다 — 여기서 건드리지 않는다. -->
+    <!-- updated_at 은 ON UPDATE CURRENT_TIMESTAMP 라 두면 DB 가 알아서 올리지만,
+         그 시계가 어긋나 있어 앱에서 받은 값으로 덮어쓴다. -->
     <update id="updatePassword" parameterType="UserDTO">
         UPDATE member
-        SET password = #{password}
+        SET password   = #{password},
+            updated_at = #{updatedAt}
         WHERE login_id = #{loginId}
           AND deleted_at IS NULL
     </update>

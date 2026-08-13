@@ -123,14 +123,15 @@ public class AuthApiController {
             // 000000 ~ 999999 중 하나. 앞자리가 0이어도 6자리가 되도록 %06d 로 채운다.
             String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
 
-            if (mailService.sendAuthCode(email, code) != 1) {
-                return msg(2, "메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-            }
-
             // 정답은 서버(세션)에만 둔다. 화면에 내려보내면 검사할 이유가 없어진다.
+            // 메일보다 먼저 적어 둔다 — 메일이 늦게 도착해도 입력은 이미 받을 수 있어야 한다.
             session.setAttribute(SS_AUTH_CODE, code);
             session.setAttribute(SS_AUTH_EMAIL, email);
             session.setAttribute(SS_AUTH_EXPIRE, System.currentTimeMillis() + CODE_VALID_MS);
+
+            // 발송은 뒤에서 돌린다 — SMTP 를 기다리면 입력칸이 1~3초 늦게 뜬다.
+            // 대신 발송 실패를 화면에 알려 줄 수 없다(로그로만 남는다).
+            mailService.sendAuthCode(email, code);
 
             return msg(1, "인증번호를 보냈습니다. 메일함을 확인해 주세요.");
 

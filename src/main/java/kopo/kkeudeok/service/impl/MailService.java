@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -64,13 +65,19 @@ public class MailService implements IMailService {
         return res;
     }
 
+    /**
+     * 별도 스레드에서 보낸다 — 요청 스레드는 곧바로 응답을 내려보내고,
+     * 화면은 인증번호 입력칸을 바로 연다. Gmail 접속에 1~3초가 걸리는데
+     * 그걸 화면이 기다릴 이유가 없다(정답은 이미 세션에 적혀 있다).
+     */
+    @Async
     @Override
-    public int sendAuthCode(String toEmail, String code) {
+    public void sendAuthCode(String toEmail, String code) {
         MailDTO dto = new MailDTO();
         dto.setToMail(toEmail);
         dto.setTitle("[끄덕] 인증번호 안내");
         dto.setContents(authCodeHtml(code));
-        return doSendMail(dto);
+        doSendMail(dto);
     }
 
     /* ====================================================================

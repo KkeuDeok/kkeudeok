@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Slf4j
@@ -50,6 +51,14 @@ public class UserService implements IUserService {
         log.info("{}.insertUser Start!", this.getClass().getName());
 
         int res = 0;
+
+        // 시각은 DB 의 NOW() 가 아니라 앱에서 넣는다.
+        // VM 의 MariaDB 시계가 실제 시각보다 하루 넘게 뒤처져 있어(2026-08-13 확인)
+        // NOW() 를 쓰면 가입 시각이 과거로 찍힌다. VM 시계를 맞추더라도 이 편이 안전하다.
+        LocalDateTime now = LocalDateTime.now();
+        pDTO.setAgreedAt(now);
+        pDTO.setCreatedAt(now);
+        pDTO.setUpdatedAt(now);
 
         if (userMapper.insertUser(pDTO) > 0) {
             res = 1;
@@ -91,6 +100,8 @@ public class UserService implements IUserService {
     @Override
     public int newPasswordProc(UserDTO pDTO) throws Exception {
         log.info("{}.newPasswordProc Start!", this.getClass().getName());
+
+        pDTO.setUpdatedAt(LocalDateTime.now());   // DB 시계를 믿지 않는다(insertUser 주석 참고)
 
         int success = userMapper.updatePassword(pDTO);
 
