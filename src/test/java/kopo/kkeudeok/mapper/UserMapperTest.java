@@ -1,0 +1,142 @@
+package kopo.kkeudeok.mapper;
+
+import kopo.kkeudeok.dto.UserDTO;
+import kopo.kkeudeok.util.EncryptUtil;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
+import org.springframework.beans.factory.annotation.Autowired;
+// Boot 4 에서 패키지가 옮겨졌다 — 3.x 의 org.springframework.boot.test.autoconfigure.jdbc 가 아니다
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+/**
+ * 회원가입 → 로그인 → 아이디찾기 → 비밀번호 재설정까지 UserMapper.xml 의 SQL 을 실제로 돌려 본다.
+ *
+ * 이 테스트가 잡아 주는 것
+ *  - namespace·id 오타 (기동은 되는데 호출하면 터지는 종류)
+ *  - 암호화 규칙 어긋남: 넣을 때와 찾을 때 다른 방식으로 암호화하면 로그인이 안 된다.
+ *    (합치기 전 두 사람이 서로 다른 해시를 써서 실제로 안 맞았다 — 2026-08-13)
+ */
+@MybatisTest
+@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Sql(scripts = "classpath:db/schema-h2.sql")
+class UserMapperTest {
+
+    @Autowired
+    private IUserMapper userMapper;
+
+    private static final String LOGIN_ID = "pa1234";
+    private static final String NAME = "김보호";
+    private static final String RAW_EMAIL = "test.parent9@kkeudeok.local";
+    private static final String RAW_PW = "kkeudeok1";
+
+    /** 화면에서 받은 원문을 저장 규칙대로 바꿔 담는다 — AuthApiController 와 같은 방식이어야 한다. */
+    private UserDTO signupDTO() throws Exception {
+        UserDTO pDTO = new UserDTO();
+        pDTO.setLoginId(LOGIN_ID);
+        pDTO.setName(NAME);
+        pDTO.setPassword(EncryptUtil.encHashSHA256(RAW_PW));
+        pDTO.setEmail(EncryptUtil.encAES128CBC(RAW_EMAIL));
+        // agree_*·notify_* 는 NOT NULL 이라 반드시 채워야 한다(안 채우면 INSERT 가 터진다)
+        pDTO.setAgreeService(1);
+        pDTO.setAgreePrivacy(1);
+        pDTO.setAgreeSensitive(1);
+        pDTO.setNotifyWeeklyReport(1);
+        pDTO.setNotifyReminder(1);
+        pDTO.setAgreeMarketing(0);
+        return pDTO;
+    }
+
+    @Test
+    @DisplayName("회원가입 후 아이디·이메일 중복 확인이 Y 로 바뀐다")
+    void insertUserThenExists() throws Exception {
+        UserDTO pDTO = signupDTO();
+
+        assertThat(userMapper.getLoginIdExists(pDTO).getExistsYn()).isEqualTo("N");
+        assertThat(userMapper.getEmailExists(pDTO).getExistsYn()).isEqualTo("N");
+
+        assertThat(userMapper.insertUser(pDTO)).isEqualTo(1);
+
+        assertThat(userMapper.getLoginIdExists(pDTO).getExistsYn()).isEqualTo("Y");
+        assertThat(userMapper.getEmailExists(pDTO).getExistsYn()).isEqualTo("Y");
+    }
+
+    @Test
+    @DisplayName("가입할 때 쓴 해시로 로그인이 된다 (해시 방식이 어긋나면 여기서 깨진다)")
+    void loginWithSameHash() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        UserDTO pDTO = new UserDTO();
+        pDTO.setLoginId(LOGIN_ID);
+        pDTO.setPassword(EncryptUtil.encHashSHA256(RAW_PW));
+
+        UserDTO rDTO = userMapper.getLogin(pDTO);
+
+        assertThat(rDTO).isNotNull();
+        assertThat(rDTO.getName()).isEqualTo(NAME);
+    }
+
+    @Test
+    @DisplayName("비밀번호가 틀리면 null 이다")
+    void loginWithWrongPassword() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        UserDTO pDTO = new UserDTO();
+        pDTO.setLoginId(LOGIN_ID);
+        pDTO.setPassword(EncryptUtil.encHashSHA256("wrong-password"));
+
+        assertThat(userMapper.getLogin(pDTO)).isNull();
+    }
+
+    @Test
+    @DisplayName("이름·이메일로 아이디를 찾는다 (이메일은 암호문으로 대조)")
+    void findIdByNameAndEmail() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        UserDTO pDTO = new UserDTO();
+        pDTO.setName(NAME);
+        pDTO.setEmail(EncryptUtil.encAES128CBC(RAW_EMAIL));
+
+        UserDTO rDTO = userMapper.getFindId(pDTO);
+
+        assertThat(rDTO).isNotNull();
+        assertThat(rDTO.getLoginId()).isEqualTo(LOGIN_ID);
+    }
+
+    @Test
+    @DisplayName("이메일로 비밀번호 찾기 대상을 찾고, 새 비밀번호로 바꾸면 그 비밀번호로 로그인된다")
+    void resetPasswordThenLogin() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        UserDTO find = new UserDTO();
+        find.setEmail(EncryptUtil.encAES128CBC(RAW_EMAIL));
+
+        UserDTO target = userMapper.getFindPwUser(find);
+        assertThat(target).isNotNull();
+        assertThat(target.getLoginId()).isEqualTo(LOGIN_ID);
+
+        String newRawPw = "kkeudeok2";
+        UserDTO upd = new UserDTO();
+        upd.setLoginId(target.getLoginId());
+        upd.setPassword(EncryptUtil.encHashSHA256(newRawPw));
+
+        assertThat(userMapper.updatePassword(upd)).isEqualTo(1);
+
+        // 옛 비밀번호는 막히고
+        UserDTO oldTry = new UserDTO();
+        oldTry.setLoginId(LOGIN_ID);
+        oldTry.setPassword(EncryptUtil.encHashSHA256(RAW_PW));
+        assertThat(userMapper.getLogin(oldTry)).isNull();
+
+        // 새 비밀번호로는 들어가진다
+        UserDTO newTry = new UserDTO();
+        newTry.setLoginId(LOGIN_ID);
+        newTry.setPassword(EncryptUtil.encHashSHA256(newRawPw));
+        assertThat(userMapper.getLogin(newTry)).isNotNull();
+    }
+}

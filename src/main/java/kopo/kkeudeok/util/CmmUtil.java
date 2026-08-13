@@ -1,4 +1,4 @@
-package kopo.poly.util;
+package kopo.kkeudeok.util;
 
 public class CmmUtil {
     public static String nvl(String str, String chg_str) {

@@ -7,13 +7,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것. ⚠ 절대 낮추지 말 것 --%>
-<link href="/css/kkeudeok.css?v=210" rel="stylesheet">
-<link href="/css/auth.css?v=210" rel="stylesheet">
-<link href="/css/onboarding.css?v=210" rel="stylesheet">
-<link href="/css/app.css?v=210" rel="stylesheet">
-<link href="/css/report.css?v=210" rel="stylesheet">
-<link href="/css/mypage.css?v=210" rel="stylesheet">
-<link href="/css/child.css?v=210" rel="stylesheet">
+<link href="/css/kkeudeok.css?v=211" rel="stylesheet">
+<link href="/css/auth.css?v=211" rel="stylesheet">
+<link href="/css/onboarding.css?v=211" rel="stylesheet">
+<link href="/css/app.css?v=218" rel="stylesheet">
+<link href="/css/report.css?v=211" rel="stylesheet">
+<link href="/css/mypage.css?v=211" rel="stylesheet">
+<link href="/css/child.css?v=218" rel="stylesheet">
 <%-- 사용 단계 스위치 — 0 신규(아무것도 없음) · 1 일상 기록만 남김 · 2 이야기 1편 이상(수치 대시보드).
      ?stage=0|1|2 로 바꾸면 탭 단위로 유지돼 화면을 옮겨도 따라간다.
      ?empty=1 → 0 · ?empty=0 → 2 별칭은 예전 주소를 안 깨려고 남겨 둔다.
@@ -106,8 +106,16 @@
         }).observe(document.documentElement, { childList: true, subtree: true });
     })();
 </script>
-<script src="/js/fit-frame.js?v=210"></script>
-<script src="/js/auth-validate.js?v=210" defer></script>
-<script src="/js/onb-select.js?v=210" defer></script>
-<%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제) --%>
-<script src="/js/kd-roadmap.js?v=210" defer></script>
+<script src="/js/fit-frame.js?v=211"></script>
+<script src="/js/auth-validate.js?v=211" defer></script>
+<script src="/js/onb-select.js?v=211" defer></script>
+<%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제).
+     이제 /api/roadmap 에서 아이 맞춤 계획을 받아 오고, 못 받으면 내장 정석 커리큘럼으로 그린다. --%>
+<script src="/js/kd-roadmap.js?v=218" defer></script>
+<%-- 온보딩 표정 등록 — 그 아이 기준값을 만들어 학습4 표정 판정에 쓴다.
+     ⚠ auth-validate.js 의 kdOnbFaceNext() 를 감싸므로 반드시 **그 뒤에** 실행돼야 한다.
+       둘 다 defer 라 문서 순서대로 도니 이 줄을 위로 올리지 말 것. --%>
+<script src="/js/kd-face-calib.js?v=218" defer></script>
+<%-- 온보딩 등록 — 체크리스트 답을 모으고, 완료 화면에서 서버에 아이를 만든다.
+     ⚠ onb-select.js 의 kdSubmitOnbChecklist* 를 감싸므로 반드시 그 뒤에 실행돼야 한다. --%>
+<script src="/js/kd-onboarding.js?v=218" defer></script>
