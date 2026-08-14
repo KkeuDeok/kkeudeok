@@ -1,12 +1,33 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ page import="kopo.kkeudeok.dto.ProfileDTO" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "character"; %>
 <%@ include file="../common/app-top.jsp" %>
 
-<%-- Figma 24:15532. 캐릭터 6명은 전신 시트에서 잘라 만든다(kkeudeok-tools/verify/make_icons_v7.py).
-     선택 상태(테두리·배지)는 :has(input:checked) 로 처리 — CSS 만.
-     좌측 미리보기 교체는 2026-08-09 팀장 피드백으로 추가(맨 아래 스크립트).
-     ⚠ 소개 문구 6줄은 임시 — 팀장·기획 확정 필요.
-     ⚠ `?v=` 를 빼면 브라우저가 옛 그림을 계속 쓴다 — 자산을 바꿀 때 여기 숫자도 같이 올릴 것. --%>
+<%
+    // 1. DB에서 아이 정보 읽어오기
+    ProfileDTO child = (ProfileDTO) request.getAttribute("child");
+    Long childId = null;
+    String charKey = "tori"; // 기본값
+    String nickname = "토리"; // 기본값
+
+    if (child != null) {
+        childId = child.getChildId();
+        // DTO 필드명(characterType, characterNickname)과 매칭
+        if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
+            charKey = child.getCharacterType();
+        }
+        if (child.getCharacterNickname() != null && !child.getCharacterNickname().isEmpty()) {
+            nickname = child.getCharacterNickname();
+        }
+    }
+    String defaultCharName = "토리"; // 기본값
+    if ("koko".equals(charKey)) defaultCharName = "코코";
+    else if ("lala".equals(charKey)) defaultCharName = "라라";
+    else if ("bada".equals(charKey)) defaultCharName = "바다";
+    else if ("bomi".equals(charKey)) defaultCharName = "보미";
+    else if ("rubi".equals(charKey)) defaultCharName = "루비";
+%>
+
 <div class="app-head mp-head">
     <h1>마이페이지</h1>
 </div>
@@ -15,18 +36,20 @@
     <%@ include file="../common/mypage-tabs.jsp" %>
 </div>
 
+<!-- childId 숨김 태그 (AJAX 전송용) -->
+<input type="hidden" id="childId" value="<%= childId != null ? childId : "" %>">
+
 <section class="mp-sec">
     <div class="mp-char">
         <div class="mp-char-view">
-            <%-- 투명 정사각 칸(.mp-char-box) — 카드 그리드 상단·하단선에 맞추는 기준틀. 그림은 이 칸 안에 딱 맞게 들어간다 --%>
             <div class="mp-char-box">
-                <img class="big" id="charBig" src="/img/char-tori-neutral.png" alt="토리">
+                <img class="big" id="charBig" src="/img/char-<%= charKey %>-neutral.png" alt="<%= nickname %>">
             </div>
-            <p class="nm" id="charName">토리</p>
+            <p class="nm" id="charName"><%= defaultCharName %></p>
             <p class="ds" id="charDesc">마음을 함께 읽어주는 다정한 친구예요</p>
             <div class="kd-field">
                 <label class="kd-label" for="charNick">캐릭터 애칭</label>
-                <input class="kd-input" type="text" id="charNick" value="토리야" data-auto="토리야">
+                <input class="kd-input" type="text" id="charNick" value="<%= nickname %>" data-auto="<%= nickname %>">
             </div>
         </div>
 
@@ -34,33 +57,32 @@
             <h2>함께할 친구 고르기</h2>
             <div class="mp-chars">
                 <label>
-                    <input type="radio" name="character" value="tori" checked
+                    <input type="radio" name="character" value="tori" <%= "tori".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-tori-neutral.png" data-ds="마음을 함께 읽어주는 다정한 친구예요">
                     <img src="/img/char-tori-neutral.png" alt=""><span class="nm">토리</span>
                 </label>
-                <%-- 윗줄 3명 여자 · 아랫줄 3명 남자로 보이도록 보미↔코코 자리를 바꿨다(2026-08-09) --%>
                 <label>
-                    <input type="radio" name="character" value="koko"
+                    <input type="radio" name="character" value="koko" <%= "koko".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-koko-neutral.png" data-ds="궁금한 게 많은 씩씩한 친구예요">
                     <img src="/img/char-koko-neutral.png" alt=""><span class="nm">코코</span>
                 </label>
                 <label>
-                    <input type="radio" name="character" value="lala"
+                    <input type="radio" name="character" value="lala" <%= "lala".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-lala-neutral.png" data-ds="노래하며 기분을 밝게 해 주는 친구예요">
                     <img src="/img/char-lala-neutral.png" alt=""><span class="nm">라라</span>
                 </label>
                 <label>
-                    <input type="radio" name="character" value="bomi"
+                    <input type="radio" name="character" value="bomi" <%= "bomi".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-bomi-neutral.png" data-ds="언제나 웃으며 응원해 주는 친구예요">
                     <img src="/img/char-bomi-neutral.png" alt=""><span class="nm">보미</span>
                 </label>
                 <label>
-                    <input type="radio" name="character" value="bada"
+                    <input type="radio" name="character" value="bada" <%= "bada".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-bada-neutral.png" data-ds="천천히 기다려 주는 차분한 친구예요">
                     <img src="/img/char-bada-neutral.png" alt=""><span class="nm">바다</span>
                 </label>
                 <label>
-                    <input type="radio" name="character" value="rubi"
+                    <input type="radio" name="character" value="rubi" <%= "rubi".equals(charKey) ? "checked" : "" %>
                            data-big="/img/char-rubi-neutral.png" data-ds="속상한 날 곁에 있어 주는 친구예요">
                     <img src="/img/char-rubi-neutral.png" alt=""><span class="nm">루비</span>
                 </label>
@@ -71,24 +93,68 @@
 
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaveChar()">저장</button>
+    <!-- DB 저장 스크립트 실행 -->
+    <button type="button" class="kd-btn kd-btn-primary" onclick="saveCharacterDB()">저장</button>
 </div>
 
 <script>
-// 카드를 고르면 좌측 미리보기(그림·이름·소개)가 바뀐다.
-// 애칭은 사용자가 직접 고친 값이면 건드리지 않는다 — 자동으로 넣어 둔 값일 때만 바꾼다.
-document.querySelectorAll('.mp-chars input').forEach(function (radio) {
-    radio.addEventListener('change', function () {
-        var name = radio.parentElement.querySelector('.nm').textContent;
-        var nick = document.getElementById('charNick');
-        document.getElementById('charBig').src = radio.dataset.big;
-        document.getElementById('charBig').alt = name;
-        document.getElementById('charName').textContent = name;
-        document.getElementById('charDesc').textContent = radio.dataset.ds;
-        if (nick.value === nick.dataset.auto) nick.value = name + '야';
-        nick.dataset.auto = name + '야';
+    // 카드를 고르면 좌측 미리보기(그림·이름·소개) 동적 변경
+    document.querySelectorAll('.mp-chars input').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            var name = radio.parentElement.querySelector('.nm').textContent;
+            var nick = document.getElementById('charNick');
+            document.getElementById('charBig').src = radio.dataset.big;
+            document.getElementById('charBig').alt = name;
+            document.getElementById('charName').textContent = name;
+            document.getElementById('charDesc').textContent = radio.dataset.ds;
+            if (nick.value === nick.dataset.auto) nick.value = name;
+            nick.dataset.auto = name;
+        });
     });
-});
+
+    // DB 캐릭터 업데이트 AJAX 전송 함수
+    function saveCharacterDB() {
+        const picked = document.querySelector('.mp-chars input[name="character"]:checked');
+        if (!picked) return;
+
+        const childId = document.getElementById('childId').value;
+        const charKey = picked.value;
+        const nickname = document.getElementById('charNick').value.trim();
+
+        if (!childId) {
+            alert("아이 정보를 찾지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+            return;
+        }
+
+        fetch('/profile/updateCharacter', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                childId: parseInt(childId, 10),
+                characterType: charKey,          // ProfileDTO의 characterType
+                characterNickname: nickname      // ProfileDTO의 characterNickname
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (data.result > 0) {
+                    if (typeof kdSaved === 'function') kdSaved('캐릭터를 성공적으로 저장했어요');
+                    else alert('캐릭터를 성공적으로 저장했어요');
+
+                    // 저장 완료 후 DB 데이터로 화면 갱신
+                    window.location.reload();
+                } else {
+                    alert(data.msg || '캐릭터 저장에 실패했습니다.');
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert('저장 중 오류가 발생했습니다. (' + err.message + ')');
+            });
+    }
 </script>
 
 <%@ include file="../common/app-bottom.jsp" %>

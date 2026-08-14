@@ -29,7 +29,11 @@
         };
     }
 
-    function fieldOf(input) { return input.closest('.kd-field'); }
+    function fieldOf(target) {
+        if (!target) return null;
+
+        return target.closest('.kd-field');
+    }
 
     function setError(input, msg) {
         var field = fieldOf(input);
