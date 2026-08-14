@@ -66,6 +66,8 @@
         </main>
     </div>
 </div>
-<script src="/js/story.js?v=221"></script>
+<%-- 낭독 mp3 대응표. story.js 보다 먼저 와야 한다 — window.KD_AUDIO 를 읽고 시작한다 --%>
+<script src="/js/audio-map.js?v=222"></script>
+<script src="/js/story.js?v=222"></script>
 </body>
 </html>
