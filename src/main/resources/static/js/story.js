@@ -144,10 +144,40 @@
                 if (t && out.indexOf(t) === -1) out.push(t);
             });
         });
-        return out.join(' ');
+        return out;                              /* 조각 배열 그대로 — mp3 가 문장 단위라 여기서 이으면 안 맞는다 */
     }
 
-    var canSay = 'speechSynthesis' in window;
+    /* ---------- 소리는 두 경로다 ----------
+       ① 미리 뽑아 둔 mp3 (audio-map.js 의 window.KD_AUDIO — 문구 그대로가 열쇠다)
+       ② 없으면 브라우저 낭독
+
+       ①을 쓰는 이유는 음질보다 **예측 가능성**이다. 브라우저 낭독은 그 PC 에 깔린 음성에
+       좌우돼서, 한국어 음성이 없는 기계에서는 영어 음성이 한글을 읽어 발음이 뭉갠다
+       (이 개발 PC 에 깔린 음성은 Microsoft Heami 하나뿐이었다). 시연 중에 그게 터지면 못 고친다.
+       ②를 지우지 않는 이유도 같다 — 문구를 고쳐 mp3 가 없어져도 조용해지지 않고 예전 소리로 돌아간다.
+       ⚠ mp3 를 다시 뽑으면 AUDIO_V 를 올릴 것. 안 올리면 브라우저가 옛 소리를 계속 꺼낸다. */
+    var AUDIO_BASE = '/audio/story/';
+    var AUDIO_V = '?v=222';
+
+    function clipFor(text) { return window.KD_AUDIO ? window.KD_AUDIO[text] : null; }
+
+    var hasTTS = 'speechSynthesis' in window;
+    var canSay = hasTTS || !!window.KD_AUDIO;
+    var playing = null;                           /* 재생 중인 mp3 */
+    var clearMark = null;                         /* 읽는 중 표시를 되돌리는 함수 */
+
+    /* 지금 소리가 나가는 중인가 / 멈춰라 — 두 경로를 한 곳에서 본다.
+       여기를 안 거치고 speechSynthesis 를 직접 부르면 mp3 는 안 멈춘다. */
+    function isSpeaking() {
+        return !!playing || (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending));
+    }
+
+    function stopSpeaking() {
+        if (playing) { playing.pause(); playing = null; }
+        if (hasTTS) speechSynthesis.cancel();
+        /* 끊었으면 표시도 같이 지운다 — 안 그러면 배지가 '읽는 중' 인 채로 굳는다 */
+        if (clearMark) { clearMark(); clearMark = null; }
+    }
 
     /* 낭독 음색 — 기본 음성이 "너무 기괴하다"는 지적(2026-08-10 피드백 3).
        아이 목소리 파일을 따로 만드는 대신 음높이를 올려 아이 톤에 가깝게 만든다.
@@ -163,29 +193,78 @@
         }
     }
 
-    if (canSay) {
+    if (hasTTS) {                                 /* mp3 만 있고 낭독이 없는 브라우저도 있다 */
         pickVoice();
         speechSynthesis.addEventListener('voiceschanged', pickVoice);
     }
 
     /* 읽어 주기는 여기 한 곳 — [다시 들려줘] · 카드의 소리 배지 · 힌트가 같이 쓴다.
        el 을 주면 읽는 동안 is-speaking 이 붙고, label 까지 주면 글자도 잠깐 바뀐다. */
-    function speak(text, el, label) {
-        if (!canSay || !text) return;
-        speechSynthesis.cancel();                 /* 앞의 낭독은 끊는다 — 두 소리가 겹치면 못 알아듣는다 */
-        var u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ko-KR';
-        u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
-        u.pitch = 1.4;                            /* 어른 목소리 그대로면 아이가 무서워한다 */
-        if (koVoice) u.voice = koVoice;           /* 한국어 음성이 없으면 브라우저 기본에 맡긴다 */
+    /* 읽는 중 표시 — 두 경로가 같이 쓴다. 되돌리는 함수를 준다. */
+    function mark(el, label) {
+        var restore = function () {};
         if (el) {
             el.classList.add('is-speaking');
             if (label) el.textContent = '읽는 중…';
-            u.onend = u.onerror = function () {
+            restore = function () {
                 el.classList.remove('is-speaking');
                 if (label) el.textContent = label;
             };
         }
+        clearMark = restore;
+        return function () { restore(); if (clearMark === restore) clearMark = null; };
+    }
+
+    /* text 는 문장 하나여도 되고 조각 배열이어도 된다.
+       화면 낭독은 제목·부제·질문이 각각 따로 뽑힌 mp3 라 배열로 받아 이어서 튼다. */
+    function speak(text, el, label) {
+        if (!canSay) return;
+        var parts = (typeof text === 'string' ? [text] : (text || [])).filter(Boolean);
+        if (!parts.length) return;
+        stopSpeaking();                           /* 앞의 소리는 끊는다 — 두 소리가 겹치면 못 알아듣는다 */
+
+        /* 한 조각이라도 mp3 가 없으면 통째로 브라우저 낭독으로 간다.
+           절반은 사람 목소리, 절반은 로봇이면 안 하느니만 못하다. */
+        var clips = [];
+        for (var i = 0; i < parts.length; i++) {
+            var c = clipFor(parts[i]);
+            if (!c) return sayWithBrowser(parts.join(' '), el, label);
+            clips.push(c);
+        }
+
+        var done = mark(el, label);
+        var joined = parts.join(' ');
+        var n = 0;
+
+        function fallback() { playing = null; done(); sayWithBrowser(joined, el, label); }
+
+        function next() {
+            if (n >= clips.length) { playing = null; done(); return; }
+            var a = new Audio(AUDIO_BASE + clips[n++] + AUDIO_V);
+            playing = a;
+            a.onended = next;
+            a.onerror = fallback;                 /* 파일이 없거나 못 읽으면 조용해지면 안 된다 */
+            var p = a.play();
+            /* 자동재생 차단. mp3 는 speechSynthesis 보다 더 엄격하게 막힌다 —
+               여기서 안 받으면 첫 화면이 통째로 무음이 된다. */
+            if (p && p['catch']) p['catch'](fallback);
+        }
+        next();
+    }
+
+    function sayWithBrowser(text, el, label) {
+        if (!hasTTS) return;
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'ko-KR';
+        u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
+        u.pitch = 1.15;                           /* 어른 목소리 그대로면 아이가 무서워한다.
+                                                     1.4 는 "기괴하다"는 지적을 못 없앴다 — Web Speech 의 pitch 는
+                                                     포먼트를 같이 올려 주지 않아, 크게 올릴수록 아이가 아니라
+                                                     다람쥐 소리에 가까워진다. 아이 톤은 여기까지가 한계다.
+                                                     제대로 된 아이 목소리는 mp3 를 미리 뽑는 수밖에 없다. */
+        if (koVoice) u.voice = koVoice;           /* 한국어 음성이 없으면 브라우저 기본에 맡긴다 */
+        var done = mark(el, label);
+        u.onend = u.onerror = done;
         speechSynthesis.speak(u);
     }
 
@@ -194,8 +273,8 @@
         listenBtns.forEach(function (btn) {
             var label = btn.textContent;
             btn.addEventListener('click', function () {
-                if (speechSynthesis.speaking) {          /* 다시 누르면 멈춘다 */
-                    speechSynthesis.cancel();
+                if (isSpeaking()) {                     /* 다시 누르면 멈춘다 */
+                    stopSpeaking();
                     btn.textContent = label;
                     btn.classList.remove('is-speaking');
                     return;
@@ -204,7 +283,7 @@
             });
         });
         /* 화면을 떠날 때 소리가 따라다니면 안 된다 */
-        window.addEventListener('pagehide', function () { speechSynthesis.cancel(); });
+        window.addEventListener('pagehide', function () { stopSpeaking(); });
 
         /* ---------- 화면에 들어오면 바로 읽어 준다 (2026-08-11 요청) ----------
            글을 아직 못 읽는 아이가 대상이라 먼저 들려주는 게 기본이고,
@@ -219,7 +298,7 @@
         sayScreen();
 
         setTimeout(function () {
-            if (speechSynthesis.speaking || speechSynthesis.pending) return;   /* 잘 나갔다 */
+            if (isSpeaking()) return;                                          /* 잘 나갔다 */
             document.addEventListener('pointerdown', function once() {
                 document.removeEventListener('pointerdown', once);
                 sayScreen();
@@ -244,7 +323,7 @@
                     words.push((p.textContent || '').trim());
                 });
             }
-            speak(words.join(' '), sp);
+            speak(words, sp);                     /* 이름·설명이 각각 따로 뽑힌 mp3 라 이어 붙이지 않는다 */
         });
     });
 
