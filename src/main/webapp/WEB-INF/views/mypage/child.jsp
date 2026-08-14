@@ -28,6 +28,10 @@
 <section class="mp-sec">
     <%-- 보호자 정보 탭과 대칭 — 어느 쪽이 누구 정보인지 제목에서 갈린다 --%>
     <h2>아이 정보</h2>
+
+    <!-- childId 숨김 필드 추가 -->
+    <input type="hidden" id="childId" value="1">
+
     <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
@@ -96,7 +100,70 @@
 <%-- Figma 에는 이 버튼행이 없다 — 캐릭터 관리 탭과 대칭을 맞추려고 웹에서 추가 --%>
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaved('아이 프로필을 저장했어요')">저장</button>
+    <button type="button" class="kd-btn kd-btn-primary" onclick="updateChildProfile()">저장</button>
 </div>
+
+<script>
+    // 컨테이너로 스코프해서 중복 id 문제 회피
+    function getSelectedVal(container, elementId, fallbackVal) {
+        const el = container.querySelector('#' + elementId);
+        if (!el || el.value === null || el.value.trim() === '') return fallbackVal;
+        return el.value.trim();
+    }
+
+    // 실제 프로필 저장 요청 함수
+    function updateChildProfile() {
+        const form = document.querySelector('.mp-grid--child');
+
+        const childId = parseInt(getSelectedVal(document, 'childId', '1'), 10) || 1;
+        const childName = getSelectedVal(form, 'childName', '');
+
+        const rawYear = getSelectedVal(form, 'birthYear', '');
+        const rawMonth = getSelectedVal(form, 'birthMonth', '');
+        const rawDay = getSelectedVal(form, 'birthDay', '');
+
+        if (!childName || !rawYear || !rawMonth || !rawDay) {
+            alert("이름과 생년월일을 모두 입력해 주세요.");
+            return;
+        }
+
+        const birthDate = rawYear + '-' + String(rawMonth).padStart(2, '0') + '-' + String(rawDay).padStart(2, '0');
+
+        const genderElem = form.querySelector('input[name="gender"]:checked');
+        const gender = genderElem ? genderElem.value : '';
+
+        const disorderType = getSelectedVal(form, 'disabilityType', '');
+        const severity = getSelectedVal(form, 'disabilityLevel', '');
+
+        if (!gender || !disorderType || !severity) {
+            alert("성별과 장애 정보를 모두 선택해 주세요.");
+            return;
+        }
+
+        const payload = { childId, name: childName, birthDate, gender, disorderType, severity };
+
+        fetch('/profile/updateProfile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (data.result > 0) {
+                    if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
+                    else alert('아이 프로필을 성공적으로 저장했어요');
+                } else {
+                    alert(data.msg || "수정에 실패했습니다.");
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert("수정 중 오류가 발생했습니다. (" + err.message + ")");
+            });
+    }
+</script>
 
 <%@ include file="../common/app-bottom.jsp" %>

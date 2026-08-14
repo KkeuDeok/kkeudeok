@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kopo.kkeudeok.mapper.IProfileMapper">
+    <!-- 1. 마이페이지 진입 시 -->
+    <select id="getProfile" parameterType="ProfileDTO" resultType="ProfileDTO">
+        SELECT
+            child_id AS childId,
+            member_id AS memberId,
+            name,
+            birth_date AS birthDate,
+            gender,
+            disorder_type AS disorderType,
+            severity,
+            character_type AS characterType,
+            character_nickname AS characterNickname
+            created_at AS createdAt
+        FROM child
+        WHERE member_id = #{memberId}
+          AND deleted_at IS NULL
+    </select>
+
+    <!-- 2. 프로필 정보 탭 -->
+    <update id="updateProfile" parameterType="ProfileDTO">
+        UPDATE child
+        SET
+            name = #{name},
+            birth_date = #{birthDate},
+            gender = #{gender},
+            disorder_type = #{disorderType},
+            severity = #{severity}
+        WHERE child_id = #{childId}
+    </update>
+
+    <!-- 3.캐릭터 관리 탭 -->
+    <update id="updateCharacter" parameterType="ProfileDTO">
+        UPDATE child
+        SET
+            character_type = #{characterType},
+            character_nickname = #{characterNickname}
+        WHERE child_id = #{childId}
+    </update>
+<!--    <update id="updateProfile" parameterType="ProfileDTO">-->
+<!--        UPDATE child-->
+<!--        SET name=#{name},-->
+<!--            birth_date=#{birthDate},-->
+<!--            gender=#{gender},-->
+<!--            disorder_type=#{disorderType},-->
+<!--            severity=#{severity}-->
+<!--        WHERE child_id=#{childId}-->
+<!--    </update>-->
+</mapper>
