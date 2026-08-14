@@ -142,7 +142,11 @@
         var u = new SpeechSynthesisUtterance(text);
         u.lang = 'ko-KR';
         u.rate = 0.95;                            /* 아이가 따라올 수 있게 조금 느리게 */
-        u.pitch = 1.4;                            /* 어른 목소리 그대로면 아이가 무서워한다 */
+        u.pitch = 1.15;                           /* 어른 목소리 그대로면 아이가 무서워한다.
+                                                     1.4 는 "기괴하다"는 지적을 못 없앴다 — Web Speech 의 pitch 는
+                                                     포먼트를 같이 올려 주지 않아, 크게 올릴수록 아이가 아니라
+                                                     다람쥐 소리에 가까워진다. 아이 톤은 여기까지가 한계다.
+                                                     제대로 된 아이 목소리는 mp3 를 미리 뽑는 수밖에 없다. */
         if (koVoice) u.voice = koVoice;           /* 한국어 음성이 없으면 브라우저 기본에 맡긴다 */
         if (el) {
             el.classList.add('is-speaking');

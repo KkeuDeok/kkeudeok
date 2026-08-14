@@ -10,9 +10,9 @@
 <link href="/css/kkeudeok.css?v=211" rel="stylesheet">
 <link href="/css/auth.css?v=211" rel="stylesheet">
 <link href="/css/onboarding.css?v=211" rel="stylesheet">
-<link href="/css/app.css?v=218" rel="stylesheet">
+<link href="/css/app.css?v=223" rel="stylesheet">
 <link href="/css/report.css?v=211" rel="stylesheet">
-<link href="/css/mypage.css?v=211" rel="stylesheet">
+<link href="/css/mypage.css?v=221" rel="stylesheet">
 <link href="/css/child.css?v=218" rel="stylesheet">
 <%-- 사용 단계 스위치 — 0 신규(아무것도 없음) · 1 일상 기록만 남김 · 2 이야기 1편 이상(수치 대시보드).
      ?stage=0|1|2 로 바꾸면 탭 단위로 유지돼 화면을 옮겨도 따라간다.

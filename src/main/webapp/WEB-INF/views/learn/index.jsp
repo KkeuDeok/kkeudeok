@@ -23,10 +23,8 @@
         <%-- 2026-08-10 피드백 8 — "매일 하는 건지 루틴인지 기준이 있냐"는 지적.
              확정: **하루 한 편 권장**. 이 기준을 전 화면 문구가 따른다. --%>
         <p class="min">예상 소요 약 7분 · 하루 한 편 권장</p>
-        <%-- 2026-08-10 피드백 7 — "장애 종류에 따라 학습을 다르게 하는지, 왜 구분했는지".
-             팀장 확정: 자폐면 사회성·감정 표현 시나리오를 더 넣는다. 화면은 새로 만들지 않고
-             고른 유형이 학습에 반영된다는 사실만 여기서 밝힌다. 아래 스크립트가 켠다. --%>
-        <p class="learn-fit" id="learnFit" hidden></p>
+        <%-- 2026-08-14 지적 — 유형 안내 칩(.learn-fit)은 걷어냈다.
+             버튼은 '예상 소요' 바로 아래 한 줄로 둔다. --%>
         <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
@@ -239,8 +237,8 @@
 </script>
 
 <script>
-    /* 고른 장애 유형이 학습에 실제로 반영된다는 것을 화면이 말하게 한다(2026-08-10 피드백 7).
-       팀장 확정: 자폐면 사회성·감정 표현 시나리오를 더 넣는다. 화면은 새로 만들지 않는다.
+    /* 자폐면 사회성·감정 표현 시나리오를 더 넣는다(2026-08-10 피드백 7).
+       히어로 안내 칩은 2026-08-14 지적으로 걷어냈고, 완료 문구만 남았다.
        유형은 온보딩이 sessionStorage.kdOnb 에 문자열 하나로 넣어 둔다.
        concat 으로 받는 건 중복 진단 시절의 옛 저장값(배열)이 아직 남아 있을 수 있어서다.
        ponytail: 백엔드가 붙으면 이 판단은 서버가 내려주면 된다. */
@@ -250,10 +248,6 @@
             types = [].concat(JSON.parse(sessionStorage.getItem('kdOnb') || '{}').disType || []);
         } catch (e) { }
         if (types.indexOf('자폐 장애') < 0) return;
-
-        var fit = document.getElementById('learnFit');
-        fit.textContent = '자폐 유형에 맞춰 사회성·감정 표현 이야기가 더 들어가요';
-        fit.hidden = false;
 
         /* 오늘 몫을 끝냈을 때 '내일 뭘 하는지'까지 알려 준다 */
         document.getElementById('ctaDone').textContent =
