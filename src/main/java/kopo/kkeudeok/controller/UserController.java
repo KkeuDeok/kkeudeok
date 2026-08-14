@@ -3,6 +3,7 @@ package kopo.kkeudeok.controller;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpSession;
+import kopo.kkeudeok.util.CmmUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -223,7 +224,22 @@ public class UserController {
     }
 
     @GetMapping("/mypage/character")
-    public String mypageCharacter() {
+    public String mypageCharacter(HttpSession session, ModelMap model) throws Exception {
+
+        // 바로 위의 /mypage/child 와 동일하게 세션에서 회원 ID(memberId)를 안전하게 꺼냅니다.
+        Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+        if (memberId != null) {
+            ProfileDTO pDTO = new ProfileDTO();
+            pDTO.setMemberId(memberId); // 👈 setCharacterNickname 대신 setMemberId 사용!
+
+            // DB에서 아이 정보 가져오기
+            ProfileDTO child = profileService.getProfile(pDTO);
+
+            // JSP 화면으로 'child' 전달
+            model.addAttribute("child", child);
+        }
+
         return "mypage/character";
     }
 
