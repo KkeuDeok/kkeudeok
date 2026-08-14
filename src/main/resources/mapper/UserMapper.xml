@@ -120,7 +120,10 @@
                name,
                email,
                phone,
-               relation
+               relation,
+               notify_weekly_report,
+               notify_reminder,
+               agree_marketing
         FROM member
         WHERE login_id = #{loginId}
           AND deleted_at IS NULL
@@ -133,10 +136,13 @@
            "값이 있는데 비어 있는" 상태가 돼 NULL 검사와 어긋난다. -->
     <update id="updateUserInfo" parameterType="UserDTO">
         UPDATE member
-        SET name       = #{name},
-            phone      = #{phone},
-            relation   = #{relation},
-            updated_at = #{updatedAt}
+        SET name                 = #{name},
+            phone                = #{phone},
+            relation             = #{relation},
+            notify_weekly_report = #{notifyWeeklyReport},
+            notify_reminder      = #{notifyReminder},
+            agree_marketing      = #{agreeMarketing},
+            updated_at           = #{updatedAt}
         WHERE login_id = #{loginId}
           AND deleted_at IS NULL
     </update>

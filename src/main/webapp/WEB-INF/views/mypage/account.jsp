@@ -34,9 +34,11 @@
         </div>
         <div class="kd-field">
             <label class="kd-label" for="mpPhone">휴대폰</label>
-            <%-- 아직 채우는 화면이 없어 대개 NULL 이다 → 빈 칸 + 안내 문구 --%>
+            <%-- 아직 채우는 화면이 없어 대개 NULL 이다 → 빈 칸 + 안내 문구.
+                 숫자만 치면 kdPhoneFormat 이 - 를 넣어 준다 --%>
             <input class="kd-input" type="tel" id="mpPhone" value="<c:out value='${user.phone}'/>"
-                   placeholder="010-0000-0000">
+                   inputmode="numeric" maxlength="13" placeholder="010-0000-0000"
+                   oninput="kdPhoneFormat(this)">
         </div>
         <div class="kd-field">
             <label class="kd-label" for="mpRel">아이와의 관계</label>
@@ -56,17 +58,28 @@
 
 <section class="mp-sec">
     <h2>알림 설정</h2>
+    <%-- 켜짐 여부는 DB 값(member.notify_*·agree_marketing)이 정한다.
+         전에는 markup 에 checked 가 박혀 있어 누구든 항상 '켬·켬·끔' 으로 보였다. --%>
     <div class="mp-switch">
         <span class="tx"><b>주간 리포트 알림</b><span class="ds">매주 월요일 지난주 성장 리포트를 보내드려요</span></span>
-        <label class="mp-toggle"><input type="checkbox" checked><span></span></label>
+        <label class="mp-toggle">
+            <input type="checkbox" id="mpNotiWeekly"
+                   <c:if test="${user.notifyWeeklyReport == 1}">checked</c:if>><span></span>
+        </label>
     </div>
     <div class="mp-switch">
         <span class="tx"><b>학습 리마인더</b><span class="ds">아이가 3일 이상 학습하지 않으면 알려드려요</span></span>
-        <label class="mp-toggle"><input type="checkbox" checked><span></span></label>
+        <label class="mp-toggle">
+            <input type="checkbox" id="mpNotiRemind"
+                   <c:if test="${user.notifyReminder == 1}">checked</c:if>><span></span>
+        </label>
     </div>
     <div class="mp-switch">
         <span class="tx"><b>마케팅 정보 수신</b><span class="ds">새 소식과 이벤트 정보를 받아볼 수 있어요</span></span>
-        <label class="mp-toggle"><input type="checkbox"><span></span></label>
+        <label class="mp-toggle">
+            <input type="checkbox" id="mpNotiMarketing"
+                   <c:if test="${user.agreeMarketing == 1}">checked</c:if>><span></span>
+        </label>
     </div>
 </section>
 
@@ -140,6 +153,23 @@
             });
     }
 
+    /* 휴대폰 - 자동 입력. 숫자만 남기고 3-4-4 로 끊는다(010-3148-1241).
+       지우기도 그대로 된다 — '010-3' 에서 3 을 지우면 남는 숫자가 3개라 - 가 같이 사라진다.
+       ⚠ 값을 다시 넣으면 커서가 끝으로 튄다 → 끝에서 치던 경우만 끝으로 돌려놓는다. */
+    function kdPhoneFormat(el) {
+        var atEnd = el.selectionStart === el.value.length;
+        var d = el.value.replace(/\D/g, '').slice(0, 11);   /* 숫자 11자리까지 */
+
+        el.value = d.length < 4 ? d
+            : d.length < 8 ? d.slice(0, 3) + '-' + d.slice(3)
+                : d.slice(0, 3) + '-' + d.slice(3, 7) + '-' + d.slice(7);
+
+        if (atEnd) el.setSelectionRange(el.value.length, el.value.length);
+    }
+
+    /* DB 에 - 없이 저장된 옛 값도 화면에서는 같은 모양으로 보이게 한 번 다듬는다 */
+    kdPhoneFormat(document.getElementById('mpPhone'));
+
     /* 회원정보 저장. 결과 문구는 서버가 준 것을 그대로 공통 토스트(kdSaved)에 띄운다. */
     function kdSaveInfo() {
         var name = document.getElementById('mpName');
@@ -154,12 +184,20 @@
             return;
         }
 
+        /* 체크박스는 켜짐/꺼짐을 1/0 으로 보낸다.
+           ⚠ <form> 제출과 달리 fetch 는 우리가 직접 담으므로, 꺼진 값도 0 으로 반드시 보내야 한다.
+              안 보내면 서버가 '안 바꿈'인지 '끔'인지 구분할 수 없다. */
+        var on = function (id) { return document.getElementById(id).checked ? '1' : '0'; };
+
         fetch('/updateUserInfoProc', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'userName=' + encodeURIComponent(name.value.trim()) +
                 '&phone=' + encodeURIComponent(phone.value.trim()) +
-                '&relation=' + encodeURIComponent(rel.value)
+                '&relation=' + encodeURIComponent(rel.value) +
+                '&notifyWeeklyReport=' + on('mpNotiWeekly') +
+                '&notifyReminder=' + on('mpNotiRemind') +
+                '&agreeMarketing=' + on('mpNotiMarketing')
         })
             .then(function (res) {
                 return res.json();

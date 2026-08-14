@@ -41,8 +41,13 @@ public class MypageApiController {
     /** 아이와의 관계 — 화면 select 의 4개와 같아야 한다. DB 컬럼이 VARCHAR(10) 이라 길이도 이 안에서 지킨다 */
     private static final Set<String> RELATIONS = Set.of("어머니", "아버지", "조부모", "기타 보호자");
 
+    /** 체크박스 값을 0/1 로만 받는다. 화면이 무슨 값을 보내든 DB 에는 둘 중 하나만 들어간다 */
+    private int flag(String v) {
+        return "1".equals(CmmUtil.nvl(v).trim()) ? 1 : 0;
+    }
+
     /**
-     * 회원정보 저장 — 이름·휴대폰·관계.
+     * 회원정보 저장 — 이름·휴대폰·관계 + 알림 설정 3개.
      *
      * 검사는 전부 여기서 다시 한다. 화면 검사는 개발자도구로 우회되고,
      * 길이를 넘긴 값이 그대로 가면 DB 가 잘라내거나(경고) SQL 오류로 500 이 난다.
@@ -51,6 +56,9 @@ public class MypageApiController {
     public MsgDTO updateUserInfoProc(@RequestParam String userName,
                                      @RequestParam(required = false) String phone,
                                      @RequestParam(required = false) String relation,
+                                     @RequestParam(required = false) String notifyWeeklyReport,
+                                     @RequestParam(required = false) String notifyReminder,
+                                     @RequestParam(required = false) String agreeMarketing,
                                      HttpSession session) {
 
         log.info("{}.updateUserInfoProc Start!", this.getClass().getName());
@@ -86,6 +94,10 @@ public class MypageApiController {
             // 빈 칸은 빈 문자열이 아니라 NULL 로 넣는다 — "아직 안 적음"과 "빈 값"을 구분한다.
             pDTO.setPhone(ph.isEmpty() ? null : ph);
             pDTO.setRelation(rel.isEmpty() ? null : rel);
+            // 알림 설정 — 컬럼이 NOT NULL 이라 꺼져 있으면 0 을 넣는다(NULL 금지).
+            pDTO.setNotifyWeeklyReport(flag(notifyWeeklyReport));
+            pDTO.setNotifyReminder(flag(notifyReminder));
+            pDTO.setAgreeMarketing(flag(agreeMarketing));
 
             if (userService.updateUserInfo(pDTO) < 1) {
                 return msg(0, "저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");

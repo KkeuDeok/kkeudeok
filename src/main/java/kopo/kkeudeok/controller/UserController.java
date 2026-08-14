@@ -27,10 +27,18 @@ public class UserController {
     /** 마이페이지 회원정보 조회용. 나머지 라우트는 화면만 띄우므로 서비스가 필요 없다. */
     private final IUserService userService;
 
-    /** 주소창에 localhost:8080 만 쳤을 때 404 대신 로그인으로 보낸다. */
+    /**
+     * 주소창에 localhost:8080 만 쳤을 때의 첫 화면.
+     *
+     * 세션을 보고 갈라준다 — 전에는 무조건 로그인 화면이라, 이미 로그인한 사람이
+     * 새 창으로 들어오면 다시 로그인 화면을 봐야 했다(2026-08-14 지적).
+     * ⚠ /login 은 그대로 둔다. 계정을 바꾸려고 일부러 오는 경우가 있어서다.
+     */
     @GetMapping("/")
-    public String root() {
-        return "redirect:/login";
+    public String root(HttpSession session) {
+        return CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")).isEmpty()
+                ? "redirect:/login"
+                : "redirect:/dashboard";
     }
 
     @GetMapping("/login")
