@@ -265,4 +265,9 @@
     })();
 </script>
 
+<%-- [이야기 시작하기] 를 누른 자리에서 AI 이야기를 미리 받아 두는 일만 한다.
+     아이 화면(child-bottom.jsp)에서 쓰는 것과 같은 파일이고, 이 주소에서는
+     watchStoryEntry() 만 걸린다(단계가 아닌 화면이라 나머지는 그냥 지나간다). --%>
+<script src="/js/story-session.js?v=222"></script>
+
 <%@ include file="../common/app-bottom.jsp" %>

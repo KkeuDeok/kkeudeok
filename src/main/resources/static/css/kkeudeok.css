@@ -316,6 +316,24 @@ html.kd-char-ready [data-kd-char]       { visibility: visible; }
     50%      { opacity: 1; }
 }
 
+/* 버튼 글자 자리를 대신할 때 — 버튼 높이 한가운데에 놓인다.
+   ⚠ .home-card .go 처럼 line-height 로 세로 중앙을 잡는 버튼은 블록 자식을 가운데 두지
+     못한다. 그래서 높이를 물려받아 스스로 가운데를 잡는다. */
+a > .kd-wait-dots,
+button > .kd-wait-dots {
+    height: 100%;
+    align-items: center;
+    gap: 12px;
+}
+
+/* 버튼 안에서는 조금 작게 — 보호자 버튼 높이가 40 이라 16 은 꽉 찬다 */
+a > .kd-wait-dots i,
+button > .kd-wait-dots i { width: 12px; height: 12px; }
+
+/* 버튼 안에서는 배경이 이미 초록이라 같은 색 점이 보이지 않는다 — 흰 점으로 뒤집는다 */
+.kd-btn-primary .kd-wait-dots i,
+.home-card .go .kd-wait-dots i { background: #fff; }
+
 @media (prefers-reduced-motion: reduce) {
     .kd-wait-dots i { animation: none; opacity: .6; }
 }

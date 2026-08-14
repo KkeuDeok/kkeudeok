@@ -369,6 +369,57 @@
         });
     }
 
+    /* ---------- 들어가기 전에 미리 만들기 ----------
+       [이야기 시작하기] 를 누른 자리에서 기다렸다가, 다 만들어진 뒤에 이야기 화면을 연다.
+       예전에는 곧바로 넘어가 이야기 화면에서 10초를 기다렸는데, 아이 눈에는 글자가 없는
+       화면이 한참 떠 있는 셈이었다(2026-08-14 요청 — "들어가기 전에 있었으면").
+
+       ⚠ 눌린 버튼이 곧 대기 표시다. 화면을 덮지 않는다 — 학습 홈을 통째로 가리면
+         "눌렀더니 화면이 멈췄다"가 되어 지금과 다를 게 없다.
+       ⚠ 실패하든 너무 오래 걸리든 결국 들어간다. 들어간 뒤는 이야기 화면이 이어서 기다린다. */
+    function watchStoryEntry() {
+        if (stage === 'STORY') return;             /* 이야기 화면 자신은 들어갈 곳이 없다 */
+
+        document.querySelectorAll('a[href^="/story/scene"]').forEach(function (a) {
+            a.addEventListener('click', function (e) {
+                if (a.getAttribute('data-kd-prep')) return;   /* 두 번 눌러도 한 번만 */
+                e.preventDefault();
+                a.setAttribute('data-kd-prep', '1');
+
+                entryDots(a);
+                clear();
+
+                var went = false;
+                function go() {
+                    if (went || redirected) return;    /* 이어하기로 이미 다른 화면에 갔다 */
+                    went = true;
+                    location.href = a.getAttribute('href');
+                }
+
+                /* 서버가 끝내 답하지 않아도 25초에서 끊고 들어간다 */
+                var cap = setTimeout(go, 25000);
+
+                resumeOrStart().then(function () {
+                    var s = load();
+                    if (s) { s.prepared = true; save(s); }
+                }).catch(function (err) {
+                    console.warn('[kkeudeok] 미리 받지 못해 이야기 화면에서 기다립니다', err);
+                }).then(function () {
+                    clearTimeout(cap);
+                    go();
+                });
+            });
+        });
+    }
+
+    /* 눌린 버튼 글자를 점 세 개로 바꾼다. 폭을 고정해 버튼이 줄었다 늘었다 하지 않는다.
+       되돌리지 않는 이유 — 어차피 곧 다른 화면으로 넘어간다. */
+    function entryDots(a) {
+        a.style.width = a.offsetWidth + 'px';
+        a.setAttribute('aria-busy', 'true');
+        a.innerHTML = '<span class="kd-wait-dots"><i></i><i></i><i></i></span>';
+    }
+
     /* ---------- 나가기 ----------
        [그만할래] · [이 동작은 하기 싫어] → 중도 이탈로 결과를 남기고 끝낸다. */
     function watchQuit() {
@@ -382,6 +433,9 @@
         /* 상황 선택처럼 단계가 아닌 화면도 진도 배지는 맞춰 준다 */
         paintCount();
 
+        /* 들어가기 전에 만든다 — 이야기 화면은 이미 다 쓰인 채로 열린다 */
+        watchStoryEntry();
+
         if (!stage) return;                        /* 아동홈·상황 선택은 받아 올 노드가 없다 */
 
         watchChoices();
@@ -393,6 +447,17 @@
            ⚠ 곧바로 새로 만들지 않는다. 오늘 그만둔 학습이 있으면 그걸 잇는다 —
              화면이 "지금까지 한 건 남아 있어요. 다음에 이어서 하면 돼요" 라고 약속했다. */
         if (stage === 'STORY') {
+
+            /* 앞 화면(학습 홈·아동홈)에서 이미 받아 뒀으면 기다리지 않는다.
+               ⚠ 한 번 쓰고 표시를 뗀다. 안 떼면 다음 편을 시작할 때 지난 이야기가 다시 뜬다. */
+            if (s && s.prepared && s.nodes && s.nodes.STORY && !s.finished) {
+                s.prepared = false;
+                save(s);
+                paint(s.nodes.STORY);
+                prefetch('STORY');
+                return;
+            }
+
             clear();
             waiting(true);
 
@@ -506,6 +571,8 @@
        ⚠ 앞서 한 미션 결과는 그만둘 때 이미 서버에 저장됐다. 그래서 로컬 results 는
          비운 채로 이어도 된다 — 서버가 이번에 보낸 노드만 지우고 넣기 때문에
          앞부분 기록이 덮이지 않는다. */
+    var redirected = false;     /* 이어하기로 다른 화면에 넘겼는가 — 앞 화면이 이걸 보고 멈춘다 */
+
     function resumeOrStart() {
         return fetch('/api/story/sessions/resume')
             .then(function (res) { return res.ok ? res.json() : { found: false }; })
@@ -536,6 +603,7 @@
                     return;
                 }
 
+                redirected = true;      /* 앞 화면에서 부른 경우, 그쪽이 또 넘기지 않게 알린다 */
                 location.replace('/story/' + r.resumeScreen);
             });
     }
