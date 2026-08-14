@@ -33,8 +33,15 @@ public interface IUserService {
 
     /* ---------- 최초 1회 설정 (dev) ---------- */
 
-    /** 보호자 PIN 저장 — 바뀐 행 수 */
+    /** 보호자 PIN 저장(최초 1회 + 재설정) — 바뀐 행 수 */
     int updateParentPin(UserDTO pDTO) throws Exception;
+
+    /**
+     * 저장된 보호자 PIN 해시. 아직 안 만들었으면 빈 문자열.
+     *
+     * @param pDTO memberId 만 있으면 된다
+     */
+    String getParentPin(UserDTO pDTO) throws Exception;
 
     /** 이 보호자가 아이를 등록했는지(= 온보딩을 마쳤는지) */
     boolean hasChild(Long memberId) throws Exception;

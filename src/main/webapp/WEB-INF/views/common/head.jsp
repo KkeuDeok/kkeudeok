@@ -140,7 +140,7 @@
     })();
 </script>
 <script src="/js/fit-frame.js?v=220"></script>
-<script src="/js/auth-validate.js?v=220" defer></script>
+<script src="/js/auth-validate.js?v=225" defer></script>
 <script src="/js/onb-select.js?v=220" defer></script>
 <%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제).
      이제 /api/roadmap 에서 아이 맞춤 계획을 받아 오고, 못 받으면 내장 정석 커리큘럼으로 그린다. --%>

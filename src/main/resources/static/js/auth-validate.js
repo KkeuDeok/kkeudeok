@@ -348,6 +348,103 @@
             .catch(onFail($('pin')));
     };
 
+    /* ---------- 마이페이지: 보호자 PIN 게이트 · 재설정 ----------
+
+       판정은 전부 서버가 한다. 예전에는 정답 PIN(1234)·인증번호(040505)가 화면에 박혀 있었고
+       실패 횟수·잠금도 sessionStorage 라, 개발자도구로 읽거나 지우면 그냥 열렸다. */
+
+    var lockHandle = null;
+
+    /* 잠금 표시. 남은 초는 서버가 준 값만 쓴다 — 화면이 계산하면 시계를 돌려 풀 수 있다.
+       (여기서 세는 건 표시용 카운트다운일 뿐이고, 실제 차단은 서버가 매 요청마다 다시 본다) */
+    window.kdPinLock = function (left) {
+        var pin = $('gatePin');
+        if (!pin) return;
+        var btn = document.querySelector('.mp-gate button[type=submit]');
+
+        if (lockHandle) { clearTimeout(lockHandle); lockHandle = null; }
+
+        if (left <= 0) {
+            pin.disabled = false;
+            if (btn) btn.disabled = false;
+            clearError(pin);
+            return;
+        }
+
+        /* 잠긴 칸은 비우고 막는다. 값이 남아 있으면 점만 켜진 채로 눌러 보게 된다 */
+        pin.disabled = true;
+        if (btn) btn.disabled = true;
+        pin.value = '';
+        renderPinDots(pin);
+
+        (function tick() {
+            if (left <= 0) { kdPinLock(0); return; }
+            setError(pin, Math.floor(left / 60) + '분 ' + String(left % 60).padStart(2, '0') +
+                '초 동안 잠겼어요. PIN을 잊었다면 아래에서 다시 설정하세요');
+            left -= 1;
+            lockHandle = setTimeout(tick, 1000);
+        })();
+    };
+
+    window.kdSubmitGate = function () {
+        clearAllErrors();
+        if (!checkPin($('gatePin'))) return;
+
+        postForm('/verifyParentPinProc', { pin: $('gatePin').value })
+            .then(function (data) {
+                if (data.result === 1) { location.href = data.next || '/mypage/account'; return; }
+                if (data.lockLeft > 0) { kdPinLock(data.lockLeft); return; }
+                /* PIN 을 아직 안 만든 계정 — 서버가 온보딩 주소를 알려 준다 */
+                if (data.next) { location.href = data.next; return; }
+                showServerError(data, 'gatePin');
+                $('gatePin').select();
+            })
+            .catch(onFail($('gatePin')));
+    };
+
+    /* 재설정 1단계 — 인증번호만 보낸다. 어느 메일로 보냈는지는 서버가 세션에 들고 있다
+       (화면이 이메일을 실어 보내면 남의 계정 PIN 을 자기 메일로 바꿀 수 있다) */
+    var pinResetBusy = false;
+
+    window.kdSubmitPinReset = function () {
+        /* 6자리를 채우면 자동으로 부른다 — 답이 오기 전에 또 부르지 않게 막는다 */
+        if (pinResetBusy) return;
+        clearAllErrors();
+        if (!checkCode(true)) return;
+
+        pinResetBusy = true;
+        postForm('/pinResetVerifyProc', { authCode: $('authCode').value.trim() })
+            .then(function (data) {
+                if (data.result !== 1) { pinResetBusy = false; showServerError(data, 'authCode'); return; }
+                /* 통과 문구를 한 박자 보여 주고 넘긴다 — 즉시 이동하면 확인됐는지 모른 채 화면이 바뀐다 */
+                setInfo($('authCode'), data.msg);
+                setTimeout(function () {
+                    location.href = data.next || '/mypage/pin-reset/new';
+                }, 600);
+            })
+            .catch(function (err) { pinResetBusy = false; onFail($('authCode'))(err); });
+    };
+
+    /* 재설정 2단계 — 새 PIN 저장 (온보딩 PIN 설정과 같은 검사) */
+    window.kdSubmitNewPin = function () {
+        clearAllErrors();
+        var ok = checkPin($('newPin'));
+        var check = $('newPinCheck');
+        if (!check.value || check.value !== $('newPin').value) {
+            setError(check, 'PIN 이 일치하지 않습니다'); ok = false;
+        } else {
+            clearError(check);
+        }
+        if (!ok) return;
+
+        postForm('/newParentPinProc', { newPin: $('newPin').value })
+            .then(function (data) {
+                if (data.result === 1) location.href = data.next || '/mypage/account';
+                else showServerError(data, 'newPin');
+            })
+            .catch(onFail($('newPin')));
+    };
+
     /* ---------- 온보딩 1: 아이 정보 ---------- */
     /* 드롭다운이 여러 개인 블록은 오류 문구 자리가 한 줄뿐이라, 비어 있는 첫 칸에만 표시한다 */
     function checkGroup(inputs, msg) {

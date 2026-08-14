@@ -80,6 +80,16 @@
           AND deleted_at IS NULL
     </update>
 
+    <!-- 보호자 PIN 대조용. 저장돼 있는 값은 SHA-256 해시라 되돌릴 수 없다 —
+         들어온 PIN 을 같은 방식으로 해시해서 문자열끼리 비교한다.
+         아직 PIN 을 만들지 않은 회원은 NULL 이 나온다. -->
+    <select id="getParentPin" parameterType="UserDTO" resultType="string">
+        SELECT parent_pin
+        FROM member
+        WHERE member_id = #{memberId}
+          AND deleted_at IS NULL
+    </select>
+
     <update id="updatePassword" parameterType="UserDTO">
         UPDATE member
         SET password   = #{password},

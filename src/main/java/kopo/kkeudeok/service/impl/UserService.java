@@ -121,6 +121,14 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public String getParentPin(UserDTO pDTO) throws Exception {
+        log.info("{}.getParentPin Start!", this.getClass().getName());
+
+        // 해시 자체는 로그에 남기지 않는다 — 4자리 숫자라 해시만 있어도 전수 대입으로 원본이 나온다.
+        return CmmUtil.nvl(userMapper.getParentPin(pDTO));
+    }
+
+    @Override
     public boolean hasChild(Long memberId) throws Exception {
         if (memberId == null) {
             return false;
