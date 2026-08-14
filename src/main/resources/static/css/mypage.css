@@ -336,6 +336,19 @@
     mask: var(--kd-icon-logout) center / 28px no-repeat;
 }
 
+/* 계정 삭제 모달용 — 원 크기·위치는 그대로 두고 색과 그림만 바꾼다.
+   아이콘 블록이 없으면 로그아웃 모달보다 88px 낮아 두 모달 크기가 어긋난다(2026-08-14 지적).
+   danger 의 연한 배경 토큰은 kkeudeok.css 에 없어 여기서 정한다(초록 tint #e3f6ec 와 같은 밝기 계열). */
+.mp-modal .ic-danger {
+    background: #fbe9e7;
+}
+
+.mp-modal .ic-danger::after {
+    background: var(--kd-danger);
+    -webkit-mask: var(--kd-icon-trash) center / 28px no-repeat;
+    mask: var(--kd-icon-trash) center / 28px no-repeat;
+}
+
 .mp-modal h2 {
     margin: 20px 0 0;
     font-size: 22px;
@@ -375,6 +388,8 @@
 /* 로그아웃 아이콘 (lucide log-out) — 토큰이 kkeudeok.css 에 없어 여기서 선언 */
 :root {
     --kd-icon-logout: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/%3E%3Cpolyline points='16 17 21 12 16 7'/%3E%3Cline x1='21' y1='12' x2='9' y2='12'/%3E%3C/svg%3E");
+    /* 휴지통 (lucide trash-2) — 계정 삭제 모달. mask 로 쓰므로 stroke 색은 아무 값이나 무방하다 */
+    --kd-icon-trash: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 6h18'/%3E%3Cpath d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6'/%3E%3Cpath d='M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/%3E%3Cline x1='10' y1='11' x2='10' y2='17'/%3E%3Cline x1='14' y1='11' x2='14' y2='17'/%3E%3C/svg%3E");
 }
 
 /* auth.css 의 `.terms-dialog button { width:100%; height:44px; background:var(--kd-primary) … }`
@@ -382,24 +397,30 @@
    구체성을 올려 다시 지정하고, form 래퍼도 flex 아이템으로 늘린다. */
 .mp-modal .row > form { flex: 1; display: flex; }
 
+/* auth.css 의 `.terms-dialog button { margin-top:14px }` 가 <button>(취소)에만 걸려
+   <a>(로그아웃·삭제)와 14px 어긋났다 — 행 안에서는 마진을 죽인다. */
 .mp-modal .row .kd-btn,
 .mp-modal .row form button.kd-btn {
     flex: 1;
     width: 100%;
     height: 52px;
+    margin: 0;
     border-radius: 999px;
     font-size: 16px;
     font-weight: 700;
 }
 
+/* 테두리를 border 로 주면 이 버튼만 2px 넓어져 옆 버튼과 칸이 안 맞는다
+   — 레이아웃에 영향 없는 inset box-shadow 로 그린다(둘 다 정확히 212px). */
 .mp-modal .row .kd-btn-outline,
 .mp-modal .row form button.kd-btn-outline {
     background: #fff;
-    border: 1px solid var(--kd-border);
+    border: none;
+    box-shadow: inset 0 0 0 1px var(--kd-border);
     color: var(--kd-text);
 }
 
-.mp-modal .row .kd-btn-outline:hover { border-color: var(--kd-primary-active); }
+.mp-modal .row .kd-btn-outline:hover { box-shadow: inset 0 0 0 1px var(--kd-primary-active); }
 .mp-modal .row .kd-btn-primary { background: var(--kd-primary); color: #fff; }
 .mp-modal .row .kd-btn-danger  { background: var(--kd-danger); color: #fff; }
 
@@ -410,8 +431,12 @@
     outline-offset: 2px;
 }
 
-/* 경고 문구는 길어서 480 폭에서 줄이 어색하게 끊긴다 — 한글 단어 단위로 접는다 */
-.mp-modal p { word-break: keep-all; }
+/* 경고 문구는 길어서 480 폭에서 줄이 어색하게 끊긴다 — 한글 단어 단위로 접고,
+   balance 로 줄 길이를 고르게 나눠 "…복구할 수 / 없습니다" 같은 외톨이 줄을 막는다. */
+.mp-modal p {
+    word-break: keep-all;
+    text-wrap: balance;
+}
 
 /* --------------------------------------------------------------------------
    아동 프로필 — 프로필 헤더 + 2열 폼
@@ -440,13 +465,17 @@
 /* 2026-08-10 "얼굴이 너무 밑에 있다 / 상체 보이도록".
    캔버스는 얼굴이 33.7% 에 있고 **위 8.6% 가 비어 있다**(neutral 6명 실측 8.6~17%).
    그 빈 여백만 위로 잘라 내면 얼굴이 원 안에서 16px 올라오고, 몸이 원 아래까지 찬다.
-   177 · −14 인 이유: 실루엣 7.9%~82%(=몸이 가장 짧은 보미 기준)를 원 140 에 담는 값이다.
-   ⚠ 더 잘라 올리면 코코 올림머리(8.6%)가 날아간다 — 여기가 한계다. */
+   ⚠ 더 잘라 올리면 코코 올림머리(5.5%)가 날아간다 — 여기가 한계다. */
+/* 2026-08-14 상반신 그림의 **직선 절단면이 원 안에 보였다**(사용자 지적).
+   실루엣 아래 끝은 캔버스 81.1%(보미) ~ 87.3%(바다) — 177 이면 보미가 129.5px 라
+   원 140 에 10px 못 미쳐 옷 밑단이 잘린 채 떠 보인다.
+   198 · −15 = 가장 짧은 보미도 145.6px 로 원 밖까지 내려가 절단면이 곡선에 가린다.
+   상한은 코코(머리 위 5.5%) — 198 에서 정수리가 4px 잘리는 게 한계다. */
 .mp-profile .ava img {
     display: block;
-    width: 177px;
-    height: 177px;
-    margin: -14px 0 0 -19px;    /* 가로 (177 − 140) / 2 */
+    width: 198px;
+    height: 198px;
+    margin: -15px 0 0 -29px;    /* 가로 (198 − 140) / 2 */
     object-fit: contain;
 }
 

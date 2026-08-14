@@ -11,6 +11,7 @@ import kopo.kkeudeok.util.EncryptUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -105,7 +106,7 @@ public class UserService implements IUserService {
         return success;
     }
 
-    /* ---------- 최초 1회 설정 ---------- */
+    /* ---------- 최초 1회 설정 (dev) ---------- */
 
     @Override
     public int updateParentPin(UserDTO pDTO) throws Exception {
@@ -120,10 +121,70 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public String getParentPin(UserDTO pDTO) throws Exception {
+        log.info("{}.getParentPin Start!", this.getClass().getName());
+
+        // 해시 자체는 로그에 남기지 않는다 — 4자리 숫자라 해시만 있어도 전수 대입으로 원본이 나온다.
+        return CmmUtil.nvl(userMapper.getParentPin(pDTO));
+    }
+
+    @Override
     public boolean hasChild(Long memberId) throws Exception {
         if (memberId == null) {
             return false;
         }
         return childMapper.selectChildByMember(memberId) != null;
+    }
+
+    /* ---------- 마이페이지 ---------- */
+
+    @Override
+    public UserDTO getUserInfo(UserDTO pDTO) throws Exception {
+        log.info("{}.getUserInfo Start!", this.getClass().getName());
+
+        UserDTO rDTO = userMapper.getUserInfo(pDTO);
+
+        // 이메일만 되돌린다. 비밀번호는 단방향 해시라 애초에 되돌릴 수 없고 조회하지도 않는다.
+        if (rDTO != null) {
+            rDTO.setEmail(EncryptUtil.decAES128CBC(CmmUtil.nvl(rDTO.getEmail())));
+        }
+
+        log.info("{}.getUserInfo End!", this.getClass().getName());
+        return rDTO;
+    }
+
+    @Override
+    public int updateUserInfo(UserDTO pDTO) throws Exception {
+        log.info("{}.updateUserInfo Start!", this.getClass().getName());
+
+        pDTO.setUpdatedAt(LocalDateTime.now());   // DB 시계를 믿지 않는다(insertUser 주석 참고)
+
+        int success = userMapper.updateUserInfo(pDTO);
+
+        log.info("{}.updateUserInfo End! success={}", this.getClass().getName(), success);
+        return success;
+    }
+
+    /**
+     * 계정 완전 삭제. DELETE 가 네 번 나가므로 하나라도 실패하면 전부 되돌려야 한다
+     * — 안 그러면 아이 기록만 지워지고 계정은 남는 반쪽 상태가 된다.
+     *
+     * ⚠ @Transactional 은 기본적으로 RuntimeException 에만 롤백한다.
+     *   이 메서드는 throws Exception(검사 예외)이라 rollbackFor 를 반드시 적어야 한다.
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int deleteUser(UserDTO pDTO) throws Exception {
+        log.info("{}.deleteUser Start! memberId={}", this.getClass().getName(), pDTO.getMemberId());
+
+        // 순서 = 외래키 순서. 바꾸면 FK 위반으로 실패한다(UserMapper.xml 주석 참고).
+        userMapper.deleteStorySessionByMember(pDTO);
+        userMapper.deleteStoryByMember(pDTO);
+        userMapper.deleteChildByMember(pDTO);
+
+        int success = userMapper.deleteUser(pDTO);
+
+        log.info("{}.deleteUser End! success={}", this.getClass().getName(), success);
+        return success;
     }
 }

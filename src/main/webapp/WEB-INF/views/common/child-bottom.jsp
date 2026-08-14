@@ -66,12 +66,16 @@
         </main>
     </div>
 </div>
-<%-- 순서가 규약이다.
-     story-session.js 가 window.kdStory.stage 를 먼저 정해야 kd-mediapipe.js 가
-     지금이 표정 화면인지 동작 화면인지 알 수 있다. 뒤집으면 인식이 아예 안 붙는다.
-     story.js 는 화면 동작(모달·낭독)이라 순서와 무관하다. --%>
-<script src="/js/story.js?v=220"></script>
-<script src="/js/story-session.js?v=220"></script>
-<script src="/js/kd-mediapipe.js?v=220"></script>
+<%-- 순서가 규약이다 — story-session.js 가 window.kdStory.stage 를 먼저 정해야
+     kd-mediapipe.js 가 지금이 표정 화면인지 동작 화면인지 알 수 있다.
+     뒤집으면 인식이 아예 안 붙는다.
+     ?v 는 양쪽(222·220)보다 큰 224 로 통일한다 — 병합 결과는 어느 쪽도 아닌 제3의 파일이다.
+
+     ⚠ 낭독 mp3(audio-map.js + static/audio/)는 이 PR 범위 밖이라 뺐다(2026-08-14).
+       story.js 는 window.KD_AUDIO 가 없으면 브라우저 낭독으로 되돌아가므로 소리는 계속 난다.
+       되살리려면 커밋 04902c6 에서 파일을 꺼내고 이 자리에 script 한 줄을 다시 넣으면 된다. --%>
+<script src="/js/story.js?v=224"></script>
+<script src="/js/story-session.js?v=224"></script>
+<script src="/js/kd-mediapipe.js?v=224"></script>
 </body>
 </html>
