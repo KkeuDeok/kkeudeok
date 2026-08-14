@@ -34,9 +34,14 @@ public class AuthApiController {
     private static final long CODE_VALID_MS = 3 * 60 * 1000L;
 
     private MsgDTO msg(int result, String text) {
+        return msg(result, text, null);
+    }
+
+    private MsgDTO msg(int result, String text, String field) {
         MsgDTO dto = new MsgDTO();
         dto.setResult(result);
         dto.setMsg(text);
+        dto.setField(field);
         return dto;
     }
 
@@ -59,7 +64,7 @@ public class AuthApiController {
             UserDTO rDTO = userService.getLogin(pDTO);
 
             if (rDTO == null) {
-                return msg(0, "아이디 또는 비밀번호를 확인해주세요.");
+                return msg(0, "아이디 또는 비밀번호를 확인해주세요.", "password");
             }
 
             session.setAttribute("SS_USER_ID", rDTO.getLoginId());
@@ -94,10 +99,10 @@ public class AuthApiController {
             boolean exists = "Y".equals(CmmUtil.nvl(userService.getEmailExists(pDTO).getExistsYn()));
 
             if ("signup".equals(kind) && exists) {
-                return msg(0, "이미 가입된 이메일입니다.");
+                return msg(0, "이미 가입된 이메일입니다.", "email");
             }
             if (!"signup".equals(kind) && !exists) {
-                return msg(0, "가입되지 않은 이메일입니다.");
+                return msg(0, "가입되지 않은 이메일입니다.", "email");
             }
 
             String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
@@ -112,11 +117,11 @@ public class AuthApiController {
 
         } catch (Exception e) {
             log.error("sendAuthCodeProc 실패", e);
-            return msg(2, "메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            return msg(2, "메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.", "email");
         }
     }
 
-    private String verifyAuthCode(String email, String authCode, HttpSession session) {
+    private String checkAuthCode(String email, String authCode, HttpSession session) {
         Object saved = session.getAttribute(SS_AUTH_CODE);
         Object savedEmail = session.getAttribute(SS_AUTH_EMAIL);
         Object expire = session.getAttribute(SS_AUTH_EXPIRE);
@@ -134,11 +139,13 @@ public class AuthApiController {
         if (!String.valueOf(saved).equals(authCode)) {
             return "인증번호가 일치하지 않습니다.";
         }
+        return null;
+    }
 
-        session.removeAttribute(SS_AUTH_CODE);      // 한 번 쓰면 폐기 — 재사용 방지
+    private void consumeAuthCode(HttpSession session) {
+        session.removeAttribute(SS_AUTH_CODE);
         session.removeAttribute(SS_AUTH_EMAIL);
         session.removeAttribute(SS_AUTH_EXPIRE);
-        return null;
     }
 
     /* ================================================================
@@ -154,11 +161,11 @@ public class AuthApiController {
 
             boolean exists = "Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()));
 
-            return exists ? msg(0, "이미 사용 중인 아이디입니다.")
-                          : msg(1, "사용할 수 있는 아이디입니다.");
+            return exists ? msg(0, "이미 사용 중인 아이디입니다.", "loginId")
+                          : msg(1, "사용할 수 있는 아이디입니다.", "loginId");
         } catch (Exception e) {
             log.error("checkLoginIdProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "loginId");
         }
     }
 
@@ -173,11 +180,6 @@ public class AuthApiController {
         log.info("{}.signupProc Start!", this.getClass().getName());
 
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
-            if (codeError != null) {
-                return msg(0, codeError);
-            }
-
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
             pDTO.setName(userName);
@@ -193,19 +195,27 @@ public class AuthApiController {
             pDTO.setAgreeMarketing(0);
 
             if ("Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()))) {
-                return msg(0, "이미 사용 중인 아이디입니다.");
+                return msg(0, "이미 사용 중인 아이디입니다.", "loginId");
             }
             if ("Y".equals(CmmUtil.nvl(userService.getEmailExists(pDTO).getExistsYn()))) {
-                return msg(0, "이미 가입된 이메일입니다.");
+                return msg(0, "이미 가입된 이메일입니다.", "email");
             }
 
-            return userService.insertUser(pDTO) == 1
-                    ? msg(1, "회원가입이 완료되었습니다.")
-                    : msg(0, "회원가입에 실패했습니다.");
+            String codeError = checkAuthCode(email, authCode, session);
+            if (codeError != null) {
+                return msg(0, codeError, "authCode");
+            }
+
+            if (userService.insertUser(pDTO) != 1) {
+                return msg(0, "회원가입에 실패했습니다.", "authCode");
+            }
+
+            consumeAuthCode(session);   // 가입이 끝난 뒤에야 폐기한다
+            return msg(1, "회원가입이 완료되었습니다.");
 
         } catch (Exception e) {
             log.error("signupProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
@@ -219,9 +229,9 @@ public class AuthApiController {
                              @RequestParam String authCode,
                              HttpSession session) {
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
+            String codeError = checkAuthCode(email, authCode, session);
             if (codeError != null) {
-                return msg(0, codeError);
+                return msg(0, codeError, "authCode");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -230,17 +240,19 @@ public class AuthApiController {
 
             UserDTO rDTO = userService.getFindId(pDTO);
 
+            // 이름이 틀렸을 뿐일 수 있다 — 인증번호는 살려 둬야 이름만 고쳐 다시 누른다.
             if (rDTO == null) {
-                return msg(0, "일치하는 회원 정보가 없습니다.");
+                return msg(0, "일치하는 회원 정보가 없습니다.", "userName");
             }
 
             session.setAttribute(SS_FOUND_ID, CmmUtil.nvl(rDTO.getLoginId()));
 
+            consumeAuthCode(session);
             return msg(1, "아이디를 찾았습니다.");
 
         } catch (Exception e) {
             log.error("findIdProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
@@ -254,9 +266,9 @@ public class AuthApiController {
                              @RequestParam String authCode,
                              HttpSession session) {
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
+            String codeError = checkAuthCode(email, authCode, session);
             if (codeError != null) {
-                return msg(0, codeError);
+                return msg(0, codeError, "authCode");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -265,16 +277,17 @@ public class AuthApiController {
             UserDTO rDTO = userService.getFindPwUser(pDTO);
 
             if (rDTO == null) {
-                return msg(0, "일치하는 회원 정보가 없습니다.");
+                return msg(0, "일치하는 회원 정보가 없습니다.", "email");
             }
 
             session.setAttribute(SS_PW_RESET_ID, rDTO.getLoginId());
 
+            consumeAuthCode(session);
             return msg(1, "본인 확인이 완료되었습니다.");
 
         } catch (Exception e) {
             log.error("findPwProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
@@ -285,7 +298,7 @@ public class AuthApiController {
             String loginId = CmmUtil.nvl((String) session.getAttribute(SS_PW_RESET_ID));
 
             if (loginId.isEmpty()) {
-                return msg(0, "비정상적인 접근입니다. 처음부터 다시 진행해 주세요.");
+                return msg(0, "비정상적인 접근입니다. 처음부터 다시 진행해 주세요.", "newPassword");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -293,7 +306,7 @@ public class AuthApiController {
             pDTO.setPassword(EncryptUtil.encHashSHA256(newPassword));
 
             if (userService.newPasswordProc(pDTO) < 1) {
-                return msg(0, "비밀번호 변경에 실패했습니다.");
+                return msg(0, "비밀번호 변경에 실패했습니다.", "newPassword");
             }
 
             session.removeAttribute(SS_PW_RESET_ID);   // 한 번 쓰면 폐기

@@ -12,4 +12,6 @@ public class MsgDTO {
 
     /** 화면에 그대로 보여 줄 메시지 */
     private String msg;
+
+    private String field;
 }
