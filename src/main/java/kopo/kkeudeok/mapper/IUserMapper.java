@@ -35,8 +35,11 @@ public interface IUserMapper {
 
     /* ---------- 최초 1회 설정 (dev) ---------- */
 
-    /** 보호자 PIN 설정(최초 1회) */
+    /** 보호자 PIN 설정(최초 1회 + 재설정) */
     int updateParentPin(UserDTO pDTO) throws Exception;
+
+    /** 저장된 보호자 PIN 해시. 아직 안 만들었으면 null */
+    String getParentPin(UserDTO pDTO) throws Exception;
 
     /* ---------- 마이페이지 ---------- */
 

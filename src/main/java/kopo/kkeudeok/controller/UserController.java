@@ -234,18 +234,55 @@ public class UserController {
 
     /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
 
+    /**
+     * 보호자 확인(게이트).
+     *
+     * 잠금이 걸려 있으면 남은 시간을 화면에 같이 넘긴다 — 새로고침해도 잠금이 보여야 한다.
+     * 남은 시간을 화면이 스스로 계산하면 시계를 돌려 풀 수 있으므로 서버 값만 쓴다.
+     */
     @GetMapping("/mypage")
-    public String mypage() {
+    public String mypage(HttpSession session, ModelMap model) {
+        model.addAttribute("pinLockLeft", AuthApiController.pinLockLeft(session));
         return "mypage/gate";
     }
 
+    /**
+     * 게이트를 통과했는지. 안 했으면 게이트로 돌려보낸다.
+     *
+     * 전에는 게이트 통과 여부가 화면 JS 안에만 있어서 /mypage/account 를 주소창에 직접 치면
+     * PIN 을 한 번도 안 넣고 들어갈 수 있었다. 표는 세션에 있고 로그아웃하면 같이 사라진다.
+     *
+     * ponytail: 표에 만료가 없다 — 한 번 통과하면 그 세션 동안 유지된다.
+     *   자리를 비운 사이 아이가 여는 걸 막으려면 통과 시각을 같이 저장해 n분 뒤 다시 묻게 하면 된다.
+     */
+    private boolean pinPassed(HttpSession session) {
+        return Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_OK));
+    }
+
+    /** PIN 재설정 1단계. 인증번호를 받을 이메일은 계정에서 가져온다(화면에 박아 두지 않는다) */
     @GetMapping("/mypage/pin-reset")
-    public String mypagePinReset() {
+    public String mypagePinReset(HttpSession session, ModelMap model) throws Exception {
+
+        UserDTO pDTO = new UserDTO();
+        pDTO.setLoginId(CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")));
+
+        UserDTO rDTO = userService.getUserInfo(pDTO);   // 이메일은 서비스가 복호화해 준다
+
+        if (rDTO == null) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        model.addAttribute("myEmail", CmmUtil.nvl(rDTO.getEmail()));
         return "mypage/pin-reset";
     }
 
+    /** PIN 재설정 2단계 — 1단계 표가 없으면 열지 않는다(주소만 쳐서 새 PIN 을 정하는 것을 막는다) */
     @GetMapping("/mypage/pin-reset/new")
-    public String mypagePinResetNew() {
+    public String mypagePinResetNew(HttpSession session) {
+        if (!Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_RESET_OK))) {
+            return "redirect:/mypage/pin-reset";
+        }
         return "mypage/pin-reset-new";
     }
 
@@ -258,6 +295,10 @@ public class UserController {
      */
     @GetMapping("/mypage/account")
     public String mypageAccount(HttpSession session, ModelMap model) throws Exception {
+
+        if (!pinPassed(session)) {
+            return "redirect:/mypage";
+        }
 
         UserDTO pDTO = new UserDTO();
         pDTO.setLoginId(CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")));
@@ -277,6 +318,10 @@ public class UserController {
     @GetMapping("/mypage/child")
     public String mypageChild(HttpSession session, ModelMap model) throws Exception {
 
+        if (!pinPassed(session)) {
+            return "redirect:/mypage";
+        }
+
         Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
 
         if (memberId != null) {
@@ -295,6 +340,10 @@ public class UserController {
 
     @GetMapping("/mypage/character")
     public String mypageCharacter(HttpSession session, ModelMap model) throws Exception {
+
+        if (!pinPassed(session)) {
+            return "redirect:/mypage";
+        }
 
         // 바로 위의 /mypage/child 와 동일하게 세션에서 회원 ID(memberId)를 안전하게 꺼냅니다.
         Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
