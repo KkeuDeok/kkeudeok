@@ -70,8 +70,8 @@
      story-session.js 가 window.kdStory.stage 를 먼저 정해야 kd-mediapipe.js 가
      지금이 표정 화면인지 동작 화면인지 알 수 있다. 뒤집으면 인식이 아예 안 붙는다.
      story.js 는 화면 동작(모달·낭독)이라 순서와 무관하다. --%>
-<script src="/js/story.js?v=220"></script>
-<script src="/js/story-session.js?v=220"></script>
-<script src="/js/kd-mediapipe.js?v=220"></script>
+<script src="/js/story.js?v=221"></script>
+<script src="/js/story-session.js?v=221"></script>
+<script src="/js/kd-mediapipe.js?v=221"></script>
 </body>
 </html>

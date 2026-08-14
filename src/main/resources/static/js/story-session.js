@@ -444,10 +444,12 @@
             try { speechSynthesis.cancel(); } catch (e) { }
             injectWaitStyle();
             main.classList.add('kd-waiting');
+            dots(main, true);
             return;
         }
 
         main.classList.remove('kd-waiting');
+        dots(main, false);
 
         /* 도착했으니 이제 읽어 준다 — [다시 들려줘] 를 눌러 story.js 의 낭독을 그대로 쓴다.
            ⚠ 브라우저 자동재생 정책에 막히면 조용히 넘어간다. 그때는 아이가 화면을
@@ -456,6 +458,27 @@
         if (btn) {
             setTimeout(function () { btn.click(); }, 150);
         }
+    }
+
+    /* 기다리는 동안 점 세 개.
+       글자를 다 감춰 두면 10초 동안 화면이 멈춘 것처럼 보인다 — 아이도 보호자도
+       "고장 났나?" 하고 뒤로 나가 버린다. 글자가 있던 자리(title 454)에 점만 놓아
+       '지금 만드는 중' 을 보여 준다. 글씨를 다시 넣지 않는 이유는 2026-08-14 판단과 같다.
+       ⚠ 점은 왔다갔다 튀지 않고 차례로 숨쉬듯 밝아지기만 한다 — 아이 화면 원칙(예측 가능). */
+    function dots(main, on) {
+        var el = main.querySelector('.kd-wait-dots');
+
+        if (!on) {
+            if (el) el.remove();
+            return;
+        }
+        if (el) return;
+
+        el = document.createElement('div');
+        el.className = 'kd-wait-dots';
+        el.setAttribute('aria-hidden', 'true');   /* 읽어 줄 내용이 아니다 */
+        el.innerHTML = '<i></i><i></i><i></i>';
+        main.appendChild(el);
     }
 
     function injectWaitStyle() {
@@ -469,7 +492,21 @@
                큰 글씨로 떠서 화면이 어수선했고, 어차피 배경과 캐릭터는 이미 그려져 있어
                잠깐 조용히 기다리는 편이 낫다. 자리를 남기는 규칙은 그대로 둔다. */
             '.child-main.kd-waiting .story-title,.child-main.kd-waiting .story-sub,' +
-            '.child-main.kd-waiting .story-ask,.child-main.kd-waiting .story-cta{opacity:0}';
+            '.child-main.kd-waiting .story-ask,.child-main.kd-waiting .story-cta{opacity:0}' +
+
+            /* 점 세 개 — 제목 자리(454)에 맞춘 디자인 좌표. 색은 학습 흐름 주색을 그대로 쓴다. */
+            '.kd-wait-dots{position:absolute;left:0;top:468px;width:100%;' +
+            'display:flex;justify-content:center;gap:16px;pointer-events:none}' +
+            '.kd-wait-dots i{width:16px;height:16px;border-radius:50%;' +
+            'background:var(--kd-primary);opacity:.25;' +
+            'animation:kd-wait-dot 1.5s ease-in-out infinite}' +
+            '.kd-wait-dots i:nth-child(2){animation-delay:.25s}' +
+            '.kd-wait-dots i:nth-child(3){animation-delay:.5s}' +
+            '@keyframes kd-wait-dot{0%,100%{opacity:.25}50%{opacity:1}}' +
+
+            /* 움직임을 줄여 달라고 한 기기에서는 켜져만 있게 둔다 */
+            '@media (prefers-reduced-motion:reduce){' +
+            '.kd-wait-dots i{animation:none;opacity:.6}}';
 
         document.head.appendChild(st);
     }
