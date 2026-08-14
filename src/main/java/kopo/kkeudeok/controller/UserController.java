@@ -3,6 +3,7 @@ package kopo.kkeudeok.controller;
 import java.util.Set;
 
 import jakarta.servlet.http.HttpSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -10,8 +11,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
+import kopo.kkeudeok.dto.ProfileDTO;
+import kopo.kkeudeok.service.IProfileService;
+import kopo.kkeudeok.util.SessionKeys; // SessionKeys import 추가 완료!
+
 @Controller
 public class UserController {
+
+    @Autowired
+    private IProfileService profileService;
 
     @GetMapping("/")
     public String root() {
@@ -194,8 +202,23 @@ public class UserController {
         return "mypage/account";
     }
 
+    // 아이 정보 조회 로직 - SessionKeys를 사용하여 숫자형(Long) 아이디를 안전하게 가져옵니다.
     @GetMapping("/mypage/child")
-    public String mypageChild() {
+    public String mypageChild(HttpSession session, ModelMap model) throws Exception {
+
+        Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+        if (memberId != null) {
+            ProfileDTO pDTO = new ProfileDTO();
+            pDTO.setMemberId(memberId);
+
+            // DB에서 아이 정보 가져오기
+            ProfileDTO child = profileService.getProfile(pDTO);
+
+            // JSP 화면에서 쓸 수 있도록 'child'라는 이름표를 붙여서 넘겨주기
+            model.addAttribute("child", child);
+        }
+
         return "mypage/child";
     }
 
