@@ -31,6 +31,14 @@ public interface IUserService {
     /** 비밀번호 재설정 — 바뀐 행 수 */
     int newPasswordProc(UserDTO pDTO) throws Exception;
 
+    /* ---------- 최초 1회 설정 (dev) ---------- */
+
+    /** 보호자 PIN 저장 — 바뀐 행 수 */
+    int updateParentPin(UserDTO pDTO) throws Exception;
+
+    /** 이 보호자가 아이를 등록했는지(= 온보딩을 마쳤는지) */
+    boolean hasChild(Long memberId) throws Exception;
+
     /* ---------- 마이페이지 ---------- */
 
     /**

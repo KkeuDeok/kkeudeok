@@ -133,6 +133,36 @@ class UserMapperTest {
         assertThat(userMapper.getLogin(pDTO)).isNull();
     }
 
+    /**
+     * 보호자 PIN 은 로그인 직후 "최초 1회"를 판단하는 근거다.
+     * getLogin 이 parent_pin 을 안 가져오면 이미 만든 사람도 매번 다시 만들게 된다.
+     */
+    @Test
+    @DisplayName("보호자 PIN 을 저장하면 로그인 조회에 딸려 나온다")
+    void updateParentPinThenReadBack() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        UserDTO login = new UserDTO();
+        login.setLoginId(LOGIN_ID);
+        login.setPassword(EncryptUtil.encHashSHA256(RAW_PW));
+
+        UserDTO before = userMapper.getLogin(login);
+        assertThat(before).isNotNull();
+        assertThat(before.getParentPin()).as("가입 직후에는 PIN 이 없다").isNull();
+
+        UserDTO upd = new UserDTO();
+        upd.setMemberId(before.getMemberId());
+        upd.setParentPin(EncryptUtil.encHashSHA256("1234"));
+        upd.setUpdatedAt(LocalDateTime.now());
+
+        assertThat(userMapper.updateParentPin(upd)).isEqualTo(1);
+
+        UserDTO after = userMapper.getLogin(login);
+        assertThat(after.getParentPin())
+                .as("저장한 PIN 해시가 그대로 나와야 한다")
+                .isEqualTo(EncryptUtil.encHashSHA256("1234"));
+    }
+
     @Test
     @DisplayName("이름·이메일로 아이디를 찾는다 (이메일은 암호문으로 대조)")
     void findIdByNameAndEmail() throws Exception {

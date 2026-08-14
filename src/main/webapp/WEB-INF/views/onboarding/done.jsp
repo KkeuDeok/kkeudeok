@@ -9,11 +9,16 @@
       예전엔 sessionStorage.kdStage 에 '0' 을 박았는데, 그건 head.jsp 의 **시연 스위치**라
       그 탭에서 학습을 몇 번 해도 계산이 통째로 무시됐다(2026-08-10 지적의 직접 원인).
       해제는 주소에 ?stage=2 (head.jsp 스위치). 위 경고대로 여기는 자바 주석이어야 한다. */
-   String onbNext = "localStorage.setItem('kdDone','0');"
+   /* 2026-08-12: 여기서 서버에 아이를 등록한다(kd-onboarding.js).
+      등록이 끝나야 로드맵이 생겨 대시보드 카드가 채워지므로, 이동은 그다음이다.
+      실패해도 넘어간다 — 대시보드가 막히면 안 된다. */
+   String onbNext = "kdOnbSubmit(function(){"
+                  + "localStorage.setItem('kdDone','0');"
                   + "sessionStorage.removeItem('kdStage');"
                   + "sessionStorage.removeItem('kdDaily');"
                   + "sessionStorage.removeItem('kdCounted');"
-                  + "location.href='/dashboard'"; %>
+                  + "location.href='/dashboard';"
+                  + "})"; %>
 <%@ include file="../common/onb-top.jsp" %>
 <% onbPrev = false; onbNextLabel = "대시보드로 가기"; %>
 

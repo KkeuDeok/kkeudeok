@@ -9,21 +9,13 @@ import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
 import kopo.kkeudeok.util.CmmUtil;
 import kopo.kkeudeok.util.EncryptUtil;
+import kopo.kkeudeok.util.SessionKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 로그인 · 회원가입 · 아이디찾기 · 비밀번호찾기의 POST 처리를 모두 담당한다.
- * 응답은 전부 {@link MsgDTO} JSON 이고, 화면 이동은 auth-validate.js 가 결정한다.
- *
- * 저장·조회 규칙 (⚠ 어기면 조회가 안 맞는다)
- *  - password : EncryptUtil.encHashSHA256 로 해시해서 넣고, 같은 해시로 찾는다.
- *  - email    : EncryptUtil.encAES128CBC 로 암호화해서 넣고, 같은 암호문으로 찾는다.
- *               메일을 보낼 때만 decAES128CBC 로 되돌린다.
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -32,25 +24,27 @@ public class AuthApiController {
     private final IUserService userService;
     private final IMailService mailService;
 
-    /* 인증번호 관련 세션 키 — SS_ 는 Session 을 뜻하는 강의 규칙. */
     private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
     private static final String SS_AUTH_EMAIL = "SS_AUTH_EMAIL";
     private static final String SS_AUTH_EXPIRE = "SS_AUTH_EXPIRE";
 
-    /** 아이디찾기 결과 — 결과 화면에서 한 번 읽고 지운다. */
     public static final String SS_FOUND_ID = "SS_FOUND_ID";
 
-    /** 비밀번호 재설정 허가 — 인증을 통과한 회원의 login_id 가 들어 있다. */
+    public static final String SS_PIN_SET = "SS_PIN_SET";
+
     private static final String SS_PW_RESET_ID = "SS_PW_RESET_ID";
 
-    /** 인증번호 유효시간 3분 — 화면 타이머(180초)와 같은 값이어야 한다. */
     private static final long CODE_VALID_MS = 3 * 60 * 1000L;
 
-    /** MsgDTO 를 만드는 짧은 도우미. new + set 2줄이 계속 반복돼서 뺐다. */
     private MsgDTO msg(int result, String text) {
+        return msg(result, text, null);
+    }
+
+    private MsgDTO msg(int result, String text, String field) {
         MsgDTO dto = new MsgDTO();
         dto.setResult(result);
         dto.setMsg(text);
+        dto.setField(field);
         return dto;
     }
 
@@ -73,13 +67,17 @@ public class AuthApiController {
             UserDTO rDTO = userService.getLogin(pDTO);
 
             if (rDTO == null) {
-                return msg(0, "아이디 또는 비밀번호를 확인해주세요.");
+                return msg(0, "아이디 또는 비밀번호를 확인해주세요.", "password");
             }
 
             session.setAttribute("SS_USER_ID", rDTO.getLoginId());
             session.setAttribute("SS_USER_NAME", rDTO.getName());
+            session.setAttribute(SessionKeys.MEMBER_ID, rDTO.getMemberId());
+            session.setAttribute(SS_PIN_SET, !CmmUtil.nvl(rDTO.getParentPin()).isEmpty());
 
-            return msg(1, "환영합니다.");
+            MsgDTO res = msg(1, "환영합니다.");
+            res.setNext(nextStep(rDTO));
+            return res;
 
         } catch (Exception e) {
             log.error("loginProc 실패", e);
@@ -93,16 +91,52 @@ public class AuthApiController {
         return msg(1, "로그아웃되었습니다.");
     }
 
+    private String nextStep(UserDTO member) throws Exception {
+        if (CmmUtil.nvl(member.getParentPin()).isEmpty()) {
+            return "/onboarding/pin";
+        }
+        if (!userService.hasChild(member.getMemberId())) {
+            return "/onboarding/start";
+        }
+        return "/dashboard";
+    }
+
+    @PostMapping("/parentPinProc")
+    public MsgDTO parentPinProc(@RequestParam String pin, HttpSession session) {
+        try {
+            Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+            if (memberId == null) {
+                return msg(0, "로그인이 필요합니다.", "pin");
+            }
+            if (!pin.matches("\\d{4}")) {
+                return msg(0, "PIN 은 숫자 4자리여야 합니다.", "pin");
+            }
+
+            UserDTO pDTO = new UserDTO();
+            pDTO.setMemberId(memberId);
+            pDTO.setParentPin(EncryptUtil.encHashSHA256(pin));
+
+            if (userService.updateParentPin(pDTO) < 1) {
+                return msg(0, "PIN 저장에 실패했습니다.", "pin");
+            }
+
+            session.setAttribute(SS_PIN_SET, true);
+
+            MsgDTO res = msg(1, "보호자 PIN 이 설정되었습니다.");
+            res.setNext(userService.hasChild(memberId) ? "/dashboard" : "/onboarding/start");
+            return res;
+
+        } catch (Exception e) {
+            log.error("parentPinProc 실패", e);
+            return msg(2, "시스템 오류가 발생했습니다.", "pin");
+        }
+    }
+
     /* ================================================================
      * 인증번호 — 회원가입 · 아이디찾기 · 비밀번호찾기 공통
      * ================================================================ */
 
-    /**
-     * 인증번호를 만들어 메일로 보내고, 정답은 세션에 적어 둔다.
-     *
-     * @param kind signup | findId | findPw — 가입 여부 검사 방향이 반대라 나눠 본다.
-     *             회원가입은 "이미 있으면" 막고, 찾기는 "없으면" 막는다.
-     */
     @PostMapping("/sendAuthCodeProc")
     public MsgDTO sendAuthCodeProc(@RequestParam String email,
                                    @RequestParam(defaultValue = "signup") String kind,
@@ -114,40 +148,29 @@ public class AuthApiController {
             boolean exists = "Y".equals(CmmUtil.nvl(userService.getEmailExists(pDTO).getExistsYn()));
 
             if ("signup".equals(kind) && exists) {
-                return msg(0, "이미 가입된 이메일입니다.");
+                return msg(0, "이미 가입된 이메일입니다.", "email");
             }
             if (!"signup".equals(kind) && !exists) {
-                return msg(0, "가입되지 않은 이메일입니다.");
+                return msg(0, "가입되지 않은 이메일입니다.", "email");
             }
 
-            // 000000 ~ 999999 중 하나. 앞자리가 0이어도 6자리가 되도록 %06d 로 채운다.
             String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
 
-            // 정답은 서버(세션)에만 둔다. 화면에 내려보내면 검사할 이유가 없어진다.
-            // 메일보다 먼저 적어 둔다 — 메일이 늦게 도착해도 입력은 이미 받을 수 있어야 한다.
             session.setAttribute(SS_AUTH_CODE, code);
             session.setAttribute(SS_AUTH_EMAIL, email);
             session.setAttribute(SS_AUTH_EXPIRE, System.currentTimeMillis() + CODE_VALID_MS);
 
-            // 발송은 뒤에서 돌린다 — SMTP 를 기다리면 입력칸이 1~3초 늦게 뜬다.
-            // 대신 발송 실패를 화면에 알려 줄 수 없다(로그로만 남는다).
             mailService.sendAuthCode(email, code);
 
             return msg(1, "인증번호를 보냈습니다. 메일함을 확인해 주세요.");
 
         } catch (Exception e) {
             log.error("sendAuthCodeProc 실패", e);
-            return msg(2, "메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            return msg(2, "메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.", "email");
         }
     }
 
-    /**
-     * 세션에 적어 둔 인증번호와 대조. 통과하면 한 번 쓰고 지운다.
-     * 화면(JS)에서도 검사하지만 그건 사용자 편의일 뿐 — 개발자도구로 우회되므로 서버가 다시 본다.
-     *
-     * @return null 이면 통과, 아니면 화면에 보여 줄 오류 메시지
-     */
-    private String verifyAuthCode(String email, String authCode, HttpSession session) {
+    private String checkAuthCode(String email, String authCode, HttpSession session) {
         Object saved = session.getAttribute(SS_AUTH_CODE);
         Object savedEmail = session.getAttribute(SS_AUTH_EMAIL);
         Object expire = session.getAttribute(SS_AUTH_EXPIRE);
@@ -165,11 +188,13 @@ public class AuthApiController {
         if (!String.valueOf(saved).equals(authCode)) {
             return "인증번호가 일치하지 않습니다.";
         }
+        return null;
+    }
 
-        session.removeAttribute(SS_AUTH_CODE);      // 한 번 쓰면 폐기 — 재사용 방지
+    private void consumeAuthCode(HttpSession session) {
+        session.removeAttribute(SS_AUTH_CODE);
         session.removeAttribute(SS_AUTH_EMAIL);
         session.removeAttribute(SS_AUTH_EXPIRE);
-        return null;
     }
 
     /* ================================================================
@@ -185,11 +210,11 @@ public class AuthApiController {
 
             boolean exists = "Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()));
 
-            return exists ? msg(0, "이미 사용 중인 아이디입니다.")
-                          : msg(1, "사용할 수 있는 아이디입니다.");
+            return exists ? msg(0, "이미 사용 중인 아이디입니다.", "loginId")
+                          : msg(1, "사용할 수 있는 아이디입니다.", "loginId");
         } catch (Exception e) {
             log.error("checkLoginIdProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "loginId");
         }
     }
 
@@ -204,21 +229,12 @@ public class AuthApiController {
         log.info("{}.signupProc Start!", this.getClass().getName());
 
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
-            if (codeError != null) {
-                return msg(0, codeError);
-            }
-
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
             pDTO.setName(userName);
-            // 비밀번호는 절대 복호화되지 않도록 해시로만 저장한다.
             pDTO.setPassword(EncryptUtil.encHashSHA256(password));
-            // 민감정보인 이메일은 AES-128-CBC 로 암호화해 저장한다.
             pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
-            // 필수 약관 3종은 1단계(signup-terms)를 통과해야 여기 올 수 있으므로 동의로 기록한다.
-            // 선택 항목은 아직 값을 넘겨받는 화면이 없어 DB 기본값과 같은 값을 그대로 쓴다.
             // TODO signup-terms 에서 실제 체크값(특히 agree_marketing)을 넘겨받도록 바꿀 것.
             pDTO.setAgreeService(1);
             pDTO.setAgreePrivacy(1);
@@ -227,21 +243,28 @@ public class AuthApiController {
             pDTO.setNotifyReminder(1);
             pDTO.setAgreeMarketing(0);
 
-            // 마지막 방어선 — 화면에서 중복 확인을 건너뛰고 바로 쏠 수 있다.
             if ("Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()))) {
-                return msg(0, "이미 사용 중인 아이디입니다.");
+                return msg(0, "이미 사용 중인 아이디입니다.", "loginId");
             }
             if ("Y".equals(CmmUtil.nvl(userService.getEmailExists(pDTO).getExistsYn()))) {
-                return msg(0, "이미 가입된 이메일입니다.");
+                return msg(0, "이미 가입된 이메일입니다.", "email");
             }
 
-            return userService.insertUser(pDTO) == 1
-                    ? msg(1, "회원가입이 완료되었습니다.")
-                    : msg(0, "회원가입에 실패했습니다.");
+            String codeError = checkAuthCode(email, authCode, session);
+            if (codeError != null) {
+                return msg(0, codeError, "authCode");
+            }
+
+            if (userService.insertUser(pDTO) != 1) {
+                return msg(0, "회원가입에 실패했습니다.", "authCode");
+            }
+
+            consumeAuthCode(session);   // 가입이 끝난 뒤에야 폐기한다
+            return msg(1, "회원가입이 완료되었습니다.");
 
         } catch (Exception e) {
             log.error("signupProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
@@ -255,9 +278,9 @@ public class AuthApiController {
                              @RequestParam String authCode,
                              HttpSession session) {
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
+            String codeError = checkAuthCode(email, authCode, session);
             if (codeError != null) {
-                return msg(0, codeError);
+                return msg(0, codeError, "authCode");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -266,24 +289,24 @@ public class AuthApiController {
 
             UserDTO rDTO = userService.getFindId(pDTO);
 
+            // 이름이 틀렸을 뿐일 수 있다 — 인증번호는 살려 둬야 이름만 고쳐 다시 누른다.
             if (rDTO == null) {
-                return msg(0, "일치하는 회원 정보가 없습니다.");
+                return msg(0, "일치하는 회원 정보가 없습니다.", "userName");
             }
 
-            // 메일 인증을 통과한 본인이므로 아이디를 가리지 않고 그대로 보여 준다.
-            // 결과는 세션으로 넘긴다 — 주소창에 실으면 방문 기록·리퍼러에 남는다.
             session.setAttribute(SS_FOUND_ID, CmmUtil.nvl(rDTO.getLoginId()));
 
+            consumeAuthCode(session);
             return msg(1, "아이디를 찾았습니다.");
 
         } catch (Exception e) {
             log.error("findIdProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
     /* ================================================================
-     * 비밀번호 찾기 — 1) 메일 인증  2) 새 비밀번호 저장
+     * 비밀번호 찾기 - 1) 메일 인증  2) 새 비밀번호 저장
      * ================================================================ */
 
     /** 1단계: 메일 인증이 끝나면 재설정 화면으로 갈 수 있는 표를 세션에 끊어 준다. */
@@ -292,9 +315,9 @@ public class AuthApiController {
                              @RequestParam String authCode,
                              HttpSession session) {
         try {
-            String codeError = verifyAuthCode(email, authCode, session);
+            String codeError = checkAuthCode(email, authCode, session);
             if (codeError != null) {
-                return msg(0, codeError);
+                return msg(0, codeError, "authCode");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -303,17 +326,17 @@ public class AuthApiController {
             UserDTO rDTO = userService.getFindPwUser(pDTO);
 
             if (rDTO == null) {
-                return msg(0, "일치하는 회원 정보가 없습니다.");
+                return msg(0, "일치하는 회원 정보가 없습니다.", "email");
             }
 
-            // 이 표가 있어야만 새 비밀번호를 저장할 수 있다(주소만 쳐서 들어오는 것 차단).
             session.setAttribute(SS_PW_RESET_ID, rDTO.getLoginId());
 
+            consumeAuthCode(session);
             return msg(1, "본인 확인이 완료되었습니다.");
 
         } catch (Exception e) {
             log.error("findPwProc 실패", e);
-            return msg(2, "시스템 오류가 발생했습니다.");
+            return msg(2, "시스템 오류가 발생했습니다.", "authCode");
         }
     }
 
@@ -324,7 +347,7 @@ public class AuthApiController {
             String loginId = CmmUtil.nvl((String) session.getAttribute(SS_PW_RESET_ID));
 
             if (loginId.isEmpty()) {
-                return msg(0, "비정상적인 접근입니다. 처음부터 다시 진행해 주세요.");
+                return msg(0, "비정상적인 접근입니다. 처음부터 다시 진행해 주세요.", "newPassword");
             }
 
             UserDTO pDTO = new UserDTO();
@@ -332,7 +355,7 @@ public class AuthApiController {
             pDTO.setPassword(EncryptUtil.encHashSHA256(newPassword));
 
             if (userService.newPasswordProc(pDTO) < 1) {
-                return msg(0, "비밀번호 변경에 실패했습니다.");
+                return msg(0, "비밀번호 변경에 실패했습니다.", "newPassword");
             }
 
             // 비밀번호를 바꾸면 로그인 상태를 끊는다(2026-08-14 사용자 확정).

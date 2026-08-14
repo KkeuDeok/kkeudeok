@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<!-- namespace = 짝이 되는 자바 인터페이스의 전체 이름. id = 그 인터페이스의 메서드명.
-     ⚠ 둘 중 하나라도 어긋나면 기동할 때 BindingException 이 난다.
-     컬럼은 snake_case, DTO 는 camelCase — application.properties 의
-     mybatis.configuration.map-underscore-to-camel-case=true 가 이어 준다. -->
 <mapper namespace="kopo.kkeudeok.mapper.IUserMapper">
 
-    <!-- ================= 회원가입 ================= -->
-
-    <!-- 아이디 중복 확인.
-         ⚠ MariaDB 의 IF() 대신 CASE WHEN 을 쓴다 — IF() 는 표준이 아니라
-            테스트가 도는 H2 에서 문법 오류가 난다(2026-08-13에 실제로 깨졌다). -->
     <select id="getLoginIdExists" parameterType="UserDTO" resultType="UserDTO">
         SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
         FROM member
@@ -19,7 +10,6 @@
           AND deleted_at IS NULL
     </select>
 
-    <!-- 이메일 중복 확인 — email 은 AES 암호문으로 들어온다 -->
     <select id="getEmailExists" parameterType="UserDTO" resultType="UserDTO">
         SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
         FROM member
@@ -27,14 +17,6 @@
           AND deleted_at IS NULL
     </select>
 
-    <!-- 회원 저장. 컬럼은 실제 MariaDB 스키마 기준(2026-08-13 information_schema 확인).
-         넣지 않는 컬럼은 DB 기본값으로 채워진다
-           · parent_pin·phone·relation → NULL (온보딩·마이페이지에서 나중에 채운다)
-           · created_at·updated_at     → CURRENT_TIMESTAMP
-         ⚠ email 에 uq_member_email UNIQUE 가 걸려 있다. AES 는 IV 가 고정이라 같은 주소가
-           항상 같은 암호문이 되므로 중복이 제대로 걸린다.
-         ⚠ 시각은 NOW() 가 아니라 앱에서 받은 값을 쓴다 — VM 의 DB 시계가 어긋나 있다
-           (UserService.insertUser 주석 참고). -->
     <insert id="insertUser" parameterType="UserDTO">
         INSERT INTO member (
             login_id,
@@ -67,19 +49,14 @@
         )
     </insert>
 
-    <!-- ================= 로그인 · 아이디 찾기 ================= -->
-
-    <!-- 아이디·비밀번호가 맞는 회원 1명. 없으면 null.
-         password 는 EncryptUtil.encHashSHA256 을 거친 해시로 들어온다. -->
     <select id="getLogin" parameterType="UserDTO" resultType="UserDTO">
-        SELECT member_id, login_id, name, email
+        SELECT member_id, login_id, name, email, parent_pin
         FROM member
         WHERE login_id = #{loginId}
           AND password = #{password}
           AND deleted_at IS NULL
     </select>
 
-    <!-- 이름·이메일이 맞는 회원 1명. email 은 AES 암호문. -->
     <select id="getFindId" parameterType="UserDTO" resultType="UserDTO">
         SELECT member_id, login_id, name, email
         FROM member
@@ -88,10 +65,6 @@
           AND deleted_at IS NULL
     </select>
 
-    <!-- ================= 비밀번호 찾기 ================= -->
-
-    <!-- 화면(find-pw-email.jsp)이 이메일만 받으므로 이메일로만 찾는다.
-         메일 인증을 통과해야 여기까지 오므로 본인 확인은 끝난 상태다. -->
     <select id="getFindPwUser" parameterType="UserDTO" resultType="UserDTO">
         SELECT member_id, login_id, name, email
         FROM member
@@ -99,8 +72,14 @@
           AND deleted_at IS NULL
     </select>
 
-    <!-- updated_at 은 ON UPDATE CURRENT_TIMESTAMP 라 두면 DB 가 알아서 올리지만,
-         그 시계가 어긋나 있어 앱에서 받은 값으로 덮어쓴다. -->
+    <update id="updateParentPin" parameterType="UserDTO">
+        UPDATE member
+        SET parent_pin = #{parentPin},
+            updated_at = #{updatedAt}
+        WHERE member_id = #{memberId}
+          AND deleted_at IS NULL
+    </update>
+
     <update id="updatePassword" parameterType="UserDTO">
         UPDATE member
         SET password   = #{password},

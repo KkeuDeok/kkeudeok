@@ -1,11 +1,63 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="java.time.Year" %>
+<%@ page import="java.time.LocalDate" %>
+<%@ page import="java.time.Period" %>
+<%@ page import="kopo.kkeudeok.dto.ProfileDTO" %>
+<%@ page import="java.time.LocalDateTime" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "child"; %>
 <%@ include file="../common/app-top.jsp" %>
 
-<%-- Figma 24:15283. 폼 마크업은 온보딩 child-profile.jsp 를 그대로 가져왔다.
-     ⚠ 사이드바는 "지우 · 6세", 여기는 Figma 원본대로 "만 7세" — 원본부터 어긋나 있어
-        그대로 두고 팀장 확인 대상으로 남긴다. --%>
+<%
+    // 1. DB에서 꺼내온 아이 정보를 변수에 안전하게 담습니다.
+    ProfileDTO child = (ProfileDTO) request.getAttribute("child");
+
+    String childName = "";
+    String gender = "";
+    String disorderType = "자폐 장애";
+    String severity = "";
+    Long childId = null;
+    String charKey = "tori"; // 👈 🎯 요 줄(charKey 선언)이 있어야 아래에서 쓸 수 있습니다!
+    String createdAt = "";
+
+    int selYear = LocalDate.now().getYear();
+    int selMonth = LocalDate.now().getMonthValue();
+    int selDay = LocalDate.now().getDayOfMonth();
+    int childAge = 0;
+
+    if (child != null) {
+        childName = child.getName() != null ? child.getName() : "";
+        gender = child.getGender() != null ? child.getGender() : "";
+        disorderType = (child.getDisorderType() != null && !child.getDisorderType().isEmpty()) ? child.getDisorderType() : "자폐 장애";
+        severity = child.getSeverity() != null ? child.getSeverity() : "";
+        childId = child.getChildId();
+
+        // 🎯 DB에서 캐릭터 키(bada, tori 등) 가져오기
+        if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
+            charKey = child.getCharacterType();
+        }
+
+        if (child.getCreatedAt() != null) {
+            createdAt = child.getCreatedAt().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+
+        if (child.getBirthDate() != null) {
+            try {
+                String bStr = child.getBirthDate().toString();
+                if (bStr.length() >= 10) {
+                    selYear = Integer.parseInt(bStr.substring(0, 4));
+                    selMonth = Integer.parseInt(bStr.substring(5, 7));
+                    selDay = Integer.parseInt(bStr.substring(8, 10));
+
+                    LocalDate birth = LocalDate.of(selYear, selMonth, selDay);
+                    childAge = Period.between(birth, LocalDate.now()).getYears();
+                }
+            } catch (Exception e) {
+                // 날짜 파싱 실패 시 기본값 유지
+            }
+        }
+    }
+%>
+
 <div class="app-head mp-head">
     <h1>마이페이지</h1>
 </div>
@@ -16,44 +68,43 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img data-kd-char="neutral" src="/img/char-tori-neutral.png" alt=""></span>
-        <span class="tx">
-            <b data-kd="childName">지우</b>
-            <%-- ponytail: 학습 시작일은 아직 저장하는 곳이 없어 예시값 그대로다 --%>
-            <span class="ds">만 <span data-kd="childAge">7</span>세 · 학습 시작 2025.11.03</span>
+        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>        <span class="tx">
+            <b data-kd="childName"><%= childName %></b>
+            <span class="ds">만 <span data-kd="childAge"><%= childAge %></span>세 · 학습 시작 <%= createdAt %></span>
         </span>
     </div>
 </section>
 
 <section class="mp-sec">
-    <%-- 보호자 정보 탭과 대칭 — 어느 쪽이 누구 정보인지 제목에서 갈린다 --%>
     <h2>아이 정보</h2>
+
+    <input type="hidden" id="childId" value="<%= childId != null ? childId : "" %>">
+
     <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
-            <input class="kd-input" type="text" id="childName" value="지우">
+            <!-- 브라우저 자동완성 방지를 위해 autocomplete="off" 추가 -->
+            <input class="kd-input" type="text" id="childName" value="<%= childName %>" autocomplete="off">
         </div>
 
-        <%-- 온보딩 아동 프로필과 같은 방식 — 드롭다운에는 숫자만 두고 년·월·일은 밖에 라벨로 붙인다.
-             예전에는 .onb-unit 이 빈 칸이고 단위가 옵션 글자에 섞여 있어 온보딩과 모양이 달랐다. --%>
         <div class="kd-field">
             <label class="kd-label" for="birthYear">생년월일</label>
             <div class="onb-row">
                 <select class="kd-input onb-select" id="birthYear" name="birthYear">
                     <% for (int y = Year.now().getValue(); y >= 1990; y--) { %>
-                    <option value="<%= y %>"<%= y == 2018 ? " selected" : "" %>><%= y %></option>
+                    <option value="<%= y %>"<%= y == selYear ? " selected" : "" %>><%= y %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">년</span>
                 <select class="kd-input onb-select" id="birthMonth" name="birthMonth">
                     <% for (int m = 1; m <= 12; m++) { %>
-                    <option value="<%= m %>"<%= m == 6 ? " selected" : "" %>><%= m %></option>
+                    <option value="<%= m %>"<%= m == selMonth ? " selected" : "" %>><%= m %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">월</span>
                 <select class="kd-input onb-select" id="birthDay" name="birthDay">
                     <% for (int d = 1; d <= 31; d++) { %>
-                    <option value="<%= d %>"<%= d == 12 ? " selected" : "" %>><%= d %></option>
+                    <option value="<%= d %>"<%= d == selDay ? " selected" : "" %>><%= d %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">일</span>
@@ -64,28 +115,23 @@
             <span class="kd-label">성별</span>
             <div class="mp-radios">
                 <span class="onb-radio-item">
-                    <input class="onb-radio" type="radio" id="genderBoy" name="gender" value="M" checked>
+                    <input class="onb-radio" type="radio" id="genderBoy" name="gender" value="M"<%= "M".equals(gender) ? " checked" : "" %>>
                     <label for="genderBoy">남자</label>
                 </span>
                 <span class="onb-radio-item">
-                    <input class="onb-radio" type="radio" id="genderGirl" name="gender" value="F">
+                    <input class="onb-radio" type="radio" id="genderGirl" name="gender" value="F"<%= "F".equals(gender) ? " checked" : "" %>>
                     <label for="genderGirl">여자</label>
                 </span>
             </div>
         </div>
 
-        <%-- 유형·정도 목록은 팀장 확정본 (2026-08-08 카톡 피드백).
-             ⚠ 유형 <option> 은 온보딩 child-profile.jsp 와 **같은 목록이 두 곳에 하드코딩**돼 있다.
-               한쪽만 고치면 어긋난다.
-             정도는 유형에 딸린다(2026-08-11) — 옵션은 auth-validate.js 의 DIS_LEVELS 가 채우므로
-             여기는 비워 둔다. 마이페이지는 '정도 선택' 안내 칸 없이 바로 값이 박힌다. --%>
         <div class="kd-field">
             <span class="kd-label">장애 정보</span>
             <div class="onb-row onb-row--gap">
                 <select class="kd-input onb-select" id="disabilityType" name="disabilityType">
-                    <option value="자폐 장애" selected>자폐</option>
-                    <option value="지적 장애">지적</option>
-                    <option value="발달 장애">발달</option>
+                    <option value="자폐 장애"<%= "자폐 장애".equals(disorderType) ? " selected" : "" %>>자폐</option>
+                    <option value="지적 장애"<%= "지적 장애".equals(disorderType) ? " selected" : "" %>>지적</option>
+                    <option value="발달 장애"<%= "발달 장애".equals(disorderType) ? " selected" : "" %>>발달</option>
                 </select>
                 <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel"></select>
             </div>
@@ -93,10 +139,114 @@
     </div>
 </section>
 
-<%-- Figma 에는 이 버튼행이 없다 — 캐릭터 관리 탭과 대칭을 맞추려고 웹에서 추가 --%>
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <button type="button" class="kd-btn kd-btn-primary" onclick="kdSaved('아이 프로필을 저장했어요')">저장</button>
+    <button type="button" class="kd-btn kd-btn-primary" onclick="updateChildProfile()">저장</button>
 </div>
+
+<script>
+    function getSelectedVal(container, elementId, fallbackVal) {
+        const el = container.querySelector('#' + elementId);
+        if (!el || el.value === null || el.value.trim() === '') return fallbackVal;
+        return el.value.trim();
+    }
+
+    function updateChildProfile() {
+        const form = document.querySelector('.mp-grid--child');
+
+        const childId = parseInt(getSelectedVal(document, 'childId', ''), 10);
+        const childName = getSelectedVal(form, 'childName', '');
+
+        const rawYear = getSelectedVal(form, 'birthYear', '');
+        const rawMonth = getSelectedVal(form, 'birthMonth', '');
+        const rawDay = getSelectedVal(form, 'birthDay', '');
+
+        if (!childId) {
+            alert("아이 정보를 불러오지 못했습니다. 새로고침 후 다시 시도해 주세요.");
+            return;
+        }
+
+        if (!childName || !rawYear || !rawMonth || !rawDay) {
+            alert("이름과 생년월일을 모두 입력해 주세요.");
+            return;
+        }
+
+        const birthDate = rawYear + '-' + String(rawMonth).padStart(2, '0') + '-' + String(rawDay).padStart(2, '0');
+
+        const genderElem = form.querySelector('input[name="gender"]:checked');
+        const gender = genderElem ? genderElem.value : '';
+
+        const disorderType = getSelectedVal(form, 'disabilityType', '');
+        const severity = getSelectedVal(form, 'disabilityLevel', '');
+
+        if (!gender || !disorderType || !severity) {
+            alert("성별과 장애 정보를 모두 선택해 주세요.");
+            return;
+        }
+
+        const payload = { childId, name: childName, birthDate, gender, disorderType, severity };
+
+        fetch('/profile/updateProfile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('HTTP ' + res.status);
+                return res.json();
+            })
+            .then(data => {
+                if (data.result > 0) {
+                    if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
+                    else alert('아이 프로필을 성공적으로 저장했어요');
+
+                    // 저장 성공 후 화면 리로드 (위쪽 이름도 갱신하기 위함)
+                    window.location.reload();
+                } else {
+                    alert(data.msg || "수정에 실패했습니다.");
+                }
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                alert("수정 중 오류가 발생했습니다. (" + err.message + ")");
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // [핵심] 다른 JS 파일(온보딩 스크립트)이나 브라우저 자동완성이 폼을 멋대로 초기화시키는 것을 막기 위해,
+        // DOM 로드 직후에 DB에서 가져온 진짜 데이터를 폼에 한 번 더 강제로 덮어씌웁니다.
+        const dbName = '<%= childName.replace("'", "\\'") %>';
+        if (dbName) document.getElementById('childName').value = dbName;
+
+        document.getElementById('birthYear').value = '<%= selYear %>';
+        document.getElementById('birthMonth').value = '<%= selMonth %>';
+        document.getElementById('birthDay').value = '<%= selDay %>';
+
+        const dbGender = '<%= gender %>';
+        if (dbGender === 'M') document.getElementById('genderBoy').checked = true;
+        if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
+
+        const dbDisType = '<%= disorderType %>';
+        if (dbDisType) document.getElementById('disabilityType').value = dbDisType;
+
+        // 장애 정도(severity) 세팅 유지
+        const savedSeverity = '<%= severity %>';
+        const levelSelect = document.getElementById('disabilityLevel');
+        if (!savedSeverity || !levelSelect) return;
+
+        function trySetSeverity() {
+            const hasOption = Array.prototype.some.call(levelSelect.options, function (o) {
+                return o.value === savedSeverity;
+            });
+            if (hasOption) {
+                levelSelect.value = savedSeverity;
+            } else if (levelSelect.options.length === 0) {
+                requestAnimationFrame(trySetSeverity);
+            }
+        }
+        trySetSeverity();
+    });
+    sessionStorage.removeItem('kdOnb');
+</script>
 
 <%@ include file="../common/app-bottom.jsp" %>

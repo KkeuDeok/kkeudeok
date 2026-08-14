@@ -66,8 +66,14 @@
         </main>
     </div>
 </div>
-<%-- 낭독 mp3 대응표. story.js 보다 먼저 와야 한다 — window.KD_AUDIO 를 읽고 시작한다 --%>
-<script src="/js/audio-map.js?v=222"></script>
-<script src="/js/story.js?v=222"></script>
+<%-- 순서가 규약이다. 둘 다 지켜야 한다.
+     · audio-map.js 는 story.js 보다 먼저 — story.js 가 window.KD_AUDIO 를 읽고 시작한다.
+     · story-session.js 가 window.kdStory.stage 를 먼저 정해야 kd-mediapipe.js 가
+       지금이 표정 화면인지 동작 화면인지 알 수 있다. 뒤집으면 인식이 아예 안 붙는다.
+     ?v 는 양쪽(222·220)보다 큰 224 로 통일한다 — 병합 결과는 어느 쪽도 아닌 제3의 파일이다. --%>
+<script src="/js/audio-map.js?v=224"></script>
+<script src="/js/story.js?v=224"></script>
+<script src="/js/story-session.js?v=224"></script>
+<script src="/js/kd-mediapipe.js?v=224"></script>
 </body>
 </html>

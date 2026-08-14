@@ -8,12 +8,13 @@
          슬픔·기쁨 문구를 채웠다 — 팀장 확정 필요.
        ⚠ 실제 카메라는 아직 안 붙였다. 온보딩 표정 등록과 같은 권한 게이트가 필요하다. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String[][] faceTitles = {
         {"sad",   "슬픈 표정으로 {c} 마음을 느껴봐요"},
         {"angry", "화난 표정으로 {c} 마음을 느껴봐요"},
-        {"happy", "기쁜 표정으로 {c} 마음을 느껴봐요"}
+        {"happy", "기쁜 표정으로 {c} 마음을 느껴봐요"},
+        {"surprise", "놀란 표정으로 {c} 마음을 느껴봐요"}
     };
     String faceTitle = faceTitles[0][1];
     for (String[] row : faceTitles) {

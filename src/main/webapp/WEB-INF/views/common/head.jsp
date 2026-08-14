@@ -7,13 +7,15 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것. ⚠ 절대 낮추지 말 것 --%>
-<link href="/css/kkeudeok.css?v=211" rel="stylesheet">
-<link href="/css/auth.css?v=211" rel="stylesheet">
-<link href="/css/onboarding.css?v=211" rel="stylesheet">
-<link href="/css/app.css?v=223" rel="stylesheet">
-<link href="/css/report.css?v=211" rel="stylesheet">
-<link href="/css/mypage.css?v=221" rel="stylesheet">
-<link href="/css/child.css?v=218" rel="stylesheet">
+<%-- 병합 결과는 양쪽이 합쳐진 제3의 파일이라 223 도 220 도 그 내용을 안 가리킨다.
+     둘보다 큰 224 로 통일한다. ⚠ 절대 낮추지 말 것 --%>
+<link href="/css/kkeudeok.css?v=224" rel="stylesheet">
+<link href="/css/auth.css?v=224" rel="stylesheet">
+<link href="/css/onboarding.css?v=224" rel="stylesheet">
+<link href="/css/app.css?v=224" rel="stylesheet">
+<link href="/css/report.css?v=224" rel="stylesheet">
+<link href="/css/mypage.css?v=224" rel="stylesheet">
+<link href="/css/child.css?v=224" rel="stylesheet">
 <%-- 사용 단계 스위치 — 0 신규(아무것도 없음) · 1 일상 기록만 남김 · 2 이야기 1편 이상(수치 대시보드).
      ?stage=0|1|2 로 바꾸면 탭 단위로 유지돼 화면을 옮겨도 따라간다.
      ?empty=1 → 0 · ?empty=0 → 2 별칭은 예전 주소를 안 깨려고 남겨 둔다.
@@ -53,10 +55,38 @@
      첫 페인트보다 먼저 돈다. defer 를 안 쓰는 이유는 fit-frame.js 와 같다.
      ⚠ data-kd="childName|childNameAge|childCall|childAge" 채우기는 이 블록이 유일한 주인이다.
        auth-validate.js 에 다시 넣으면 깜빡임이 그대로 돌아온다. --%>
+<%-- 로그인한 보호자의 아이(DB) — ChildInfoAdvice 가 실어 준다. 없으면 이 줄들이 아예 안 나온다.
+     meta 로 두는 이유: 아래 스크립트가 첫 페인트 전에 동기로 읽어야 하는데, 이름에 따옴표가
+     섞여도 안전하고(HTML 이스케이프) fetch 처럼 늦게 도착하지 않는다. --%>
+<%
+    String kdcName = (String) request.getAttribute("kdChildName");
+    if (kdcName != null && !kdcName.isBlank()) {
+        String kdcCall = (String) request.getAttribute("kdChildCall");
+        Object kdcAge = request.getAttribute("kdChildAge");
+%>
+<meta name="kd-child-name" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(kdcName) %>">
+<meta name="kd-child-call" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(kdcCall == null ? kdcName : kdcCall) %>">
+<meta name="kd-child-age" content="<%= kdcAge == null ? "" : kdcAge %>">
+<%
+    }
+%>
 <script>
     (function () {
         var v = {};
         try { v = JSON.parse(sessionStorage.getItem('kdOnb')) || {}; } catch (e) { }
+
+        /* DB 에 아이가 있으면 그 값이 우선이다 — sessionStorage 는 온보딩을 막 마친
+           그 탭에만 있어서, 다시 로그인하면 비어 예시값 '지우'가 그대로 남았다. */
+        function kdMeta(n) {
+            var m = document.querySelector('meta[name="' + n + '"]');
+            return m ? m.content : '';
+        }
+        var srvName = kdMeta('kd-child-name');
+        if (srvName) {
+            v.name = srvName;
+            v.callName = kdMeta('kd-child-call');
+            v.age = kdMeta('kd-child-age');
+        }
 
         /* 성을 떼고 받침이 있으면 '이' 를 붙인다(성현이 / 지우) — auth-validate.js 도 이걸 쓴다 */
         var SURNAME2 = ['남궁', '황보', '제갈', '사공', '선우', '서문', '독고', '동방'];
@@ -80,11 +110,13 @@
         /* 입력값이 없으면(직접 URL 진입·시크릿 모드) 마크업의 예시값을 그대로 둔다 */
         if (!v.name) return;
 
-        var age = v.birthY ? ageOf(v.birthY, v.birthM, v.birthD) : null;
+        /* 나이는 서버가 준 값이 우선 — 생년월일은 sessionStorage 에만 있다 */
+        var age = (v.age !== undefined && v.age !== '' && !isNaN(v.age)) ? Number(v.age)
+                : (v.birthY ? ageOf(v.birthY, v.birthM, v.birthD) : null);
         var text = {
             childName: v.name,
             childNameAge: v.name + (age === null ? '' : ' · ' + age + '세'),
-            childCall: callName(v.name),
+            childCall: v.callName || callName(v.name),
             childAge: age === null ? null : String(age)
         };
 
@@ -93,7 +125,8 @@
             var hooks = root.querySelectorAll('[data-kd]');
             for (var i = 0; i < hooks.length; i++) {
                 var t = text[hooks[i].dataset.kd];
-                if (t) hooks[i].textContent = t;
+                /* 입력칸은 textContent 가 아니라 value 를 채워야 보인다(마이페이지 아이 이름) */
+                if (t) { if (hooks[i].tagName === 'INPUT') hooks[i].value = t; else hooks[i].textContent = t; }
             }
             var own = text[root.dataset && root.dataset.kd];
             if (own) root.textContent = own;
@@ -106,16 +139,16 @@
         }).observe(document.documentElement, { childList: true, subtree: true });
     })();
 </script>
-<script src="/js/fit-frame.js?v=211"></script>
-<script src="/js/auth-validate.js?v=211" defer></script>
-<script src="/js/onb-select.js?v=211" defer></script>
+<script src="/js/fit-frame.js?v=220"></script>
+<script src="/js/auth-validate.js?v=220" defer></script>
+<script src="/js/onb-select.js?v=220" defer></script>
 <%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제).
      이제 /api/roadmap 에서 아이 맞춤 계획을 받아 오고, 못 받으면 내장 정석 커리큘럼으로 그린다. --%>
-<script src="/js/kd-roadmap.js?v=218" defer></script>
+<script src="/js/kd-roadmap.js?v=220" defer></script>
 <%-- 온보딩 표정 등록 — 그 아이 기준값을 만들어 학습4 표정 판정에 쓴다.
      ⚠ auth-validate.js 의 kdOnbFaceNext() 를 감싸므로 반드시 **그 뒤에** 실행돼야 한다.
        둘 다 defer 라 문서 순서대로 도니 이 줄을 위로 올리지 말 것. --%>
-<script src="/js/kd-face-calib.js?v=218" defer></script>
+<script src="/js/kd-face-calib.js?v=220" defer></script>
 <%-- 온보딩 등록 — 체크리스트 답을 모으고, 완료 화면에서 서버에 아이를 만든다.
      ⚠ onb-select.js 의 kdSubmitOnbChecklist* 를 감싸므로 반드시 그 뒤에 실행돼야 한다. --%>
-<script src="/js/kd-onboarding.js?v=218" defer></script>
+<script src="/js/kd-onboarding.js?v=220" defer></script>

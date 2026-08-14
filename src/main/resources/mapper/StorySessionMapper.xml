@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.StorySessionMapper">
+
+    <insert id="insertSession" parameterType="kopo.kkeudeok.dto.StorySessionDTO"
+            useGeneratedKeys="true" keyProperty="sessionId">
+        INSERT INTO story_session (child_id, story_id, roadmap_id, daily_input,
+                                   started_at, status)
+        VALUES (#{childId}, #{storyId}, #{roadmapId}, #{dailyInput},
+                NOW(), #{status})
+    </insert>
+
+    <select id="selectSession" resultType="kopo.kkeudeok.dto.StorySessionDTO">
+        SELECT session_id
+             , child_id
+             , story_id
+             , roadmap_id
+             , daily_input
+             , started_at
+             , ended_at
+             , status
+          FROM story_session
+         WHERE session_id = #{sessionId}
+    </select>
+
+    <!--
+      세션 테이블에 '그날 몇 번째' 칸이 없어 세는 방식으로 구한다.
+      started_at 은 DATETIME 이므로 날짜만 잘라서 오늘 것만 센다.
+    -->
+    <!--
+      ⚠ CAST(... AS DATE) = CURRENT_DATE 로 적은 이유
+        `started_at >= CURDATE() AND started_at < CURDATE() + INTERVAL 1 DAY` 가
+        인덱스를 타서 더 빠르지만 INTERVAL 문법이 H2 와 달라 테스트에서 깨진다.
+        아이 한 명의 하루치라 많아야 몇 행이고, child_id 인덱스로 먼저 걸러지므로
+        여기서는 이식성을 택했다. 세션이 크게 늘면 범위 조건으로 되돌릴 것.
+    -->
+    <select id="countTodaySessions" resultType="int">
+        SELECT COUNT(*)
+          FROM story_session
+         WHERE child_id = #{childId}
+           AND CAST(started_at AS DATE) = CURRENT_DATE
+    </select>
+
+    <select id="countTodayCompleted" resultType="int">
+        SELECT COUNT(*)
+          FROM story_session
+         WHERE child_id = #{childId}
+           AND status = 'COMPLETED'
+           AND CAST(started_at AS DATE) = CURRENT_DATE
+    </select>
+
+    <!--
+      이어할 세션 — 오늘 남긴 미완료 중 가장 최근 것.
+      ⚠ 노드가 하나도 없는 세션(시작하자마자 끊긴 것)은 이어할 게 없으므로 제외한다.
+    -->
+    <select id="selectResumable" resultType="kopo.kkeudeok.dto.StorySessionDTO">
+        SELECT s.session_id
+             , s.child_id
+             , s.story_id
+             , s.roadmap_id
+             , s.daily_input
+             , s.started_at
+             , s.ended_at
+             , s.status
+          FROM story_session s
+         WHERE s.child_id = #{childId}
+           AND s.status = 'INCOMPLETE'
+           AND CAST(s.started_at AS DATE) = CURRENT_DATE
+           AND EXISTS (SELECT 1 FROM story_node n WHERE n.story_id = s.story_id)
+         ORDER BY s.started_at DESC
+         LIMIT 1
+    </select>
+
+    <!--
+      ⚠ status != 'COMPLETED' 조건이 핵심이다.
+        이미 끝까지 마친 세션에 뒤늦게 '중도 이탈' 전송이 도착해도(뒤로가기·중복 요청)
+        완료가 미완료로 되돌아가지 않는다.
+    -->
+    <update id="updateSessionClosed">
+        UPDATE story_session
+           SET status   = #{status}
+             , ended_at = NOW()
+         WHERE session_id = #{sessionId}
+           AND status != 'COMPLETED'
+    </update>
+
+</mapper>

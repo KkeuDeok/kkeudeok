@@ -7,7 +7,7 @@
        ⚠ "지우"는 아이 이름 자리다(세션 결과 화면과 같다) — 백엔드 연결 시 교체.
        ⚠ Figma 는 슬픔 한 벌뿐이라 화남·기쁨 카드 문구는 임시 — 기획 확정 필요. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String[][] homeCards = {
         {"sad",   "{c}가 슬퍼요",  "무슨 일인지 들어볼까요?"},
@@ -27,7 +27,7 @@
 <%-- 하단 바가 없는 화면이다 --%>
 <% storyFootOff = true; %>
 
-<h1 class="home-hi">안녕, 지우야!</h1>
+<h1 class="home-hi">안녕, <span data-kd="childCall">지우</span>야!</h1>
 <p class="home-sub"><%= "{c}가 기다리고 있어요".replace("{c}", CHAR) %></p>
 
 <div class="home-card">

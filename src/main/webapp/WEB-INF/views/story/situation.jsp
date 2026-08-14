@@ -10,7 +10,7 @@
        ⚠ 실제로는 상황이 여러 개 뜨고 그중 하나를 고르는 화면일 텐데 Figma 는 벌마다
          카드가 한 장뿐이다 — 기획 확정 필요. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     /* 키 · 주색 · 연한배경 · 테두리 · 태그 · 제목 · 설명 · 버튼 */
     String[][] pickCards = {
@@ -19,7 +19,10 @@
         {"angry", "#f5222d", "#fff1f0", "#ffa39e", "화난 상황", "{c}가 화가 났어요!",
          "{c}가 화가 나서 씩씩거리고 있어요. {c}에게 무슨 일이 생긴 걸까요? 마음을 달래주러 가볼까요?", "{c} 위로해주기"},
         {"happy", "#faad14", "#fffbe6", "#ffe58f", "기쁜 상황", "{c}가 신이 났어요!",
-         "{c}가 함박웃음을 지으며 꼬리를 살랑이고 있어요! 행복한 소식을 나누고 함께 축하해주러 가볼까요?", "함께 축하해주기"}
+         "{c}가 함박웃음을 지으며 꼬리를 살랑이고 있어요! 행복한 소식을 나누고 함께 축하해주러 가볼까요?", "함께 축하해주기"},
+        /* 놀람 벌 — Figma 원본이 없어 색은 나머지 규칙을 따라 보라 계열로 잡았다 */
+        {"surprise", "#722ed1", "#f9f0ff", "#d3adf7", "놀란 상황", "{c}가 깜짝 놀랐어요!",
+         "{c}가 갑자기 난 큰 소리에 눈이 동그래졌어요. 옆에서 괜찮다고 말해주러 가볼까요?", "괜찮다고 말해주기"}
     };
     String[] pick = pickCards[0];
     for (String[] row : pickCards) {

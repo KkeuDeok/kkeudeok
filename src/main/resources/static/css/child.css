@@ -436,9 +436,13 @@
 /* 카드 3장 — 300×290, 사이 28. 좌우 22 여백이라 행 폭 956 이 본문 1000 안에 든다 */
 .feel-cards {
     position: absolute;
-    left: 22px;
+    /* left 고정이 아니라 좌우 0 + 가운데 정렬 — 카드 수가 바뀌어도 화면 가운데에 온다.
+       (예전엔 left:22px 라 3장 기준으로만 맞았고, 4장이 되자 오른쪽으로 넘쳤다) */
+    left: 0;
+    right: 0;
     top: 393.5px;
     display: flex;
+    justify-content: center;
     gap: 28px;
 }
 
@@ -452,10 +456,16 @@
     text-decoration: none;
 }
 
-/* 감정별 카드 색 — Figma 실측(픽셀값 그대로, 다른 화면에서 쓰는 토큰이 아니다) */
-.feel-card.is-happy { background: #fff3d6; }
-.feel-card.is-sad   { background: #dceefb; }
-.feel-card.is-angry { background: #fde0dc; }
+/* 감정별 카드 색 — Figma 실측(픽셀값 그대로, 다른 화면에서 쓰는 토큰이 아니다).
+   ⚠ 클래스가 아니라 data-kd-key 로 칠한다. 카드 내용은 AI 가 정하므로 화면이 뜬 뒤
+     story-session.js 가 갈아끼우는데, 그때 확실히 바뀌는 건 data-kd-key 하나뿐이다.
+     예전엔 색이 is-happy 같은 클래스에 묶여 있어서 JS 가 그 클래스까지 따로 맞춰 줘야 했고,
+     어긋나면 기뻐요 카드가 화나요 색(분홍)으로 나왔다(2026-08-14 지적).
+     칠하는 근거를 하나로 모아 어긋날 자리를 없앤다. */
+.feel-card[data-kd-key="happy"]    { background: #fff3d6; }
+.feel-card[data-kd-key="sad"]      { background: #dceefb; }
+.feel-card[data-kd-key="angry"]    { background: #fde0dc; }
+.feel-card[data-kd-key="surprise"] { background: #ede4fb; }
 
 .feel-card:hover { border-color: var(--kd-primary); }
 
@@ -622,14 +632,19 @@
 
 .why-card .nm {
     position: absolute;
-    left: 0;
-    top: 185.5px;
-    width: 100%;
+    /* 아래에 붙여 위로 자라게 한다 — top 고정이면 두 줄이 되는 순간 카드 밖으로 흘러넘친다
+       (2026-08-13 지적: "길을 잃을 뻔해서 무서웠 / 어서" 가 카드 밑으로 삐져나옴).
+       AI 가 이유 문구를 만들기 때문에 길이를 완전히는 못 정한다 — 길어도 안 깨지게 둔다. */
+    left: 14px;
+    right: 14px;
+    bottom: 20px;
     margin: 0;
     text-align: center;
     font-size: 30px;
-    line-height: 45px;
+    line-height: 38px;
     font-weight: 700;
+    /* 한글은 기본값이면 낱말 가운데서 잘린다. 낱말 단위로 줄바꿈한다. */
+    word-break: keep-all;
     color: var(--kd-text);
 }
 

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.MissionLogMapper">
+
+    <!--
+      같은 결과가 두 번 오면 지우고 다시 넣는다.
+      (session_id, node_id) UNIQUE 가 없어 ON DUPLICATE KEY 로는 못 막는다.
+
+      ⚠ 세션 전체가 아니라 **이번에 보낸 노드만** 지운다.
+        중간에 그만둔 학습을 나중에 이어서 마치면, 앞서 저장해 둔 기록이 이미 DB 에 있다.
+        세션 전체를 지우면 그게 통째로 날아간다.
+      ⚠ 반드시 insertLogs 와 같은 트랜잭션 안에서 부를 것.
+    -->
+    <delete id="deleteByNodes">
+        DELETE FROM mission_log
+         WHERE session_id = #{sessionId}
+           AND node_id IN
+        <foreach collection="nodeIds" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <insert id="insertLogs">
+        INSERT INTO mission_log (session_id, node_id, mission_type, target_value,
+                                 response_value, is_success, created_at)
+        VALUES
+        <foreach collection="logs" item="r" separator=",">
+            (#{r.sessionId}, #{r.nodeId}, #{r.missionType}, #{r.targetValue},
+             #{r.responseValue}, #{r.isSuccess}, NOW())
+        </foreach>
+    </insert>
+
+    <select id="selectBySession" resultType="kopo.kkeudeok.dto.MissionLogDTO">
+        SELECT log_id
+             , session_id
+             , node_id
+             , mission_type
+             , target_value
+             , response_value
+             , is_success
+             , created_at
+          FROM mission_log
+         WHERE session_id = #{sessionId}
+         ORDER BY log_id
+    </select>
+
+    <!-- 아이가 실제로 답한 가장 뒤 단계. node_order 로 줄 세운다(로그 순서가 아니라
+         이야기 순서가 기준이다 — 되돌아가서 다시 답할 수도 있다). -->
+    <select id="selectLastAnsweredStage" resultType="java.lang.String">
+        SELECT n.stage_type
+          FROM mission_log l
+          JOIN story_node n ON n.node_id = l.node_id
+         WHERE l.session_id = #{sessionId}
+         ORDER BY n.node_order DESC
+         LIMIT 1
+    </select>
+
+</mapper>

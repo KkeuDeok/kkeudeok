@@ -1243,8 +1243,17 @@
 .daily-lb + .daily-memo { margin-top: 16px; }
 
 /* 감정 라디오 바로 아래에 다음 라벨이 붙으면 라디오 줄의 일부처럼 읽힌다 —
-   칸과 칸 사이는 32 로 벌려 두 덩어리로 보이게 한다(8px 배수 스케일) */
-.daily-emos + .daily-lb { margin-top: 32px; }
+   두 덩어리로 보이게 벌린다. 라디오 동그라미가 라벨 아래로 삐져나와 있어
+   32 로는 여전히 붙어 보였다(2026-08-13 지적) → 48. */
+.daily-emos + .daily-lb { margin-top: 48px; }
+
+/* 섹션 제목 옆 '선택 입력' — 제목보다 작고 연하게 (2026-08-13) */
+.learn-sec .sec-opt {
+    margin-left: 10px;
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--kd-text-sub);
+}
 
 .daily-emos label {
     display: flex;

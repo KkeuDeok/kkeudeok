@@ -35,7 +35,9 @@
     </div>
 </div>
 
-<%-- 가입 다음 단계는 보호자 PIN 설정이다(로그인 성공 시에도 같은 곳으로 간다) --%>
-<a href="/onboarding/pin" class="kd-btn kd-btn-primary auth-cta">아이 정보 등록하기</a>
+<%-- 가입 다음은 로그인이다. 예전에는 여기서 곧장 /onboarding/pin 으로 보냈는데,
+     그러면 로그인을 건너뛰어 세션에 회원 정보가 없는 채로 PIN·온보딩을 하게 된다
+     (아이를 어느 보호자에 붙일지 알 수 없다). PIN·온보딩으로 보낼지는 로그인이 정한다. --%>
+<a href="/login" class="kd-btn kd-btn-primary auth-cta">로그인하러 가기</a>
 
 <%@ include file="../common/auth-bottom.jsp" %>

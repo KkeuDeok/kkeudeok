@@ -20,18 +20,21 @@
     <div class="txt">
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
-        <%-- 2026-08-10 피드백 8 — "매일 하는 건지 루틴인지 기준이 있냐"는 지적.
-             확정: **하루 한 편 권장**. 이 기준을 전 화면 문구가 따른다. --%>
-        <p class="min">예상 소요 약 7분 · 하루 한 편 권장</p>
-        <%-- 2026-08-14 지적 — 유형 안내 칩(.learn-fit)은 걷어냈다.
-             버튼은 '예상 소요' 바로 아래 한 줄로 둔다. --%>
+        <%-- 학습량 기준은 dev 의 '하루 세 편'을 따른다 — 아래 .learn-cta 세 문구가
+             이미 세 편 기준이라(109행 주석), 여기만 '한 편'이면 한 화면에서 숫자가 엇갈린다.
+             '예상 소요 약 7분'도 1편 기준 수치라 되살리지 않는다.
+             유형 안내 칩(.learn-fit)은 2026-08-14 지적으로 걷어냈고 app.css 의 규칙도 지웠다
+             — 칩을 되살리면 스타일 없는 맨텍스트가 뜬다. --%>
+        <p class="min">하루 세 편 권장</p>
         <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
 
 <div class="learn-row">
     <section class="learn-daily">
-        <h2 class="learn-sec">오늘의 일상 입력</h2>
+        <%-- 선택 입력이라는 사실은 모달을 열기 전에 알아야 한다 —
+             열고 나서야 알려 주면 이미 써야 하는 줄 알고 들어온 뒤다 (2026-08-13) --%>
+        <h2 class="learn-sec">오늘의 일상 입력 <span class="sec-opt">선택 입력</span></h2>
 
         <%-- 기록 전 상태 — 버튼을 누르면 모달이 열린다.
              전에는 여기 textarea 가 바로 박혀 있어 '메모장'처럼 보였다. --%>
@@ -99,11 +102,11 @@
 
 <div class="learn-cta">
     <span class="ic"></span>
-    <%-- 세 문구 모두 '하루 한 편' 기준으로 통일했다(2026-08-10 피드백 8).
+    <%-- 세 문구 모두 '하루 세 편' 기준으로 통일했다(2026-08-12 변경).
          전에는 다음에 뭘 하면 되는지가 kd-has-data 에만 있었다. --%>
-    <p class="kd-has-data" id="ctaDone">오늘 한 편을 마쳤어요 · 내일 새 이야기가 열려요 (지난 기록은 그대로 남아요)</p>
-    <p class="kd-no-data">하루 한 편이 기본이에요 · 오늘의 첫 이야기를 시작해 볼까요?</p>
-    <p class="kd-s1">오늘 기록을 남겼어요 · 이어서 오늘의 한 편을 해 볼까요?</p>
+    <p class="kd-has-data" id="ctaDone">오늘 한 편을 마쳤어요 · 세 편까지 이어서 할 수 있어요 (지난 기록은 그대로 남아요)</p>
+    <p class="kd-no-data">하루 세 편이 기본이에요 · 오늘의 첫 이야기를 시작해 볼까요?</p>
+    <p class="kd-s1">오늘 기록을 남겼어요 · 오늘의 첫 이야기를 해 볼까요?</p>
     <%-- 오늘 몫을 끝낸 뒤에도 더 할 수 있다 — 막지 않고 글자만 바꾼다.
          ⚠ 버튼 자체를 두 개로 두면 `.learn-cta .kd-btn` 이 2개로 잡혀
            숨은 쪽이 먼저 걸린다(검증 스크립트가 클릭 못 함). 버튼은 하나, 글자만 교체.
@@ -129,8 +132,6 @@
              무엇을 고르는 칸인지 안 읽혀 헷갈린다는 지적이었고, 실제 역할은
              아래 메모의 예시 문구를 바꾸는 것뿐이라 지워도 잃는 기능이 없다.
              대신 남은 두 칸에 라벨을 달아 무엇을 넣는 칸인지 분명히 했다. --%>
-        <p class="daily-lb">아이의 기분</p>
-
         <div class="daily-emos" id="dailyEmos">
             <label><img src="/img/face-happy.png" alt=""><span class="nm">기쁨</span><input type="radio" name="emotion" value="기쁨" checked></label>
             <label><img src="/img/face-sad.png" alt=""><span class="nm">슬픔</span><input type="radio" name="emotion" value="슬픔"></label>
@@ -140,7 +141,7 @@
         </div>
 
         <%-- 팀장 확정: 일일 회고는 선택 입력이다("꼭 안 적어도 됨") --%>
-        <p class="daily-lb">무슨 일이 있었나요? <span class="opt">선택 · 안 적어도 괜찮아요</span></p>
+        <p class="daily-lb">무슨 일이 있었나요?</p>
 
         <div class="daily-memo">
             <textarea id="dailyText" maxlength="200" aria-label="오늘 있었던 일"
@@ -203,9 +204,18 @@
             shortMemo ? emo.value + ' · "' + shortMemo + '"' : emo.value;
 
         /* 고른 감정 → 학습1 감정 벌. 슬픔·놀람·무표정은 아직 벌이 없어 슬픔으로 보낸다. */
-        var KD_EMO = { '기쁨': 'happy', '화남': 'angry' };
+        var KD_EMO = { '기쁨': 'happy', '화남': 'angry', '놀람': 'surprise' };
         document.getElementById('dailyStart').href =
             '/story/scene?emo=' + (KD_EMO[emo.value] || 'sad');
+
+        /* AI 가 이야기를 만들 때 쓰는 입력값 — story-session.js 가 세션을 시작할 때 읽는다.
+           ⚠ 감정은 한글 그대로 남긴다. 서버가 '기쁨/슬픔/화남/놀람' 을 알아서 바꾸고,
+             화면 벌(happy|angry|sad)보다 원래 고른 값이 이야기 소재로 더 정확하다.
+           메모는 선택 입력이라 비어 있을 수 있다 — 그때는 프로필만으로 만들어진다. */
+        try {
+            sessionStorage.setItem('kdDailyEmo', emo.value);
+            sessionStorage.setItem('kdDailyNote', memo);
+        } catch (e) { }
 
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
@@ -249,9 +259,10 @@
         } catch (e) { }
         if (types.indexOf('자폐 장애') < 0) return;
 
-        /* 오늘 몫을 끝냈을 때 '내일 뭘 하는지'까지 알려 준다 */
+        /* 칩을 채우던 3줄은 뺐다 — 위에서 .learn-fit 요소를 없앴으므로 여기서 채우면 null 오류가 난다.
+           다음에 뭘 하는지까지 알려 준다 (하루 세 편 기준 — 2026-08-12) */
         document.getElementById('ctaDone').textContent =
-            '오늘 한 편을 마쳤어요 · 내일은 \'놀이터에서 차례 기다리기\'(사회성) 이야기예요';
+            '오늘 한 편을 마쳤어요 · 다음은 \'놀이터에서 차례 기다리기\'(사회성) 이야기예요';
     })();
 </script>
 
