@@ -43,6 +43,17 @@ public class ProfileController {
     @PostMapping(value = "updateProfile")
     public MsgDTO updateProfile(@RequestBody ProfileDTO pDTO) throws Exception {
         log.info("{}.updateProfile Start!", this.getClass().getName());
+//        여기 문제 X
+//        System.out.println("======================================");
+//        System.out.println("childId : " + pDTO.getChildId());
+//        System.out.println("name : " + pDTO.getName());
+//        System.out.println("birthDate : " + pDTO.getBirthDate());
+//        System.out.println("gender : " + pDTO.getGender());
+//        System.out.println("disorderType : " + pDTO.getDisorderType());
+//        System.out.println("severity : " + pDTO.getSeverity());
+//        System.out.println("======================================");
+        int result = profileService.updateProfile(pDTO);
+        System.out.println("👉 DB UPDATE 실행 결과(영향받은 행) : " + result);
 
         String msg = "프로필 정보 수정 실패";
         int res = 0;
@@ -114,4 +125,5 @@ public class ProfileController {
 
         return dto;
     }
+
 }
