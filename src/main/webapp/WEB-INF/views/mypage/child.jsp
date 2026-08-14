@@ -31,7 +31,7 @@
     <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
-            <input class="kd-input" type="text" id="childName" value="지우">
+            <input class="kd-input" type="text" id="childName" data-kd="childName" value="지우">
         </div>
 
         <%-- 온보딩 아동 프로필과 같은 방식 — 드롭다운에는 숫자만 두고 년·월·일은 밖에 라벨로 붙인다.
