@@ -3,18 +3,21 @@
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="java.time.Period" %>
 <%@ page import="kopo.kkeudeok.dto.ProfileDTO" %>
+<%@ page import="java.time.LocalDateTime" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "child"; %>
 <%@ include file="../common/app-top.jsp" %>
 
 <%
-    // 1. DB에서 꺼내온 아이 정보를 변수에 안전하게 담습니다. (에러 방어 로직 강화)
+    // 1. DB에서 꺼내온 아이 정보를 변수에 안전하게 담습니다.
     ProfileDTO child = (ProfileDTO) request.getAttribute("child");
 
     String childName = "";
     String gender = "";
-    String disorderType = "자폐 장애"; // 폼 초기화 대비 기본값
+    String disorderType = "자폐 장애";
     String severity = "";
     Long childId = null;
+    String charKey = "tori"; // 👈 🎯 요 줄(charKey 선언)이 있어야 아래에서 쓸 수 있습니다!
+    String createdAt = "";
 
     int selYear = LocalDate.now().getYear();
     int selMonth = LocalDate.now().getMonthValue();
@@ -28,7 +31,15 @@
         severity = child.getSeverity() != null ? child.getSeverity() : "";
         childId = child.getChildId();
 
-        // 날짜 파싱 (DB 타입에 관계없이 안전하게 문자열로 변환 후 쪼개기)
+        // 🎯 DB에서 캐릭터 키(bada, tori 등) 가져오기
+        if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
+            charKey = child.getCharacterType();
+        }
+
+        if (child.getCreatedAt() != null) {
+            createdAt = child.getCreatedAt().format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE);
+        }
+
         if (child.getBirthDate() != null) {
             try {
                 String bStr = child.getBirthDate().toString();
@@ -41,7 +52,7 @@
                     childAge = Period.between(birth, LocalDate.now()).getYears();
                 }
             } catch (Exception e) {
-                // 날짜 형식이 안 맞을 경우 에러 무시하고 기본값 유지
+                // 날짜 파싱 실패 시 기본값 유지
             }
         }
     }
@@ -57,10 +68,9 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img data-kd-char="neutral" src="/img/char-tori-neutral.png" alt=""></span>
-        <span class="tx">
+        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>        <span class="tx">
             <b data-kd="childName"><%= childName %></b>
-            <span class="ds">만 <span data-kd="childAge"><%= childAge %></span>세 · 학습 시작 2025.11.03</span>
+            <span class="ds">만 <span data-kd="childAge"><%= childAge %></span>세 · 학습 시작 <%= createdAt %></span>
         </span>
     </div>
 </section>
