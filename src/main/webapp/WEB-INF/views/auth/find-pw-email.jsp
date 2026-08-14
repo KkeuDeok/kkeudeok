@@ -1,18 +1,34 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <% String pageTitle = "비밀번호 찾기"; %>
 <%@ include file="../common/auth-top.jsp" %>
 
 <%@ include file="../common/auth-brand.jsp" %>
 
-<h1 class="auth-title auth-title--sub">비밀번호 찾기</h1>
-<p class="auth-subtitle">가입한 이메일을 입력해 주세요</p>
+<%-- 로그인한 사람이 마이페이지에서 왔으면 UserController 가 ${myEmail} 을 담아 준다.
+     그때는 제목·안내도 '변경' 말투로 바꾼다 — 비밀번호를 잊은 게 아니라 바꾸러 온 것이다. --%>
+<c:choose>
+    <c:when test="${not empty myEmail}">
+        <h1 class="auth-title auth-title--sub">비밀번호 변경</h1>
+        <p class="auth-subtitle">가입한 이메일로 본인 확인을 해 주세요</p>
+    </c:when>
+    <c:otherwise>
+        <h1 class="auth-title auth-title--sub">비밀번호 찾기</h1>
+        <p class="auth-subtitle">가입한 이메일을 입력해 주세요</p>
+    </c:otherwise>
+</c:choose>
 
 <form method="post" action="/find-pw">
     <div class="kd-field">
         <label class="kd-label" for="email">이메일</label>
         <div class="kd-input-row">
             <div class="kd-input-wrap">
-                <input class="kd-input" type="email" id="email" name="email"
+                <%-- 로그인 상태면 계정 이메일을 채우고 잠근다(오타·다른 주소 입력 방지).
+                     mp-input-ro 는 마이페이지 이메일 칸이 쓰는 '수정 불가' 회색 표시다. --%>
+                <input class="kd-input ${not empty myEmail ? 'mp-input-ro' : ''}"
+                       type="email" id="email" name="email"
+                       value="<c:out value='${myEmail}'/>"
+                       <c:if test="${not empty myEmail}">readonly</c:if>
                        placeholder="이메일을 입력하세요">
             </div>
             <button type="button" class="kd-btn kd-btn-pill"

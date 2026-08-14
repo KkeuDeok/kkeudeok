@@ -30,4 +30,23 @@ public interface IUserService {
 
     /** 비밀번호 재설정 — 바뀐 행 수 */
     int newPasswordProc(UserDTO pDTO) throws Exception;
+
+    /* ---------- 마이페이지 ---------- */
+
+    /**
+     * 회원정보 화면용 한 명. 없으면 null.
+     * 이메일은 DB 에 AES 암호문으로 있어 여기서 복호화해 돌려준다(화면은 사람이 읽는 값을 받는다).
+     */
+    UserDTO getUserInfo(UserDTO pDTO) throws Exception;
+
+    /** 회원정보 저장(이름·휴대폰·관계) — 바뀐 행 수 */
+    int updateUserInfo(UserDTO pDTO) throws Exception;
+
+    /**
+     * 계정 완전 삭제 — 아동·학습 기록까지 한 트랜잭션으로 지운다. 되돌릴 수 없다.
+     *
+     * @param pDTO memberId 만 있으면 된다
+     * @return 지워진 member 행 수. 0 이면 이미 없는 계정
+     */
+    int deleteUser(UserDTO pDTO) throws Exception;
 }
