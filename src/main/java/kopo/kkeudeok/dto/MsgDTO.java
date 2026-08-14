@@ -14,4 +14,6 @@ public class MsgDTO {
     private String msg;
 
     private String field;
+
+    private String next;
 }

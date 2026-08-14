@@ -32,4 +32,7 @@ public interface IUserMapper {
 
     /** 비밀번호 재설정 */
     int updatePassword(UserDTO pDTO) throws Exception;
+
+    /** 보호자 PIN 설정(최초 1회) */
+    int updateParentPin(UserDTO pDTO) throws Exception;
 }

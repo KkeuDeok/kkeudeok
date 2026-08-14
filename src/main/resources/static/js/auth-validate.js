@@ -97,6 +97,15 @@
         clearError(input); return true;
     }
 
+    /* 아이 이름도 보호자 이름과 같은 규칙 — 예전엔 빈칸만 봐서 숫자·기호가 그대로 들어갔고,
+       학습 화면에 "안녕 이1야!" 처럼 나왔다(2026-08-14 지적). */
+    function checkChildName(input) {
+        var v = input.value.trim();
+        if (!v) { setError(input, '아이 이름을 입력해 주세요'); return false; }
+        if (!NAME_RE.test(v)) { setError(input, '이름은 한글 또는 영문 2~20자로 입력해 주세요'); return false; }
+        clearError(input); return true;
+    }
+
     function checkLoginId(input) {
         var v = input.value.trim();
         if (!v) { setError(input, '아이디를 입력해 주세요'); return false; }
@@ -204,7 +213,9 @@
             password: $('password').value
         }).then(function (data) {
             /* 어느 쪽이 틀렸는지 알려 주지 않는다(계정 존재 여부가 새어 나간다) — 서버 문구를 그대로 쓴다 */
-            if (data.result === 1) location.href = '/onboarding/pin';
+            /* 어디로 갈지는 서버가 정한다(data.next) — 보호자 PIN 을 만들었는지,
+               아이를 등록했는지는 DB 를 봐야 안다. 화면이 정하면 최초 1회가 매번 반복된다. */
+            if (data.result === 1) location.href = data.next || '/dashboard';
             else showServerError(data, 'password');
         }).catch(onFail($('password')));
     };
@@ -321,7 +332,16 @@
         } else {
             clearError(pinCheck);
         }
-        if (ok) location.href = '/onboarding/start';
+        if (!ok) return;
+
+        /* PIN 을 실제로 저장한다. 예전에는 화면만 넘겨서 member.parent_pin 이 계속 비어 있었고,
+           그래서 로그인할 때마다 PIN 설정이 다시 떴다. */
+        postForm('/parentPinProc', { pin: $('pin').value })
+            .then(function (data) {
+                if (data.result === 1) location.href = data.next || '/onboarding/start';
+                else showServerError(data, 'pin');
+            })
+            .catch(onFail($('pin')));
     };
 
     /* ---------- 온보딩 1: 아이 정보 ---------- */
@@ -390,7 +410,7 @@
 
     window.kdSubmitOnbProfile = function () {
         clearAllErrors();
-        var ok = checkRequired($('childName'), '아이 이름을 입력해 주세요');
+        var ok = checkChildName($('childName'));
         ok = checkGroup([$('birthYear'), $('birthMonth'), $('birthDay')], '생년월일을 모두 선택해 주세요') && ok;
         /* 유형·정도는 한 kd-field 라 오류 문구 자리가 하나뿐이다 — 유형부터 순서대로 본다 */
         if (!$('disabilityType').value) { setError($('disabilityType'), '장애 유형을 선택해 주세요'); ok = false; }
@@ -765,7 +785,7 @@
         authCode: function (el) { return !codeExpired && CODE_RE.test(el.value.trim()); },
         pin: function (el) { return PIN_RE.test(el.value); },
         pinCheck: function (el) { return !!el.value && el.value === $('pin').value; },
-        childName: notBlank,
+        childName: function (el) { return NAME_RE.test(el.value.trim()); },
         birthYear: hasValue,
         birthMonth: hasValue,
         birthDay: hasValue,

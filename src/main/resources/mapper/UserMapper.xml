@@ -50,7 +50,7 @@
     </insert>
 
     <select id="getLogin" parameterType="UserDTO" resultType="UserDTO">
-        SELECT member_id, login_id, name, email
+        SELECT member_id, login_id, name, email, parent_pin
         FROM member
         WHERE login_id = #{loginId}
           AND password = #{password}
@@ -71,6 +71,14 @@
         WHERE email = #{email}
           AND deleted_at IS NULL
     </select>
+
+    <update id="updateParentPin" parameterType="UserDTO">
+        UPDATE member
+        SET parent_pin = #{parentPin},
+            updated_at = #{updatedAt}
+        WHERE member_id = #{memberId}
+          AND deleted_at IS NULL
+    </update>
 
     <update id="updatePassword" parameterType="UserDTO">
         UPDATE member

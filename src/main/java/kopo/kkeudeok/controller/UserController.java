@@ -83,7 +83,13 @@ public class UserController {
     /* ---------- 온보딩(보호자) ---------- */
 
     @GetMapping("/onboarding/pin")
-    public String onboardingPin() {
+    public String onboardingPin(HttpSession session) {
+        if (session.getAttribute("SS_USER_ID") == null) {
+            return "redirect:/login";
+        }
+        if (Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_SET))) {
+            return "redirect:/onboarding/start";
+        }
         return "onboarding/pin";
     }
 

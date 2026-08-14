@@ -2,6 +2,7 @@ package kopo.kkeudeok.service.impl;
 
 import kopo.kkeudeok.dto.MailDTO;
 import kopo.kkeudeok.dto.UserDTO;
+import kopo.kkeudeok.mapper.ChildMapper;
 import kopo.kkeudeok.mapper.IUserMapper;
 import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
@@ -21,6 +22,7 @@ public class UserService implements IUserService {
 
     private final IUserMapper userMapper;
     private final IMailService mailService;
+    private final ChildMapper childMapper;
 
     /* ---------- 회원가입 ---------- */
 
@@ -101,5 +103,27 @@ public class UserService implements IUserService {
 
         log.info("{}.newPasswordProc End! success={}", this.getClass().getName(), success);
         return success;
+    }
+
+    /* ---------- 최초 1회 설정 ---------- */
+
+    @Override
+    public int updateParentPin(UserDTO pDTO) throws Exception {
+        log.info("{}.updateParentPin Start!", this.getClass().getName());
+
+        pDTO.setUpdatedAt(LocalDateTime.now());
+
+        int success = userMapper.updateParentPin(pDTO);
+
+        log.info("{}.updateParentPin End! success={}", this.getClass().getName(), success);
+        return success;
+    }
+
+    @Override
+    public boolean hasChild(Long memberId) throws Exception {
+        if (memberId == null) {
+            return false;
+        }
+        return childMapper.selectChildByMember(memberId) != null;
     }
 }

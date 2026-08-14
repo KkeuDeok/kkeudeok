@@ -9,6 +9,7 @@ import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
 import kopo.kkeudeok.util.CmmUtil;
 import kopo.kkeudeok.util.EncryptUtil;
+import kopo.kkeudeok.util.SessionKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,6 +29,8 @@ public class AuthApiController {
     private static final String SS_AUTH_EXPIRE = "SS_AUTH_EXPIRE";
 
     public static final String SS_FOUND_ID = "SS_FOUND_ID";
+
+    public static final String SS_PIN_SET = "SS_PIN_SET";
 
     private static final String SS_PW_RESET_ID = "SS_PW_RESET_ID";
 
@@ -69,8 +72,12 @@ public class AuthApiController {
 
             session.setAttribute("SS_USER_ID", rDTO.getLoginId());
             session.setAttribute("SS_USER_NAME", rDTO.getName());
+            session.setAttribute(SessionKeys.MEMBER_ID, rDTO.getMemberId());
+            session.setAttribute(SS_PIN_SET, !CmmUtil.nvl(rDTO.getParentPin()).isEmpty());
 
-            return msg(1, "환영합니다.");
+            MsgDTO res = msg(1, "환영합니다.");
+            res.setNext(nextStep(rDTO));
+            return res;
 
         } catch (Exception e) {
             log.error("loginProc 실패", e);
@@ -82,6 +89,48 @@ public class AuthApiController {
     public MsgDTO logoutProc(HttpSession session) {
         session.invalidate();
         return msg(1, "로그아웃되었습니다.");
+    }
+
+    private String nextStep(UserDTO member) throws Exception {
+        if (CmmUtil.nvl(member.getParentPin()).isEmpty()) {
+            return "/onboarding/pin";
+        }
+        if (!userService.hasChild(member.getMemberId())) {
+            return "/onboarding/start";
+        }
+        return "/dashboard";
+    }
+
+    @PostMapping("/parentPinProc")
+    public MsgDTO parentPinProc(@RequestParam String pin, HttpSession session) {
+        try {
+            Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+            if (memberId == null) {
+                return msg(0, "로그인이 필요합니다.", "pin");
+            }
+            if (!pin.matches("\\d{4}")) {
+                return msg(0, "PIN 은 숫자 4자리여야 합니다.", "pin");
+            }
+
+            UserDTO pDTO = new UserDTO();
+            pDTO.setMemberId(memberId);
+            pDTO.setParentPin(EncryptUtil.encHashSHA256(pin));
+
+            if (userService.updateParentPin(pDTO) < 1) {
+                return msg(0, "PIN 저장에 실패했습니다.", "pin");
+            }
+
+            session.setAttribute(SS_PIN_SET, true);
+
+            MsgDTO res = msg(1, "보호자 PIN 이 설정되었습니다.");
+            res.setNext(userService.hasChild(memberId) ? "/dashboard" : "/onboarding/start");
+            return res;
+
+        } catch (Exception e) {
+            log.error("parentPinProc 실패", e);
+            return msg(2, "시스템 오류가 발생했습니다.", "pin");
+        }
     }
 
     /* ================================================================
