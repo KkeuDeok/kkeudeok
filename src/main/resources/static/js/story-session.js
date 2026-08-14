@@ -492,21 +492,8 @@
                큰 글씨로 떠서 화면이 어수선했고, 어차피 배경과 캐릭터는 이미 그려져 있어
                잠깐 조용히 기다리는 편이 낫다. 자리를 남기는 규칙은 그대로 둔다. */
             '.child-main.kd-waiting .story-title,.child-main.kd-waiting .story-sub,' +
-            '.child-main.kd-waiting .story-ask,.child-main.kd-waiting .story-cta{opacity:0}' +
-
-            /* 점 세 개 — 제목 자리(454)에 맞춘 디자인 좌표. 색은 학습 흐름 주색을 그대로 쓴다. */
-            '.kd-wait-dots{position:absolute;left:0;top:468px;width:100%;' +
-            'display:flex;justify-content:center;gap:16px;pointer-events:none}' +
-            '.kd-wait-dots i{width:16px;height:16px;border-radius:50%;' +
-            'background:var(--kd-primary);opacity:.25;' +
-            'animation:kd-wait-dot 1.5s ease-in-out infinite}' +
-            '.kd-wait-dots i:nth-child(2){animation-delay:.25s}' +
-            '.kd-wait-dots i:nth-child(3){animation-delay:.5s}' +
-            '@keyframes kd-wait-dot{0%,100%{opacity:.25}50%{opacity:1}}' +
-
-            /* 움직임을 줄여 달라고 한 기기에서는 켜져만 있게 둔다 */
-            '@media (prefers-reduced-motion:reduce){' +
-            '.kd-wait-dots i{animation:none;opacity:.6}}';
+            '.child-main.kd-waiting .story-ask,.child-main.kd-waiting .story-cta{opacity:0}';
+            /* 점 세 개(.kd-wait-dots)의 모양은 kkeudeok.css, 놓이는 자리는 child.css 에 있다 */
 
         document.head.appendChild(st);
     }

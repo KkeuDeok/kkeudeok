@@ -1709,3 +1709,12 @@
 @media (prefers-reduced-motion: reduce) {
     .child-toast { transition: none; }
 }
+
+/* 이야기를 만드는 동안 놓이는 점 세 개(kkeudeok.css).
+   제목(454)이 있던 자리다 — 문장이 도착하면 점을 지우고 제목이 그 자리에 뜬다. */
+.child-main .kd-wait-dots {
+    position: absolute;
+    left: 0;
+    top: 468px;
+    width: 100%;
+}

@@ -95,9 +95,12 @@
             checklist: v.checklist || []
         };
 
+        /* ⚠ 여기서 서버가 AI 로 12주 로드맵을 짠다 — 10초를 넘기고 길면 더 걸린다.
+             버튼 글자만 바꿔 두면 보호자 눈에는 화면이 멈춘 것으로 보여, 기다리는 동안
+             버튼 아래에 점 세 개를 켠다(kkeudeok.css · onboarding.css). */
         var btn = document.querySelector('.onb-actions .kd-btn-primary');
         var label = btn ? btn.textContent : '';
-        if (btn) { btn.disabled = true; btn.textContent = '준비하는 중…'; }
+        if (btn) { btn.disabled = true; btn.textContent = '준비하는 중…'; waitDots(true); }
 
         return fetch('/api/onboarding/child', {
             method: 'POST',
@@ -113,8 +116,28 @@
                ⚠ 다만 그 상태로 학습을 시작하면 '등록된 첫 아이'로 붙는다. */
             console.warn('[kkeudeok] 온보딩을 저장하지 못했습니다', e);
         }).then(function () {
-            if (btn) { btn.disabled = false; btn.textContent = label; }
+            if (btn) { btn.disabled = false; btn.textContent = label; waitDots(false); }
             if (typeof next === 'function') next();
         });
     };
+
+    /* 버튼 레일 안에 점 세 개를 넣고 뺀다. absolute 라 버튼 자리는 그대로다(onboarding.css) */
+    function waitDots(on) {
+        var rail = document.querySelector('.onb-actions');
+        if (!rail) return;
+
+        var el = rail.querySelector('.kd-wait-dots');
+
+        if (!on) {
+            if (el) el.remove();
+            return;
+        }
+        if (el) return;
+
+        el = document.createElement('div');
+        el.className = 'kd-wait-dots';
+        el.setAttribute('aria-hidden', 'true');   /* 버튼 글자가 이미 상태를 말해 준다 */
+        el.innerHTML = '<i></i><i></i><i></i>';
+        rail.appendChild(el);
+    }
 }());

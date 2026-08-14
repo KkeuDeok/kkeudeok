@@ -1172,3 +1172,12 @@
 .onb-actions .onb-btn-wide {
     width: 520px;
 }
+
+/* 로드맵을 만드는 동안 [대시보드로 가기] 아래 놓이는 점 세 개(kkeudeok.css).
+   ⚠ absolute 라 흐름에서 빠진다 — 버튼 레일 845 가 밀리지 않는다. */
+.onb-actions .kd-wait-dots {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 76px;              /* 버튼 높이 59 + 17 */
+}

@@ -283,3 +283,39 @@ html.kd-named [data-kd="childAge"] { visibility: visible; }
    (2026-08-10 지적, 실측으로 토리 5장이 실제로 내려받아져 그려지는 걸 확인). 교체 뒤 드러낸다. */
 [data-kd-char]                          { visibility: hidden; }
 html.kd-char-ready [data-kd-char]       { visibility: visible; }
+
+/* --------------------------------------------------------------------------
+   기다리는 동안 — 점 세 개
+   서버가 AI 로 문장·로드맵을 만드는 동안(10초 남짓, 로드맵은 더 걸린다) 화면이
+   멈춘 것처럼 보이는 자리에 놓는다. 부르는 쪽에서 <i> 셋을 넣어 준다.
+   ⚠ 자리(position)는 여기서 정하지 않는다 — 화면마다 다르다.
+     아이 이야기 = child.css · 온보딩 버튼 아래 = onboarding.css
+   ⚠ 튀지 않고 밝기만 오르내린다. 아이 화면에도 쓰이므로 움직임은 최소로 둔다.
+   -------------------------------------------------------------------------- */
+.kd-wait-dots {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    pointer-events: none;
+}
+
+.kd-wait-dots i {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--kd-primary);
+    opacity: .25;
+    animation: kd-wait-dot 1.5s ease-in-out infinite;
+}
+
+.kd-wait-dots i:nth-child(2) { animation-delay: .25s; }
+.kd-wait-dots i:nth-child(3) { animation-delay: .5s; }
+
+@keyframes kd-wait-dot {
+    0%, 100% { opacity: .25; }
+    50%      { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .kd-wait-dots i { animation: none; opacity: .6; }
+}
