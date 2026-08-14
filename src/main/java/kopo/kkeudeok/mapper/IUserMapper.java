@@ -3,11 +3,6 @@ package kopo.kkeudeok.mapper;
 import kopo.kkeudeok.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
 
-/**
- * member 테이블 접근. 실제 SQL 은 resources/mapper/UserMapper.xml 에 있다.
- * ⚠ XML 의 namespace 와 이 인터페이스의 전체 이름이 같아야 하고,
- *   여기 선언한 메서드는 XML 에 같은 id 로 전부 있어야 한다(하나라도 없으면 기동 시 바인딩 실패).
- */
 @Mapper
 public interface IUserMapper {
 

@@ -15,15 +15,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * 로그인 · 회원가입 · 아이디찾기 · 비밀번호찾기의 POST 처리를 모두 담당한다.
- * 응답은 전부 {@link MsgDTO} JSON 이고, 화면 이동은 auth-validate.js 가 결정한다.
- *
- * 저장·조회 규칙 (⚠ 어기면 조회가 안 맞는다)
- *  - password : EncryptUtil.encHashSHA256 로 해시해서 넣고, 같은 해시로 찾는다.
- *  - email    : EncryptUtil.encAES128CBC 로 암호화해서 넣고, 같은 암호문으로 찾는다.
- *               메일을 보낼 때만 decAES128CBC 로 되돌린다.
- */
 @RestController
 @RequiredArgsConstructor
 @Slf4j
@@ -32,21 +23,16 @@ public class AuthApiController {
     private final IUserService userService;
     private final IMailService mailService;
 
-    /* 인증번호 관련 세션 키 — SS_ 는 Session 을 뜻하는 강의 규칙. */
     private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
     private static final String SS_AUTH_EMAIL = "SS_AUTH_EMAIL";
     private static final String SS_AUTH_EXPIRE = "SS_AUTH_EXPIRE";
 
-    /** 아이디찾기 결과 — 결과 화면에서 한 번 읽고 지운다. */
     public static final String SS_FOUND_ID = "SS_FOUND_ID";
 
-    /** 비밀번호 재설정 허가 — 인증을 통과한 회원의 login_id 가 들어 있다. */
     private static final String SS_PW_RESET_ID = "SS_PW_RESET_ID";
 
-    /** 인증번호 유효시간 3분 — 화면 타이머(180초)와 같은 값이어야 한다. */
     private static final long CODE_VALID_MS = 3 * 60 * 1000L;
 
-    /** MsgDTO 를 만드는 짧은 도우미. new + set 2줄이 계속 반복돼서 뺐다. */
     private MsgDTO msg(int result, String text) {
         MsgDTO dto = new MsgDTO();
         dto.setResult(result);
@@ -97,12 +83,6 @@ public class AuthApiController {
      * 인증번호 — 회원가입 · 아이디찾기 · 비밀번호찾기 공통
      * ================================================================ */
 
-    /**
-     * 인증번호를 만들어 메일로 보내고, 정답은 세션에 적어 둔다.
-     *
-     * @param kind signup | findId | findPw — 가입 여부 검사 방향이 반대라 나눠 본다.
-     *             회원가입은 "이미 있으면" 막고, 찾기는 "없으면" 막는다.
-     */
     @PostMapping("/sendAuthCodeProc")
     public MsgDTO sendAuthCodeProc(@RequestParam String email,
                                    @RequestParam(defaultValue = "signup") String kind,
@@ -120,17 +100,12 @@ public class AuthApiController {
                 return msg(0, "가입되지 않은 이메일입니다.");
             }
 
-            // 000000 ~ 999999 중 하나. 앞자리가 0이어도 6자리가 되도록 %06d 로 채운다.
             String code = String.format("%06d", new SecureRandom().nextInt(1_000_000));
 
-            // 정답은 서버(세션)에만 둔다. 화면에 내려보내면 검사할 이유가 없어진다.
-            // 메일보다 먼저 적어 둔다 — 메일이 늦게 도착해도 입력은 이미 받을 수 있어야 한다.
             session.setAttribute(SS_AUTH_CODE, code);
             session.setAttribute(SS_AUTH_EMAIL, email);
             session.setAttribute(SS_AUTH_EXPIRE, System.currentTimeMillis() + CODE_VALID_MS);
 
-            // 발송은 뒤에서 돌린다 — SMTP 를 기다리면 입력칸이 1~3초 늦게 뜬다.
-            // 대신 발송 실패를 화면에 알려 줄 수 없다(로그로만 남는다).
             mailService.sendAuthCode(email, code);
 
             return msg(1, "인증번호를 보냈습니다. 메일함을 확인해 주세요.");
@@ -141,12 +116,6 @@ public class AuthApiController {
         }
     }
 
-    /**
-     * 세션에 적어 둔 인증번호와 대조. 통과하면 한 번 쓰고 지운다.
-     * 화면(JS)에서도 검사하지만 그건 사용자 편의일 뿐 — 개발자도구로 우회되므로 서버가 다시 본다.
-     *
-     * @return null 이면 통과, 아니면 화면에 보여 줄 오류 메시지
-     */
     private String verifyAuthCode(String email, String authCode, HttpSession session) {
         Object saved = session.getAttribute(SS_AUTH_CODE);
         Object savedEmail = session.getAttribute(SS_AUTH_EMAIL);
@@ -212,13 +181,9 @@ public class AuthApiController {
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
             pDTO.setName(userName);
-            // 비밀번호는 절대 복호화되지 않도록 해시로만 저장한다.
             pDTO.setPassword(EncryptUtil.encHashSHA256(password));
-            // 민감정보인 이메일은 AES-128-CBC 로 암호화해 저장한다.
             pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
-            // 필수 약관 3종은 1단계(signup-terms)를 통과해야 여기 올 수 있으므로 동의로 기록한다.
-            // 선택 항목은 아직 값을 넘겨받는 화면이 없어 DB 기본값과 같은 값을 그대로 쓴다.
             // TODO signup-terms 에서 실제 체크값(특히 agree_marketing)을 넘겨받도록 바꿀 것.
             pDTO.setAgreeService(1);
             pDTO.setAgreePrivacy(1);
@@ -227,7 +192,6 @@ public class AuthApiController {
             pDTO.setNotifyReminder(1);
             pDTO.setAgreeMarketing(0);
 
-            // 마지막 방어선 — 화면에서 중복 확인을 건너뛰고 바로 쏠 수 있다.
             if ("Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()))) {
                 return msg(0, "이미 사용 중인 아이디입니다.");
             }
@@ -270,8 +234,6 @@ public class AuthApiController {
                 return msg(0, "일치하는 회원 정보가 없습니다.");
             }
 
-            // 메일 인증을 통과한 본인이므로 아이디를 가리지 않고 그대로 보여 준다.
-            // 결과는 세션으로 넘긴다 — 주소창에 실으면 방문 기록·리퍼러에 남는다.
             session.setAttribute(SS_FOUND_ID, CmmUtil.nvl(rDTO.getLoginId()));
 
             return msg(1, "아이디를 찾았습니다.");
@@ -283,7 +245,7 @@ public class AuthApiController {
     }
 
     /* ================================================================
-     * 비밀번호 찾기 — 1) 메일 인증  2) 새 비밀번호 저장
+     * 비밀번호 찾기 - 1) 메일 인증  2) 새 비밀번호 저장
      * ================================================================ */
 
     /** 1단계: 메일 인증이 끝나면 재설정 화면으로 갈 수 있는 표를 세션에 끊어 준다. */
@@ -306,7 +268,6 @@ public class AuthApiController {
                 return msg(0, "일치하는 회원 정보가 없습니다.");
             }
 
-            // 이 표가 있어야만 새 비밀번호를 저장할 수 있다(주소만 쳐서 들어오는 것 차단).
             session.setAttribute(SS_PW_RESET_ID, rDTO.getLoginId());
 
             return msg(1, "본인 확인이 완료되었습니다.");

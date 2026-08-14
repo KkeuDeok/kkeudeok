@@ -12,12 +12,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-/**
- * 메일 발송. 회원가입 축하·인증번호 안내를 모두 여기서 보낸다.
- *
- * 메일 발송은 실패해도 예외를 밖으로 던지지 않는다 — 메일 서버가 죽었다고
- * 회원가입까지 실패시킬 이유가 없다. 실패는 로그와 리턴값(0)으로만 알린다.
- */
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -25,7 +19,6 @@ public class MailService implements IMailService {
 
     private final JavaMailSender mailSender;
 
-    /** 보내는 사람 = SMTP 로그인 계정과 같아야 Gmail 이 거부하지 않는다. */
     @Value("${spring.mail.username:}")
     private String fromMail;
 
@@ -65,11 +58,6 @@ public class MailService implements IMailService {
         return res;
     }
 
-    /**
-     * 별도 스레드에서 보낸다 — 요청 스레드는 곧바로 응답을 내려보내고,
-     * 화면은 인증번호 입력칸을 바로 연다. Gmail 접속에 1~3초가 걸리는데
-     * 그걸 화면이 기다릴 이유가 없다(정답은 이미 세션에 적혀 있다).
-     */
     @Async
     @Override
     public void sendAuthCode(String toEmail, String code) {
@@ -82,15 +70,10 @@ public class MailService implements IMailService {
 
     /* ====================================================================
      * 메일 템플릿
-     *
-     * 메일 클라이언트(특히 Gmail)는 <style> 블록과 외부 CSS 를 자주 지운다.
-     * 그래서 표 레이아웃 + 인라인 style 로만 짠다. 화면용 CSS 를 쓰면 안 된다.
      * ==================================================================== */
 
-    /** 브랜드 색 — auth.css 의 기본 초록과 맞춘다. */
     private static final String BRAND = "#3FB27F";
 
-    /** 바깥 껍데기(제목줄 + 본문 + 꼬리말). 안쪽 내용만 갈아 끼워 쓴다. */
     private static String layout(String heading, String bodyHtml) {
         return """
                 <div style="margin:0;padding:24px 12px;background:#F5F7F6;
@@ -124,7 +107,6 @@ public class MailService implements IMailService {
                 """.formatted(BRAND, heading, bodyHtml);
     }
 
-    /** 인증번호 안내 — 회원가입·아이디찾기·비밀번호찾기 공통. */
     static String authCodeHtml(String code) {
         String body = """
                 <p style="margin:0 0 18px;">아래 인증번호를 입력해 주세요.</p>
@@ -139,7 +121,6 @@ public class MailService implements IMailService {
         return layout("인증번호를 입력해 주세요", body);
     }
 
-    /** 회원가입 축하. */
     static String welcomeHtml(String name) {
         String body = """
                 <p style="margin:0 0 8px;"><b>%s</b>님, 반가워요!</p>

@@ -38,8 +38,6 @@ public class UserService implements IUserService {
     public UserDTO getEmailExists(UserDTO pDTO) throws Exception {
         log.info("{}.getEmailExists Start!", this.getClass().getName());
 
-        // 인증번호 발송은 AuthApiController 가 세션 기반으로 처리한다.
-        // 여기서는 "이미 가입된 메일인지"만 본다.
         UserDTO rDTO = Optional.ofNullable(userMapper.getEmailExists(pDTO)).orElseGet(UserDTO::new);
 
         log.info("{}.getEmailExists End!", this.getClass().getName());
@@ -52,9 +50,6 @@ public class UserService implements IUserService {
 
         int res = 0;
 
-        // 시각은 DB 의 NOW() 가 아니라 앱에서 넣는다.
-        // VM 의 MariaDB 시계가 실제 시각보다 하루 넘게 뒤처져 있어(2026-08-13 확인)
-        // NOW() 를 쓰면 가입 시각이 과거로 찍힌다. VM 시계를 맞추더라도 이 편이 안전하다.
         LocalDateTime now = LocalDateTime.now();
         pDTO.setAgreedAt(now);
         pDTO.setCreatedAt(now);
@@ -63,7 +58,6 @@ public class UserService implements IUserService {
         if (userMapper.insertUser(pDTO) > 0) {
             res = 1;
 
-            // 가입 축하 메일 — 실패해도 가입 자체는 성공으로 둔다(MailService 가 예외를 삼킨다).
             MailDTO mDTO = new MailDTO();
             mDTO.setToMail(EncryptUtil.decAES128CBC(CmmUtil.nvl(pDTO.getEmail())));
             mDTO.setTitle("[끄덕] 회원가입을 축하합니다");
@@ -101,7 +95,7 @@ public class UserService implements IUserService {
     public int newPasswordProc(UserDTO pDTO) throws Exception {
         log.info("{}.newPasswordProc Start!", this.getClass().getName());
 
-        pDTO.setUpdatedAt(LocalDateTime.now());   // DB 시계를 믿지 않는다(insertUser 주석 참고)
+        pDTO.setUpdatedAt(LocalDateTime.now());
 
         int success = userMapper.updatePassword(pDTO);
 

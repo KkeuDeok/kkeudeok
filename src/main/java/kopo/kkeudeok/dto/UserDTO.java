@@ -6,14 +6,6 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-/**
- * member 테이블 1행.
- *
- * 저장 규칙 — 화면에서 받은 값을 그대로 넣지 않는다.
- *  - password : EncryptUtil.encHashSHA256 (단방향, 복호화 불가)
- *  - email    : EncryptUtil.encAES128CBC (양방향, 메일 보낼 때 복호화)
- * 조회할 때도 같은 방식으로 암호화한 값으로 WHERE 를 걸어야 맞는다.
- */
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)

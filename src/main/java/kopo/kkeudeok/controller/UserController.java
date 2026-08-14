@@ -10,16 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * 화면 라우팅 전담. GET 으로 JSP 를 띄우는 것까지만 한다.
- *
- * ⚠ 로그인·회원가입·아이디/비밀번호 찾기의 POST 처리는 여기 넣지 말 것 —
- *   전부 {@link AuthApiController} 에 모여 있다(2026-08-13 병합).
- */
 @Controller
 public class UserController {
 
-    /** 주소창에 localhost:8080 만 쳤을 때 404 대신 로그인으로 보낸다. */
     @GetMapping("/")
     public String root() {
         return "redirect:/login";
@@ -57,10 +50,6 @@ public class UserController {
         return "auth/find-id";
     }
 
-    /**
-     * 찾은 아이디를 보여 준다. 값은 findIdProc 이 세션에 넣어 둔 것을 한 번 읽고 지운다
-     * (주소창에 실으면 방문 기록·리퍼러에 남는다). 인증 없이 들어오면 아이디찾기로 되돌린다.
-     */
     @GetMapping("/find-id/result")
     public String findIdResult(HttpSession session, ModelMap model) {
         String foundId = (String) session.getAttribute(AuthApiController.SS_FOUND_ID);
@@ -98,10 +87,6 @@ public class UserController {
         return "onboarding/pin";
     }
 
-    /**
-     * PIN 설정 곰 버전 시안 — 흐름에 연결돼 있지 않다(직접 주소로만 접근).
-     * 채택되면 로그인 성공 시 이동 경로를 이쪽으로 바꾸면 된다.
-     */
     @GetMapping("/onboarding/pin-bear")
     public String onboardingPinBear() {
         return "onboarding/pin-bear";
@@ -213,12 +198,6 @@ public class UserController {
         return "mypage/character";
     }
 
-    /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ----------
-       화면만 늘어나고 화면별 로직이 없어 한 라우트로 받는다. 화면을 추가할 때
-       JSP 만 만들고 아래 목록에 이름을 넣으면 되므로 서버 재시작이 필요 없다.
-       (컨트롤러를 고치면 재시작이 필요한데 8080 서버 주인이 다른 세션일 때가 많다.)
-       ⚠ 화이트리스트 밖은 404 — 임의 경로로 JSP 를 훑는 걸 막는다.
-       감정 벌은 전부 `?emo=sad|angry|happy` 로 갈린다(기본 sad). */
     private static final Set<String> STORY_STEPS = Set.of(
             "home",          // 아동홈 — 학습 단계가 아니라 흐름의 입구다(스텝바·하단바 없음)
             "scene",         // 학습1 상황 이야기
