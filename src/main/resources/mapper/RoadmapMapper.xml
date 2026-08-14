@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.RoadmapMapper">
+
+    <!--
+      ⚠ step_data 에는 CHECK json_valid 가 걸려 있고 NOT NULL 이다.
+        만드는 쪽에서 반드시 올바른 JSON 을 채워야 한다.
+    -->
+    <insert id="insertRoadmap" parameterType="kopo.kkeudeok.dto.RoadmapDTO"
+            useGeneratedKeys="true" keyProperty="roadmapId">
+        INSERT INTO roadmap (child_id, roadmap_type, step_data, is_active, created_at)
+        VALUES (#{childId}, #{roadmapType}, #{stepData}, #{isActive}, NOW())
+    </insert>
+
+    <select id="selectActive" resultType="kopo.kkeudeok.dto.RoadmapDTO">
+        SELECT roadmap_id
+             , child_id
+             , roadmap_type
+             , step_data
+             , is_active
+             , created_at
+          FROM roadmap
+         WHERE child_id = #{childId}
+           AND is_active = 1
+         ORDER BY roadmap_id DESC
+         LIMIT 1
+    </select>
+
+    <update id="deactivateAll">
+        UPDATE roadmap
+           SET is_active = 0
+         WHERE child_id = #{childId}
+           AND is_active = 1
+    </update>
+
+</mapper>

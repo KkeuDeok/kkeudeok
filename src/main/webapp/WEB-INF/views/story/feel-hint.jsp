@@ -6,7 +6,7 @@
 
        ⚠ 힌트 문구는 Figma 가 슬픔 한 벌뿐이라 화남·기쁨은 임시 — 기획 확정 필요. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String feelPick = emo;   /* 힌트 화면은 정답을 짚어 준다 */
 

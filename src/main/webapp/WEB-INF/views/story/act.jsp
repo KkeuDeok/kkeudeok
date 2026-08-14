@@ -8,13 +8,14 @@
          바꾸고 여기서 **미안하다고 말하기**로 잇는다. ASD 사회성 학습에서 사과 표현은 핵심 스킬이라
          커리큘럼상으로도 이득이다 — 다만 문구는 팀장 확정 필요. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     /* 키 · 제목 · 시범 포즈 · 코너 카드 문구 */
     String[][] actSteps = {
         {"sad",   "{c}가 슬픈가봐. {c}를 위로해주자",                    "comfort",   "같이 토닥여봐"},
         {"angry", "{c}가 속상한가봐. 미안하다고 말해줄까?",              "sorry",     "이렇게 해봐"},
-        {"happy", "{c}가 기분이 좋대! 우리도 같이 신나게 축하해 줄까?", "celebrate", "같이 축하해봐"}
+        {"happy", "{c}가 기분이 좋대! 우리도 같이 신나게 축하해 줄까?", "celebrate", "같이 축하해봐"},
+        {"surprise", "{c}가 깜짝 놀랐나봐. 괜찮다고 토닥여 줄까?",       "comfort",   "괜찮다고 토닥여봐"}
     };
     String[] act = actSteps[0];
     for (String[] row : actSteps) {

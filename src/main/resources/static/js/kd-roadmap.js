@@ -41,7 +41,19 @@
     /* 현재 몇 주차인지 — 학습 이력이 없어 계산할 근거가 없다. 사용 단계로 대신한다.
        0 신규=시작 전 · 1 시작함=1주차 · 2 익숙함=예시값 7주차. 백엔드가 붙으면 여기만 바꾼다 */
     function stage() { return +(document.documentElement.dataset.kdStage || 2); }
-    function curWeek() { return [0, 1, 7][stage()]; }
+
+    /* ---------- 서버 로드맵 ----------
+       위의 KD_STAGES·KD_WEEKS 는 이제 **폴백**이다. 서버에 아이 맞춤 로드맵이 있으면
+       그걸로 갈아끼운다(/api/roadmap). 서버가 없거나 죽어도 화면은 정석 커리큘럼으로 뜬다.
+
+       ⚠ 주차는 서버가 준 currentWeek 을 쓴다. 프론트가 만든 날짜로 다시 계산하면
+         기기 시계·시간대가 어긋날 때 보호자마다 다른 주차를 보게 된다.
+       ⚠ 이 선언은 curWeek() **위**에 있어야 한다. var 는 호이스팅되어 undefined 로 잡히는데,
+         아래에 두면 `serverWeek !== null` 이 처음부터 참이 되어 주차가 undefined 가 된다. */
+    var serverWeek = null;
+
+    /* 서버가 로드맵을 주면 그 주차를 쓴다. 아직 못 받았으면 예전처럼 사용 단계로 어림잡는다. */
+    function curWeek() { return serverWeek !== null ? serverWeek : [0, 1, 7][stage()]; }
 
     /* 2026-08-10 요청: 상태는 **완료 / 미완료 둘뿐**이다. '진행중'은 뺐다 —
        진행 중인 주차도 아직 안 끝난 것이므로 미완료로 묶인다. */
@@ -103,6 +115,38 @@
         }
     }
 
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', renderDash);
-    else renderDash();
+    function applyRoadmap(view) {
+        if (!view || !view.plan || !view.plan.weeks || !view.plan.weeks.length) return;
+
+        KD_WEEKS = view.plan.weeks.map(function (w) { return w.topic; });
+
+        if (view.plan.stages && view.plan.stages.length) {
+            KD_STAGES = view.plan.stages.map(function (s) { return [s.name, s.weeks]; });
+        }
+
+        if (view.currentWeek) serverWeek = view.currentWeek;
+
+        /* AI 가 짠 계획이면 카드에 그렇게 밝힌다 — 보호자가 '정석'과 구분할 수 있어야 한다 */
+        var badge = document.getElementById('dashPlanType');
+        if (badge) {
+            badge.textContent = view.roadmapType === 'AI' ? 'AI 맞춤' : '정석 커리큘럼';
+            badge.hidden = false;
+        }
+
+        renderDash();
+    }
+
+    function loadRoadmap() {
+        renderDash();                       /* 먼저 폴백으로 그린다 — 빈 화면을 보이지 않는다 */
+
+        fetch('/api/roadmap')
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(applyRoadmap)
+            .catch(function (e) {
+                console.warn('[kkeudeok] 로드맵을 받지 못해 정석 커리큘럼으로 보여 줍니다', e);
+            });
+    }
+
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', loadRoadmap);
+    else loadRoadmap();
 })();

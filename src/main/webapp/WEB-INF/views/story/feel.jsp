@@ -5,10 +5,10 @@
        오답 카드를 누르면 ?wrong= 이 붙어 돌아오고 그 위에 오답 모달(24:17777)을 띄운다.
        화면이 아니라 상태라 라우트를 새로 파지 않았다. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String wrong = request.getParameter("wrong");
-    if (wrong != null && (wrong.equals(emo) || !wrong.matches("happy|sad|angry"))) wrong = null;
+    if (wrong != null && (wrong.equals(emo) || !wrong.matches("happy|sad|angry|surprise"))) wrong = null;
 
     String feelPick = wrong;   /* 아이가 방금 고른 카드를 짚어 준다 */
 
@@ -23,18 +23,21 @@
        /* 모달 마크업은 늘 그린다 — 오답을 누르면 story.js 가 그 자리에서 연다.
           ?wrong= 로 직접 들어온 경우에만 처음부터 열려 있다(JS 꺼짐 대비). */
        String shown = (wrong != null) ? wrong : "happy";
-       /* 모달 문구 — Figma 원문은 '화남을 골랐는데 정답이 슬픔'인 한 벌뿐이다.
-          앞은 고른 감정의 특징, 뒤는 정답 감정의 단서로 갈라 6조합을 만든다.
-          angry + sad 조합이 Figma 원문과 정확히 같다. */
+       /* 앞은 고른 감정의 특징, 뒤는 정답 감정의 단서.
+          ⚠ 앞 문장은 화면을 그릴 때 한 벌만 박힌다. 실제로 어떤 카드를 눌렀는지는
+            story.js 가 열면서 갈아끼운다(paintTrait). 여기 값은 ?wrong= 로 바로 들어온
+            경우와 JS 가 꺼진 경우의 기본값이다. */
        String[][] wrongTraits = {
-           {"happy", "기쁠 때는 입꼬리가 올라가."},
-           {"sad",   "슬플 때는 눈썹이 아래로 처져."},
-           {"angry", "화날 때는 눈썹이 뾰족해져."}
+           {"happy",    "기쁠 때는 입꼬리가 올라가."},
+           {"sad",      "슬플 때는 눈썹이 아래로 처져."},
+           {"angry",    "화날 때는 눈썹이 뾰족해져."},
+           {"surprise", "놀랄 때는 눈이 동그래져."}
        };
        String[][] answerClues = {
-           {"sad",   "지금 나는 눈물이 나고 있어… 어떤 마음일까?"},
-           {"angry", "지금 내 얼굴은 뜨거워졌어… 어떤 마음일까?"},
-           {"happy", "지금 나는 깡충깡충 뛰고 있어… 어떤 마음일까?"}
+           {"sad",      "지금 나는 눈물이 나고 있어… 어떤 마음일까?"},
+           {"angry",    "지금 내 얼굴은 뜨거워졌어… 어떤 마음일까?"},
+           {"happy",    "지금 나는 깡충깡충 뛰고 있어… 어떤 마음일까?"},
+           {"surprise", "지금 내 눈은 동그래졌어… 어떤 마음일까?"}
        };
        String trait = "", clue = "";
        for (String[] r : wrongTraits) { if (r[0].equals(shown)) trait = r[1]; }

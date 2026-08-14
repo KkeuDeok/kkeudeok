@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.ExpressionCalibMapper">
+
+    <delete id="deleteByEmotion">
+        DELETE FROM expression_calib
+         WHERE child_id = #{childId}
+           AND emotion_type = #{emotionType}
+    </delete>
+
+    <insert id="insertCalib" parameterType="kopo.kkeudeok.dto.ExpressionCalibDTO"
+            useGeneratedKeys="true" keyProperty="calibId">
+        INSERT INTO expression_calib (child_id, emotion_type, landmark_data, media_url, created_at)
+        VALUES (#{childId}, #{emotionType}, #{landmarkData}, #{mediaUrl}, NOW())
+    </insert>
+
+    <select id="selectByChild" resultType="kopo.kkeudeok.dto.ExpressionCalibDTO">
+        SELECT calib_id
+             , child_id
+             , emotion_type
+             , landmark_data
+             , media_url
+             , created_at
+          FROM expression_calib
+         WHERE child_id = #{childId}
+         ORDER BY calib_id
+    </select>
+
+    <delete id="deleteByChild">
+        DELETE FROM expression_calib
+         WHERE child_id = #{childId}
+    </delete>
+
+</mapper>

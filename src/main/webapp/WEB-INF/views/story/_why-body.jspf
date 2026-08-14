@@ -16,7 +16,8 @@
     String[][] whyTitles = {
         {"sad",   "{c}는 왜 슬퍼졌을까?"},
         {"angry", "{c}는 왜 화가 났을까?"},
-        {"happy", "{c}는 왜 기뻐졌을까?"}
+        {"happy", "{c}는 왜 기뻐졌을까?"},
+        {"surprise", "{c}는 왜 놀랐을까?"}
     };
     String whyTitle = whyTitles[0][1];
     for (String[] row : whyTitles) {
@@ -25,9 +26,10 @@
 
     /* 정답(원인) — 문구 · 그림 포즈. 오답은 3벌 공통으로 '졸려서'(sleepy) 하나다 */
     String[][] whyCauses = {
-        {"sad",   "넘어져서 아파서",        "hurt"},
-        {"angry", "내가 블록을 무너뜨려서", "angry"},
-        {"happy", "선물을 받아서",          "happy"}
+        {"sad",   "길을 잃어서 무서워서", "sad"},
+        {"angry", "내가 무너뜨려서", "angry"},
+        {"happy", "선물을 받아서",          "happy"},
+        {"surprise", "큰 소리가 나서", "surprise"}
     };
     String[] whyCause = whyCauses[0];
     for (String[] row : whyCauses) {
@@ -38,9 +40,10 @@
        예전엔 정답 카드에 테두리를 둘렀는데 그건 힌트가 아니라 답이다(2026-08-10 지적).
        ⚠ 문구는 Figma 에 없다. 임시 — 기획·팀장 확정 필요. */
     String[][] whyHints = {
-        {"sad",   "그림 속 표정을 잘 봐. 아파서 찡그린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"sad",   "그림 속 표정을 잘 봐. 무서워서 찡그린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
         {"angry", "그림 속 표정을 잘 봐. 속상해서 찌푸린 얼굴일까, 졸려서 하품하는 얼굴일까?"},
-        {"happy", "그림 속 표정을 잘 봐. 좋아서 웃는 얼굴일까, 졸려서 하품하는 얼굴일까?"}
+        {"happy", "그림 속 표정을 잘 봐. 좋아서 웃는 얼굴일까, 졸려서 하품하는 얼굴일까?"},
+        {"surprise", "그림 속 표정을 잘 봐. 놀라서 눈이 커진 얼굴일까, 졸려서 하품하는 얼굴일까?"}
     };
     String whyHint = whyHints[0][1];
     for (String[] row : whyHints) {
