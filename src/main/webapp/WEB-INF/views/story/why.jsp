@@ -8,7 +8,7 @@
          오답 카드      → 그 자리에서 오답 모달이 뜬다. 아이가 '새로고침만 됐다'고 느끼면 안 된다.
        ?wrong=other 로 직접 들어와도 모달이 열린 채 그려진다(JS 꺼짐 대비). */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     boolean whyWrong = "other".equals(request.getParameter("wrong"));
     String whyPick = whyWrong ? "other" : null;

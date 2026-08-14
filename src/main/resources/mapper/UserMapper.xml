@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.IUserMapper">
+
+    <select id="getLoginIdExists" parameterType="UserDTO" resultType="UserDTO">
+        SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
+        FROM member
+        WHERE login_id = #{loginId}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="getEmailExists" parameterType="UserDTO" resultType="UserDTO">
+        SELECT CASE WHEN COUNT(member_id) > 0 THEN 'Y' ELSE 'N' END AS exists_yn
+        FROM member
+        WHERE email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <insert id="insertUser" parameterType="UserDTO">
+        INSERT INTO member (
+            login_id,
+            password,
+            name,
+            email,
+            agree_service,
+            agree_privacy,
+            agree_sensitive,
+            agreed_at,
+            notify_weekly_report,
+            notify_reminder,
+            agree_marketing,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{loginId},
+            #{password},
+            #{name},
+            #{email},
+            #{agreeService},
+            #{agreePrivacy},
+            #{agreeSensitive},
+            #{agreedAt},
+            #{notifyWeeklyReport},
+            #{notifyReminder},
+            #{agreeMarketing},
+            #{createdAt},
+            #{updatedAt}
+        )
+    </insert>
+
+    <select id="getLogin" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email, parent_pin
+        FROM member
+        WHERE login_id = #{loginId}
+          AND password = #{password}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="getFindId" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE name = #{name}
+          AND email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <select id="getFindPwUser" parameterType="UserDTO" resultType="UserDTO">
+        SELECT member_id, login_id, name, email
+        FROM member
+        WHERE email = #{email}
+          AND deleted_at IS NULL
+    </select>
+
+    <update id="updateParentPin" parameterType="UserDTO">
+        UPDATE member
+        SET parent_pin = #{parentPin},
+            updated_at = #{updatedAt}
+        WHERE member_id = #{memberId}
+          AND deleted_at IS NULL
+    </update>
+
+    <update id="updatePassword" parameterType="UserDTO">
+        UPDATE member
+        SET password   = #{password},
+            updated_at = #{updatedAt}
+        WHERE login_id = #{loginId}
+          AND deleted_at IS NULL
+    </update>
+
+</mapper>

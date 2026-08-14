@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.ChildMapper">
+
+    <sql id="cols">
+        child_id
+        , member_id
+        , name
+        , birth_date
+        , gender
+        , disorder_type
+        , severity
+        , character_type
+        , character_nickname
+    </sql>
+
+    <select id="selectChild" resultType="kopo.kkeudeok.dto.ChildDTO">
+        SELECT <include refid="cols"/>
+          FROM child
+         WHERE child_id = #{childId}
+           AND deleted_at IS NULL
+    </select>
+
+    <!-- 이 보호자의 아이. 온보딩 완료 판단과 화면의 이름 표시에 함께 쓴다. -->
+    <select id="selectChildByMember" resultType="kopo.kkeudeok.dto.ChildDTO">
+        SELECT <include refid="cols"/>
+          FROM child
+         WHERE member_id = #{memberId}
+           AND deleted_at IS NULL
+         ORDER BY child_id
+         LIMIT 1
+    </select>
+
+    <!-- 로그인이 붙기 전까지 쓰는 기본 아동. 붙고 나면 이 메서드는 지운다. -->
+    <select id="selectFirstChild" resultType="kopo.kkeudeok.dto.ChildDTO">
+        SELECT <include refid="cols"/>
+          FROM child
+         WHERE deleted_at IS NULL
+         ORDER BY child_id
+         LIMIT 1
+    </select>
+
+</mapper>

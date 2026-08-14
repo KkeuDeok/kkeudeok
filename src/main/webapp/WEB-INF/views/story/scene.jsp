@@ -11,12 +11,13 @@
          angry = Figma 에 화남 벌이 없다. 전부 임시 — 기획 확정 필요.
                  학습5 에서 '미안하다고 말하기'로 이어지도록 **내 실수로 무너뜨린 상황**으로 잡았다. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String[][] storyScenes = {
         {"sad",   "{c}가 처음 간 곳에서 길을 잃을 뻔했어요", "낯선 곳이라 무서웠어요. 그래서 울고 있어요.",   "{c}를 도와줄래?"},
         {"angry", "{c}가 쌓은 블록을 내가 실수로 무너뜨렸어요", "열심히 만든 게 무너져서 화가 났어요.",       "{c}를 도와줄래?"},
-        {"happy", "{c}가 친구에게 깜짝 선물을 받았어요",     "너무 좋아서 깡충깡충 뛰었어요. 기분이 좋대요!", "{c}랑 같이 기뻐할래?"}
+        {"happy", "{c}가 친구에게 깜짝 선물을 받았어요",     "너무 좋아서 깡충깡충 뛰었어요. 기분이 좋대요!", "{c}랑 같이 기뻐할래?"},
+        {"surprise", "{c}가 갑자기 큰 소리에 깜짝 놀랐어요", "쿵 소리가 나서 눈이 동그래졌어요. 가슴이 콩콩 뛰어요.", "{c}를 안심시켜 줄래?"}
     };
     String[] sc = storyScenes[0];
     for (String[] row : storyScenes) {

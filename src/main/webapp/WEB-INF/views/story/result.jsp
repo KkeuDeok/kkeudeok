@@ -8,7 +8,7 @@
        ⚠ Figma 캔버스에 "3초 있다가 홈 화면으로 넘어가도록" 메모가 있다. 아동홈 화면이
          아직 없어서 자동 이동은 넣지 않았다. */
     String emo = request.getParameter("emo");
-    if (!"happy".equals(emo) && !"angry".equals(emo)) emo = "sad";
+    if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String pageTitle  = "잘했어요";
     String storyStep  = "praise";
@@ -44,7 +44,7 @@
 <div class="done-stage" data-home="/dashboard" role="button" tabindex="0" aria-label="오늘 학습 마치기">
     <div class="done-art"><img data-kd-char="proud" src="/img/char-tori-proud.png" alt=""></div>
 
-    <h1 class="done-title">고마워, 지우야!</h1>
+    <h1 class="done-title">고마워, <span data-kd="childCall">지우</span>야!</h1>
     <p class="done-sub">마음이 따뜻해졌어</p>
     <p class="done-tap">화면을 누르면 오늘 학습을 마쳐요</p>
 </div>

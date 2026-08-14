@@ -1,13 +1,39 @@
-/* 로그인·회원가입·아이디/비밀번호찾기·온보딩 클라이언트 유효성 검사 (데모)
-   - 백엔드 연동 시 서버 검증으로 대체하고, 인증번호는 실제 발송·대조로 교체할 것
-   - 데모 규칙: 임시 인증번호 040505만 통과 */
+
 (function () {
     'use strict';
 
     /* ---------- 공통 헬퍼 ---------- */
     function $(id) { return document.getElementById(id); }
 
-    function fieldOf(input) { return input.closest('.kd-field'); }
+    function postForm(url, params) {
+        var body = Object.keys(params).map(function (k) {
+            return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+        }).join('&');
+
+        return fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+        }).then(function (res) { return res.json(); });
+    }
+
+    function showServerError(data, fallbackId) {
+        var el = (data && data.field) ? $(data.field) : null;
+        setError(el || $(fallbackId), data.msg);
+    }
+
+    function onFail(input) {
+        return function (err) {
+            console.error(err);
+            setError(input, '통신에 실패했습니다. 잠시 후 다시 시도해 주세요');
+        };
+    }
+
+    function fieldOf(target) {
+        if (!target) return null;
+
+        return target.closest('.kd-field');
+    }
 
     function setError(input, msg) {
         var field = fieldOf(input);
@@ -55,7 +81,6 @@
     var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;   /* 이름: 한글·영문 2~20자 */
     var ID_RE = /^[a-z0-9]{4,12}$/;          /* 아이디: 영문 소문자·숫자 4~12자 */
     var CODE_RE = /^\d{6}$/;
-    var DEMO_CODE = '040505';   /* 임시 인증번호 — 백엔드 연동 시 제거 */
 
     function checkRequired(input, msg) {
         if (!input.value.trim()) { setError(input, msg); return false; }
@@ -76,6 +101,15 @@
         clearError(input); return true;
     }
 
+    /* 아이 이름도 보호자 이름과 같은 규칙 — 예전엔 빈칸만 봐서 숫자·기호가 그대로 들어갔고,
+       학습 화면에 "안녕 이1야!" 처럼 나왔다(2026-08-14 지적). */
+    function checkChildName(input) {
+        var v = input.value.trim();
+        if (!v) { setError(input, '아이 이름을 입력해 주세요'); return false; }
+        if (!NAME_RE.test(v)) { setError(input, '이름은 한글 또는 영문 2~20자로 입력해 주세요'); return false; }
+        clearError(input); return true;
+    }
+
     function checkLoginId(input) {
         var v = input.value.trim();
         if (!v) { setError(input, '아이디를 입력해 주세요'); return false; }
@@ -83,8 +117,6 @@
         clearError(input); return true;
     }
 
-    /* 비밀번호 규칙 한 곳 — 제출 검사와 실시간 검사가 같이 쓴다.
-       어긴 이유를 돌려줘야 원인별 멘트가 된다 (빈 문자열 = 통과) */
     function pwWhy(v) {
         if (v.length < 8) return '비밀번호는 8자 이상이어야 합니다';
         if (!/[a-zA-Z]/.test(v)) return '비밀번호에 영문을 포함해 주세요';
@@ -123,9 +155,7 @@
         if (codeExpired) {
             setError(code, '인증 시간이 지났습니다. 인증번호를 다시 전송해 주세요'); return false;
         }
-        if (code.value.trim() !== DEMO_CODE) {
-            setError(code, '인증번호가 일치하지 않습니다'); return false;
-        }
+        /* 값이 맞는지는 서버가 판정한다(세션에 정답이 있다) — 여기서는 형식·시간만 본다 */
         clearError(code); return true;
     }
 
@@ -158,21 +188,40 @@
         if (kind === 'findId') ok = checkUserName($('userName')) && ok;
         ok = checkEmail($('email')) && ok;
         if (!ok) return;
-        codeExpired = false;
-        var field = $('authCodeField');
-        field.classList.remove('is-hidden');
-        startTimer(field);
-        setInfo($('email'), '인증번호를 보냈습니다. 메일함을 확인해 주세요');
-        $('authCode').focus();
+
+        /* 서버가 메일을 실제로 보낸 뒤에 칸을 열고 타이머를 돌린다 —
+           먼저 열어 두면 발송이 실패했는데도 입력할 수 있는 것처럼 보인다. */
+        postForm('/sendAuthCodeProc', { email: $('email').value.trim(), kind: kind })
+            .then(function (data) {
+                if (data.result !== 1) { showServerError(data, 'email'); return; }
+
+                codeExpired = false;
+                var field = $('authCodeField');
+                field.classList.remove('is-hidden');
+                startTimer(field);
+                setInfo($('email'), data.msg);
+                $('authCode').focus();
+            })
+            .catch(onFail($('email')));
     };
 
     /* ---------- 폼별 제출 검증 ---------- */
     window.kdSubmitLogin = function () {
         clearAllErrors();
-        /* 실제 인증은 백엔드 몫 — 데모에서는 입력 검사만 하고 최초 1회 흐름(PIN 설정)으로 넘긴다 */
         var ok = checkRequired($('loginId'), '아이디를 입력해 주세요');
         ok = checkRequired($('password'), '비밀번호를 입력해 주세요') && ok;
-        if (ok) location.href = '/onboarding/pin';
+        if (!ok) return;
+
+        postForm('/loginProc', {
+            loginId: $('loginId').value.trim(),
+            password: $('password').value
+        }).then(function (data) {
+            /* 어느 쪽이 틀렸는지 알려 주지 않는다(계정 존재 여부가 새어 나간다) — 서버 문구를 그대로 쓴다 */
+            /* 어디로 갈지는 서버가 정한다(data.next) — 보호자 PIN 을 만들었는지,
+               아이를 등록했는지는 DB 를 봐야 안다. 화면이 정하면 최초 1회가 매번 반복된다. */
+            if (data.result === 1) location.href = data.next || '/dashboard';
+            else showServerError(data, 'password');
+        }).catch(onFail($('password')));
     };
 
     window.kdSubmitSignup = function () {
@@ -184,10 +233,23 @@
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
         if (!ok) return;
-        /* 가입 폼에 적은 보호자 이름·이메일을 마이페이지에서 그대로 보여 준다.
-           예전에는 버려져서 아이 이름과 같은 예시값('김지우')이 남아 두 탭이 같은 사람처럼 보였다 */
-        saveOnb({ guardianName: $('userName').value.trim(), email: $('email').value.trim() });
-        location.href = '/signup/done';
+
+        postForm('/signupProc', {
+            userName: $('userName').value.trim(),
+            loginId: $('loginId').value.trim(),
+            password: $('password').value,
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            if (data.result !== 1) {
+                showServerError(data, 'authCode');
+                return;
+            }
+            /* 가입 폼에 적은 보호자 이름·이메일을 마이페이지에서 그대로 보여 준다.
+               예전에는 버려져서 아이 이름과 같은 예시값('김지우')이 남아 두 탭이 같은 사람처럼 보였다 */
+            saveOnb({ guardianName: $('userName').value.trim(), email: $('email').value.trim() });
+            location.href = '/signup/done';
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindId = function () {
@@ -195,27 +257,49 @@
         var ok = checkUserName($('userName'));
         var emailOk = checkEmail($('email'));
         ok = checkCode(emailOk) && emailOk && ok;
-        if (ok) location.href = '/find-id/result';
+        if (!ok) return;
+
+        postForm('/findIdProc', {
+            userName: $('userName').value.trim(),
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            /* 찾은 아이디는 세션에 담겨 있다 — 결과 화면이 꺼내 보여 준다(주소창에 싣지 않는다) */
+            if (data.result === 1) location.href = '/find-id/result';
+            else showServerError(data, 'authCode');
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindPwEmail = function () {
         clearAllErrors();
         var emailOk = checkEmail($('email'));
         var ok = checkCode(emailOk) && emailOk;
-        if (ok) location.href = '/find-pw/new';
+        if (!ok) return;
+
+        postForm('/findPwProc', {
+            email: $('email').value.trim(),
+            authCode: $('authCode').value.trim()
+        }).then(function (data) {
+            /* 통과하면 서버가 세션에 재설정 표를 끊어 준다 — 그 표가 있어야 다음 화면이 저장된다 */
+            if (data.result === 1) location.href = '/find-pw/new';
+            else showServerError(data, 'authCode');
+        }).catch(onFail($('authCode')));
     };
 
     window.kdSubmitFindPwNew = function () {
         clearAllErrors();
         var ok = checkPassword($('newPassword'));
         ok = checkMatch($('newPassword'), $('newPasswordCheck')) && ok;
-        if (ok) location.href = '/find-pw/done';
+        if (!ok) return;
+
+        postForm('/newPasswordProc', { newPassword: $('newPassword').value })
+            .then(function (data) {
+                if (data.result === 1) location.href = '/find-pw/done';
+                else showServerError(data, 'newPassword');
+            })
+            .catch(onFail($('newPassword')));
     };
 
-    /* ---------- 그림 드래그 차단 (전 화면 공통) ----------
-       kkeudeok.css 의 -webkit-user-drag 를 무시하는 브라우저까지 덮는다.
-       화면마다 draggable="false" 를 다는 대신 여기 한 곳에서 막으므로
-       앞으로 추가되는 이미지에도 자동으로 적용된다 */
     document.addEventListener('dragstart', function (e) {
         if (e.target && e.target.tagName === 'IMG') e.preventDefault();
     });
@@ -223,8 +307,6 @@
     /* ---------- 온보딩 0: 보호자 PIN ---------- */
     var PIN_RE = /^\d{4}$/;
 
-    /* 입력한 자릿수만큼 동그라미를 켠다. 글꼴이 그리는 '•' 는 세로 위치를 CSS 로
-       못 맞춰서 투명 처리하고 점을 직접 그린다(onboarding.css .onb-pin-dots) */
     function renderPinDots(input) {
         var box = input.parentNode.querySelector('.onb-pin-dots');
         if (!box) return;
@@ -254,7 +336,16 @@
         } else {
             clearError(pinCheck);
         }
-        if (ok) location.href = '/onboarding/start';
+        if (!ok) return;
+
+        /* PIN 을 실제로 저장한다. 예전에는 화면만 넘겨서 member.parent_pin 이 계속 비어 있었고,
+           그래서 로그인할 때마다 PIN 설정이 다시 떴다. */
+        postForm('/parentPinProc', { pin: $('pin').value })
+            .then(function (data) {
+                if (data.result === 1) location.href = data.next || '/onboarding/start';
+                else showServerError(data, 'pin');
+            })
+            .catch(onFail($('pin')));
     };
 
     /* ---------- 온보딩 1: 아이 정보 ---------- */
@@ -266,8 +357,6 @@
         return true;
     }
 
-    /* 온보딩 입력값 임시 보관 — 화면 이동이 POST 없이 location.href 라 값이 화면을 떠나면 사라진다.
-       백엔드(세션·DB)가 붙기 전까지 완료 화면에 보여줄 값만 탭 단위로 들고 있는다 */
     var ONB_KEY = 'kdOnb';
 
     function readOnb() {
@@ -281,9 +370,7 @@
         try { sessionStorage.setItem(ONB_KEY, JSON.stringify(cur)); } catch (e) { }
     }
 
-    /* ---------- 장애 유형 · 정도 (온보딩 1 · 마이페이지 아동 프로필 공통) ----------
-       정도는 유형에 딸린다 (팀장 확정 2026-08-11) — 자폐·지적은 중증만, 발달만 경증/중증.
-       ⚠ 이 표가 정도 목록의 유일한 주인이다. JSP 두 곳에 <option> 을 도로 박으면 또 어긋난다. */
+    //  ---------- 장애 유형 · 정도 (온보딩 1 · 마이페이지 아동 프로필 공통) ----------
     var DIS_LEVELS = {
         '자폐 장애': ['중증'],
         '지적 장애': ['중증'],
@@ -327,7 +414,7 @@
 
     window.kdSubmitOnbProfile = function () {
         clearAllErrors();
-        var ok = checkRequired($('childName'), '아이 이름을 입력해 주세요');
+        var ok = checkChildName($('childName'));
         ok = checkGroup([$('birthYear'), $('birthMonth'), $('birthDay')], '생년월일을 모두 선택해 주세요') && ok;
         /* 유형·정도는 한 kd-field 라 오류 문구 자리가 하나뿐이다 — 유형부터 순서대로 본다 */
         if (!$('disabilityType').value) { setError($('disabilityType'), '장애 유형을 선택해 주세요'); ok = false; }
@@ -698,10 +785,11 @@
         newPassword: pwLive,
         passwordCheck: function (el) { return !!el.value && el.value === $('password').value; },
         newPasswordCheck: function (el) { return !!el.value && el.value === $('newPassword').value; },
-        authCode: function (el) { return !codeExpired && el.value.trim() === DEMO_CODE; },
+        /* 정답 대조는 서버가 한다 — 여기서는 6자리 형식과 시간만 본다 */
+        authCode: function (el) { return !codeExpired && CODE_RE.test(el.value.trim()); },
         pin: function (el) { return PIN_RE.test(el.value); },
         pinCheck: function (el) { return !!el.value && el.value === $('pin').value; },
-        childName: notBlank,
+        childName: function (el) { return NAME_RE.test(el.value.trim()); },
         birthYear: hasValue,
         birthMonth: hasValue,
         birthDay: hasValue,
@@ -730,6 +818,42 @@
         var pairId = PAIRS[el.id];
         if (pairId && $(pairId)) liveRevalidate($(pairId));
     });
+
+    /* ---------- 아이디 중복은 칸을 벗어날 때 미리 물어본다 (회원가입 화면만) ----------
+       예전에는 [확인]을 눌러야 알 수 있었다. 그런데 그 시점엔 인증번호까지 받은 뒤라,
+       아이디가 겹치면 인증번호를 다시 받아야 했다. 미리 알면 그럴 일이 없다.
+       passwordCheck 칸이 있는 화면 = 회원가입 (로그인 화면에는 없다). */
+    (function initLoginIdDupCheck() {
+        var id = $('loginId');
+        if (!id || !$('passwordCheck')) return;
+
+        var lastAsked = '';
+
+        id.addEventListener('blur', function () {
+            var v = id.value.trim();
+            /* 형식이 틀렸으면 그 오류가 먼저다 — 서버에 물어볼 것도 없다 */
+            if (!v || !ID_RE.test(v) || v === lastAsked) return;
+            lastAsked = v;
+
+            postForm('/checkLoginIdProc', { loginId: v })
+                .then(function (data) {
+                    /* 물어보는 사이에 사용자가 값을 또 바꿨으면 그 답은 버린다 */
+                    if (id.value.trim() !== v) return;
+                    if (data.result === 1) setInfo(id, data.msg);
+                    else showServerError(data, 'loginId');
+                })
+                .catch(function () { /* 중복 확인은 편의 기능 — 실패해도 제출은 서버가 다시 본다 */ });
+        });
+
+        /* 값을 고치면 이전 답(초록 안내 포함)을 지우고 다시 물어볼 수 있게 한다 */
+        id.addEventListener('input', function () {
+            if (id.value.trim() !== lastAsked) {
+                lastAsked = '';
+                var f = fieldOf(id);
+                if (f) f.querySelectorAll('.kd-info').forEach(function (e) { e.remove(); });
+            }
+        });
+    })();
 
     /* ---------- data-nocopy 필드: 복사·잘라내기·붙여넣기 차단 ----------
        비밀번호를 눈으로 다시 치게 해 오타를 잡는 목적. 로그인 화면은 대상이 아니다

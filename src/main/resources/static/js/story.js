@@ -10,8 +10,32 @@
        "졸려서를 눌렀더니 새로고침만 됐다"고 느꼈다. 이제 클릭을 가로채 모달만 띄운다. */
     var dim = document.querySelector('.story-dim');
 
+    /* 오답 모달의 앞 문장은 **누른 카드**의 특징이어야 한다.
+       ⚠ 예전엔 JSP 가 화면 그릴 때 한 벌만 박아 둬서, 화나요를 눌러도 놀랐어요를 눌러도
+         "기쁠 때는 입꼬리가 올라가" 가 떴다(2026-08-13 지적). 누를 때 갈아끼운다.
+       카드에 data-trait 이 없으면(옛 마크업) 아래 표로 메운다. */
+    var FEEL_TRAIT = {
+        happy:    '기쁠 때는 입꼬리가 올라가.',
+        sad:      '슬플 때는 눈썹이 아래로 처져.',
+        angry:    '화날 때는 눈썹이 뾰족해져.',
+        surprise: '놀랄 때는 눈이 동그래져.'
+    };
+
+    function paintTrait(pickEl) {
+        if (!pickEl || !dim) return;
+
+        var span = dim.querySelector('.clue span');
+        if (!span) return;
+
+        var key = pickEl.getAttribute('data-kd-key') || pickEl.getAttribute('data-wrong');
+        var trait = pickEl.getAttribute('data-trait') || FEEL_TRAIT[key];
+
+        if (trait) span.textContent = trait;
+    }
+
     function openWrong(pickEl) {
         if (!dim) return false;
+        paintTrait(pickEl);
         document.querySelectorAll('.feel-card.is-pick, .why-card.is-pick')
             .forEach(function (el) { el.classList.remove('is-pick'); });
         if (pickEl) pickEl.classList.add('is-pick');
@@ -33,11 +57,6 @@
             .forEach(function (el) { el.classList.remove('is-pick'); });
     }
 
-    document.querySelectorAll('[data-wrong]').forEach(function (card) {
-        card.addEventListener('click', function (e) {
-            if (openWrong(card)) e.preventDefault();
-        });
-    });
 
     if (dim) {
         dim.querySelectorAll('[data-close]').forEach(function (b) {
@@ -86,11 +105,26 @@
         setTimeout(function () { location.href = href; }, 1100);
     }
 
-    document.querySelectorAll('[data-right]').forEach(function (card) {
-        card.addEventListener('click', function (e) {
+    /* ---------- 카드 클릭 — 정답/오답을 **누를 때** 판정한다 ----------
+       ⚠ 예전엔 화면이 뜰 때 [data-right]/[data-wrong] 을 찾아 카드마다 따로 핸들러를 달았다.
+         그러면 나중에 attribute 가 바뀌어도 핸들러는 처음 붙은 자리에 그대로 남는다.
+         AI 가 카드 구성을 정하면서(2026-08-13) story-session.js 가 늦게 정답 자리를 옮기는데,
+         옛 방식에서는 **바뀌기 전 카드가 계속 정답으로 동작**했다.
+       그래서 위임(delegation)으로 바꿨다 — 누르는 순간의 attribute 를 본다. */
+    document.addEventListener('click', function (e) {
+        var card = e.target.closest ? e.target.closest('.feel-card, .why-card') : null;
+        if (!card) return;
+
+        /* 카드 안의 소리 배지는 자기 핸들러에서 전파를 끊는다(아래) — 여기까지 오지 않는다 */
+        if (card.hasAttribute('data-right')) {
             e.preventDefault();
             cheer(card, card.getAttribute('href'));
-        });
+            return;
+        }
+
+        if (card.hasAttribute('data-wrong')) {
+            if (openWrong(card)) e.preventDefault();
+        }
     });
 
     /* ---------- [다시 들려줘] — 화면 글을 소리로 읽어 준다 ----------

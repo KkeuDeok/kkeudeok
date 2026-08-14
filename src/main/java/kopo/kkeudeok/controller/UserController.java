@@ -2,24 +2,26 @@ package kopo.kkeudeok.controller;
 
 import java.util.Set;
 
+import jakarta.servlet.http.HttpSession;
+import kopo.kkeudeok.util.CmmUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
-/**
- * 로그인·회원가입 화면 라우팅 (프론트 구현분 확인용 골격).
- *
- * GET 매핑으로 JSP를 띄우는 것까지만 담당한다. 로그인 처리·회원가입 저장 등
- * POST 로직은 백엔드 담당이 이 클래스에 채우거나 별도 컨트롤러로 분리하면 된다.
- * 화면에서 [확인]·[다음] 버튼은 아직 auth-validate.js 가 클라이언트 검증 후
- * location.href 로 넘기는 데모 상태다.
- */
+import kopo.kkeudeok.dto.ProfileDTO;
+import kopo.kkeudeok.service.IProfileService;
+import kopo.kkeudeok.util.SessionKeys; // SessionKeys import 추가 완료!
+
 @Controller
 public class UserController {
 
-    /** 주소창에 localhost:8080 만 쳤을 때 404 대신 로그인으로 보낸다. */
+    @Autowired
+    private IProfileService profileService;
+
     @GetMapping("/")
     public String root() {
         return "redirect:/login";
@@ -30,20 +32,27 @@ public class UserController {
         return "auth/login";
     }
 
+    /* ---------- 회원가입 3단계 ---------- */
+
+    /** 1단계 약관동의 */
     @GetMapping("/signup/terms")
     public String signupTerms() {
         return "auth/signup-terms";
     }
 
+    /** 2단계 정보입력 */
     @GetMapping("/signup/form")
     public String signupForm() {
         return "auth/signup-form";
     }
 
+    /** 3단계 가입완료 */
     @GetMapping("/signup/done")
     public String signupDone() {
         return "auth/signup-done";
     }
+
+    /* ---------- 아이디 찾기 ---------- */
 
     @GetMapping("/find-id")
     public String findId() {
@@ -51,9 +60,19 @@ public class UserController {
     }
 
     @GetMapping("/find-id/result")
-    public String findIdResult() {
+    public String findIdResult(HttpSession session, ModelMap model) {
+        String foundId = (String) session.getAttribute(AuthApiController.SS_FOUND_ID);
+
+        if (foundId == null) {
+            return "redirect:/find-id";
+        }
+
+        session.removeAttribute(AuthApiController.SS_FOUND_ID);
+        model.addAttribute("foundId", foundId);
         return "auth/find-id-result";
     }
+
+    /* ---------- 비밀번호 찾기 ---------- */
 
     @GetMapping("/find-pw")
     public String findPwEmail() {
@@ -73,14 +92,16 @@ public class UserController {
     /* ---------- 온보딩(보호자) ---------- */
 
     @GetMapping("/onboarding/pin")
-    public String onboardingPin() {
+    public String onboardingPin(HttpSession session) {
+        if (session.getAttribute("SS_USER_ID") == null) {
+            return "redirect:/login";
+        }
+        if (Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_SET))) {
+            return "redirect:/onboarding/start";
+        }
         return "onboarding/pin";
     }
 
-    /**
-     * PIN 설정 곰 버전 시안 — 흐름에 연결돼 있지 않다(직접 주소로만 접근).
-     * 채택되면 로그인 성공 시 이동 경로를 이쪽으로 바꾸면 된다.
-     */
     @GetMapping("/onboarding/pin-bear")
     public String onboardingPinBear() {
         return "onboarding/pin-bear";
@@ -182,22 +203,46 @@ public class UserController {
         return "mypage/account";
     }
 
+    // 아이 정보 조회 로직 - SessionKeys를 사용하여 숫자형(Long) 아이디를 안전하게 가져옵니다.
     @GetMapping("/mypage/child")
-    public String mypageChild() {
+    public String mypageChild(HttpSession session, ModelMap model) throws Exception {
+
+        Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+        if (memberId != null) {
+            ProfileDTO pDTO = new ProfileDTO();
+            pDTO.setMemberId(memberId);
+
+            // DB에서 아이 정보 가져오기
+            ProfileDTO child = profileService.getProfile(pDTO);
+
+            // JSP 화면에서 쓸 수 있도록 'child'라는 이름표를 붙여서 넘겨주기
+            model.addAttribute("child", child);
+        }
+
         return "mypage/child";
     }
 
     @GetMapping("/mypage/character")
-    public String mypageCharacter() {
+    public String mypageCharacter(HttpSession session, ModelMap model) throws Exception {
+
+        // 바로 위의 /mypage/child 와 동일하게 세션에서 회원 ID(memberId)를 안전하게 꺼냅니다.
+        Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
+
+        if (memberId != null) {
+            ProfileDTO pDTO = new ProfileDTO();
+            pDTO.setMemberId(memberId); // 👈 setCharacterNickname 대신 setMemberId 사용!
+
+            // DB에서 아이 정보 가져오기
+            ProfileDTO child = profileService.getProfile(pDTO);
+
+            // JSP 화면으로 'child' 전달
+            model.addAttribute("child", child);
+        }
+
         return "mypage/character";
     }
 
-    /* ---------- 아동 학습 흐름(스토리) — 스텝 이야기/마음/왜?/표정/행동/칭찬 ----------
-       화면만 늘어나고 화면별 로직이 없어 한 라우트로 받는다. 화면을 추가할 때
-       JSP 만 만들고 아래 목록에 이름을 넣으면 되므로 서버 재시작이 필요 없다.
-       (컨트롤러를 고치면 재시작이 필요한데 8080 서버 주인이 다른 세션일 때가 많다.)
-       ⚠ 화이트리스트 밖은 404 — 임의 경로로 JSP 를 훑는 걸 막는다.
-       감정 벌은 전부 `?emo=sad|angry|happy` 로 갈린다(기본 sad). */
     private static final Set<String> STORY_STEPS = Set.of(
             "home",          // 아동홈 — 학습 단계가 아니라 흐름의 입구다(스텝바·하단바 없음)
             "scene",         // 학습1 상황 이야기

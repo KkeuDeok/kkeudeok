@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="kopo.kkeudeok.mapper.StoryMapper">
+
+    <insert id="insertStory" parameterType="kopo.kkeudeok.dto.StoryDTO"
+            useGeneratedKeys="true" keyProperty="storyId">
+        INSERT INTO story (child_id, title, situation_type, is_generated, created_at)
+        VALUES (#{childId}, #{title}, #{situationType}, #{isGenerated}, NOW())
+    </insert>
+
+    <update id="updateStoryTitle">
+        UPDATE story
+           SET title = #{title}
+         WHERE story_id = #{storyId}
+    </update>
+
+    <select id="selectStory" resultType="kopo.kkeudeok.dto.StoryDTO">
+        SELECT story_id
+             , child_id
+             , title
+             , situation_type
+             , is_generated
+          FROM story
+         WHERE story_id = #{storyId}
+    </select>
+
+    <!--
+      story_node — 노드는 story 에 붙는다(session 이 아니다).
+      제목·정답·코칭·힌트·포즈·선택지는 테이블에 칸이 없어 choice_data JSON 에 담는다.
+      ⚠ choice_data 에는 CHECK json_valid 가 걸려 있다. 깨진 문자열을 넣으면 INSERT 가
+        통째로 실패하므로, 만드는 쪽(StoryNodeMeta)에서 실패하면 null 을 넣는다.
+    -->
+    <insert id="insertNode" parameterType="kopo.kkeudeok.dto.StoryNodeDTO"
+            useGeneratedKeys="true" keyProperty="nodeId">
+        INSERT INTO story_node (story_id, node_order, stage_type, narration,
+                                question_text, choice_data)
+        VALUES (#{storyId}, #{nodeOrder}, #{stageType}, #{narration},
+                #{questionText}, #{choiceData})
+    </insert>
+
+    <sql id="nodeCols">
+        node_id
+        , story_id
+        , node_order
+        , stage_type
+        , narration
+        , question_text
+        , choice_data
+    </sql>
+
+    <select id="selectNodes" resultType="kopo.kkeudeok.dto.StoryNodeDTO">
+        SELECT <include refid="nodeCols"/>
+          FROM story_node
+         WHERE story_id = #{storyId}
+         ORDER BY node_order
+    </select>
+
+    <select id="selectNodeByOrder" resultType="kopo.kkeudeok.dto.StoryNodeDTO">
+        SELECT <include refid="nodeCols"/>
+          FROM story_node
+         WHERE story_id = #{storyId}
+           AND node_order = #{nodeOrder}
+    </select>
+
+</mapper>

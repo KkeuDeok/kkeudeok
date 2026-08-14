@@ -1,0 +1,241 @@
+package kopo.kkeudeok.controller;
+
+import kopo.kkeudeok.dto.UserDTO;
+import kopo.kkeudeok.mapper.ChildMapper;
+import kopo.kkeudeok.service.IMailService;
+import kopo.kkeudeok.service.IUserService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.mock.web.MockHttpSession;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+/**
+ * 인증번호를 "언제 폐기하는가"를 못 박는 테스트.
+ *
+ * 겪은 일(2026-08-14): 이메일 인증까지 마치고 [확인]을 눌렀더니 아이디가 겹친다고 나왔다.
+ * 아이디만 고쳐 다시 눌렀더니 이번엔 인증번호가 틀렸다고 했다 — 맞게 쳤는데도.
+ * 첫 시도에서 인증번호 대조에 성공하자마자 세션에서 지워 버려서였다.
+ * 되돌릴 수 없는 일(폐기)은 모든 검사를 통과한 뒤에 해야 한다.
+ */
+@WebMvcTest(AuthApiController.class)
+class AuthApiControllerTest {
+
+    private static final String EMAIL = "test.parent9@kkeudeok.local";
+    private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
+
+    @Autowired
+    private MockMvc mvc;
+
+    @MockitoBean
+    private IUserService userService;
+
+    @MockitoBean
+    private IMailService mailService;
+
+    /** ChildInfoAdvice(@ControllerAdvice)가 이 슬라이스에도 올라온다 — 쓰지는 않지만 빈이 있어야 뜬다. */
+    @MockitoBean
+    private ChildMapper childMapper;
+
+    /** existsYn 을 담은 UserDTO 하나. */
+    private UserDTO exists(String yn) {
+        UserDTO dto = new UserDTO();
+        dto.setExistsYn(yn);
+        return dto;
+    }
+
+    /** 인증번호를 발송받은 상태의 세션을 만든다. 실제 발송 흐름을 그대로 탄다. */
+    private MockHttpSession sessionWithCode() throws Exception {
+        given(userService.getEmailExists(any())).willReturn(exists("N"));
+
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(post("/sendAuthCodeProc")
+                        .param("email", EMAIL)
+                        .param("kind", "signup")
+                        .session(session))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.result").value(1));
+
+        assertThat(session.getAttribute(SS_AUTH_CODE)).as("발송하면 세션에 정답이 있어야 한다").isNotNull();
+        return session;
+    }
+
+    @Test
+    @DisplayName("아이디가 겹쳐 가입이 막혀도 인증번호는 살아 있다 — 아이디만 고쳐 다시 누르면 통과")
+    void duplicateLoginIdDoesNotBurnAuthCode() throws Exception {
+        MockHttpSession session = sessionWithCode();
+        String code = (String) session.getAttribute(SS_AUTH_CODE);
+
+        // 1) 겹치는 아이디로 시도 → 아이디 칸 오류
+        given(userService.getLoginIdExists(any())).willReturn(exists("Y"));
+
+        mvc.perform(post("/signupProc")
+                        .param("userName", "김보호").param("loginId", "taken")
+                        .param("password", "kkeudeok1").param("email", EMAIL)
+                        .param("authCode", code).session(session))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.field").value("loginId"));
+
+        assertThat(session.getAttribute(SS_AUTH_CODE))
+                .as("아이디가 겹쳤다고 인증번호까지 날리면 안 된다")
+                .isEqualTo(code);
+
+        // 2) 아이디만 바꿔 다시 시도 → 같은 인증번호로 통과
+        given(userService.getLoginIdExists(any())).willReturn(exists("N"));
+        given(userService.insertUser(any())).willReturn(1);
+
+        mvc.perform(post("/signupProc")
+                        .param("userName", "김보호").param("loginId", "free")
+                        .param("password", "kkeudeok1").param("email", EMAIL)
+                        .param("authCode", code).session(session))
+                .andExpect(jsonPath("$.result").value(1));
+
+        assertThat(session.getAttribute(SS_AUTH_CODE))
+                .as("가입을 끝냈으면 그때는 폐기해야 한다(재사용 방지)")
+                .isNull();
+    }
+
+    @Test
+    @DisplayName("인증번호가 틀리면 아이디·이메일 중복 오류보다 먼저 걸리지 않는다")
+    void duplicateChecksRunBeforeAuthCode() throws Exception {
+        MockHttpSession session = sessionWithCode();
+
+        given(userService.getLoginIdExists(any())).willReturn(exists("Y"));
+
+        // 인증번호를 틀리게 보내도, 먼저 알려 줄 것은 아이디 중복이다
+        mvc.perform(post("/signupProc")
+                        .param("userName", "김보호").param("loginId", "taken")
+                        .param("password", "kkeudeok1").param("email", EMAIL)
+                        .param("authCode", "000000").session(session))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.field").value("loginId"));
+    }
+
+    @Test
+    @DisplayName("인증번호가 틀리면 가입이 막히고, 그래도 인증번호는 남는다(다시 칠 수 있게)")
+    void wrongAuthCodeKeepsSession() throws Exception {
+        MockHttpSession session = sessionWithCode();
+        String code = (String) session.getAttribute(SS_AUTH_CODE);
+
+        given(userService.getLoginIdExists(any())).willReturn(exists("N"));
+
+        mvc.perform(post("/signupProc")
+                        .param("userName", "김보호").param("loginId", "free")
+                        .param("password", "kkeudeok1").param("email", EMAIL)
+                        .param("authCode", "000000").session(session))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.field").value("authCode"));
+
+        assertThat(session.getAttribute(SS_AUTH_CODE)).isEqualTo(code);
+    }
+
+    /* ================================================================
+     * 로그인 뒤 어디로 가는가 — 최초 1회 설정이 남았는지로 갈린다.
+     * 예전에는 화면이 무조건 /onboarding/pin 으로 보내서, PIN 을 이미 만든 사람도
+     * 로그인할 때마다 PIN 설정 화면을 다시 봤다(= 최초 1회가 아니었다).
+     * ================================================================ */
+
+    private UserDTO member(Long id, String parentPin) {
+        UserDTO dto = new UserDTO();
+        dto.setMemberId(id);
+        dto.setLoginId("pa1234");
+        dto.setName("김보호");
+        dto.setParentPin(parentPin);
+        return dto;
+    }
+
+    @Test
+    @DisplayName("PIN 을 아직 안 만들었으면 보호자 PIN 설정으로 보낸다")
+    void loginGoesToPinWhenNotSet() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(1L, null));
+
+        mvc.perform(post("/loginProc").param("loginId", "pa1234").param("password", "kkeudeok1"))
+                .andExpect(jsonPath("$.result").value(1))
+                .andExpect(jsonPath("$.next").value("/onboarding/pin"));
+    }
+
+    @Test
+    @DisplayName("PIN 은 있고 아이가 없으면 온보딩 시작으로 보낸다")
+    void loginGoesToOnboardingWhenNoChild() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(1L, "HASHED"));
+        given(userService.hasChild(1L)).willReturn(false);
+
+        mvc.perform(post("/loginProc").param("loginId", "pa1234").param("password", "kkeudeok1"))
+                .andExpect(jsonPath("$.next").value("/onboarding/start"));
+    }
+
+    @Test
+    @DisplayName("PIN 도 아이도 있으면 대시보드로 보낸다 — 최초 1회 화면을 다시 띄우지 않는다")
+    void loginGoesToDashboardWhenAllDone() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(1L, "HASHED"));
+        given(userService.hasChild(1L)).willReturn(true);
+
+        mvc.perform(post("/loginProc").param("loginId", "pa1234").param("password", "kkeudeok1"))
+                .andExpect(jsonPath("$.next").value("/dashboard"));
+    }
+
+    @Test
+    @DisplayName("로그인하면 세션에 memberId 가 들어간다 — 없으면 아이 등록이 통째로 실패한다")
+    void loginPutsMemberIdInSession() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(42L, "HASHED"));
+
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(post("/loginProc").param("loginId", "pa1234")
+                .param("password", "kkeudeok1").session(session));
+
+        assertThat(session.getAttribute("SS_MEMBER_ID")).isEqualTo(42L);
+    }
+
+    @Test
+    @DisplayName("PIN 을 저장하면 온보딩 시작으로 넘기고, 다시 안 묻도록 세션에 표시한다")
+    void savingPinMovesToOnboarding() throws Exception {
+        given(userService.updateParentPin(any())).willReturn(1);
+        given(userService.hasChild(1L)).willReturn(false);
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_MEMBER_ID", 1L);
+
+        mvc.perform(post("/parentPinProc").param("pin", "1234").session(session))
+                .andExpect(jsonPath("$.result").value(1))
+                .andExpect(jsonPath("$.next").value("/onboarding/start"));
+
+        assertThat(session.getAttribute(AuthApiController.SS_PIN_SET)).isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("로그인하지 않으면 PIN 을 만들 수 없다")
+    void pinNeedsLogin() throws Exception {
+        mvc.perform(post("/parentPinProc").param("pin", "1234"))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.field").value("pin"));
+    }
+
+    @Test
+    @DisplayName("아이디찾기: 이름이 안 맞아도 인증번호는 살아 있다")
+    void findIdKeepsCodeWhenNameWrong() throws Exception {
+        MockHttpSession session = sessionWithCode();
+        String code = (String) session.getAttribute(SS_AUTH_CODE);
+
+        given(userService.getEmailExists(any())).willReturn(exists("Y"));
+        given(userService.getFindId(any())).willReturn(null);
+
+        mvc.perform(post("/findIdProc")
+                        .param("userName", "틀린이름").param("email", EMAIL)
+                        .param("authCode", code).session(session))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.field").value("userName"));
+
+        assertThat(session.getAttribute(SS_AUTH_CODE))
+                .as("이름만 고쳐 다시 누를 수 있어야 한다")
+                .isEqualTo(code);
+    }
+}
