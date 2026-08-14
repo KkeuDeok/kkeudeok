@@ -12,7 +12,7 @@
             disorder_type AS disorderType,
             severity,
             character_type AS characterType,
-            character_nickname AS characterNickname
+            character_nickname AS characterNickname,
             created_at AS createdAt
         FROM child
         WHERE member_id = #{memberId}
