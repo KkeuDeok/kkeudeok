@@ -26,6 +26,13 @@
     else if ("bada".equals(charKey)) defaultCharName = "바다";
     else if ("bomi".equals(charKey)) defaultCharName = "보미";
     else if ("rubi".equals(charKey)) defaultCharName = "루비";
+
+    String defaultexplanation = "마음을 함께 읽어주는 다정한 친구예요"; // 기본값
+    if ("koko".equals(charKey)) defaultexplanation = "궁금한 게 많은 씩씩한 친구예요";
+    else if ("lala".equals(charKey)) defaultexplanation = "노래하며 기분을 밝게 해 주는 친구예요";
+    else if ("bada".equals(charKey)) defaultexplanation = "천천히 기다려 주는 차분한 친구예요";
+    else if ("bomi".equals(charKey)) defaultexplanation = "언제나 웃으며 응원해 주는 친구예요";
+    else if ("rubi".equals(charKey)) defaultexplanation = "속상한 날 곁에 있어 주는 친구예요";
 %>
 
 <div class="app-head mp-head">
@@ -46,7 +53,7 @@
                 <img class="big" id="charBig" src="/img/char-<%= charKey %>-neutral.png" alt="<%= nickname %>">
             </div>
             <p class="nm" id="charName"><%= defaultCharName %></p>
-            <p class="ds" id="charDesc">마음을 함께 읽어주는 다정한 친구예요</p>
+            <p class="ds" id="charDesc"><%= defaultexplanation %></p>
             <div class="kd-field">
                 <label class="kd-label" for="charNick">캐릭터 애칭</label>
                 <input class="kd-input" type="text" id="charNick" value="<%= nickname %>" data-auto="<%= nickname %>">
@@ -107,8 +114,6 @@
             document.getElementById('charBig').alt = name;
             document.getElementById('charName').textContent = name;
             document.getElementById('charDesc').textContent = radio.dataset.ds;
-            if (nick.value === nick.dataset.auto) nick.value = name;
-            nick.dataset.auto = name;
         });
     });
 
@@ -144,8 +149,11 @@
                     if (typeof kdSaved === 'function') kdSaved('캐릭터를 성공적으로 저장했어요');
                     else alert('캐릭터를 성공적으로 저장했어요');
 
-                    // 저장 완료 후 DB 데이터로 화면 갱신
-                    window.location.reload();
+                    // 🎯 1.2초(1200ms) 지연 후 새로고침 (토스트 메시지가 충분히 보이도록 함)
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1200);
+
                 } else {
                     alert(data.msg || '캐릭터 저장에 실패했습니다.');
                 }

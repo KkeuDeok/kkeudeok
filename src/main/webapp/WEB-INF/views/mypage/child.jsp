@@ -200,8 +200,10 @@
                     if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
                     else alert('아이 프로필을 성공적으로 저장했어요');
 
-                    // 저장 성공 후 화면 리로드 (위쪽 이름도 갱신하기 위함)
-                    window.location.reload();
+                    // 🎯 1.2초(1200ms) 지연 후 새로고침 (성공 문구를 보여주기 위함)
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 1200);
                 } else {
                     alert(data.msg || "수정에 실패했습니다.");
                 }
@@ -211,7 +213,6 @@
                 alert("수정 중 오류가 발생했습니다. (" + err.message + ")");
             });
     }
-
     document.addEventListener('DOMContentLoaded', function () {
         // [핵심] 다른 JS 파일(온보딩 스크립트)이나 브라우저 자동완성이 폼을 멋대로 초기화시키는 것을 막기 위해,
         // DOM 로드 직후에 DB에서 가져온 진짜 데이터를 폼에 한 번 더 강제로 덮어씌웁니다.
