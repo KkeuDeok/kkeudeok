@@ -114,8 +114,6 @@
             document.getElementById('charBig').alt = name;
             document.getElementById('charName').textContent = name;
             document.getElementById('charDesc').textContent = radio.dataset.ds;
-            if (nick.value === nick.dataset.auto) nick.value = name;
-            nick.dataset.auto = name;
         });
     });
 
