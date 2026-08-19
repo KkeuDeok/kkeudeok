@@ -55,6 +55,17 @@
             }
         }
     }
+
+    // 🎯 DB 값 유연한 매칭 로직 (자폐/지적/발달 / 경증/중증)
+    boolean isAutism = disorderType.contains("자폐");
+    boolean isIntellectual = disorderType.contains("지적");
+    boolean isDevelopmental = disorderType.contains("발달");
+    if (!isAutism && !isIntellectual && !isDevelopmental) {
+        isAutism = true; // 기본값
+    }
+
+    boolean isMild = severity.contains("경");
+    boolean isSevere = severity.contains("중");
 %>
 
 <div class="app-head mp-head">
@@ -128,13 +139,17 @@
             <span class="kd-label">장애 정보</span>
             <div class="onb-row onb-row--gap">
                 <select class="kd-input onb-select" id="disabilityType" name="disabilityType" autocomplete="off">
-                    <option value="자폐 장애"<%= "자폐 장애".equals(disorderType) ? " selected" : "" %>>자폐</option>
-                    <option value="지적 장애"<%= "지적 장애".equals(disorderType) ? " selected" : "" %>>지적</option>
-                    <option value="발달 장애"<%= "발달 장애".equals(disorderType) ? " selected" : "" %>>발달</option>
+                    <option value="자폐 장애"<%= isAutism ? " selected" : "" %>>자폐</option>
+                    <option value="지적 장애"<%= isIntellectual ? " selected" : "" %>>지적</option>
+                    <option value="발달 장애"<%= isDevelopmental ? " selected" : "" %>>발달</option>
                 </select>
                 <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel" autocomplete="off">
-                    <option value="경증"<%= "경증".equals(severity) ? " selected" : "" %>>경증</option>
-                    <option value="중증"<%= "중증".equals(severity) ? " selected" : "" %>>중증</option>
+                    <% if (isDevelopmental) { %>
+                    <option value="경증"<%= isMild ? " selected" : "" %>>경증</option>
+                    <option value="중증"<%= (isSevere || !isMild) ? " selected" : "" %>>중증</option>
+                    <% } else { %>
+                    <option value="중증" selected>중증</option>
+                    <% } %>
                 </select>
             </div>
         </div>
@@ -153,30 +168,24 @@
         return el.value.trim();
     }
 
-    // 장애 유형에 따라 장애 정도 옵션 동적 변경 및 선택
-    function updateDisabilityLevels(selectedLevel) {
+    // 사용자가 '장애 유형'을 직접 선택할 때만 하위 레벨 옵션 변경
+    function updateDisabilityLevels() {
         const typeSelect = document.getElementById('disabilityType');
         const levelSelect = document.getElementById('disabilityLevel');
 
         if (!typeSelect || !levelSelect) return;
 
         const selectedType = typeSelect.value || '';
-        const currentVal = selectedLevel || levelSelect.value || '중증';
+        const prevLevel = levelSelect.value;
 
         levelSelect.innerHTML = '';
 
         if (selectedType.includes('발달')) {
             levelSelect.add(new Option('경증', '경증'));
             levelSelect.add(new Option('중증', '중증'));
+            levelSelect.value = (prevLevel === '경증') ? '경증' : '중증';
         } else {
             levelSelect.add(new Option('중증', '중증'));
-        }
-
-        // 기존 또는 전달된 severity 값 선택
-        const matchOpt = Array.from(levelSelect.options).find(opt => opt.value === currentVal);
-        if (matchOpt) {
-            levelSelect.value = matchOpt.value;
-        } else {
             levelSelect.value = '중증';
         }
     }
@@ -240,7 +249,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // 새로고침 후 토스트 메시지
+        // 새로고침 후 성공 토스트 메시지 출력
         const savedToastMsg = sessionStorage.getItem('profileSavedToast');
         if (savedToastMsg) {
             sessionStorage.removeItem('profileSavedToast');
@@ -262,26 +271,10 @@
         if (dbGender === 'M') document.getElementById('genderBoy').checked = true;
         if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
 
-        // 🎯 [핵심 수정] DB에서 받아온 장애 유형 및 장애 정도 세팅
-        const dbDisType = '<%= disorderType %>';
-        const dbSeverity = '<%= severity %>';
+        // 사용자가 드롭다운을 변경할 때 이벤트 바인딩
         const disTypeSelect = document.getElementById('disabilityType');
-
-        if (dbDisType && disTypeSelect) {
-            const matchOpt = Array.from(disTypeSelect.options).find(opt => opt.value.includes(dbDisType) || dbDisType.includes(opt.value));
-            if (matchOpt) {
-                disTypeSelect.value = matchOpt.value;
-            }
-        }
-
-        // 장애 정도 옵션 재구성 및 DB 값 선택
-        updateDisabilityLevels(dbSeverity);
-
-        // 사용자가 직접 변경할 때 동작
         if (disTypeSelect) {
-            disTypeSelect.addEventListener('change', function() {
-                updateDisabilityLevels();
-            });
+            disTypeSelect.addEventListener('change', updateDisabilityLevels);
         }
     });
 
