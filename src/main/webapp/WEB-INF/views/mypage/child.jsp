@@ -221,12 +221,9 @@
             })
             .then(data => {
                 if (data.result > 0) {
-                    if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
-                    else alert('아이 프로필을 성공적으로 저장했어요');
-
-                    setTimeout(function() {
-                        window.location.href = window.location.pathname + '?t=' + new Date().getTime();
-                    }, 1200);
+                    // 🎯 1. 새로고침 후 보여줄 안내 메시지를 세션에 저장하고 즉시 새로고침
+                    sessionStorage.setItem('profileSavedToast', '아이 프로필을 성공적으로 저장했어요');
+                    window.location.href = window.location.pathname + '?t=' + new Date().getTime();
                 } else {
                     alert(data.msg || "수정에 실패했습니다.");
                 }
@@ -238,6 +235,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        // 🎯 2. 새로고침이 완료된 후 저장 메시지 플래그가 있으면 띄워줌
+        const savedToastMsg = sessionStorage.getItem('profileSavedToast');
+        if (savedToastMsg) {
+            sessionStorage.removeItem('profileSavedToast'); // 1회성 표시 후 바로 삭제
+            if (typeof kdSaved === 'function') {
+                kdSaved(savedToastMsg);
+            } else {
+                alert(savedToastMsg);
+            }
+        }
+
         console.log("DB 장애 유형:", "<%= disorderType %>", "| DB 장애 정도:", "<%= severity %>");
 
         const dbName = '<%= childName.replace("'", "\\'") %>';
