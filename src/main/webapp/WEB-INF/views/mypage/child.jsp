@@ -16,7 +16,7 @@
     String disorderType = "자폐 장애";
     String severity = "";
     Long childId = null;
-    String charKey = "tori"; // 👈 🎯 요 줄(charKey 선언)이 있어야 아래에서 쓸 수 있습니다!
+    String charKey = "tori";
     String createdAt = "";
 
     int selYear = LocalDate.now().getYear();
@@ -31,7 +31,7 @@
         severity = child.getSeverity() != null ? child.getSeverity() : "";
         childId = child.getChildId();
 
-        // 🎯 DB에서 캐릭터 키(bada, tori 등) 가져오기
+        // DB에서 캐릭터 키(bada, tori 등) 가져오기
         if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
             charKey = child.getCharacterType();
         }
@@ -68,7 +68,8 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>        <span class="tx">
+        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>
+        <span class="tx">
             <b data-kd="childName"><%= childName %></b>
             <span class="ds">만 <span data-kd="childAge"><%= childAge %></span>세 · 학습 시작 <%= createdAt %></span>
         </span>
@@ -151,6 +152,34 @@
         return el.value.trim();
     }
 
+    // 장애 유형에 따라 장애 정도(경증/중증) 옵션을 동적으로 변경하는 함수
+    function updateDisabilityLevels(targetSeverity) {
+        const typeSelect = document.getElementById('disabilityType');
+        const levelSelect = document.getElementById('disabilityLevel');
+
+        if (!typeSelect || !levelSelect) return;
+
+        const selectedType = typeSelect.value;
+        const currentVal = targetSeverity || levelSelect.value;
+
+        // 기존 옵션 초기화
+        levelSelect.innerHTML = '';
+
+        // '발달 장애' 또는 '발달'인 경우에만 경증, 중증 모두 표시
+        if (selectedType === '발달 장애' || selectedType === '발달') {
+            levelSelect.add(new Option('경증', '경증'));
+            levelSelect.add(new Option('중증', '중증'));
+        } else {
+            // 자폐 장애, 지적 장애 등은 '중증'만 표시
+            levelSelect.add(new Option('중증', '중증'));
+        }
+
+        // 기존에 선택되어 있던 값이나 DB 저장값이 새로 생성된 옵션에 있으면 선택 유지
+        if (currentVal && Array.from(levelSelect.options).some(opt => opt.value === currentVal)) {
+            levelSelect.value = currentVal;
+        }
+    }
+
     function updateChildProfile() {
         const form = document.querySelector('.mp-grid--child');
 
@@ -200,7 +229,7 @@
                     if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
                     else alert('아이 프로필을 성공적으로 저장했어요');
 
-                    // 🎯 1.2초(1200ms) 지연 후 새로고침 (성공 문구를 보여주기 위함)
+                    // 1.2초(1200ms) 지연 후 새로고침
                     setTimeout(function() {
                         window.location.reload();
                     }, 1200);
@@ -213,9 +242,9 @@
                 alert("수정 중 오류가 발생했습니다. (" + err.message + ")");
             });
     }
+
     document.addEventListener('DOMContentLoaded', function () {
-        // [핵심] 다른 JS 파일(온보딩 스크립트)이나 브라우저 자동완성이 폼을 멋대로 초기화시키는 것을 막기 위해,
-        // DOM 로드 직후에 DB에서 가져온 진짜 데이터를 폼에 한 번 더 강제로 덮어씌웁니다.
+        // DB 데이터 강제 복원 (자동완성 및 스크립트 초기화 방지)
         const dbName = '<%= childName.replace("'", "\\'") %>';
         if (dbName) document.getElementById('childName').value = dbName;
 
@@ -230,23 +259,19 @@
         const dbDisType = '<%= disorderType %>';
         if (dbDisType) document.getElementById('disabilityType').value = dbDisType;
 
-        // 장애 정도(severity) 세팅 유지
+        // 장애 정도(severity) 세팅 및 옵션 생성
         const savedSeverity = '<%= severity %>';
-        const levelSelect = document.getElementById('disabilityLevel');
-        if (!savedSeverity || !levelSelect) return;
+        updateDisabilityLevels(savedSeverity);
 
-        function trySetSeverity() {
-            const hasOption = Array.prototype.some.call(levelSelect.options, function (o) {
-                return o.value === savedSeverity;
+        // 장애 유형 변경 시 이벤트 연결
+        const disTypeSelect = document.getElementById('disabilityType');
+        if (disTypeSelect) {
+            disTypeSelect.addEventListener('change', function() {
+                updateDisabilityLevels();
             });
-            if (hasOption) {
-                levelSelect.value = savedSeverity;
-            } else if (levelSelect.options.length === 0) {
-                requestAnimationFrame(trySetSeverity);
-            }
         }
-        trySetSeverity();
     });
+
     sessionStorage.removeItem('kdOnb');
 </script>
 
