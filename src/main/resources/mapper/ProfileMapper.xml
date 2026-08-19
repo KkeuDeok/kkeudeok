@@ -17,6 +17,8 @@
         FROM child
         WHERE member_id = #{memberId}
           AND deleted_at IS NULL
+        ORDER BY child_id DESC
+            LIMIT 1
     </select>
 
     <!-- 2. 프로필 정보 탭 -->

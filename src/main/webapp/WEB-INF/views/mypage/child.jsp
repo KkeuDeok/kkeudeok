@@ -14,9 +14,9 @@
     String childName = "";
     String gender = "";
     String disorderType = "자폐 장애";
-    String severity = "";
+    String severity = "중증";
     Long childId = null;
-    String charKey = "tori"; // 👈 🎯 요 줄(charKey 선언)이 있어야 아래에서 쓸 수 있습니다!
+    String charKey = "tori";
     String createdAt = "";
 
     int selYear = LocalDate.now().getYear();
@@ -27,11 +27,10 @@
     if (child != null) {
         childName = child.getName() != null ? child.getName() : "";
         gender = child.getGender() != null ? child.getGender() : "";
-        disorderType = (child.getDisorderType() != null && !child.getDisorderType().isEmpty()) ? child.getDisorderType() : "자폐 장애";
-        severity = child.getSeverity() != null ? child.getSeverity() : "";
+        disorderType = (child.getDisorderType() != null && !child.getDisorderType().trim().isEmpty()) ? child.getDisorderType().trim() : "자폐 장애";
+        severity = (child.getSeverity() != null && !child.getSeverity().trim().isEmpty()) ? child.getSeverity().trim() : "중증";
         childId = child.getChildId();
 
-        // 🎯 DB에서 캐릭터 키(bada, tori 등) 가져오기
         if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
             charKey = child.getCharacterType();
         }
@@ -56,6 +55,17 @@
             }
         }
     }
+
+    // 🎯 DB 값 유연한 매칭 로직 (자폐/지적/발달 / 경증/중증)
+    boolean isAutism = disorderType.contains("자폐");
+    boolean isIntellectual = disorderType.contains("지적");
+    boolean isDevelopmental = disorderType.contains("발달");
+    if (!isAutism && !isIntellectual && !isDevelopmental) {
+        isAutism = true; // 기본값
+    }
+
+    boolean isMild = severity.contains("경");
+    boolean isSevere = severity.contains("중");
 %>
 
 <div class="app-head mp-head">
@@ -68,7 +78,8 @@
 
 <section class="mp-sec">
     <div class="mp-profile">
-        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>        <span class="tx">
+        <span class="ava"><img data-kd-char="neutral" src="/img/char-<%= charKey %>-neutral.png" alt="<%= childName %>"></span>
+        <span class="tx">
             <b data-kd="childName"><%= childName %></b>
             <span class="ds">만 <span data-kd="childAge"><%= childAge %></span>세 · 학습 시작 <%= createdAt %></span>
         </span>
@@ -83,26 +94,25 @@
     <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
-            <!-- 브라우저 자동완성 방지를 위해 autocomplete="off" 추가 -->
             <input class="kd-input" type="text" id="childName" value="<%= childName %>" autocomplete="off">
         </div>
 
         <div class="kd-field">
             <label class="kd-label" for="birthYear">생년월일</label>
             <div class="onb-row">
-                <select class="kd-input onb-select" id="birthYear" name="birthYear">
+                <select class="kd-input onb-select" id="birthYear" name="birthYear" autocomplete="off">
                     <% for (int y = Year.now().getValue(); y >= 1990; y--) { %>
                     <option value="<%= y %>"<%= y == selYear ? " selected" : "" %>><%= y %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">년</span>
-                <select class="kd-input onb-select" id="birthMonth" name="birthMonth">
+                <select class="kd-input onb-select" id="birthMonth" name="birthMonth" autocomplete="off">
                     <% for (int m = 1; m <= 12; m++) { %>
                     <option value="<%= m %>"<%= m == selMonth ? " selected" : "" %>><%= m %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">월</span>
-                <select class="kd-input onb-select" id="birthDay" name="birthDay">
+                <select class="kd-input onb-select" id="birthDay" name="birthDay" autocomplete="off">
                     <% for (int d = 1; d <= 31; d++) { %>
                     <option value="<%= d %>"<%= d == selDay ? " selected" : "" %>><%= d %></option>
                     <% } %>
@@ -128,12 +138,19 @@
         <div class="kd-field">
             <span class="kd-label">장애 정보</span>
             <div class="onb-row onb-row--gap">
-                <select class="kd-input onb-select" id="disabilityType" name="disabilityType">
-                    <option value="자폐 장애"<%= "자폐 장애".equals(disorderType) ? " selected" : "" %>>자폐</option>
-                    <option value="지적 장애"<%= "지적 장애".equals(disorderType) ? " selected" : "" %>>지적</option>
-                    <option value="발달 장애"<%= "발달 장애".equals(disorderType) ? " selected" : "" %>>발달</option>
+                <select class="kd-input onb-select" id="disabilityType" name="disabilityType" autocomplete="off">
+                    <option value="자폐 장애"<%= isAutism ? " selected" : "" %>>자폐</option>
+                    <option value="지적 장애"<%= isIntellectual ? " selected" : "" %>>지적</option>
+                    <option value="발달 장애"<%= isDevelopmental ? " selected" : "" %>>발달</option>
                 </select>
-                <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel"></select>
+                <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel" autocomplete="off">
+                    <% if (isDevelopmental) { %>
+                    <option value="경증"<%= isMild ? " selected" : "" %>>경증</option>
+                    <option value="중증"<%= (isSevere || !isMild) ? " selected" : "" %>>중증</option>
+                    <% } else { %>
+                    <option value="중증" selected>중증</option>
+                    <% } %>
+                </select>
             </div>
         </div>
     </div>
@@ -149,6 +166,28 @@
         const el = container.querySelector('#' + elementId);
         if (!el || el.value === null || el.value.trim() === '') return fallbackVal;
         return el.value.trim();
+    }
+
+    // 사용자가 '장애 유형'을 직접 선택할 때만 하위 레벨 옵션 변경
+    function updateDisabilityLevels() {
+        const typeSelect = document.getElementById('disabilityType');
+        const levelSelect = document.getElementById('disabilityLevel');
+
+        if (!typeSelect || !levelSelect) return;
+
+        const selectedType = typeSelect.value || '';
+        const prevLevel = levelSelect.value;
+
+        levelSelect.innerHTML = '';
+
+        if (selectedType.includes('발달')) {
+            levelSelect.add(new Option('경증', '경증'));
+            levelSelect.add(new Option('중증', '중증'));
+            levelSelect.value = (prevLevel === '경증') ? '경증' : '중증';
+        } else {
+            levelSelect.add(new Option('중증', '중증'));
+            levelSelect.value = '중증';
+        }
     }
 
     function updateChildProfile() {
@@ -197,11 +236,8 @@
             })
             .then(data => {
                 if (data.result > 0) {
-                    if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
-                    else alert('아이 프로필을 성공적으로 저장했어요');
-
-                    // 저장 성공 후 화면 리로드 (위쪽 이름도 갱신하기 위함)
-                    window.location.reload();
+                    sessionStorage.setItem('profileSavedToast', '아이 프로필을 성공적으로 저장했어요');
+                    window.location.href = window.location.pathname + '?t=' + new Date().getTime();
                 } else {
                     alert(data.msg || "수정에 실패했습니다.");
                 }
@@ -213,8 +249,17 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // [핵심] 다른 JS 파일(온보딩 스크립트)이나 브라우저 자동완성이 폼을 멋대로 초기화시키는 것을 막기 위해,
-        // DOM 로드 직후에 DB에서 가져온 진짜 데이터를 폼에 한 번 더 강제로 덮어씌웁니다.
+        // 새로고침 후 성공 토스트 메시지 출력
+        const savedToastMsg = sessionStorage.getItem('profileSavedToast');
+        if (savedToastMsg) {
+            sessionStorage.removeItem('profileSavedToast');
+            if (typeof kdSaved === 'function') {
+                kdSaved(savedToastMsg);
+            } else {
+                alert(savedToastMsg);
+            }
+        }
+
         const dbName = '<%= childName.replace("'", "\\'") %>';
         if (dbName) document.getElementById('childName').value = dbName;
 
@@ -226,26 +271,13 @@
         if (dbGender === 'M') document.getElementById('genderBoy').checked = true;
         if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
 
-        const dbDisType = '<%= disorderType %>';
-        if (dbDisType) document.getElementById('disabilityType').value = dbDisType;
-
-        // 장애 정도(severity) 세팅 유지
-        const savedSeverity = '<%= severity %>';
-        const levelSelect = document.getElementById('disabilityLevel');
-        if (!savedSeverity || !levelSelect) return;
-
-        function trySetSeverity() {
-            const hasOption = Array.prototype.some.call(levelSelect.options, function (o) {
-                return o.value === savedSeverity;
-            });
-            if (hasOption) {
-                levelSelect.value = savedSeverity;
-            } else if (levelSelect.options.length === 0) {
-                requestAnimationFrame(trySetSeverity);
-            }
+        // 사용자가 드롭다운을 변경할 때 이벤트 바인딩
+        const disTypeSelect = document.getElementById('disabilityType');
+        if (disTypeSelect) {
+            disTypeSelect.addEventListener('change', updateDisabilityLevels);
         }
-        trySetSeverity();
     });
+
     sessionStorage.removeItem('kdOnb');
 </script>
 
