@@ -14,7 +14,7 @@
     String childName = "";
     String gender = "";
     String disorderType = "자폐 장애";
-    String severity = "";
+    String severity = "중증";
     Long childId = null;
     String charKey = "tori";
     String createdAt = "";
@@ -27,8 +27,8 @@
     if (child != null) {
         childName = child.getName() != null ? child.getName() : "";
         gender = child.getGender() != null ? child.getGender() : "";
-        disorderType = (child.getDisorderType() != null && !child.getDisorderType().isEmpty()) ? child.getDisorderType() : "자폐 장애";
-        severity = child.getSeverity() != null ? child.getSeverity() : "";
+        disorderType = (child.getDisorderType() != null && !child.getDisorderType().trim().isEmpty()) ? child.getDisorderType().trim() : "자폐 장애";
+        severity = (child.getSeverity() != null && !child.getSeverity().trim().isEmpty()) ? child.getSeverity().trim() : "중증";
         childId = child.getChildId();
 
         if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
@@ -133,12 +133,8 @@
                     <option value="발달 장애"<%= "발달 장애".equals(disorderType) ? " selected" : "" %>>발달</option>
                 </select>
                 <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel" autocomplete="off">
-                    <% if (disorderType != null && disorderType.contains("발달")) { %>
                     <option value="경증"<%= "경증".equals(severity) ? " selected" : "" %>>경증</option>
                     <option value="중증"<%= "중증".equals(severity) ? " selected" : "" %>>중증</option>
-                    <% } else { %>
-                    <option value="중증" selected>중증</option>
-                    <% } %>
                 </select>
             </div>
         </div>
@@ -157,14 +153,16 @@
         return el.value.trim();
     }
 
-    // 사용자가 '장애 유형'을 직접 바꿀 때만 장애 정도 옵션을 다시 리셋
-    function updateDisabilityLevels() {
+    // 장애 유형에 따라 장애 정도 옵션 동적 변경 및 선택
+    function updateDisabilityLevels(selectedLevel) {
         const typeSelect = document.getElementById('disabilityType');
         const levelSelect = document.getElementById('disabilityLevel');
 
         if (!typeSelect || !levelSelect) return;
 
         const selectedType = typeSelect.value || '';
+        const currentVal = selectedLevel || levelSelect.value || '중증';
+
         levelSelect.innerHTML = '';
 
         if (selectedType.includes('발달')) {
@@ -172,6 +170,14 @@
             levelSelect.add(new Option('중증', '중증'));
         } else {
             levelSelect.add(new Option('중증', '중증'));
+        }
+
+        // 기존 또는 전달된 severity 값 선택
+        const matchOpt = Array.from(levelSelect.options).find(opt => opt.value === currentVal);
+        if (matchOpt) {
+            levelSelect.value = matchOpt.value;
+        } else {
+            levelSelect.value = '중증';
         }
     }
 
@@ -221,7 +227,6 @@
             })
             .then(data => {
                 if (data.result > 0) {
-                    // 🎯 1. 새로고침 후 보여줄 안내 메시지를 세션에 저장하고 즉시 새로고침
                     sessionStorage.setItem('profileSavedToast', '아이 프로필을 성공적으로 저장했어요');
                     window.location.href = window.location.pathname + '?t=' + new Date().getTime();
                 } else {
@@ -235,18 +240,16 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // 🎯 2. 새로고침이 완료된 후 저장 메시지 플래그가 있으면 띄워줌
+        // 새로고침 후 토스트 메시지
         const savedToastMsg = sessionStorage.getItem('profileSavedToast');
         if (savedToastMsg) {
-            sessionStorage.removeItem('profileSavedToast'); // 1회성 표시 후 바로 삭제
+            sessionStorage.removeItem('profileSavedToast');
             if (typeof kdSaved === 'function') {
                 kdSaved(savedToastMsg);
             } else {
                 alert(savedToastMsg);
             }
         }
-
-        console.log("DB 장애 유형:", "<%= disorderType %>", "| DB 장애 정도:", "<%= severity %>");
 
         const dbName = '<%= childName.replace("'", "\\'") %>';
         if (dbName) document.getElementById('childName').value = dbName;
@@ -259,8 +262,11 @@
         if (dbGender === 'M') document.getElementById('genderBoy').checked = true;
         if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
 
+        // 🎯 [핵심 수정] DB에서 받아온 장애 유형 및 장애 정도 세팅
         const dbDisType = '<%= disorderType %>';
+        const dbSeverity = '<%= severity %>';
         const disTypeSelect = document.getElementById('disabilityType');
+
         if (dbDisType && disTypeSelect) {
             const matchOpt = Array.from(disTypeSelect.options).find(opt => opt.value.includes(dbDisType) || dbDisType.includes(opt.value));
             if (matchOpt) {
@@ -268,7 +274,10 @@
             }
         }
 
-        // 사용자가 셀렉트 박스를 직접 바꿀 때만 자바스크립트 변경 이벤트 동작
+        // 장애 정도 옵션 재구성 및 DB 값 선택
+        updateDisabilityLevels(dbSeverity);
+
+        // 사용자가 직접 변경할 때 동작
         if (disTypeSelect) {
             disTypeSelect.addEventListener('change', function() {
                 updateDisabilityLevels();
