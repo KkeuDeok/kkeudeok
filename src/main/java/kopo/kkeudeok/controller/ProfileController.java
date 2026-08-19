@@ -53,8 +53,8 @@ public class ProfileController {
 //        System.out.println("disorderType : " + pDTO.getDisorderType());
 //        System.out.println("severity : " + pDTO.getSeverity());
 //        System.out.println("======================================");
-        int result = profileService.updateProfile(pDTO);
-        System.out.println("👉 DB UPDATE 실행 결과(영향받은 행) : " + result);
+//        int result = profileService.updateProfile(pDTO);
+//        System.out.println("👉 DB UPDATE 실행 결과(영향받은 행) : " + result);
 
         String msg = "프로필 정보 수정 실패";
         int res = 0;
