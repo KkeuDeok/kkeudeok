@@ -31,7 +31,6 @@
         severity = child.getSeverity() != null ? child.getSeverity() : "";
         childId = child.getChildId();
 
-        // DB에서 캐릭터 키(bada, tori 등) 가져오기
         if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
             charKey = child.getCharacterType();
         }
@@ -84,26 +83,25 @@
     <div class="mp-grid mp-grid--child">
         <div class="kd-field">
             <label class="kd-label" for="childName">아이 이름</label>
-            <!-- 브라우저 자동완성 방지를 위해 autocomplete="off" 추가 -->
             <input class="kd-input" type="text" id="childName" value="<%= childName %>" autocomplete="off">
         </div>
 
         <div class="kd-field">
             <label class="kd-label" for="birthYear">생년월일</label>
             <div class="onb-row">
-                <select class="kd-input onb-select" id="birthYear" name="birthYear">
+                <select class="kd-input onb-select" id="birthYear" name="birthYear" autocomplete="off">
                     <% for (int y = Year.now().getValue(); y >= 1990; y--) { %>
                     <option value="<%= y %>"<%= y == selYear ? " selected" : "" %>><%= y %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">년</span>
-                <select class="kd-input onb-select" id="birthMonth" name="birthMonth">
+                <select class="kd-input onb-select" id="birthMonth" name="birthMonth" autocomplete="off">
                     <% for (int m = 1; m <= 12; m++) { %>
                     <option value="<%= m %>"<%= m == selMonth ? " selected" : "" %>><%= m %></option>
                     <% } %>
                 </select>
                 <span class="onb-unit">월</span>
-                <select class="kd-input onb-select" id="birthDay" name="birthDay">
+                <select class="kd-input onb-select" id="birthDay" name="birthDay" autocomplete="off">
                     <% for (int d = 1; d <= 31; d++) { %>
                     <option value="<%= d %>"<%= d == selDay ? " selected" : "" %>><%= d %></option>
                     <% } %>
@@ -129,12 +127,19 @@
         <div class="kd-field">
             <span class="kd-label">장애 정보</span>
             <div class="onb-row onb-row--gap">
-                <select class="kd-input onb-select" id="disabilityType" name="disabilityType">
+                <select class="kd-input onb-select" id="disabilityType" name="disabilityType" autocomplete="off">
                     <option value="자폐 장애"<%= "자폐 장애".equals(disorderType) ? " selected" : "" %>>자폐</option>
                     <option value="지적 장애"<%= "지적 장애".equals(disorderType) ? " selected" : "" %>>지적</option>
                     <option value="발달 장애"<%= "발달 장애".equals(disorderType) ? " selected" : "" %>>발달</option>
                 </select>
-                <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel"></select>
+                <select class="kd-input onb-select" id="disabilityLevel" name="disabilityLevel" autocomplete="off">
+                    <% if (disorderType != null && disorderType.contains("발달")) { %>
+                    <option value="경증"<%= "경증".equals(severity) ? " selected" : "" %>>경증</option>
+                    <option value="중증"<%= "중증".equals(severity) ? " selected" : "" %>>중증</option>
+                    <% } else { %>
+                    <option value="중증" selected>중증</option>
+                    <% } %>
+                </select>
             </div>
         </div>
     </div>
@@ -152,31 +157,21 @@
         return el.value.trim();
     }
 
-    // 장애 유형에 따라 장애 정도(경증/중증) 옵션을 동적으로 변경하는 함수
-    function updateDisabilityLevels(targetSeverity) {
+    // 사용자가 '장애 유형'을 직접 바꿀 때만 장애 정도 옵션을 다시 리셋
+    function updateDisabilityLevels() {
         const typeSelect = document.getElementById('disabilityType');
         const levelSelect = document.getElementById('disabilityLevel');
 
         if (!typeSelect || !levelSelect) return;
 
-        const selectedType = typeSelect.value;
-        const currentVal = targetSeverity || levelSelect.value;
-
-        // 기존 옵션 초기화
+        const selectedType = typeSelect.value || '';
         levelSelect.innerHTML = '';
 
-        // '발달 장애' 또는 '발달'인 경우에만 경증, 중증 모두 표시
-        if (selectedType === '발달 장애' || selectedType === '발달') {
+        if (selectedType.includes('발달')) {
             levelSelect.add(new Option('경증', '경증'));
             levelSelect.add(new Option('중증', '중증'));
         } else {
-            // 자폐 장애, 지적 장애 등은 '중증'만 표시
             levelSelect.add(new Option('중증', '중증'));
-        }
-
-        // 기존에 선택되어 있던 값이나 DB 저장값이 새로 생성된 옵션에 있으면 선택 유지
-        if (currentVal && Array.from(levelSelect.options).some(opt => opt.value === currentVal)) {
-            levelSelect.value = currentVal;
         }
     }
 
@@ -229,9 +224,8 @@
                     if (typeof kdSaved === 'function') kdSaved('아이 프로필을 성공적으로 저장했어요');
                     else alert('아이 프로필을 성공적으로 저장했어요');
 
-                    // 1.2초(1200ms) 지연 후 새로고침
                     setTimeout(function() {
-                        window.location.reload();
+                        window.location.href = window.location.pathname + '?t=' + new Date().getTime();
                     }, 1200);
                 } else {
                     alert(data.msg || "수정에 실패했습니다.");
@@ -244,7 +238,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // DB 데이터 강제 복원 (자동완성 및 스크립트 초기화 방지)
+        console.log("DB 장애 유형:", "<%= disorderType %>", "| DB 장애 정도:", "<%= severity %>");
+
         const dbName = '<%= childName.replace("'", "\\'") %>';
         if (dbName) document.getElementById('childName').value = dbName;
 
@@ -257,14 +252,15 @@
         if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
 
         const dbDisType = '<%= disorderType %>';
-        if (dbDisType) document.getElementById('disabilityType').value = dbDisType;
-
-        // 장애 정도(severity) 세팅 및 옵션 생성
-        const savedSeverity = '<%= severity %>';
-        updateDisabilityLevels(savedSeverity);
-
-        // 장애 유형 변경 시 이벤트 연결
         const disTypeSelect = document.getElementById('disabilityType');
+        if (dbDisType && disTypeSelect) {
+            const matchOpt = Array.from(disTypeSelect.options).find(opt => opt.value.includes(dbDisType) || dbDisType.includes(opt.value));
+            if (matchOpt) {
+                disTypeSelect.value = matchOpt.value;
+            }
+        }
+
+        // 사용자가 셀렉트 박스를 직접 바꿀 때만 자바스크립트 변경 이벤트 동작
         if (disTypeSelect) {
             disTypeSelect.addEventListener('change', function() {
                 updateDisabilityLevels();
