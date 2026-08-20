@@ -3,7 +3,8 @@ package kopo.kkeudeok.service.impl;
 import kopo.kkeudeok.dto.ChecklistAnswerDTO;
 import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.OnboardingRequestDTO;
-import kopo.kkeudeok.mapper.OnboardingMapper;
+import kopo.kkeudeok.mapper.IChildMapper;
+import kopo.kkeudeok.mapper.IOnboardingMapper;
 import kopo.kkeudeok.service.IOnboardingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +23,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class OnboardingService implements IOnboardingService {
 
-    private final OnboardingMapper onboardingMapper;
+    private final IOnboardingMapper onboardingMapper;
+    private final IChildMapper childMapper;
 
     private static final Map<String, String> DISORDER = Map.of(
             "자폐 장애", "자폐",
@@ -58,7 +60,7 @@ public class OnboardingService implements IOnboardingService {
         }
 
         Long owner = memberId;
-        ChildDTO child = onboardingMapper.selectChildByMember(owner);
+        ChildDTO child = childMapper.selectChildByMember(owner);
         boolean isNew = (child == null);
 
         ChildDTO row = ChildDTO.builder()

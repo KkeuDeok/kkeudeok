@@ -1,11 +1,11 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%@ page import="kopo.kkeudeok.dto.ProfileDTO" %>
+<%@ page import="kopo.kkeudeok.dto.ChildDTO" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "character"; %>
 <%@ include file="../common/app-top.jsp" %>
 
 <%
     // 1. DB에서 아이 정보 읽어오기
-    ProfileDTO child = (ProfileDTO) request.getAttribute("child");
+    ChildDTO child = (ChildDTO) request.getAttribute("child");
     Long childId = null;
     String charKey = "tori"; // 기본값
     String nickname = "토리"; // 기본값
@@ -131,13 +131,13 @@
             return;
         }
 
-        fetch('/profile/updateCharacter', {
+        fetch('/child/updateCharacter', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 childId: parseInt(childId, 10),
-                characterType: charKey,          // ProfileDTO의 characterType
-                characterNickname: nickname      // ProfileDTO의 characterNickname
+                characterType: charKey,          // ChildDTO의 characterType
+                characterNickname: nickname      // ChildDTO의 characterNickname
             })
         })
             .then(res => {

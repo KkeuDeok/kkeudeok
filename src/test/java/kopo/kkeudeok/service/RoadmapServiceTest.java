@@ -6,8 +6,8 @@ import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.RoadmapDTO;
 import kopo.kkeudeok.dto.RoadmapPlanDTO;
 import kopo.kkeudeok.dto.SituationType;
-import kopo.kkeudeok.mapper.OnboardingMapper;
-import kopo.kkeudeok.mapper.RoadmapMapper;
+import kopo.kkeudeok.mapper.IOnboardingMapper;
+import kopo.kkeudeok.mapper.IRoadmapMapper;
 import kopo.kkeudeok.service.impl.GeminiRoadmapAiService;
 import kopo.kkeudeok.service.impl.RoadmapService;
 import org.junit.jupiter.api.BeforeEach;
@@ -51,13 +51,14 @@ class RoadmapServiceTest {
         when(gemini.generateJson(anyString(), anyString(), anyInt(), anyString()))
                 .thenReturn(Optional.of(validPlanJson()));
 
-        IChildService childService = id -> ChildDTO.builder()
+        IChildService childService = mock(IChildService.class);
+        when(childService.getChild(any())).thenReturn(ChildDTO.builder()
                 .childId(1L).name("김지우")
                 .birthDate(LocalDate.now().minusYears(6))
                 .disorderType("자폐").severity("경도").characterType("tori")
-                .build();
+                .build());
 
-        RoadmapMapper mapper = mock(RoadmapMapper.class);
+        IRoadmapMapper mapper = mock(IRoadmapMapper.class);
 
         when(mapper.selectActive(any())).thenAnswer(inv -> active);
 
@@ -77,11 +78,11 @@ class RoadmapServiceTest {
         });
 
         // 체크리스트는 비어 있는 것으로 둔다 — 로드맵은 응답이 없어도 만들어져야 한다
-        OnboardingMapper onboardingMapper = mock(OnboardingMapper.class);
+        IOnboardingMapper onboardingMapper = mock(IOnboardingMapper.class);
         when(onboardingMapper.selectChecklist(any())).thenReturn(List.of());
 
         /* 주차별 완료 표시용 — 여기서는 마친 학습이 없는 것으로 둔다 */
-        sessionMapper = mock(kopo.kkeudeok.mapper.StorySessionMapper.class);
+        sessionMapper = mock(kopo.kkeudeok.mapper.IStorySessionMapper.class);
         when(sessionMapper.selectCompletedStartedAt(any())).thenReturn(List.of());
 
         roadmapService = new RoadmapService(mapper,
@@ -92,7 +93,7 @@ class RoadmapServiceTest {
                 sessionMapper);
     }
 
-    private kopo.kkeudeok.mapper.StorySessionMapper sessionMapper;
+    private kopo.kkeudeok.mapper.IStorySessionMapper sessionMapper;
 
     /**
      * 완료 표시는 <b>해낸 것</b>으로 정해야 한다.

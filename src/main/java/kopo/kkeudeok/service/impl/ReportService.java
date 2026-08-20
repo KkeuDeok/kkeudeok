@@ -3,8 +3,8 @@ package kopo.kkeudeok.service.impl;
 import kopo.kkeudeok.dto.ChecklistAnswerDTO;
 import kopo.kkeudeok.dto.MissionLogDTO;
 import kopo.kkeudeok.dto.ReportDTO;
-import kopo.kkeudeok.mapper.MissionLogMapper;
-import kopo.kkeudeok.mapper.OnboardingMapper;
+import kopo.kkeudeok.mapper.IMissionLogMapper;
+import kopo.kkeudeok.mapper.IOnboardingMapper;
 import kopo.kkeudeok.service.IReportService;
 import kopo.kkeudeok.service.IRoadmapService;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +24,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ReportService implements IReportService {
 
-    private final MissionLogMapper missionLogMapper;
-    private final OnboardingMapper onboardingMapper;
+    private final IMissionLogMapper missionLogMapper;
+    private final IOnboardingMapper onboardingMapper;
     private final IRoadmapService roadmapService;
 
     private static final int LOOKBACK_DAYS = 14;

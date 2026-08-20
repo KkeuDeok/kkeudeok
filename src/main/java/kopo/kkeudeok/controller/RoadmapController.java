@@ -26,7 +26,7 @@ public class RoadmapController {
     private final IRoadmapService roadmapService;
     private final LearningPreparer learningPreparer;
 
-    private final kopo.kkeudeok.mapper.StorySessionMapper sessionMapper;
+    private final kopo.kkeudeok.mapper.IStorySessionMapper sessionMapper;
 
     @org.springframework.beans.factory.annotation.Value("${kkeudeok.story.daily-goal:3}")
     private int dailyGoal;

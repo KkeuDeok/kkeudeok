@@ -9,7 +9,7 @@ import java.util.List;
 
 // 이야기 & 이야기 노드
 @Mapper
-public interface StoryMapper {
+public interface IStoryMapper {
 
     int insertStory(StoryDTO story);
 

@@ -27,22 +27,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 class StoryMapperTest {
 
     @Autowired
-    private ChildMapper childMapper;
+    private IChildMapper childMapper;
 
     @Autowired
-    private StoryMapper storyMapper;
+    private IStoryMapper storyMapper;
 
     @Autowired
-    private StorySessionMapper sessionMapper;
+    private IStorySessionMapper sessionMapper;
 
     @Autowired
-    private MissionLogMapper missionLogMapper;
+    private IMissionLogMapper missionLogMapper;
 
     @Autowired
-    private ExpressionCalibMapper calibMapper;
+    private IExpressionCalibMapper calibMapper;
 
     @Autowired
-    private RoadmapMapper roadmapMapper;
+    private IRoadmapMapper roadmapMapper;
 
     /**
      * 중복 키를 잡은 뒤 쓰는 조회가 실제로 동작하는가.

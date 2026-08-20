@@ -3,8 +3,8 @@ package kopo.kkeudeok.service;
 import kopo.kkeudeok.dto.ChecklistAnswerDTO;
 import kopo.kkeudeok.dto.MissionLogDTO;
 import kopo.kkeudeok.dto.ReportDTO;
-import kopo.kkeudeok.mapper.MissionLogMapper;
-import kopo.kkeudeok.mapper.OnboardingMapper;
+import kopo.kkeudeok.mapper.IMissionLogMapper;
+import kopo.kkeudeok.mapper.IOnboardingMapper;
 import kopo.kkeudeok.service.impl.ReportService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -35,10 +35,10 @@ class ReportServiceTest {
     @BeforeEach
     void setUp() {
 
-        MissionLogMapper logMapper = mock(MissionLogMapper.class);
+        IMissionLogMapper logMapper = mock(IMissionLogMapper.class);
         when(logMapper.selectForReport(any(), any())).thenAnswer(inv -> logs);
 
-        OnboardingMapper onboardingMapper = mock(OnboardingMapper.class);
+        IOnboardingMapper onboardingMapper = mock(IOnboardingMapper.class);
         when(onboardingMapper.selectChecklist(any())).thenAnswer(inv -> checklist);
 
         IRoadmapService roadmapService = mock(IRoadmapService.class);

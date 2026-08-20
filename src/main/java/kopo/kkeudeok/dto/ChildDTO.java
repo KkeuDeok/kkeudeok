@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Period;
 
 // 아동
@@ -24,6 +25,8 @@ public class ChildDTO {
     private String severity;
     private String characterType;
     private String characterNickname;
+    private LocalDateTime createdAt;
+
     public Integer getAge() {
         return birthDate == null ? null : Period.between(birthDate, LocalDate.now()).getYears();
     }

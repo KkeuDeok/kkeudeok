@@ -3,7 +3,7 @@ package kopo.kkeudeok.service.impl;
 import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.MailDTO;
 import kopo.kkeudeok.dto.UserDTO;
-import kopo.kkeudeok.mapper.ChildMapper;
+import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.mapper.IUserMapper;
 import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
@@ -24,7 +24,7 @@ public class UserService implements IUserService {
 
     private final IUserMapper userMapper;
     private final IMailService mailService;
-    private final ChildMapper childMapper;
+    private final IChildMapper childMapper;
 
     /* ---------- 회원가입 ---------- */
 

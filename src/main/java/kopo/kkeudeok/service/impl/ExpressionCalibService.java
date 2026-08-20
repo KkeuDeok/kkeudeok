@@ -3,7 +3,7 @@ package kopo.kkeudeok.service.impl;
 import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.EmotionType;
 import kopo.kkeudeok.dto.ExpressionCalibDTO;
-import kopo.kkeudeok.mapper.ExpressionCalibMapper;
+import kopo.kkeudeok.mapper.IExpressionCalibMapper;
 import kopo.kkeudeok.service.IChildService;
 import kopo.kkeudeok.service.IExpressionCalibService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExpressionCalibService implements IExpressionCalibService {
 
-    private final ExpressionCalibMapper calibMapper;
+    private final IExpressionCalibMapper calibMapper;
     private final IChildService childService;
     private final ObjectMapper objectMapper;
 

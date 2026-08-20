@@ -8,7 +8,7 @@ import java.util.List;
 
 // 표정 캘리브레이션
 @Mapper
-public interface ExpressionCalibMapper {
+public interface IExpressionCalibMapper {
 
     int deleteByEmotion(@Param("childId") Long childId,
                         @Param("emotionType") String emotionType);

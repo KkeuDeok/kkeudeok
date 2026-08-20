@@ -14,9 +14,9 @@ import kopo.kkeudeok.dto.StoryResponseDTO;
 import kopo.kkeudeok.dto.StoryScenarioDTO;
 import kopo.kkeudeok.dto.StorySessionDTO;
 import kopo.kkeudeok.dto.StoryStage;
-import kopo.kkeudeok.mapper.MissionLogMapper;
-import kopo.kkeudeok.mapper.StoryMapper;
-import kopo.kkeudeok.mapper.StorySessionMapper;
+import kopo.kkeudeok.mapper.IMissionLogMapper;
+import kopo.kkeudeok.mapper.IStoryMapper;
+import kopo.kkeudeok.mapper.IStorySessionMapper;
 import kopo.kkeudeok.service.IChildService;
 import kopo.kkeudeok.service.IRoadmapService;
 import kopo.kkeudeok.service.IStoryAiService;
@@ -42,9 +42,9 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class StoryService implements IStoryService {
 
-    private final StoryMapper storyMapper;
-    private final StorySessionMapper sessionMapper;
-    private final MissionLogMapper missionLogMapper;
+    private final IStoryMapper storyMapper;
+    private final IStorySessionMapper sessionMapper;
+    private final IMissionLogMapper missionLogMapper;
 
     private final IChildService childService;
     private final IStoryAiService storyAiService;

@@ -6,7 +6,7 @@ import org.apache.ibatis.annotations.Param;
 
 // 학습 로드맵
 @Mapper
-public interface RoadmapMapper {
+public interface IRoadmapMapper {
 
     int insertRoadmap(RoadmapDTO roadmap);
 

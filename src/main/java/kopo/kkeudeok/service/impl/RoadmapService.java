@@ -4,8 +4,8 @@ import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.RoadmapDTO;
 import kopo.kkeudeok.dto.RoadmapPlanDTO;
 import kopo.kkeudeok.dto.ChecklistAnswerDTO;
-import kopo.kkeudeok.mapper.OnboardingMapper;
-import kopo.kkeudeok.mapper.RoadmapMapper;
+import kopo.kkeudeok.mapper.IOnboardingMapper;
+import kopo.kkeudeok.mapper.IRoadmapMapper;
 import kopo.kkeudeok.service.IChildService;
 import kopo.kkeudeok.service.IRoadmapAiService;
 import kopo.kkeudeok.service.IRoadmapService;
@@ -30,13 +30,13 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class RoadmapService implements IRoadmapService {
 
-    private final RoadmapMapper roadmapMapper;
-    private final OnboardingMapper onboardingMapper;
+    private final IRoadmapMapper roadmapMapper;
+    private final IOnboardingMapper onboardingMapper;
     private final IChildService childService;
     private final IRoadmapAiService roadmapAiService;
     private final ObjectMapper objectMapper;
 
-    private final kopo.kkeudeok.mapper.StorySessionMapper sessionMapper;
+    private final kopo.kkeudeok.mapper.IStorySessionMapper sessionMapper;
 
     @Override
     @Transactional(readOnly = true)
