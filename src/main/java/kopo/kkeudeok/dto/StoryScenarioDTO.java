@@ -18,6 +18,7 @@ public class StoryScenarioDTO {
     private String emotion;
     private String situationType;
     private String situation;
+    private String recap;
     private String cause;
     private String causeDistractor;
     private String gesture;

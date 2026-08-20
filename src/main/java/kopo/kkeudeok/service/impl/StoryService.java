@@ -24,10 +24,13 @@ import kopo.kkeudeok.service.IStoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -47,9 +50,15 @@ public class StoryService implements IStoryService {
     private final IStoryAiService storyAiService;
     private final IRoadmapService roadmapService;
     private final ObjectMapper objectMapper;
+    private final org.springframework.context.ApplicationEventPublisher publisher;
 
     @Value("${kkeudeok.story.daily-goal:3}")
     private int dailyGoal;
+
+    private static final List<String> PLACES = List.of(
+            "유치원 교실", "놀이터 미끄럼틀 앞", "급식실", "친구 생일잔치",
+            "도서관 그림책 코너", "등원길 버스 안", "운동장", "미술 시간",
+            "집 거실", "문구점", "물놀이터", "체육관");
 
     private static final Map<String, String> EMOTION_KEYS = Map.of(
             "기쁨", "happy",
@@ -58,27 +67,54 @@ public class StoryService implements IStoryService {
             "놀람", "surprise"
     );
 
-    // ------------------------------------------------------------
-    //  1) 세션 시작
-    // ------------------------------------------------------------
-
     @Override
     @Transactional
     public StoryResponseDTO.Start start(StoryRequestDTO.Start req) {
 
         ChildDTO child = childService.getChild(req.getChildId());
-        String emotion = normalizeEmotion(req.getEmotion());
+
+        if (req.getEmotion() == null || req.getEmotion().isBlank()) {
+
+            StorySessionDTO ready = sessionMapper.selectPrepared(child.getChildId());
+
+            if (ready != null) {
+                return adopt(ready, child);
+            }
+        }
 
         RoadmapDTO roadmap = roadmapService.getOrCreate(child.getChildId());
         RoadmapPlanDTO.Week week = roadmapService.currentWeekPlan(roadmap);
 
-        StoryScenarioDTO scenario = storyAiService.createScenario(child, emotion, req.getDailyInput(), week);
-        String source = scenario.getSource() == null ? "FALLBACK" : scenario.getSource();
+        int madeSoFar = storyMapper.countStories(child.getChildId());
+        String lastEmotion = storyMapper.selectLastEmotion(child.getChildId());
+
+        String emotion = emotionFor(req, week, madeSoFar, lastEmotion);
+
+        List<String> recent = storyMapper.selectRecentTitles(child.getChildId(), 8);
+
+        boolean weekOpener = isWeekOpener(child.getChildId(), roadmap, week);
+
+        String note = trimToNull(req.getDailyInput());
+        String place = (note != null || weekOpener) ? null
+                : PLACES.get(Math.floorMod(madeSoFar, PLACES.size()));
+
+        IStoryAiService.Brief brief = new IStoryAiService.Brief(
+                place, recent, laterTopics(roadmap, week), weekOpener);
+
+        StoryScenarioDTO scenario =
+                storyAiService.createScenario(child, emotion, req.getDailyInput(), brief, week);
+
+        if (scenario == null) {
+            throw new IllegalStateException("아직 이야기를 만들지 못했습니다. 잠시 뒤 다시 시도해 주세요");
+        }
+
+        String source = scenario.getSource() == null ? "AI" : scenario.getSource();
 
         StoryDTO story = StoryDTO.builder()
                 .childId(child.getChildId())
                 .title(scenario.getTitle())
                 .situationType(SituationType.normalize(scenario.getSituationType(), emotion).label())
+                .emotion(emotion)                    
                 .isGenerated("AI".equals(source))
                 .build();
 
@@ -90,11 +126,13 @@ public class StoryService implements IStoryService {
                 .roadmapId(roadmap == null ? null : roadmap.getRoadmapId())
                 .dailyInput(trimToNull(req.getDailyInput()))
                 .status(StorySessionDTO.INCOMPLETE)
+
+                .prepared(req.isPrepare())
                 .build();
 
         sessionMapper.insertSession(session);
 
-        StoryNodeDTO node = buildAndSaveNode(story.getStoryId(), child, scenario, StoryStage.STORY, null);
+        StoryNodeDTO node = buildWholeStory(story.getStoryId(), child, scenario);
 
         int storySeq = sessionMapper.countTodaySessions(child.getChildId());
 
@@ -114,10 +152,6 @@ public class StoryService implements IStoryService {
                 .node(node)
                 .build();
     }
-
-    // ------------------------------------------------------------
-    //  1-2) 이어하기
-    // ------------------------------------------------------------
 
     @Override
     @Transactional(readOnly = true)
@@ -143,21 +177,27 @@ public class StoryService implements IStoryService {
                     .build();
         }
 
-        /* 어디서부터 이어할지는 **아이가 답한 것**으로 정한다.
-           마지막으로 만들어진 노드를 쓰면 안 된다 — 화면이 다음 노드를 미리 받아 두므로
-           (story-session.js 의 prefetch) 아이가 보지도 않은 단계가 마지막 노드가 된다.
-           그래서 학습을 시작하자마자 이야기 화면이 통과되고 마음 화면으로 넘어갔다
-           (2026-08-14 지적). 답한 단계가 없으면 처음(이야기)부터가 맞다. */
         String answered = missionLogMapper.selectLastAnsweredStage(session.getSessionId());
 
+        if (answered == null) {
+            sessionMapper.updateSessionClosed(session.getSessionId(), StorySessionDTO.INCOMPLETE);
+
+            log.info("답한 기록이 없어 세션 {} 을 닫고 새 이야기로 갑니다", session.getSessionId());
+
+            return StoryResponseDTO.Resume.builder()
+                    .found(false)
+                    .dailyGoal(dailyGoal)
+                    .build();
+        }
+
         StoryStage resumeStage = StoryStage.of(answered)
-                .flatMap(StoryStage::next)      // 답한 단계는 끝난 것 — 그 다음부터
+                .flatMap(StoryStage::next)
                 .orElse(StoryStage.first());
 
         StoryNodeDTO resumeNode = storyMapper.selectNodeByOrder(session.getStoryId(), resumeStage.seq());
 
         if (resumeNode == null) {
-            // 이어할 단계의 노드가 아직 없다(있을 수 없지만 방어) — 처음부터 다시 그린다
+
             resumeNode = nodes.get(0);
             resumeStage = StoryStage.of(resumeNode.getStageType()).orElse(StoryStage.first());
         }
@@ -185,10 +225,6 @@ public class StoryService implements IStoryService {
                 .build();
     }
 
-    // ------------------------------------------------------------
-    //  2) 다음 노드
-    // ------------------------------------------------------------
-
     @Override
     @Transactional
     public StoryResponseDTO.Next next(Long sessionId, StoryRequestDTO.Next req) {
@@ -215,15 +251,113 @@ public class StoryService implements IStoryService {
             node = buildAndSaveNode(session.getStoryId(), child, scenario, nextStage, req);
         }
 
+        publisher.publishEvent(new NodeReady(sessionId, nextStage.name()));
+
         return StoryResponseDTO.Next.builder()
                 .node(node)
                 .last(nextStage.next().isEmpty())
                 .build();
     }
 
-    // ------------------------------------------------------------
-    //  3) 세션 종료 — 결과 일괄 저장
-    // ------------------------------------------------------------
+    private boolean isWeekOpener(Long childId, RoadmapDTO roadmap, RoadmapPlanDTO.Week week) {
+
+        if (roadmap == null || roadmap.getCreatedAt() == null || week == null) {
+            return false;
+        }
+
+        LocalDateTime weekStart = roadmap.getCreatedAt().plusDays(7L * (week.getNo() - 1));
+
+        return storyMapper.countStoriesSince(childId, weekStart) == 0;
+    }
+
+    private static final int LOOK_AHEAD_WEEKS = 5;
+
+    private List<String> laterTopics(RoadmapDTO roadmap, RoadmapPlanDTO.Week week) {
+
+        if (roadmap == null || roadmap.getPlan() == null
+                || roadmap.getPlan().getWeeks() == null || week == null) {
+            return List.of();
+        }
+
+        List<String> out = new ArrayList<>();
+
+        for (RoadmapPlanDTO.Week w : roadmap.getPlan().getWeeks()) {
+
+            if (w == null || w.getNo() <= week.getNo() || w.getTopic() == null) {
+                continue;
+            }
+            if (w.getNo() > week.getNo() + LOOK_AHEAD_WEEKS) {
+                break;
+            }
+            out.add(w.getTopic());
+        }
+
+        return out;
+    }
+
+    private StoryResponseDTO.Start adopt(StorySessionDTO ready, ChildDTO child) {
+
+        sessionMapper.markPreparedUsed(ready.getSessionId());
+
+        StoryDTO story = storyMapper.selectStory(ready.getStoryId());
+        StoryNodeDTO first = storyMapper.selectNodeByOrder(ready.getStoryId(), StoryStage.STORY.seq());
+
+        StoryNodeMeta.unpack(first, objectMapper);
+
+        int storySeq = sessionMapper.countTodaySessions(child.getChildId());
+
+        log.info("미리 만들어 둔 이야기를 씁니다 — sessionId={}, storyId={}, child={}, 감정={}",
+                ready.getSessionId(), ready.getStoryId(), child.getChildId(),
+                story == null ? "?" : story.getEmotion());
+
+        return StoryResponseDTO.Start.builder()
+                .sessionId(ready.getSessionId())
+                .storyId(ready.getStoryId())
+                .storySeq(storySeq)
+                .dailyGoal(dailyGoal)
+                .emotion(story == null ? null : story.getEmotion())
+                .title(story == null ? null : story.getTitle())
+                .source("AI")
+                .childCallName(child.getCallName())
+                .characterKey(child.getCharacterType())
+                .node(first)
+                .build();
+    }
+
+    public record NodeReady(Long sessionId, String stageType) {
+    }
+
+    @Override
+    @Transactional
+    public void prefetchNext(Long sessionId, String fromStage) {
+
+        StoryStage cur = StoryStage.of(fromStage).orElse(null);
+        if (cur == null || cur.next().isEmpty()) {
+            return;                                  
+        }
+
+        StorySessionDTO session = sessionMapper.selectSession(sessionId);
+        if (session == null) {
+            return;
+        }
+
+        StoryStage nextStage = cur.next().get();
+
+        if (storyMapper.selectNodeByOrder(session.getStoryId(), nextStage.seq()) != null) {
+            return;                                  
+        }
+
+        try {
+            ChildDTO child = childService.getChild(session.getChildId());
+            buildAndSaveNode(session.getStoryId(), child, readScenario(session), nextStage, null);
+
+            log.info("다음 노드를 미리 만들어 뒀습니다 — session={}, {}", sessionId, nextStage);
+
+        } catch (Exception e) {
+
+            log.warn("미리 만들기 실패 — session={}, {}: {}", sessionId, nextStage, e.getMessage());
+        }
+    }
 
     @Override
     @Transactional
@@ -259,9 +393,24 @@ public class StoryService implements IStoryService {
                 .build();
     }
 
-    // ------------------------------------------------------------
-    //  내부
-    // ------------------------------------------------------------
+    private StoryNodeDTO buildWholeStory(Long storyId, ChildDTO child, StoryScenarioDTO scenario) {
+
+        StoryNodeDTO first = null;
+
+        for (StoryStage stage : StoryStage.values()) {
+
+            StoryNodeDTO made = buildAndSaveNode(storyId, child, scenario, stage, null);
+
+            if (stage == StoryStage.STORY) {
+                first = made;
+            }
+        }
+
+        log.info("이야기 {} — {}개 화면을 한꺼번에 만들었습니다", storyId, StoryStage.values().length);
+
+        return first;
+    }
+
     private StoryNodeDTO buildAndSaveNode(Long storyId,
                                           ChildDTO child,
                                           StoryScenarioDTO scenario,
@@ -284,7 +433,23 @@ public class StoryService implements IStoryService {
         }
 
         StoryNodeMeta.pack(node, objectMapper);
-        storyMapper.insertNode(node);
+
+        try {
+            storyMapper.insertNode(node);
+
+        } catch (DuplicateKeyException e) {
+
+            StoryNodeDTO exist = storyMapper.selectNodeByOrderLive(storyId, stage.seq());
+
+            if (exist == null) {
+                throw e;                            
+            }
+
+            log.info("{}번 노드는 이미 만들어져 있어 그것을 씁니다 — story={}", stage.seq(), storyId);
+
+            StoryNodeMeta.unpack(exist, objectMapper);
+            return exist;
+        }
 
         return node;
     }
@@ -361,9 +526,33 @@ public class StoryService implements IStoryService {
             }
         }
 
-        log.warn("세션 {} 의 시나리오 씨앗을 찾지 못해 내장 시나리오로 잇습니다", session.getSessionId());
+        throw new IllegalStateException(
+                "세션 " + session.getSessionId() + " 의 이야기 씨앗을 찾지 못했습니다");
+    }
 
-        return FallbackStory.scenario("sad", "토리");
+    private String emotionFor(StoryRequestDTO.Start req, RoadmapPlanDTO.Week week, int seq, String last) {
+
+        if (req.getEmotion() != null && !req.getEmotion().isBlank()) {
+            return normalizeEmotion(req.getEmotion());   
+        }
+
+        if (week != null && week.getSituationType() != null) {
+            SituationType type = SituationType.normalize(week.getSituationType(), null);
+
+            List<String> all = type.emotions();
+            int at = Math.floorMod(week.getNo() + seq, all.size());
+            String emo = all.get(at);
+
+            if (emo.equals(last) && all.size() > 1) {
+                emo = all.get((at + 1) % all.size());
+            }
+
+            log.info("이번 주 상황 '{}' · {}번째 이야기 → 감정 {} (직전 {})",
+                    week.getSituationType(), seq + 1, emo, last == null ? "없음" : last);
+            return emo;
+        }
+
+        return "sad";
     }
 
     private String normalizeEmotion(String raw) {
@@ -399,5 +588,81 @@ public class StoryService implements IStoryService {
 
     private static String trimToNull(String v) {
         return (v == null || v.isBlank()) ? null : v.trim();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public StoryResponseDTO.Summary summary(Long childId) {
+
+        List<StorySessionDTO> rows = sessionMapper.selectRecent(childId, RECENT_LIMIT);
+
+        List<StoryResponseDTO.Summary.Record> recent = new ArrayList<>(rows.size());
+
+        for (int i = 0; i < rows.size(); i++) {
+            StorySessionDTO r = rows.get(i);
+
+            recent.add(StoryResponseDTO.Summary.Record.builder()
+                    .no(i + 1)
+                    .date(dayLabel(r.getStartedAt()))
+                    .title(r.getStoryTitle())
+                    .completed(StorySessionDTO.COMPLETED.equals(r.getStatus()))
+                    .build());
+        }
+
+        List<LocalDate> days = sessionMapper.selectActiveDays(childId, STREAK_LOOKBACK);
+
+        return StoryResponseDTO.Summary.builder()
+                .streakDays(streakOf(days))
+                .activeDays(days.stream().map(LocalDate::toString).toList())
+                .todayDone(sessionMapper.countTodayCompleted(childId))
+                .dailyGoal(dailyGoal)
+                .recent(recent)
+                .build();
+    }
+
+    private static final int RECENT_LIMIT = 5;
+
+    private static final int STREAK_LOOKBACK = 400;
+
+    private int streakOf(List<LocalDate> days) {
+
+        if (days == null || days.isEmpty()) {
+            return 0;
+        }
+
+        LocalDate today = LocalDate.now();
+        LocalDate first = days.get(0);
+
+        if (first.isBefore(today.minusDays(1))) {
+            return 0;                       
+        }
+
+        int n = 1;
+        LocalDate prev = first;
+
+        for (int i = 1; i < days.size(); i++) {
+            if (!days.get(i).equals(prev.minusDays(1))) {
+                break;                      
+            }
+            prev = days.get(i);
+            n += 1;
+        }
+
+        return n;
+    }
+
+    private String dayLabel(LocalDateTime at) {
+
+        if (at == null) {
+            return "-";
+        }
+
+        LocalDate d = at.toLocalDate();
+        LocalDate today = LocalDate.now();
+
+        if (d.equals(today)) return "오늘";
+        if (d.equals(today.minusDays(1))) return "어제";
+
+        return d.getMonthValue() + "." + d.getDayOfMonth();
     }
 }

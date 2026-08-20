@@ -1,6 +1,7 @@
 package kopo.kkeudeok.dto;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 // 사회적 상황 분류
@@ -48,6 +49,24 @@ public enum SituationType {
         }
 
         return defaultFor(emotion);
+    }
+
+    public List<String> emotions() {
+        return switch (this) {
+            case CELEBRATE -> List.of("happy", "surprise", "sad");
+            case GREET     -> List.of("happy", "sad", "surprise");
+            case WAIT_TURN -> List.of("angry", "sad", "happy", "surprise");
+            case APOLOGIZE -> List.of("angry", "sad", "surprise");
+            case COMFORT   -> List.of("sad", "angry", "surprise");
+            case SHARE     -> List.of("sad", "angry", "happy");
+            case ASK_HELP  -> List.of("sad", "surprise", "angry");
+            case EXPRESS   -> List.of("sad", "happy", "angry", "surprise");
+        };
+    }
+
+    public String emotionFor(int seq) {
+        List<String> all = emotions();
+        return all.get(Math.floorMod(seq, all.size()));
     }
 
     // 감정별 기본 상황

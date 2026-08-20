@@ -7,9 +7,9 @@
     <insert id="insertSession" parameterType="kopo.kkeudeok.dto.StorySessionDTO"
             useGeneratedKeys="true" keyProperty="sessionId">
         INSERT INTO story_session (child_id, story_id, roadmap_id, daily_input,
-                                   started_at, status)
+                                   started_at, status, prepared)
         VALUES (#{childId}, #{storyId}, #{roadmapId}, #{dailyInput},
-                NOW(), #{status})
+                NOW(), #{status}, #{prepared})
     </insert>
 
     <select id="selectSession" resultType="kopo.kkeudeok.dto.StorySessionDTO">
@@ -43,6 +43,21 @@
            AND CAST(started_at AS DATE) = CURRENT_DATE
     </select>
 
+    <!--
+      끝까지 마친 학습의 시작 시각들. 로드맵 주차별 완료 표시에 쓴다.
+
+      ⚠ 여기서 주차를 계산하지 않는다. 주차를 세는 공식(로드맵 생성일로부터 7일 단위)은
+        RoadmapService.currentWeek 에 있고, SQL 에도 같은 계산을 적어 두면 언젠가 한쪽만
+        고쳐져 어긋난다. 시각만 주고 셈은 한 곳에서 한다.
+    -->
+    <select id="selectCompletedStartedAt" resultType="java.time.LocalDateTime">
+        SELECT started_at
+          FROM story_session
+         WHERE child_id = #{childId}
+           AND status = 'COMPLETED'
+         ORDER BY started_at
+    </select>
+
     <select id="countTodayCompleted" resultType="int">
         SELECT COUNT(*)
           FROM story_session
@@ -67,11 +82,48 @@
           FROM story_session s
          WHERE s.child_id = #{childId}
            AND s.status = 'INCOMPLETE'
+           AND s.ended_at IS NULL
+           AND s.prepared = 0
            AND CAST(s.started_at AS DATE) = CURRENT_DATE
            AND EXISTS (SELECT 1 FROM story_node n WHERE n.story_id = s.story_id)
          ORDER BY s.started_at DESC
          LIMIT 1
     </select>
+
+    <!--
+      미리 만들어 둔, 아직 아무도 쓰지 않은 세션.
+
+      ⚠ 이어하기(selectResumable)와 다르다. 이건 아이가 아직 본 적 없는 것이라
+        "이어서 할까?" 라고 물을 대상이 아니라, [학습 시작하기] 가 <b>그대로 가져다 쓸</b> 것이다.
+        둘을 구분하지 않아서, 미리 만든 세션이 '답한 기록 없음' 으로 닫히고 AI 를 또 부르는
+        낭비가 있었다(2026-08-19 로그: 10초 사이에 같은 감정의 이야기 두 편).
+      날짜는 따지지 않는다 — 어제 미리 만들어 둔 것도 오늘 쓰면 된다.
+    -->
+    <select id="selectPrepared" resultType="kopo.kkeudeok.dto.StorySessionDTO">
+        SELECT s.session_id
+             , s.child_id
+             , s.story_id
+             , s.roadmap_id
+             , s.daily_input
+             , s.started_at
+             , s.ended_at
+             , s.status
+          FROM story_session s
+         WHERE s.child_id = #{childId}
+           AND s.prepared = 1
+           AND s.status = 'INCOMPLETE'
+           AND s.ended_at IS NULL
+           AND EXISTS (SELECT 1 FROM story_node n WHERE n.story_id = s.story_id)
+         ORDER BY s.session_id
+         LIMIT 1
+    </select>
+
+    <!-- 미리 만든 세션을 아이가 쓰기 시작했다 — 이제 보통 세션이다. -->
+    <update id="markPreparedUsed">
+        UPDATE story_session
+           SET prepared = 0, started_at = NOW()
+         WHERE session_id = #{sessionId}
+    </update>
 
     <!--
       ⚠ status != 'COMPLETED' 조건이 핵심이다.
@@ -85,5 +137,31 @@
          WHERE session_id = #{sessionId}
            AND status != 'COMPLETED'
     </update>
+
+    <!-- 최근 학습 기록 — 학습 홈 표. 이야기 제목을 같이 가져와 화면이 다시 묻지 않게 한다. -->
+    <select id="selectRecent" resultType="kopo.kkeudeok.dto.StorySessionDTO">
+        SELECT s.session_id
+             , s.child_id
+             , s.story_id
+             , s.started_at
+             , s.ended_at
+             , s.status
+             , t.title AS story_title
+          FROM story_session s
+          JOIN story t ON t.story_id = s.story_id
+         WHERE s.child_id = #{childId}
+         ORDER BY s.started_at DESC
+         LIMIT #{limit}
+    </select>
+
+    <!-- 학습한 날(중복 없이). 연속 이용일수는 이 목록을 Java 에서 세어 구한다 —
+         SQL 로 연속을 세면 DB 마다 문법이 갈리고 읽기도 어렵다. -->
+    <select id="selectActiveDays" resultType="java.time.LocalDate">
+        SELECT DISTINCT CAST(started_at AS DATE) d
+          FROM story_session
+         WHERE child_id = #{childId}
+         ORDER BY d DESC
+         LIMIT #{limit}
+    </select>
 
 </mapper>

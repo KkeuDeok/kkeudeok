@@ -27,5 +27,7 @@ public class StorySessionDTO {
     private LocalDateTime endedAt;
 
     private String status;
+    private boolean prepared;
+    private String storyTitle;
 
 }

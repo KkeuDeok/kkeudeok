@@ -44,6 +44,43 @@ class StoryMapperTest {
     @Autowired
     private RoadmapMapper roadmapMapper;
 
+    /**
+     * 중복 키를 잡은 뒤 쓰는 조회가 실제로 동작하는가.
+     *
+     * <p>미리 만들기와 화면 요청이 같은 자리를 동시에 만들면 뒤늦은 쪽이 unique 에 걸린다.
+     * 그때 이미 만들어진 노드를 찾아 써야 학습이 안 끊긴다 —
+     * 못 찾으면 예외가 그대로 올라가 그 화면에서 멈추고 미션 결과가 버려진다
+     * (2026-08-19 로그: Duplicate entry '41-3' → 스토리 API 오류).
+     *
+     * <p>⚠ 여기서는 트랜잭션이 하나뿐이라 스냅샷 문제까지는 재현되지 않는다.
+     * 그 부분(REPEATABLE READ 에서 다른 트랜잭션이 넣은 행이 안 보이는 것)은
+     * 실제 MariaDB 에 두 커넥션으로 붙어 확인했고, FOR UPDATE 로만 보였다.
+     */
+    @Test
+    @DisplayName("중복이 났을 때 쓰는 조회가 이미 만들어진 노드를 찾아낸다")
+    void liveLookupFindsExistingNode() {
+
+        StoryDTO story = StoryDTO.builder()
+                .childId(1L).title("중복 확인용").situationType("sad").isGenerated(true)
+                .build();
+        storyMapper.insertStory(story);
+
+        storyMapper.insertNode(StoryNodeDTO.builder()
+                .storyId(story.getStoryId())
+                .nodeOrder(3)
+                .stageType("CAUSE")
+                .narration("왜 그런 마음이 들었을까")
+                .build());
+
+        StoryNodeDTO found = storyMapper.selectNodeByOrderLive(story.getStoryId(), 3);
+
+        assertThat(found).isNotNull();
+        assertThat(found.getStageType()).isEqualTo("CAUSE");
+
+        /* 없는 자리는 없다고 해야 한다 — 아무거나 집어 오면 엉뚱한 화면이 뜬다 */
+        assertThat(storyMapper.selectNodeByOrderLive(story.getStoryId(), 5)).isNull();
+    }
+
     @Test
     @DisplayName("아이를 읽는다")
     void selectChild() {
@@ -56,7 +93,9 @@ class StoryMapperTest {
         assertThat(child.getCallName()).isEqualTo("지우");
         assertThat(child.getDisorderType()).isEqualTo("자폐");
 
-        assertThat(childMapper.selectFirstChild().getChildId()).isEqualTo(1L);
+        /* selectFirstChild 는 없앴다 — 로그인이 붙기 전 '첫 아이로 떨어지던' 임시 장치라,
+           지금은 남의 집 아이로 학습이 돌아간다는 뜻이었다(2026-08-18). */
+        assertThat(childMapper.selectChildByMember(1L).getChildId()).isEqualTo(1L);
     }
 
     @Test

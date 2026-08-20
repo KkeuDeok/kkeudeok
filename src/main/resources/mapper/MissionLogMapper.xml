@@ -57,4 +57,25 @@
          LIMIT 1
     </select>
 
+    <!-- 성장 리포트 집계 원자료. 단계(stage_type)와 학습 시작 시각을 같이 가져온다 —
+         감정 이해/표현을 가르는 것이 단계이고, 이번 주/지난주를 가르는 것이 시작 시각이다. -->
+    <select id="selectForReport" resultType="kopo.kkeudeok.dto.MissionLogDTO">
+        SELECT l.log_id
+             , l.session_id
+             , l.node_id
+             , l.mission_type
+             , l.target_value
+             , l.response_value
+             , l.is_success
+             , l.created_at
+             , n.stage_type
+             , s.started_at
+          FROM mission_log l
+          JOIN story_session s ON s.session_id = l.session_id
+          LEFT JOIN story_node n ON n.node_id = l.node_id
+         WHERE s.child_id = #{childId}
+           AND s.started_at >= #{from}
+         ORDER BY s.started_at
+    </select>
+
 </mapper>
