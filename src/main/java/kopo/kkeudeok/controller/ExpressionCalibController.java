@@ -28,7 +28,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/calib")
 @RequiredArgsConstructor
-public class ExpressionCalibApiController {
+public class ExpressionCalibController {
 
     private final IExpressionCalibService calibService;
 
@@ -36,7 +36,24 @@ public class ExpressionCalibApiController {
     public ResponseEntity<Saved> save(@RequestBody SaveRequest req, HttpSession session) {
 
         Long childId = SessionKeys.childId(session, req.getChildId());
-        ExpressionCalibDTO saved = calibService.save(childId, req.getEmotion(), req.getShapes());
+
+        if (childId == null) {
+            log.info("아직 아이가 없어 표정 등록을 미룹니다 — 온보딩이 끝나면 다시 받습니다");
+            return ResponseEntity.accepted().build();
+        }
+
+        ExpressionCalibDTO saved;
+
+        try {
+            saved = calibService.save(childId, req.getEmotion(), req.getShapes());
+
+        } catch (IllegalStateException e) {
+            log.info("표정 등록을 미룹니다 — {}", e.getMessage());
+
+            session.removeAttribute(SessionKeys.CHILD_ID);
+
+            return ResponseEntity.accepted().build();
+        }
 
         return ResponseEntity.ok(Saved.builder()
                 .calibId(saved.getCalibId())

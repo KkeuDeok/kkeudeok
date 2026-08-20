@@ -10,10 +10,23 @@
            AND emotion_type = #{emotionType}
     </delete>
 
+    <!--
+      감정 하나당 한 줄. 지우고 다시 넣지 않고 <b>덮어쓴다</b>.
+
+      ⚠ 예전에는 deleteByEmotion → insertCalib 두 문장이었다. 표정 다섯 개가 동시에
+        들어오면 같은 child_id 를 두고 DELETE 와 INSERT 가 서로 잠금을 기다려 데드락이 났다
+        (2026-08-20 로그: Deadlock found, 다섯 중 하나만 살아남음). 등록이 반쯤 날아가면
+        학습4 에서 아이가 아무리 표정을 지어도 통과하지 못한다 — 비교할 기준이 없어서다.
+        (child_id, emotion_type) unique 를 걸고 한 문장으로 합쳐 그 틈을 없앴다.
+    -->
     <insert id="insertCalib" parameterType="kopo.kkeudeok.dto.ExpressionCalibDTO"
             useGeneratedKeys="true" keyProperty="calibId">
         INSERT INTO expression_calib (child_id, emotion_type, landmark_data, media_url, created_at)
         VALUES (#{childId}, #{emotionType}, #{landmarkData}, #{mediaUrl}, NOW())
+        ON DUPLICATE KEY UPDATE
+              landmark_data = VALUES(landmark_data)
+            , media_url     = VALUES(media_url)
+            , created_at    = NOW()
     </insert>
 
     <select id="selectByChild" resultType="kopo.kkeudeok.dto.ExpressionCalibDTO">
