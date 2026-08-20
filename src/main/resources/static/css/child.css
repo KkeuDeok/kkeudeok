@@ -169,6 +169,88 @@
 /* --------------------------------------------------------------------------
    본문 — 1000 중앙(x 220~1220), 스텝바 아래 전부(y 72~1024)
    -------------------------------------------------------------------------- */
+/* ---------- 이야기가 도착하기 전 ----------
+   JSP 에는 기본 문구가 박혀 있다(scene.jsp 의 "길을 잃을 뻔했어요" 등). 진짜 이야기는
+   서버에서 와 글자를 갈아끼우는데, 그 전에 보이면 아이가 딴 이야기를 읽었다가 바뀌는 것을
+   본다(2026-08-20 지적). 그래서 확정될 때까지 글자를 감추고 '만드는 중' 만 보여 준다.
+
+   ⚠ 자리는 남긴다(visibility). display:none 으로 지우면 문장이 도착할 때 화면이 덜컥
+     움직여 아이가 놀란다.
+   아래 .story-wait 가 화면 전체를 덮으므로 이 규칙까지 필요하지는 않다. 그래도 남긴다 —
+   덮개가 어떤 이유로든 안 뜰 때 <b>틀린 이야기를 보여 주는 것</b>만은 막아야 한다. */
+html[data-kd-node="pending"] .story-title,
+html[data-kd-node="pending"] .story-sub,
+html[data-kd-node="pending"] .story-ask,
+html[data-kd-node="pending"] .story-cta,
+html[data-kd-node="pending"] .feel-recap,
+html[data-kd-node="pending"] .feel-q,
+html[data-kd-node="pending"] .feel-card,
+html[data-kd-node="pending"] .why-title,
+html[data-kd-node="pending"] .why-sub,
+html[data-kd-node="pending"] .why-card,
+html[data-kd-node="pending"] .cam-title,
+html[data-kd-node="pending"] .cam-hint,
+html[data-kd-node="pending"] .done-title {
+    visibility: hidden;
+}
+
+/* 기다리는 동안 덮어 두는 화면 — 로그인 앞 스플래시와 같은 곰돌이가 끄덕인다.
+   ⚠ 화면 전체를 덮는다(fixed). 가운데만 덮었더니 스텝바·하단 바·풀밭이 그대로 보여
+     덮다 만 것처럼 보였다(2026-08-20 지적).
+   ⚠ 불투명하게 덮는다. 비치게 두면 뒤에 남은 기본 문구와 그림이 어른거린다. */
+.story-wait { display: none; }
+
+html[data-kd-node="pending"] .story-wait {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 9000;              /* 로그인 스플래시와 같은 층 — 무엇보다 위에 있어야 한다 */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    background: #fff;
+}
+
+/* 이야기 속 그림도 아직 이번 이야기 것이 아니다(감정이 바뀔 수 있다) — 같이 감춘다 */
+html[data-kd-node="pending"] .story-art,
+html[data-kd-node="pending"] .feel-art,
+html[data-kd-node="pending"] .demo {
+    visibility: hidden;
+}
+
+/* 회전축을 턱 밑에 둬야 고개를 젓는 게 아니라 끄덕이는 걸로 보인다(auth.css 와 같은 값) */
+html[data-kd-node="pending"] .story-wait img {
+    width: 120px;
+    height: 120px;
+    transform-origin: 50% 82%;
+    /* ⚠ 스플래시는 두 번 끄덕이고 멈추지만 여기서는 <b>계속</b> 끄덕여야 한다 —
+         기다리는 시간이 얼마일지 모르고, 멈추면 아이는 멈춰 버린 화면으로 읽는다. */
+    animation: kdStoryNod 2.2s ease-in-out infinite;
+}
+
+html[data-kd-node="pending"] .story-wait p {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--kd-text-sub);
+}
+
+/* 두 번 끄덕이고 잠깐 쉰다 — 쉬는 틈이 없으면 쉼 없이 흔드는 것처럼 보여 부담스럽다 */
+@keyframes kdStoryNod {
+    0%        { transform: rotate(0); }
+    9%        { transform: rotate(13deg); }
+    18%       { transform: rotate(-4deg); }
+    27%       { transform: rotate(11deg); }
+    37%       { transform: rotate(-2deg); }
+    50%, 100% { transform: rotate(0); }
+}
+
+/* 움직임에 민감한 아이도 있다 — 시스템 설정을 따른다 */
+@media (prefers-reduced-motion: reduce) {
+    html[data-kd-node="pending"] .story-wait img { animation: none; }
+}
+
 .child-main {
     position: relative;
     flex: 1;
@@ -915,15 +997,10 @@
 }
 
 /* 얼굴을 맞출 자리 — 카메라가 없어도 어디를 봐야 하는지 알려 준다 */
-.cam-box .guide {
-    position: absolute;
-    left: 260px;
-    top: 100px;
-    box-sizing: border-box;
-    width: 200px;
-    height: 240px;
-    border: 2px dashed rgba(255, 255, 255, .7);
-}
+/* ⚠ 카메라 안 점선 네모(.guide)는 지웠다(2026-08-20 요청).
+     인식은 그 네모 안을 보는 게 아니라 화면 전체에서 얼굴·몸을 찾는다 — 그런데 점선이
+     있으면 "여기 안에 맞춰야 한다" 로 읽혀, 아이는 맞추려 애쓰고 보호자는 판정 기준으로
+     오해한다. 판정과 상관없는 선은 안 그리는 게 맞다. 되살릴 일은 없을 것이다. */
 
 /* 동작 시범 그림 — Figma 자리는 204×353(`411:549`). 상반신 그림이라 비율을 맞춘다고
    240×264 로 줄였더니 Figma 대비 세로가 1/3 짧아 너무 작았다(2026-08-10 사용자 지적).
@@ -964,27 +1041,30 @@
     height: 394px;
 }
 
-/* 토리가 먼저 해 보이는 코너 카드 */
+/* 토리가 먼저 해 보이는 코너 카드.
+   ⚠ 이 카드가 아이가 **따라 해야 할 것**을 보여 준다. 큰 그림은 도와줄 친구의 표정이라
+     따라 할 대상이 아니다. 예전 크기는 큰 그림(330×348)에 눌려 동작 화면에서 표정 그림을
+     가이드로 오해하게 만들었다(2026-08-18 지적) — 140×136 → 210×196 으로 키운다. */
 .cam-hint {
     position: absolute;
     right: 14px;
     top: 14.5px;
-    width: 140px;
-    height: 136px;
-    border-radius: 20px;
+    width: 210px;
+    height: 196px;
+    border-radius: 26px;
     background: #fff6ea;
     overflow: hidden;       /* 아래 그림이 넘치는 만큼 잘라 낸다 */
 }
 
 /* 2026-08-10 "카드는 원래대로 두고 안에 캐릭터를 키우세요".
-   contain 이면 정사각 원본이 폭에 갇혀 80 밖에 못 그린다 → cover 로 **가로를 꽉 채우고**
-   넘치는 아래(가슴)를 잘라 낸다. 그림 80 → 130 (+63%), 글자 자리(106)는 그대로. */
+   contain 이면 정사각 원본이 폭에 갇혀 못 그린다 → cover 로 **가로를 꽉 채우고**
+   넘치는 아래(가슴)를 잘라 낸다. */
 .cam-hint img {
     position: absolute;
-    left: 5px;              /* (140 − 130) / 2 */
-    top: 4px;
-    width: 130px;
-    height: 98px;
+    left: 8px;              /* (210 − 195) / 2 ≈ 8 */
+    top: 6px;
+    width: 195px;
+    height: 147px;
     object-fit: cover;
     object-position: center top;
 }
@@ -992,12 +1072,46 @@
 .cam-hint span {
     position: absolute;
     left: 0;
-    top: 106px;
+    top: 156px;
     width: 100%;
     text-align: center;
-    font-size: 12px;
-    line-height: 18px;
+    font-size: 16px;
+    line-height: 24px;
     color: var(--kd-text-sub);
+}
+
+/* 동작 화면의 글 안내 — 그림 대신 무엇을 어떻게 움직이면 되는지 적는다.
+   ⚠ 그림 카드는 '이 자세를 그대로 만들라' 로 읽혀, 팔을 그만큼 못 올리는 아이를 막았다
+     (2026-08-19 지적). 판정이 움직임을 보므로 안내도 움직임으로 쓴다.
+   높이를 고정하지 않는다 — 동작마다 줄 수가 달라 글이 잘리면 안 된다. */
+.cam-hint-text {
+    height: auto;
+    min-height: 196px;
+    padding: 16px 14px;
+    box-sizing: border-box;
+    text-align: left;
+}
+
+.cam-hint-text .gt {
+    margin: 0 0 10px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 22px;
+    color: var(--kd-text);
+    word-break: keep-all;       /* 낱말 가운데서 줄이 바뀌면 읽기 어렵다 */
+}
+
+.cam-hint-text .gs {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 15px;
+    line-height: 24px;
+    color: var(--kd-text-sub);
+}
+
+.cam-hint-text .gs li {
+    margin-bottom: 4px;
+    word-break: keep-all;
 }
 
 /* [다시 들려줘] [다 했어요!] [잘 모르겠어] — 세 개가 한 줄.
@@ -1095,8 +1209,12 @@
     text-align: center;
 }
 
+/* ⚠ 520 이었다. 부제(.done-sub)를 걷어내면서(2026-08-20) 아래가 비어 제목이 위로
+     치우쳐 보였다 — 캐릭터와 안내문 사이 <b>가운데</b>로 내렸다.
+     계산: 캐릭터 아래 518(.done-art top 170 + 348) ~ 안내문 위 668(.done-tap).
+           그 사이 가운데 593 에 글줄(line-height 57)의 중심을 두면 593 − 57/2 = 564.5 */
 .done-stage .done-title {
-    top: 520px;
+    top: 564px;
     font-size: 38px;
     line-height: 57px;
     font-weight: 700;

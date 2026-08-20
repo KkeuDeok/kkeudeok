@@ -1,26 +1,15 @@
+<%-- 학습3 이유 찾기 — 왜 그런 마음이 됐는지 고르거나 말로 답한다.
+     본문은 _why-body.jspf 에 있고, 음성 인식은 kd-mediapipe.js 가 맡는다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    /* 학습3 이유 찾기 — Figma 웹_학습3_이유찾기(136:282 / 383:892 화남 / 383:1001 기쁨).
-       말로 답하거나 그림을 눌러 고른다.
 
-       화면을 새로 띄우지 않는다(사용자 요구) —
-         [말로 알려줄래!] → 그 자리에서 버튼이 파형으로 바뀐다(story.js). 예전의 why-listening 화면은 없앴다.
-         오답 카드      → 그 자리에서 오답 모달이 뜬다. 아이가 '새로고침만 됐다'고 느끼면 안 된다.
-       ?wrong=other 로 직접 들어와도 모달이 열린 채 그려진다(JS 꺼짐 대비). */
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     boolean whyWrong = "other".equals(request.getParameter("wrong"));
     String whyPick = whyWrong ? "other" : null;
 
-    /* 오답은 3벌 모두 '졸려서' 하나뿐이라, 단서는 정답 쪽 상황을 되짚어 준다 */
-    String[][] whyClues = {
-        {"sad",   "졸린 게 아니야. 내가 넘어졌을 때를 떠올려 볼래?"},
-        {"angry", "졸린 게 아니야. 내 블록이 어떻게 됐는지 떠올려 볼래?"},
-        {"happy", "졸린 게 아니야. 내가 무엇을 받았는지 떠올려 볼래?"}
-    };
-    String whyClue = whyClues[0][1];
-    for (String[] r : whyClues) { if (r[0].equals(emo)) whyClue = r[1]; }
+    String whyClue = "아까 무슨 일이 있었는지 다시 떠올려 볼래?";
 
     String pageTitle  = "이유 찾기";
     String storyStep  = "why";
@@ -29,14 +18,12 @@
 <%@ include file="../common/child-top.jsp" %>
 <%@ include file="_why-body.jspf" %>
 
-<%-- 같은 자리에서 버튼 ↔ 파형이 갈린다. story.js 가 hidden 을 토글한다 --%>
 <button type="button" class="why-mic">말로 알려줄래!</button>
 <div class="why-listen" hidden>
     <span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
     <span class="txt">듣고 있어요</span>
 </div>
 
-<%-- 오답 모달 — 마크업은 항상 두고 JS 가 연다. ?wrong= 로 들어오면 처음부터 열려 있다 --%>
 <div class="story-dim<%= whyWrong ? " is-on" : "" %>" role="dialog" aria-modal="true"
      aria-labelledby="whyWrongTitle"<%= whyWrong ? "" : " hidden" %>>
     <div class="story-modal">

@@ -1,16 +1,15 @@
+<%-- 학습2 마음 읽기 — 친구가 어떤 마음인지 카드로 고른다.
+     본문은 힌트 화면과 같아서 _feel-body.jspf 로 빼 두었다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    /* 학습2 마음 읽기 — Figma 웹_학습2_마음읽기(24:18040).
-       학습1 에서 넘어온 ?emo= 가 곧 정답이다(기쁨→happy · 화남→angry · 그 외→sad).
-       오답 카드를 누르면 ?wrong= 이 붙어 돌아오고 그 위에 오답 모달(24:17777)을 띄운다.
-       화면이 아니라 상태라 라우트를 새로 파지 않았다. */
+
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
     String wrong = request.getParameter("wrong");
     if (wrong != null && (wrong.equals(emo) || !wrong.matches("happy|sad|angry|surprise"))) wrong = null;
 
-    String feelPick = wrong;   /* 아이가 방금 고른 카드를 짚어 준다 */
+    String feelPick = wrong;   
 
     String pageTitle  = "마음 읽기";
     String storyStep  = "feel";
@@ -20,13 +19,9 @@
 <%@ include file="_feel-body.jspf" %>
 
 <%
-       /* 모달 마크업은 늘 그린다 — 오답을 누르면 story.js 가 그 자리에서 연다.
-          ?wrong= 로 직접 들어온 경우에만 처음부터 열려 있다(JS 꺼짐 대비). */
+
        String shown = (wrong != null) ? wrong : "happy";
-       /* 앞은 고른 감정의 특징, 뒤는 정답 감정의 단서.
-          ⚠ 앞 문장은 화면을 그릴 때 한 벌만 박힌다. 실제로 어떤 카드를 눌렀는지는
-            story.js 가 열면서 갈아끼운다(paintTrait). 여기 값은 ?wrong= 로 바로 들어온
-            경우와 JS 가 꺼진 경우의 기본값이다. */
+
        String[][] wrongTraits = {
            {"happy",    "기쁠 때는 입꼬리가 올라가."},
            {"sad",      "슬플 때는 눈썹이 아래로 처져."},
@@ -48,11 +43,11 @@
     <div class="story-modal">
         <div class="hd">
             <h2 id="wrongTitle"><%= "{c}의 귓속말".replace("{c}", CHAR) %></h2>
-            <%-- 닫아도 다시 고를 수 있게 모달 없는 같은 화면으로 돌아간다 --%>
+
             <a class="x" data-close href="/story/feel?emo=<%= emo %>" aria-label="닫기"></a>
         </div>
         <div class="bd">
-            <%-- 오답 모달은 3벌 공통으로 미안해하는 표정을 쓴다 --%>
+
             <img data-kd-char="sorry" src="/img/char-tori-sorry.png" alt="">
             <p class="say">"음... 내 마음은 조금 다른 것 같아"</p>
             <p class="clue"><span><%= trait %></span><span><%= clue %></span></p>
