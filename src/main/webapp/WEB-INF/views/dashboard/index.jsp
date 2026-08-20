@@ -8,25 +8,26 @@
     <h1><span data-kd="childCall">지우</span>의 이번 주</h1>
 </div>
 
-<div class="dash-kpis kd-has-data">
+<%-- 세 지표는 성장 리포트와 **같은 계산**을 쓴다(/api/report) — 화면마다 따로 세면
+     대시보드 64% 와 리포트 64% 가 어긋나는 날이 온다. kd-report.js 가 채운다. --%>
+<div class="dash-kpis">
     <div class="dash-kpi">
         <p class="lb">감정 표현</p>
-        <p class="v">64%</p>
-        <div class="track"><span class="c-express" style="width:64%"></span></div>
-        <%-- 리포트(express.jsp)는 ▲4 인데 여기만 +5%p 였다 — 근거 숫자를 넣으면서 드러나 맞췄다 --%>
-        <p class="cap">지난주 대비 <b class="dl-up">+4%p</b></p>
+        <p class="v" data-rpt="express">-<span class="u">%</span></p>
+        <div class="track"><span class="c-express" data-rpt-bar="express"></span></div>
+        <p class="cap">지난주 대비 <b data-rpt-delta="express"></b></p>
     </div>
     <div class="dash-kpi">
         <p class="lb">감정 이해</p>
-        <p class="v">72%</p>
-        <div class="track"><span class="c-understand" style="width:72%"></span></div>
-        <p class="cap">지난주 대비 <b class="dl-up">+2%p</b></p>
+        <p class="v" data-rpt="understand">-<span class="u">%</span></p>
+        <div class="track"><span class="c-understand" data-rpt-bar="understand"></span></div>
+        <p class="cap">지난주 대비 <b data-rpt-delta="understand"></b></p>
     </div>
     <div class="dash-kpi">
         <p class="lb">사회성</p>
-        <p class="v">58%</p>
-        <div class="track"><span class="c-social" style="width:58%"></span></div>
-        <p class="cap">지난주 대비 <b class="dl-down">-3%p</b></p>
+        <p class="v" data-rpt="social">-<span class="u">%</span></p>
+        <div class="track"><span class="c-social" data-rpt-bar="social"></span></div>
+        <p class="cap">지난주 대비 <b data-rpt-delta="social"></b></p>
     </div>
 </div>
 
@@ -57,43 +58,6 @@
         </div>
     </div>
 
-    <div class="dash-chart kd-has-data">
-        <h2>주간 감정 변화 추이</h2>
-        <%--
-          세로축은 0~100 이 아니라 45~75 구간만 보여 준다 (Figma 격자선 = 75/65/55/45).
-          값 v 의 y 좌표 = 40.5 + (72 - v) * 6.857
-          가로는 월~일 7칸, x = 22 + i*90
-        --%>
-        <svg width="660" height="260" viewBox="0 0 660 260" role="img"
-             aria-label="주간 감정 변화 추이 — 감정 이해 72, 감정 표현 64, 사회성 58">
-            <g stroke="#eef2ef" stroke-width="1">
-                <line x1="22" y1="19.97" x2="562" y2="19.97"/>
-                <line x1="22" y1="88.54" x2="562" y2="88.54"/>
-                <line x1="22" y1="157.11" x2="562" y2="157.11"/>
-                <line x1="22" y1="225.68" x2="562" y2="225.68"/>
-            </g>
-            <g font-size="12" fill="#8b978f" text-anchor="middle" font-family="Noto Sans KR, sans-serif">
-                <text x="22" y="248">월</text><text x="112" y="248">화</text><text x="202" y="248">수</text>
-                <text x="292" y="248">목</text><text x="382" y="248">금</text><text x="472" y="248">토</text>
-                <text x="562" y="248">일</text>
-            </g>
-            <g fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline stroke="#e8a317" points="22,136.5 112,122.8 202,102.2 292,68.2 382,54.5 472,47.6 562,40.5"/>
-                <polyline stroke="#3d8fe0" points="22,191.4 112,177.7 202,157.1 292,136.5 382,116.0 472,102.2 562,95.4"/>
-                <polyline stroke="#0fa394" points="22,164.0 112,157.1 202,150.3 292,150.3 382,143.4 472,143.4 562,136.5"/>
-            </g>
-            <g>
-                <circle cx="562" cy="40.5" r="4.7" fill="#e8a317"/>
-                <circle cx="562" cy="95.4" r="4.7" fill="#3d8fe0"/>
-                <circle cx="562" cy="136.5" r="4.7" fill="#0fa394"/>
-            </g>
-            <g font-size="12" font-family="Noto Sans KR, sans-serif">
-                <text x="573" y="44" fill="#e8a317">이해 72</text>
-                <text x="573" y="99" fill="#3d8fe0">표현 64</text>
-                <text x="573" y="140" fill="#0fa394">사회성 58</text>
-            </g>
-        </svg>
-    </div>
 
     <section class="dash-card dash-plan">
         <div class="hd">
@@ -120,29 +84,13 @@
         <a class="kd-btn kd-btn-primary" href="/learn">학습 시작하기</a>
     </section>
 
+    <%-- 연속 이용일수와 요일 점은 **실제 학습 기록**으로 채운다(kd-summary.js).
+         예전에는 5일/1일/0일 세 벌을 데모 스위치(kd-has-data 등)로 갈아 끼웠는데,
+         누가 써도 같은 숫자가 나와 남의 화면처럼 보였다(2026-08-15 지적). --%>
     <section class="dash-streak">
-        <p class="big kd-has-data"><b>5일</b><span>연속 이용 중</span></p>
-        <p class="big kd-no-data"><b>0일</b><span>오늘 시작해 볼까요?</span></p>
-        <p class="big kd-s1"><b>1일</b><span>연속 이용 중</span></p>
-        <div class="dash-week kd-has-data">
-            <div><p class="d">월</p><span class="mk on"></span></div>
-            <div><p class="d">화</p><span class="mk on"></span></div>
-            <div><p class="d">수</p><span class="mk off"></span></div>
-            <div><p class="d">목</p><span class="mk on"></span></div>
-            <div><p class="d">금</p><span class="mk on"></span></div>
-            <div><p class="d">토</p><span class="mk off"></span></div>
-            <div><p class="d">일</p><span class="mk on"></span></div>
-        </div>
-        <div class="dash-week kd-s1">
-            <div><p class="d">월</p><span class="mk on"></span></div>
-            <div><p class="d">화</p><span class="mk off"></span></div>
-            <div><p class="d">수</p><span class="mk off"></span></div>
-            <div><p class="d">목</p><span class="mk off"></span></div>
-            <div><p class="d">금</p><span class="mk off"></span></div>
-            <div><p class="d">토</p><span class="mk off"></span></div>
-            <div><p class="d">일</p><span class="mk off"></span></div>
-        </div>
-        <div class="dash-week kd-no-data">
+        <p class="big" id="dashStreak"><b>-</b><span>불러오는 중…</span></p>
+        <%-- 요일은 고정, 점만 kd-summary.js 가 이번 주 기록으로 켠다 --%>
+        <div class="dash-week" id="dashWeek">
             <div><p class="d">월</p><span class="mk off"></span></div>
             <div><p class="d">화</p><span class="mk off"></span></div>
             <div><p class="d">수</p><span class="mk off"></span></div>
@@ -152,14 +100,6 @@
             <div><p class="d">일</p><span class="mk off"></span></div>
         </div>
     </section>
-</div>
-
-<%-- 하단 173px 이 비어 있던 자리. Figma A안(284:75)에 있다가 B안으로 넘어오며
-     빠진 `오늘의 관찰 확인` 가로 배너를 되살린 것이다. --%>
-<div class="dash-observe kd-hide0">
-    <span class="ic"></span>
-    <p>오늘 <span data-kd="childCall">지우</span>의 모습을 기록하면 다음 학습이 더 정확해져요</p>
-    <a class="kd-btn kd-btn-primary" href="/learn">관찰 기록하기</a>
 </div>
 
 <%-- 로드맵 전체 보기 — 네이티브 <dialog>. 라우트를 새로 파면 서버 재시작이 필요해서 모달로 만들었다.
