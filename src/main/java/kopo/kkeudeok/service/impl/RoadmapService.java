@@ -15,11 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
+import java.util.HashSet;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 // 학습 로드맵
 @Slf4j
@@ -32,6 +35,25 @@ public class RoadmapService implements IRoadmapService {
     private final IChildService childService;
     private final IRoadmapAiService roadmapAiService;
     private final ObjectMapper objectMapper;
+
+    private final kopo.kkeudeok.mapper.StorySessionMapper sessionMapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public RoadmapDTO get(Long childId) {
+
+        if (childId == null) {
+            return null;
+        }
+
+        RoadmapDTO active = roadmapMapper.selectActive(childId);
+
+        if (active != null) {
+            unpack(active);
+        }
+
+        return active;
+    }
 
     @Override
     @Transactional
@@ -59,30 +81,83 @@ public class RoadmapService implements IRoadmapService {
         return create(child);
     }
 
+    private final Set<Long> creating = ConcurrentHashMap.newKeySet();
+
     private RoadmapDTO create(ChildDTO child) {
 
+        Long childId = child.getChildId();
+
+        if (!creating.add(childId)) {
+            log.info("아이 {} 의 로드맵을 이미 만들고 있어 겹쳐 만들지 않습니다", childId);
+            return roadmapMapper.selectActive(childId);
+        }
+
+        try {
+            return createLocked(child);
+        } finally {
+            creating.remove(childId);
+        }
+    }
+
+    private RoadmapDTO createLocked(ChildDTO child) {
+        RoadmapDTO exist = roadmapMapper.selectActive(child.getChildId());
+
+        if (exist != null) {
+            unpack(exist);
+            return exist;
+        }
+
         RoadmapPlanDTO plan = roadmapAiService.createPlan(child, domainScores(child.getChildId()));
-        String type = RoadmapDTO.TYPE_AI.equals(plan.getSource())
-                ? RoadmapDTO.TYPE_AI
-                : RoadmapDTO.TYPE_STANDARD;
+
+        if (plan == null) {
+            log.warn("아이 {} 의 로드맵을 짜지 못했습니다 — 저장하지 않습니다", child.getChildId());
+            return null;
+        }
 
         RoadmapDTO roadmap = RoadmapDTO.builder()
                 .childId(child.getChildId())
-                .roadmapType(type)
+                .roadmapType(RoadmapDTO.TYPE_AI)
                 .stepData(toJson(plan))
                 .isActive(true)
                 .plan(plan)
                 .build();
 
+        roadmapMapper.deactivateAll(child.getChildId());
         roadmapMapper.insertRoadmap(roadmap);
 
-        log.info("로드맵 생성 — roadmapId={}, child={}, type={}",
-                roadmap.getRoadmapId(), child.getChildId(), type);
+        log.info("로드맵 생성 — roadmapId={}, child={}", roadmap.getRoadmapId(), child.getChildId());
 
         return roadmap;
     }
 
-    // 현재 주차
+    @Override
+    @Transactional(readOnly = true)
+    public Set<Integer> doneWeeks(Long childId, RoadmapDTO roadmap) {
+
+        if (childId == null || roadmap == null || roadmap.getCreatedAt() == null) {
+            return Set.of();
+        }
+
+        int total = roadmap.getPlan() == null ? 12 : Math.max(1, roadmap.getPlan().getTotalWeeks());
+
+        Set<Integer> done = new HashSet<>();
+
+        for (LocalDateTime at : sessionMapper.selectCompletedStartedAt(childId)) {
+
+            if (at == null || at.isBefore(roadmap.getCreatedAt())) {
+                continue;
+            }
+
+            int week = (int) (Duration.between(roadmap.getCreatedAt(), at).toDays() / 7) + 1;
+
+            if (week >= 1 && week <= total) {
+                done.add(week);
+            }
+        }
+
+        return done;
+    }
+
     @Override
     public int currentWeek(RoadmapDTO roadmap) {
 
@@ -117,12 +192,6 @@ public class RoadmapService implements IRoadmapService {
         return weeks.get(Math.max(0, Math.min(idx, weeks.size() - 1)));
     }
 
-    /**
-     * 체크리스트 영역별 평균 (영역 → 1~7).
-     *
-     * <p>⚠ 점수가 <b>높을수록 더 어려워한다</b>. 화면이 왼쪽 '그렇다'(1) ~ 오른쪽 '그렇지 않다'(7)
-     * 로 되어 있기 때문이다. 뒤집어 읽으면 잘하는 영역에 주를 몰아주는 정반대 계획이 나온다.
-     */
     private Map<String, Double> domainScores(Long childId) {
 
         List<ChecklistAnswerDTO> rows = onboardingMapper.selectChecklist(childId);
@@ -159,9 +228,9 @@ public class RoadmapService implements IRoadmapService {
 
             roadmap.setPlan(plan);
         } catch (Exception e) {
-            log.warn("로드맵 {} 의 step_data 를 읽지 못해 정석 커리큘럼으로 보여 줍니다: {}",
+            log.warn("로드맵 {} 의 step_data 를 읽지 못했습니다: {}",
                     roadmap.getRoadmapId(), e.getMessage());
-            roadmap.setPlan(FallbackRoadmap.plan());
+            roadmap.setPlan(null);
         }
     }
 
@@ -169,12 +238,7 @@ public class RoadmapService implements IRoadmapService {
         try {
             return objectMapper.writeValueAsString(plan);
         } catch (Exception e) {
-            log.warn("로드맵을 JSON 으로 바꾸지 못했습니다: {}", e.getMessage());
-            try {
-                return objectMapper.writeValueAsString(FallbackRoadmap.plan());
-            } catch (Exception fatal) {
-                return "{\"version\":1,\"totalWeeks\":12,\"stages\":[],\"weeks\":[]}";
-            }
+            throw new IllegalStateException("로드맵을 JSON 으로 바꾸지 못했습니다", e);
         }
     }
 }
