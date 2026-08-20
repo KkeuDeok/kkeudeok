@@ -45,7 +45,7 @@ public class MailService implements IMailService {
             helper.setTo(toMail);
             helper.setFrom(fromMail);
             helper.setSubject(title);
-            helper.setText(contents, true);   // true = HTML 본문
+            helper.setText(contents, true);
 
             mailSender.send(message);
 
@@ -56,6 +56,16 @@ public class MailService implements IMailService {
 
         log.info("{}.doSendMail End! res={}", this.getClass().getName(), res);
         return res;
+    }
+
+    @Async
+    @Override
+    public void sendWelcome(String toEmail, String name) {
+        MailDTO dto = new MailDTO();
+        dto.setToMail(toEmail);
+        dto.setTitle("[끄덕] 회원가입을 축하합니다");
+        dto.setContents(welcomeHtml(name));
+        doSendMail(dto);
     }
 
     @Async

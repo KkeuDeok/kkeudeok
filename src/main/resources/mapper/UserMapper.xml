@@ -125,16 +125,17 @@
            "값이 있는데 비어 있는" 상태가 돼 NULL 검사와 어긋난다. -->
     <update id="updateUserInfo" parameterType="UserDTO">
         UPDATE member
-        SET name                 = #{name},
-            phone                = #{phone},
-            relation             = #{relation},
-            notify_weekly_report = #{notifyWeeklyReport},
-            notify_reminder      = #{notifyReminder},
-            agree_marketing      = #{agreeMarketing},
-            updated_at           = #{updatedAt}
+        SET name       = #{name},
+            phone      = #{phone},
+            relation   = #{relation},
+            updated_at = #{updatedAt}
         WHERE login_id = #{loginId}
           AND deleted_at IS NULL
     </update>
+
+    <!-- ⚠ notify_weekly_report·notify_reminder·agree_marketing 은 일부러 뺐다(2026-08-20).
+         화면에서 알림 설정을 지워 보내 줄 값이 없는데 SET 에 남겨 두면, 저장 한 번에
+         세 컬럼이 전부 0 으로 덮인다. 컬럼과 가입 때 넣는 값은 그대로 있다. -->
 
     <!-- ================= 마이페이지: 계정 완전 삭제 =================
          화면 문구가 "모든 정보가 영구히 소멸되며 절대 복구할 수 없습니다" 이므로

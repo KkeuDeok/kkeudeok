@@ -46,6 +46,8 @@ public interface IUserService {
     /** 이 보호자가 아이를 등록했는지(= 온보딩을 마쳤는지) */
     boolean hasChild(Long memberId) throws Exception;
 
+    Long childIdOf(Long memberId) throws Exception;
+
     /* ---------- 마이페이지 ---------- */
 
     /**

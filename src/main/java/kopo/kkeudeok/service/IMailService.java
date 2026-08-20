@@ -7,4 +7,6 @@ public interface IMailService {
     int doSendMail(MailDTO pDTO);
 
     void sendAuthCode(String toEmail, String code);
+
+    void sendWelcome(String toEmail, String name);
 }

@@ -35,12 +35,11 @@
         <a class="terms-view" href="#" onclick="dlgSensitive.showModal(); return false">보기</a>
     </div>
     <p class="terms-note">표정·음성 데이터는 기기 안에서만 처리되고 원본은 저장되지 않아요</p>
-    <div class="terms-item">
-        <input class="kd-check" type="checkbox" id="agreeMarketing" name="agreeMarketing">
-        <label for="agreeMarketing">마케팅 정보 수신 <span class="opt">(선택)</span></label>
-        <a class="terms-view" href="#" onclick="dlgMarketing.showModal(); return false">보기</a>
-    </div>
-    <p class="terms-desc">새 기능·이벤트 소식을 이메일로 받아볼 수 있어요</p>
+
+    <%-- ⚠ '마케팅 정보 수신(선택)' 항목은 지웠다(2026-08-20 요청).
+           보낼 알림이 없는데 동의만 받고 있었다 — 지키지 못할 약속은 받지 않는 게 맞다.
+           마이페이지의 알림 설정 세 개도 같이 지웠다. 되살리려면 실제로 보내는 것부터
+           만들고 나서 이 자리에 다시 넣을 것. --%>
 
     <p class="terms-error" id="termsError"></p>
 
@@ -78,14 +77,6 @@
     <p><b>이용 목적</b> — 감정 인식 학습 피드백, 개인화된 학습 로드맵 추천</p>
     <p><b>보유 기간</b> — 회원 탈퇴 또는 아동 프로필 삭제 시까지</p>
     <p>만 14세 미만 아동의 정보이므로 보호자 동의가 필요하며, 동의는 언제든 철회할 수 있습니다.</p>
-    <form method="dialog"><button>확인</button></form>
-</dialog>
-
-<dialog class="terms-dialog" id="dlgMarketing">
-    <h2>마케팅 정보 수신 (선택)</h2>
-    <p>신규 학습 콘텐츠, 업데이트 소식, 이벤트 안내를 이메일로 보내드립니다.</p>
-    <p>동의하지 않아도 서비스 이용에는 아무런 제한이 없습니다.</p>
-    <p>수신 설정은 마이페이지에서 언제든 변경할 수 있습니다.</p>
     <form method="dialog"><button>확인</button></form>
 </dialog>
 
