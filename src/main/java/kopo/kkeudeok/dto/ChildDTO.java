@@ -27,16 +27,31 @@ public class ChildDTO {
     public Integer getAge() {
         return birthDate == null ? null : Period.between(birthDate, LocalDate.now()).getYears();
     }
-    public String getCallName() {
+
+    // 이 서비스가 상대하는 나이 (유치원·어린이집부터 초등 저학년까지)
+    private static final int MIN_AGE = 3;
+    private static final int MAX_AGE = 12;
+
+    public String promptAge() {
+
+        Integer age = getAge();
+
+        if (age == null || age < MIN_AGE || age > MAX_AGE) {
+            return "6세 정도";
+        }
+
+        return age + "세";
+    }
+    private String givenName() {
+
         String n = name == null ? "" : name.trim();
 
         if (n.length() >= 3) {
-            // 두 글자 성은 따로 안다 — 남궁·황보처럼 성이 두 글자면 앞 두 글자를 뗀다
             String[] surname2 = {"남궁", "황보", "제갈", "사공", "선우", "서문", "독고", "동방"};
             String head = n.substring(0, 2);
             boolean two = false;
-            for (String s : surname2) {
-                if (s.equals(head)) {
+            for (String x : surname2) {
+                if (x.equals(head)) {
                     two = true;
                     break;
                 }
@@ -44,13 +59,28 @@ public class ChildDTO {
             n = two ? n.substring(2) : n.substring(1);
         }
 
-        if (n.isEmpty()) {
-            return "";
+        return n;
+    }
+
+    private static boolean hasJong(String n) {
+        if (n == null || n.isEmpty()) {
+            return false;
         }
-
         int code = n.charAt(n.length() - 1) - 0xAC00;
-        boolean hasJongseong = code >= 0 && code < 11172 && code % 28 != 0;
+        return code >= 0 && code < 11172 && code % 28 != 0;
+    }
 
-        return hasJongseong ? n + "이" : n;
+    public String getCallName() {
+        String n = givenName();
+        return n.isEmpty() ? "" : (hasJong(n) ? n + "이" : n);
+    }
+
+    public String getVocative() {
+        String n = givenName();
+        return n.isEmpty() ? "" : n + (hasJong(n) ? "아" : "야");
+    }
+
+    public String getGivenName() {
+        return givenName();
     }
 }

@@ -1,8 +1,3 @@
-/* 드롭다운 목록 통일
-   브라우저가 그리는 <select> 기본 목록은 CSS 로 꾸밀 수 없어서
-   년(38개)·월(12개)·일(31개) 목록의 높이·스크롤바가 제각각으로 보였다.
-   원래 <select> 는 지우지 않고 화면에서만 감춘 뒤 같은 모양의 목록을 씌운다
-   → 값·폼 전송·auth-validate.js 의 검사는 그대로 동작한다. */
 (function () {
     'use strict';
 
@@ -34,7 +29,6 @@
         list.setAttribute('role', 'listbox');
         wrap.appendChild(list);
 
-        /* 옵션이 통째로 바뀌는 select 가 있다 (장애 정도 — 유형에 따라 목록이 다르다) */
         function renderList() {
             list.innerHTML = '';
             [].forEach.call(sel.options, function (o, i) {
@@ -61,7 +55,7 @@
             if (i < 0 || i >= sel.options.length) return;
             sel.selectedIndex = i;
             sync();
-            /* input 은 실시간 오류 해제용, change 는 일반 폼 이벤트용 */
+
             sel.dispatchEvent(new Event('input', { bubbles: true }));
             sel.dispatchEvent(new Event('change', { bubbles: true }));
         }
@@ -77,7 +71,6 @@
             if (on) list.scrollTop = on.offsetTop - list.clientHeight / 2;
         });
 
-        /* 목록을 열지 않고도 위·아래 키로 고를 수 있게 — 기본 select 와 같은 감각 */
         btn.addEventListener('keydown', function (e) {
             if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
             e.preventDefault();
@@ -93,9 +86,7 @@
 
         renderList();
         sync();
-        /* 값·옵션이 코드로 바뀐 뒤 목록과 버튼 글씨를 다시 맞출 수 있게 붙여 둔다
-           (kdBuildSelects 와 auth-validate.js 의 syncDisLevels 가 쓴다).
-           ⚠ 목록까지 다시 그리므로 pick() 안에서는 부르지 말 것 — 열려 있는 목록이 통째로 갈린다 */
+
         sel.__kdSync = function () { renderList(); sync(); };
     }
 
@@ -106,7 +97,6 @@
         if (e.key === 'Escape') closeOpen();
     });
 
-    /* 이미 감싼 select 는 다시 감싸면 래퍼가 겹친다 — 버튼 글씨만 다시 맞춘다 */
     function buildAll() {
         document.querySelectorAll('select.onb-select').forEach(function (sel) {
             if (sel.__kdSync) sel.__kdSync(); else build(sel);
@@ -115,7 +105,5 @@
 
     buildAll();
 
-    /* 값을 코드로 바꾸면 이미 만들어진 버튼 글씨가 안 따라온다 —
-       로드맵 편집기처럼 select 값을 통째로 갈아끼우는 화면이 다시 맞출 수 있게 내보낸다 */
     window.kdBuildSelects = buildAll;
 })();

@@ -11,11 +11,7 @@ import java.util.List;
 @Mapper
 public interface OnboardingMapper {
 
-    int insertPlaceholderMember(@Param("loginId") String loginId,
-                                @Param("name") String name,
-                                @Param("holder") java.util.Map<String, Object> holder);
-
-    int insertChild(ChildDTO child);
+int insertChild(ChildDTO child);
 
     ChildDTO selectChildByMember(@Param("memberId") Long memberId);
 
