@@ -13,9 +13,9 @@ import kopo.kkeudeok.dto.StoryOptionDTO;
 import kopo.kkeudeok.dto.StoryRequestDTO;
 import kopo.kkeudeok.dto.StoryResponseDTO;
 import kopo.kkeudeok.dto.StorySessionDTO;
-import kopo.kkeudeok.mapper.MissionLogMapper;
-import kopo.kkeudeok.mapper.StoryMapper;
-import kopo.kkeudeok.mapper.StorySessionMapper;
+import kopo.kkeudeok.mapper.IMissionLogMapper;
+import kopo.kkeudeok.mapper.IStoryMapper;
+import kopo.kkeudeok.mapper.IStorySessionMapper;
 import kopo.kkeudeok.service.impl.GeminiStoryAiService;
 import kopo.kkeudeok.service.impl.StoryService;
 import org.junit.jupiter.api.BeforeEach;
@@ -78,7 +78,7 @@ class StoryServiceTest {
     private String lastEmotion;      /* 직전 편의 중심 감정 — 연달아 같은 답을 막는 근거 */
 
     /* 프롬프트에 무엇이 실려 갔는지, 스텁을 바꿔 끼우려고 잡아 둔다 */
-    private StoryMapper storyMapperRef;
+    private IStoryMapper storyMapperRef;
     private GeminiClient gemini;
 
     @BeforeEach
@@ -106,20 +106,21 @@ class StoryServiceTest {
         IStoryAiService aiService = new GeminiStoryAiService(gemini, props, objectMapper);
 
         // --- 아이 ---
-        IChildService childService = childId -> ChildDTO.builder()
+        IChildService childService = mock(IChildService.class);
+        when(childService.getChild(any())).thenReturn(ChildDTO.builder()
                 .childId(1L)
                 .name("김지우")
                 .birthDate(LocalDate.now().minusYears(6))
                 .disorderType("자폐")
                 .severity("경도")
                 .characterType("tori")
-                .build();
+                .build());
 
         // --- 매퍼 ---
-        StoryMapper storyMapper = mock(StoryMapper.class);
+        IStoryMapper storyMapper = mock(IStoryMapper.class);
         storyMapperRef = storyMapper;
-        StorySessionMapper sessionMapper = mock(StorySessionMapper.class);
-        MissionLogMapper logMapper = mock(MissionLogMapper.class);
+        IStorySessionMapper sessionMapper = mock(IStorySessionMapper.class);
+        IMissionLogMapper logMapper = mock(IMissionLogMapper.class);
 
         when(storyMapper.insertStory(any())).thenAnswer(inv -> {
             savedStory = inv.getArgument(0);

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kopo.kkeudeok.mapper.OnboardingMapper">
+<mapper namespace="kopo.kkeudeok.mapper.IOnboardingMapper">
 
 <insert id="insertChild" parameterType="kopo.kkeudeok.dto.ChildDTO"
             useGeneratedKeys="true" keyProperty="childId">
@@ -12,20 +12,6 @@
                 #{severity}, #{characterType}, #{characterNickname}, NOW())
     </insert>
 
-    <select id="selectChildByMember" resultType="kopo.kkeudeok.dto.ChildDTO">
-        SELECT child_id
-             , member_id
-             , name
-             , birth_date
-             , gender
-             , disorder_type
-             , severity
-             , character_type
-             , character_nickname
-          FROM child
-         WHERE member_id = #{memberId}
-           AND deleted_at IS NULL
-    </select>
 
     <update id="updateChild" parameterType="kopo.kkeudeok.dto.ChildDTO">
         UPDATE child

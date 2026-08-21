@@ -2,7 +2,7 @@ package kopo.kkeudeok.controller;
 
 import jakarta.servlet.http.HttpSession;
 import kopo.kkeudeok.dto.ChildDTO;
-import kopo.kkeudeok.mapper.ChildMapper;
+import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.util.SessionKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 @RequiredArgsConstructor
 public class ChildInfoAdvice {
 
-    private final ChildMapper childMapper;
+    private final IChildMapper childMapper;
 
     private static final java.util.Map<String, String> CHAR_LABEL = java.util.Map.of(
             "tori", "토리", "koko", "코코", "lala", "라라",

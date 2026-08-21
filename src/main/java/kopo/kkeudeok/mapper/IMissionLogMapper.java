@@ -9,7 +9,7 @@ import java.util.List;
 
 // 미션 수행 결과
 @Mapper
-public interface MissionLogMapper {
+public interface IMissionLogMapper {
 
     int deleteByNodes(@Param("sessionId") Long sessionId,
                       @Param("nodeIds") List<Long> nodeIds);

@@ -9,7 +9,7 @@ import java.util.List;
 
 // 학습 세션
 @Mapper
-public interface StorySessionMapper {
+public interface IStorySessionMapper {
 
     int insertSession(StorySessionDTO session);
 

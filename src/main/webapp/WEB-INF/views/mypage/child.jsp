@@ -2,14 +2,14 @@
 <%@ page import="java.time.Year" %>
 <%@ page import="java.time.LocalDate" %>
 <%@ page import="java.time.Period" %>
-<%@ page import="kopo.kkeudeok.dto.ProfileDTO" %>
+<%@ page import="kopo.kkeudeok.dto.ChildDTO" %>
 <%@ page import="java.time.LocalDateTime" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "child"; %>
 <%@ include file="../common/app-top.jsp" %>
 
 <%
     // 1. DB에서 꺼내온 아이 정보를 변수에 안전하게 담습니다.
-    ProfileDTO child = (ProfileDTO) request.getAttribute("child");
+    ChildDTO child = (ChildDTO) request.getAttribute("child");
 
     String childName = "";
     String gender = "";
@@ -225,7 +225,7 @@
 
         const payload = { childId, name: childName, birthDate, gender, disorderType, severity };
 
-        fetch('/profile/updateProfile', {
+        fetch('/child/updateProfile', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

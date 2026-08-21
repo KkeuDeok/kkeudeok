@@ -1,7 +1,7 @@
 package kopo.kkeudeok.controller;
 
 import kopo.kkeudeok.dto.UserDTO;
-import kopo.kkeudeok.mapper.ChildMapper;
+import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
 import org.junit.jupiter.api.DisplayName;
@@ -29,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 첫 시도에서 인증번호 대조에 성공하자마자 세션에서 지워 버려서였다.
  * 되돌릴 수 없는 일(폐기)은 모든 검사를 통과한 뒤에 해야 한다.
  */
-@WebMvcTest(AuthApiController.class)
-class AuthApiControllerTest {
+@WebMvcTest(UserProcController.class)
+class UserProcControllerTest {
 
     private static final String EMAIL = "test.parent9@kkeudeok.local";
     private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
@@ -46,7 +46,7 @@ class AuthApiControllerTest {
 
     /** ChildInfoAdvice(@ControllerAdvice)가 이 슬라이스에도 올라온다 — 쓰지는 않지만 빈이 있어야 뜬다. */
     @MockitoBean
-    private ChildMapper childMapper;
+    private IChildMapper childMapper;
 
     /** existsYn 을 담은 UserDTO 하나. */
     private UserDTO exists(String yn) {
@@ -212,7 +212,7 @@ class AuthApiControllerTest {
                 .andExpect(jsonPath("$.result").value(1))
                 .andExpect(jsonPath("$.next").value("/onboarding/start"));
 
-        assertThat(session.getAttribute(AuthApiController.SS_PIN_SET)).isEqualTo(true);
+        assertThat(session.getAttribute(UserProcController.SS_PIN_SET)).isEqualTo(true);
     }
 
     /**

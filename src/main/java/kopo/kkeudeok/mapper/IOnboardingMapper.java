@@ -1,7 +1,7 @@
 package kopo.kkeudeok.mapper;
 
-import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.ChecklistAnswerDTO;
+import kopo.kkeudeok.dto.ChildDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -9,11 +9,9 @@ import java.util.List;
 
 // 온보딩
 @Mapper
-public interface OnboardingMapper {
+public interface IOnboardingMapper {
 
-int insertChild(ChildDTO child);
-
-    ChildDTO selectChildByMember(@Param("memberId") Long memberId);
+    int insertChild(ChildDTO child);
 
     int updateChild(ChildDTO child);
 

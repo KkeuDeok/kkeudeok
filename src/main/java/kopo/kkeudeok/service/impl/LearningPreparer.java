@@ -2,8 +2,8 @@ package kopo.kkeudeok.service.impl;
 
 import kopo.kkeudeok.dto.RoadmapDTO;
 import kopo.kkeudeok.dto.StoryRequestDTO;
-import kopo.kkeudeok.mapper.RoadmapMapper;
-import kopo.kkeudeok.mapper.StorySessionMapper;
+import kopo.kkeudeok.mapper.IRoadmapMapper;
+import kopo.kkeudeok.mapper.IStorySessionMapper;
 import kopo.kkeudeok.service.IRoadmapService;
 import kopo.kkeudeok.service.IStoryService;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,9 @@ public class LearningPreparer {
 
     private final IRoadmapService roadmapService;
     private final IStoryService storyService;
-    private final RoadmapMapper roadmapMapper;
-    private final StorySessionMapper sessionMapper;
-    private final kopo.kkeudeok.mapper.StoryMapper storyMapper;
+    private final IRoadmapMapper roadmapMapper;
+    private final IStorySessionMapper sessionMapper;
+    private final kopo.kkeudeok.mapper.IStoryMapper storyMapper;
 
     private final kopo.kkeudeok.config.GeminiClient gemini;
 
