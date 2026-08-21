@@ -5,7 +5,7 @@
 
 <%-- Figma 24:15148. 보호자 정보는 UserController.mypageAccount 가 담아 준 ${user} 를 쓴다.
      DB 에서 온 값이라 c:out 으로 이스케이프한다(그냥 찍으면 XSS — find-id-result.jsp 와 같은 규칙).
-     ⚠ 알림 설정 토글 3개와 아동 프로필 탭은 아직 예시 값이다. --%>
+     ⚠ 아동 프로필 탭은 아직 예시 값이다. --%>
 <div class="app-head mp-head">
     <h1>마이페이지</h1>
 </div>
@@ -54,34 +54,11 @@
     </div>
 </section>
 
-<hr class="mp-rule">
-
-<section class="mp-sec">
-    <h2>알림 설정</h2>
-    <%-- 켜짐 여부는 DB 값(member.notify_*·agree_marketing)이 정한다.
-         전에는 markup 에 checked 가 박혀 있어 누구든 항상 '켬·켬·끔' 으로 보였다. --%>
-    <div class="mp-switch">
-        <span class="tx"><b>주간 리포트 알림</b><span class="ds">매주 월요일 지난주 성장 리포트를 보내드려요</span></span>
-        <label class="mp-toggle">
-            <input type="checkbox" id="mpNotiWeekly"
-                   <c:if test="${user.notifyWeeklyReport == 1}">checked</c:if>><span></span>
-        </label>
-    </div>
-    <div class="mp-switch">
-        <span class="tx"><b>학습 리마인더</b><span class="ds">아이가 3일 이상 학습하지 않으면 알려드려요</span></span>
-        <label class="mp-toggle">
-            <input type="checkbox" id="mpNotiRemind"
-                   <c:if test="${user.notifyReminder == 1}">checked</c:if>><span></span>
-        </label>
-    </div>
-    <div class="mp-switch">
-        <span class="tx"><b>마케팅 정보 수신</b><span class="ds">새 소식과 이벤트 정보를 받아볼 수 있어요</span></span>
-        <label class="mp-toggle">
-            <input type="checkbox" id="mpNotiMarketing"
-                   <c:if test="${user.agreeMarketing == 1}">checked</c:if>><span></span>
-        </label>
-    </div>
-</section>
+<%-- ⚠ '알림 설정' 세 개(주간 리포트·학습 리마인더·마케팅 수신)는 지웠다(2026-08-20 요청).
+       보내는 코드가 없어 켜도 아무 일이 안 일어났다 — 켜 둔 보호자는 월요일마다 오지 않는
+       리포트를 기다린다. 회원가입 약관의 '마케팅 정보 수신(선택)' 도 같이 뺐다.
+       member.notify_weekly_report·notify_reminder·agree_marketing 컬럼은 그대로 둔다
+       (NOT NULL 이고 가입 때 0 이 들어간다). 되살릴 땐 <b>보내는 것부터</b> 만들 것. --%>
 
 <section class="mp-sec">
     <h2>계정</h2>
@@ -184,20 +161,14 @@
             return;
         }
 
-        /* 체크박스는 켜짐/꺼짐을 1/0 으로 보낸다.
-           ⚠ <form> 제출과 달리 fetch 는 우리가 직접 담으므로, 꺼진 값도 0 으로 반드시 보내야 한다.
-              안 보내면 서버가 '안 바꿈'인지 '끔'인지 구분할 수 없다. */
-        var on = function (id) { return document.getElementById(id).checked ? '1' : '0'; };
-
+        /* ⚠ 알림 토글 세 개를 지우면서 그 값도 안 보낸다(2026-08-20). 서버도 그 컬럼을
+             건드리지 않으므로 가입 때 들어간 값이 그대로 남는다. */
         fetch('/updateUserInfoProc', {
             method: 'POST',
             headers: {'Content-Type': 'application/x-www-form-urlencoded'},
             body: 'userName=' + encodeURIComponent(name.value.trim()) +
                 '&phone=' + encodeURIComponent(phone.value.trim()) +
-                '&relation=' + encodeURIComponent(rel.value) +
-                '&notifyWeeklyReport=' + on('mpNotiWeekly') +
-                '&notifyReminder=' + on('mpNotiRemind') +
-                '&agreeMarketing=' + on('mpNotiMarketing')
+                '&relation=' + encodeURIComponent(rel.value)
         })
             .then(function (res) {
                 return res.json();

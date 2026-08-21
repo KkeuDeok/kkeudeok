@@ -3,18 +3,19 @@ package kopo.kkeudeok.service.impl;
 import kopo.kkeudeok.dto.MissionType;
 import kopo.kkeudeok.dto.StoryNodeDTO;
 import kopo.kkeudeok.dto.StoryOptionDTO;
-import kopo.kkeudeok.dto.SituationType;
 import kopo.kkeudeok.dto.StoryScenarioDTO;
 import kopo.kkeudeok.dto.StoryStage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
-// 정석 12주 스토리 (AI X)
-final class FallbackStory {
+//  이야기 화면 템플릿
+final class StoryTemplate {
 
-    private FallbackStory() {
+    private StoryTemplate() {
     }
 
     private static final Map<String, String> CHAR_NAMES = Map.of(
@@ -25,6 +26,58 @@ final class FallbackStory {
             "bada", "바다",
             "rubi", "루비"
     );
+
+    private static boolean hasJong(String word) {
+
+        if (word == null || word.isBlank()) {
+            return false;
+        }
+
+        char last = word.trim().charAt(word.trim().length() - 1);
+        int code = last - 0xAC00;
+
+        return code >= 0 && code < 11172 && code % 28 != 0;
+    }
+
+    static String with(String word, String pair) {
+        String[] p = pair.split("/");
+        return word + (hasJong(word) ? p[0] : p[1]);
+    }
+
+    static String fixChildName(String text, String given, String callName, String vocative) {
+
+        if (text == null || text.isBlank() || callName == null || callName.isBlank()) {
+            return text;
+        }
+
+        String out = text;
+
+        if (vocative != null && !vocative.isBlank() && !vocative.equals(callName)) {
+            out = out.replace(vocative, callName);
+        }
+
+        if (given != null && !given.isBlank() && !given.equals(callName)) {
+            out = out.replaceAll(java.util.regex.Pattern.quote(given) + "(?![이아])",
+                    java.util.regex.Matcher.quoteReplacement(callName));
+        }
+
+        return fixParticles(out, callName);
+    }
+
+    private static final String[][] NO_JONG = {
+            {"이랑", "랑"}, {"으로", "로"}, {"은", "는"}, {"을", "를"}, {"과", "와"}
+    };
+
+    private static String fixParticles(String text, String callName) {
+
+        String out = text;
+
+        for (String[] p : NO_JONG) {
+            out = out.replace(callName + p[0], callName + p[1]);
+        }
+
+        return out;
+    }
 
     static String charName(String characterType, String nickname) {
 
@@ -50,64 +103,6 @@ final class FallbackStory {
         };
     }
 
-    static StoryScenarioDTO scenario(String emotion, String friend) {
-
-        StoryScenarioDTO sc = build(emotion, friend);
-        sc.setSource("FALLBACK");
-        return sc;
-    }
-
-    private static StoryScenarioDTO build(String emotion, String friend) {
-
-        return switch (emotionSet(emotion)) {
-
-            case "angry" -> StoryScenarioDTO.builder()
-                    .title(friend + "가 쌓은 블록을 내가 실수로 무너뜨렸어요")
-                    .emotion("angry")
-                    .situation("열심히 만든 게 무너져서 화가 났어요.")
-                    .situationType(SituationType.APOLOGIZE.label())
-                    .cause("내가 무너뜨려서")
-                    .causeDistractor("졸려서")
-                    .gesture("sorry")
-                    .praise("마음이 따뜻해졌어")
-                    .build();
-
-            case "surprise" -> StoryScenarioDTO.builder()
-                    .title(friend + "가 갑자기 큰 소리에 깜짝 놀랐어요")
-                    .emotion("surprise")
-                    .situation("쿵 소리가 나서 눈이 동그래졌어요. 가슴이 콩콩 뛰어요.")
-                    .situationType(SituationType.COMFORT.label())
-                    .cause("큰 소리가 나서")
-                    .causeDistractor("졸려서")
-                    .gesture("comfort")
-                    .praise("옆에 있어 줘서 안 무서웠어")
-                    .build();
-
-            case "happy" -> StoryScenarioDTO.builder()
-                    .title(friend + "가 친구에게 깜짝 선물을 받았어요")
-                    .emotion("happy")
-                    .situation("너무 좋아서 깡충깡충 뛰었어요. 기분이 좋대요!")
-                    .situationType(SituationType.CELEBRATE.label())
-                    .cause("선물을 받아서")
-                    .causeDistractor("졸려서")
-                    .gesture("celebrate")
-                    .praise("같이 기뻐해 줘서 고마워")
-                    .build();
-
-            default -> StoryScenarioDTO.builder()
-                    .title(friend + "가 처음 간 곳에서 길을 잃을 뻔했어요")
-                    .emotion("sad")
-                    .situation("낯선 곳이라 무서웠어요. 그래서 울고 있어요.")
-                    .situationType(SituationType.COMFORT.label())
-                    .cause("길을 잃어서 무서워서")
-                    .causeDistractor("졸려서")
-                    .gesture("comfort")
-                    .praise("마음이 따뜻해졌어")
-                    .build();
-        };
-    }
-
-
     static StoryNodeDTO node(StoryStage stage, StoryScenarioDTO sc, String child, String friend) {
 
         String emo = emotionSet(sc.getEmotion());
@@ -118,18 +113,18 @@ final class FallbackStory {
                     .title(sc.getTitle())
                     .narration(sc.getSituation())
                     .questionText(switch (emo) {
-                        case "happy" -> friend + "랑 같이 기뻐할래?";
-                        case "surprise" -> friend + "를 안심시켜 줄래?";
-                        default -> friend + "를 도와줄래?";
+                        case "happy" -> with(friend, "이랑/랑") + " 같이 기뻐할래?";
+                        case "surprise" -> with(friend, "을/를") + " 안심시켜 줄래?";
+                        default -> with(friend, "을/를") + " 도와줄래?";
                     })
                     .charPose(emo)
                     .build();
 
             case MIND -> base(stage)
                     .missionType(MissionType.CHOICE.name())
-                    .title(friend + "는 지금 어떤 마음일까?")
-                    .narration(recap(emo, friend))
-                    .questionText(friend + "는 지금 어떤 마음일까?")
+                    .title(with(friend, "은/는") + " 지금 어떤 마음일까?")
+                    .narration(recap(sc, emo, friend))
+                    .questionText(with(friend, "은/는") + " 지금 어떤 마음일까?")
                     .targetValue(emo)
                     .charPose("surprise")
                     .hintText("그림 속 " + friend + "의 얼굴을 잘 봐. 어떤 표정이야?")
@@ -140,10 +135,10 @@ final class FallbackStory {
             case CAUSE -> base(stage)
                     .missionType(MissionType.CHOICE.name())
                     .title(switch (emo) {
-                        case "angry" -> friend + "는 왜 화가 났을까?";
-                        case "happy" -> friend + "는 왜 기뻐졌을까?";
-                        case "surprise" -> friend + "는 왜 놀랐을까?";
-                        default -> friend + "는 왜 슬퍼졌을까?";
+                        case "angry" -> with(friend, "은/는") + " 왜 화가 났을까?";
+                        case "happy" -> with(friend, "은/는") + " 왜 기뻐졌을까?";
+                        case "surprise" -> with(friend, "은/는") + " 왜 놀랐을까?";
+                        default -> with(friend, "은/는") + " 왜 슬퍼졌을까?";
                     })
                     .narration(sc.getSituation())
                     .questionText("말로 해도 되고, 그림을 눌러도 돼")
@@ -155,7 +150,7 @@ final class FallbackStory {
                         case "surprise" -> "그림 속 표정을 잘 봐. 놀라서 눈이 커진 얼굴일까, 졸려서 하품하는 얼굴일까?";
                         default -> "그림 속 표정을 잘 봐. 무서워서 찡그린 얼굴일까, 졸려서 하품하는 얼굴일까?";
                     })
-                    .coachText("아까 무슨 일이 있었는지 다시 떠올려 볼까?")
+                    .coachText(recap(sc, emo, friend))
                     .options(causeOptions(sc, emo))
                     .build();
 
@@ -167,7 +162,7 @@ final class FallbackStory {
                         case "surprise" -> "놀란 표정으로 " + friend + " 마음을 느껴봐요";
                         default -> "슬픈 표정으로 " + friend + " 마음을 느껴봐요";
                     })
-                    .narration(friend + "와 같은 표정을 지어 볼까?")
+                    .narration(with(friend, "과/와") + " 같은 표정을 지어 볼까?")
                     .questionText("같이 해봐")
                     .targetValue(emo)
                     .charPose(emo)
@@ -180,32 +175,76 @@ final class FallbackStory {
                     .hintText("코너에 있는 " + friend + "의 얼굴을 따라 해 봐")
                     .build();
 
-            case ACTION -> base(stage)
-                    .missionType(MissionType.GESTURE.name())
-                    .title(switch (emo) {
-                        case "angry" -> friend + "가 속상한가봐. 미안하다고 말해줄까?";
-                        case "happy" -> friend + "가 기분이 좋대! 우리도 같이 신나게 축하해 줄까?";
-                        case "surprise" -> friend + "가 깜짝 놀랐나봐. 괜찮다고 토닥여 줄까?";
-                        default -> friend + "가 슬픈가봐. " + friend + "를 위로해주자";
-                    })
-                    .narration(friend + "에게 마음을 보여 줄 차례야.")
-                    .questionText(switch (emo) {
-                        case "angry" -> "이렇게 해봐";
-                        case "happy" -> "같이 축하해봐";
-                        case "surprise" -> "괜찮다고 토닥여봐";
-                        default -> "같이 토닥여봐";
-                    })
-                    .targetValue(sc.getGesture() == null ? "comfort" : sc.getGesture())
-                    .charPose(emo)
-                    .coachText("팔을 조금만 더 크게 움직여 볼까?")
-                    .hintText("코너에 있는 그림처럼 해 봐")
-                    .build();
+            case ACTION -> {
+                String act = gesture(sc.getGesture(), emo);
+
+                yield base(stage)
+                        .missionType(MissionType.GESTURE.name())
+                        .title(feels(friend, emo) + " " + doWhat(friend, act))
+                        .narration(friend + "에게 마음을 보여 줄 차례야.")
+                        .questionText(switch (act) {
+                            case "sorry" -> "두 손을 모아 봐";
+                            case "celebrate" -> "두 손을 활짝 펴고 번쩍 들어 봐";
+                            case "wave" -> "손을 펴고 흔들어 봐";
+                            default -> "손을 들고 토닥토닥 해 봐";
+                        })
+                        .targetValue(act)
+                        .charPose(emo)
+                        .coachText(switch (act) {
+                            case "sorry" -> "두 손을 가슴 앞에 모아 볼까?";
+                            case "celebrate" -> "손가락을 펴고 두 손을 얼굴 위로 번쩍 들어 볼까?";
+                            case "wave" -> "손가락을 활짝 펴고 좌우로 흔들어 볼까?";
+                            default -> friend + " 쪽으로 손을 가져가서 위아래로 토닥여 볼까?";
+                        })
+                        .hintText(switch (act) {
+                            case "sorry" -> "두 손을 가슴 앞에 모아 봐";
+                            case "celebrate" -> "두 손을 활짝 펴고 높이 들어 봐";
+                            case "wave" -> "손을 펴고 좌우로 흔들어 봐";
+                            default -> "손을 들고 위아래로 토닥여 봐";
+                        })
+                        .build();
+            }
 
             case PRAISE -> base(stage)
-                    .title("고마워, " + child + "야!")
-                    .narration(sc.getPraise() == null ? "마음이 따뜻해졌어" : sc.getPraise())
+                    .title("고마워, " + child + "!")
+                    .narration("고마워!")
                     .charPose("proud")
                     .build();
+        };
+    }
+
+    private static String feels(String friend, String emo) {
+        return switch (emo) {
+            case "angry" -> with(friend, "이/가") + " 속상한가봐.";
+            case "happy" -> with(friend, "이/가") + " 기분이 좋대!";
+            case "surprise" -> with(friend, "이/가") + " 깜짝 놀랐나봐.";
+            default -> with(friend, "이/가") + " 슬픈가봐.";
+        };
+    }
+
+    private static String doWhat(String friend, String act) {
+        return switch (act) {
+            case "sorry" -> "미안하다고 말해줄까?";
+            case "celebrate" -> "같이 신나게 축하해 줄까?";
+            case "wave" -> friend + "에게 손 흔들어 인사해 볼까?";
+            default -> with(friend, "을/를") + " 토닥여 주자";
+        };
+    }
+
+    private static final Set<String> GESTURES = Set.of("comfort", "sorry", "celebrate", "wave");
+
+    static String gesture(String raw, String emo) {
+
+        String v = raw == null ? "" : raw.trim().toLowerCase();
+
+        if (GESTURES.contains(v)) {
+            return v;
+        }
+
+        return switch (emo == null ? "" : emo) {
+            case "angry" -> "sorry";
+            case "happy" -> "celebrate";
+            default -> "comfort";
         };
     }
 
@@ -216,16 +255,28 @@ final class FallbackStory {
                 .narration("");
     }
 
-    private static String recap(String emo, String friend) {
+    private static String recap(StoryScenarioDTO sc, String emo, String friend) {
+
+        String written = sc == null ? null : sc.getRecap();
+
+        if (written != null && !written.isBlank()) {
+            return written.trim();
+        }
+
+        String situation = sc == null ? null : sc.getSituation();
+
+        if (situation != null && !situation.isBlank()) {
+            return situation.trim();
+        }
+
         return switch (emo) {
-            case "angry" -> friend + "는 쌓아 올린 블록이 무너져 주먹을 꼭 쥐었어요";
-            case "happy" -> friend + "는 선물을 받고 깡충깡충 뛰었어요";
-            case "surprise" -> friend + "는 큰 소리에 눈이 동그래지고 어깨가 움찔했어요";
-            default -> friend + "는 낯선 곳에서 길을 잃을 뻔해 눈물이 맺혔어요";
+            case "angry" -> with(friend, "은/는") + " 화가 난 것 같아요";
+            case "happy" -> with(friend, "은/는") + " 기분이 좋아 보여요";
+            case "surprise" -> with(friend, "은/는") + " 깜짝 놀란 것 같아요";
+            default -> with(friend, "은/는") + " 슬퍼 보여요";
         };
     }
 
-    // 마음 카드 선택지
     static final String[][] MIND_CARDS = {
             {"happy", "기뻐요", "마음이 콩콩 뛰어요"},
             {"sad", "슬퍼요", "가슴이 콕콕 아파요"},
@@ -278,19 +329,12 @@ final class FallbackStory {
 
     private static List<StoryOptionDTO> causeOptions(StoryScenarioDTO sc, String emo) {
 
-        String causePose = switch (emo) {
-            case "angry" -> "angry";
-            case "happy" -> "happy";
-            case "surprise" -> "surprise";
-            default -> "sad";
-        };
-
         List<StoryOptionDTO> out = new ArrayList<>(2);
 
         out.add(StoryOptionDTO.builder()
                 .key("cause")
                 .label(sc.getCause())
-                .pose(causePose)
+                .pose(emotionSet(emo))
                 .answer(true)
                 .build());
 
@@ -300,6 +344,8 @@ final class FallbackStory {
                 .pose("sleepy")
                 .answer(false)
                 .build());
+
+        Collections.shuffle(out);
 
         return out;
     }

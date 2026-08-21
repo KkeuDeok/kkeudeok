@@ -2,21 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kopo.kkeudeok.mapper.OnboardingMapper">
+<mapper namespace="kopo.kkeudeok.mapper.IOnboardingMapper">
 
-    <!--
-      ⚠ 임시 — 로그인/회원가입이 붙으면 이 구문과 짝인 자바 메서드를 지운다.
-        child.member_id 가 NOT NULL + UNIQUE + FK 라 회원 없이는 아이를 만들 수 없어서 둔다.
-        비밀번호 자리에는 로그인에 쓸 수 없는 표시 문자열을 넣는다 — 진짜 계정이 아니다.
-    -->
-    <insert id="insertPlaceholderMember" useGeneratedKeys="true" keyProperty="holder.memberId">
-        INSERT INTO member (login_id, password, name, email,
-                            agree_service, agree_privacy, agree_sensitive, agreed_at)
-        VALUES (#{loginId}, 'ONBOARDING-PLACEHOLDER-NOT-LOGINABLE', #{name}, #{loginId},
-                1, 1, 1, NOW())
-    </insert>
-
-    <insert id="insertChild" parameterType="kopo.kkeudeok.dto.ChildDTO"
+<insert id="insertChild" parameterType="kopo.kkeudeok.dto.ChildDTO"
             useGeneratedKeys="true" keyProperty="childId">
         INSERT INTO child (member_id, name, birth_date, gender, disorder_type,
                            severity, character_type, character_nickname, created_at)
@@ -24,20 +12,6 @@
                 #{severity}, #{characterType}, #{characterNickname}, NOW())
     </insert>
 
-    <select id="selectChildByMember" resultType="kopo.kkeudeok.dto.ChildDTO">
-        SELECT child_id
-             , member_id
-             , name
-             , birth_date
-             , gender
-             , disorder_type
-             , severity
-             , character_type
-             , character_nickname
-          FROM child
-         WHERE member_id = #{memberId}
-           AND deleted_at IS NULL
-    </select>
 
     <update id="updateChild" parameterType="kopo.kkeudeok.dto.ChildDTO">
         UPDATE child

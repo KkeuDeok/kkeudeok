@@ -5,6 +5,7 @@ import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.OnboardingRequestDTO;
 import kopo.kkeudeok.dto.StoryResponseDTO;
 import kopo.kkeudeok.service.IOnboardingService;
+import kopo.kkeudeok.service.impl.LearningPreparer;
 import kopo.kkeudeok.util.SessionKeys;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/onboarding")
 @RequiredArgsConstructor
-public class OnboardingApiController {
+public class OnboardingController {
 
     private final IOnboardingService onboardingService;
+    private final LearningPreparer learningPreparer;
 
     @PostMapping("/child")
     public ResponseEntity<Registered> register(@RequestBody OnboardingRequestDTO req,
@@ -35,6 +37,8 @@ public class OnboardingApiController {
         ChildDTO child = onboardingService.register(memberId, req);
 
         session.setAttribute(SessionKeys.CHILD_ID, child.getChildId());
+
+        learningPreparer.prepareAsync(child.getChildId());
 
         return ResponseEntity.ok(Registered.builder()
                 .childId(child.getChildId())

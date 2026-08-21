@@ -9,13 +9,13 @@
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것. ⚠ 절대 낮추지 말 것 --%>
 <%-- 병합 결과는 양쪽이 합쳐진 제3의 파일이라 223 도 220 도 그 내용을 안 가리킨다.
      둘보다 큰 224 로 통일한다. ⚠ 절대 낮추지 말 것 --%>
-<link href="/css/kkeudeok.css?v=224" rel="stylesheet">
-<link href="/css/auth.css?v=224" rel="stylesheet">
-<link href="/css/onboarding.css?v=224" rel="stylesheet">
-<link href="/css/app.css?v=224" rel="stylesheet">
-<link href="/css/report.css?v=224" rel="stylesheet">
-<link href="/css/mypage.css?v=224" rel="stylesheet">
-<link href="/css/child.css?v=224" rel="stylesheet">
+<link href="/css/kkeudeok.css?v=294" rel="stylesheet">
+<link href="/css/auth.css?v=294" rel="stylesheet">
+<link href="/css/onboarding.css?v=294" rel="stylesheet">
+<link href="/css/app.css?v=294" rel="stylesheet">
+<link href="/css/report.css?v=294" rel="stylesheet">
+<link href="/css/mypage.css?v=294" rel="stylesheet">
+<link href="/css/child.css?v=294" rel="stylesheet">
 <%-- 사용 단계 스위치 — 0 신규(아무것도 없음) · 1 일상 기록만 남김 · 2 이야기 1편 이상(수치 대시보드).
      ?stage=0|1|2 로 바꾸면 탭 단위로 유지돼 화면을 옮겨도 따라간다.
      ?empty=1 → 0 · ?empty=0 → 2 별칭은 예전 주소를 안 깨려고 남겨 둔다.
@@ -66,7 +66,13 @@
 %>
 <meta name="kd-child-name" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(kdcName) %>">
 <meta name="kd-child-call" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(kdcCall == null ? kdcName : kdcCall) %>">
+<meta name="kd-child-vocative" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(
+        String.valueOf(request.getAttribute("kdChildVocative"))) %>">
 <meta name="kd-child-age" content="<%= kdcAge == null ? "" : kdcAge %>">
+<meta name="kd-char-key" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(
+        String.valueOf(request.getAttribute("kdCharKey"))) %>">
+<meta name="kd-char-name" content="<%= org.springframework.web.util.HtmlUtils.htmlEscape(
+        String.valueOf(request.getAttribute("kdCharName"))) %>">
 <%
     }
 %>
@@ -85,8 +91,43 @@
         if (srvName) {
             v.name = srvName;
             v.callName = kdMeta('kd-child-call');
+            v.vocative = kdMeta('kd-child-vocative');
             v.age = kdMeta('kd-child-age');
         }
+
+        /* 함께하는 친구 — 이름과 그림. sessionStorage 보다 DB 가 우선이다.
+           ⚠ 이게 없으면 재로그인 뒤 화면이 늘 '토리' 로 돌아갔다(2026-08-18 지적). */
+        var charKey = kdMeta('kd-char-key');
+        var charName = kdMeta('kd-char-name');
+
+        if (charKey && charKey !== 'null') {
+            /* 그림: data-kd-char="포즈" 가 붙은 <img> 를 고른 친구 것으로 바꾼다.
+               없는 포즈 파일이면 토리 것으로 떨어뜨린다(캐릭터마다 포즈 수가 다르다). */
+            new MutationObserver(function (recs) {
+                for (var i = 0; i < recs.length; i++) {
+                    for (var j = 0; j < recs[i].addedNodes.length; j++) swapChar(recs[i].addedNodes[j]);
+                }
+            }).observe(document.documentElement, { childList: true, subtree: true });
+
+            function swapChar(root) {
+                if (root.nodeType !== 1) return;
+                var imgs = root.querySelectorAll ? root.querySelectorAll('[data-kd-char]') : [];
+                if (root.hasAttribute && root.hasAttribute('data-kd-char')) {
+                    imgs = [root].concat([].slice.call(imgs));
+                }
+                [].forEach.call(imgs, function (img) {
+                    var pose = img.getAttribute('data-kd-char');
+                    if (!pose) return;
+                    img.onerror = function () {
+                        this.onerror = null;
+                        this.src = '/img/char-tori-' + pose + '.png';
+                    };
+                    img.src = '/img/char-' + charKey + '-' + pose + '.png';
+                });
+            }
+        }
+
+        if (charName && charName !== 'null') v.charName = charName;
 
         /* 성을 떼고 받침이 있으면 '이' 를 붙인다(성현이 / 지우) — auth-validate.js 도 이걸 쓴다 */
         var SURNAME2 = ['남궁', '황보', '제갈', '사공', '선우', '서문', '독고', '동방'];
@@ -105,10 +146,17 @@
             if (t.getMonth() + 1 < m || (t.getMonth() + 1 === m && t.getDate() < d)) age -= 1;
             return age;
         }
-        window.kdName = { call: callName, age: ageOf };
+        /* 부를 때 쓰는 말 — 성을 뗀 이름에 아/야 를 붙인다.
+           ⚠ callName() 결과("이진이")에 붙이면 "이진이야" 가 된다(2026-08-18 지적).
+             부르는 말은 이를 붙이지 않은 이름에서 만든다. */
+        function vocative(name) {
+            var n = givenName(name);
+            return n ? n + (hasJong(n) ? '아' : '야') : '';
+        }
+        window.kdName = { call: callName, age: ageOf, vocative: vocative };
 
-        /* 입력값이 없으면(직접 URL 진입·시크릿 모드) 마크업의 예시값을 그대로 둔다 */
-        if (!v.name) return;
+        /* 아이 이름이 없어도(직접 URL 진입) 친구 이름은 채운다 — 둘은 출처가 다르다 */
+        if (!v.name && !v.charName) return;
 
         /* 나이는 서버가 준 값이 우선 — 생년월일은 sessionStorage 에만 있다 */
         var age = (v.age !== undefined && v.age !== '' && !isNaN(v.age)) ? Number(v.age)
@@ -117,19 +165,65 @@
             childName: v.name,
             childNameAge: v.name + (age === null ? '' : ' · ' + age + '세'),
             childCall: v.callName || callName(v.name),
-            childAge: age === null ? null : String(age)
+            childVocative: v.vocative || vocative(v.name),
+            childAge: age === null ? null : String(age),
+            charName: v.charName
         };
+
+        /* ---------- 한국어 조사 ----------
+           JSP 는 "{c}가 깜짝 놀랐어요" 처럼 조사를 <span> **바깥** 글자로 찍어 둔다.
+           이름만 갈아끼우면 '애칭가' 처럼 어긋난다(2026-08-18 지적) — 기본 캐릭터·이름이
+           모두 받침이 없어 오래 드러나지 않았다. 이름을 넣은 뒤 뒤따르는 조사도 고친다.
+           ⚠ '이랑' 은 '이' 로도 시작하므로 긴 것부터 본다. */
+        var JOSA = [['이랑', '랑'], ['과', '와'], ['이', '가'], ['을', '를'], ['은', '는'], ['아', '야']];
+
+        function hasJong(word) {
+            if (!word) return false;
+            var c = word.charAt(word.length - 1).charCodeAt(0) - 0xAC00;
+            return c >= 0 && c < 11172 && c % 28 !== 0;
+        }
+
+        function fixJosa(el, word) {
+            var n = el.nextSibling;
+            if (!n || n.nodeType !== 3 || !word) return;
+
+            var t = n.nodeValue;
+            var jong = hasJong(word);
+
+            for (var i = 0; i < JOSA.length; i++) {
+                var withJ = JOSA[i][0], without = JOSA[i][1];
+
+                if (t.indexOf(withJ) === 0) {
+                    n.nodeValue = (jong ? withJ : without) + t.slice(withJ.length);
+                    return;
+                }
+                if (t.indexOf(without) === 0) {
+                    n.nodeValue = (jong ? withJ : without) + t.slice(without.length);
+                    return;
+                }
+            }
+        }
 
         function fill(root) {
             if (root.nodeType !== 1) return;
             var hooks = root.querySelectorAll('[data-kd]');
             for (var i = 0; i < hooks.length; i++) {
                 var t = text[hooks[i].dataset.kd];
+                if (!t) continue;
+
                 /* 입력칸은 textContent 가 아니라 value 를 채워야 보인다(마이페이지 아이 이름) */
-                if (t) { if (hooks[i].tagName === 'INPUT') hooks[i].value = t; else hooks[i].textContent = t; }
+                if (hooks[i].tagName === 'INPUT') {
+                    hooks[i].value = t;
+                } else {
+                    hooks[i].textContent = t;
+                    fixJosa(hooks[i], t);
+                }
             }
             var own = text[root.dataset && root.dataset.kd];
-            if (own) root.textContent = own;
+            if (own) {
+                root.textContent = own;
+                fixJosa(root, own);
+            }
         }
 
         new MutationObserver(function (recs) {
@@ -140,15 +234,22 @@
     })();
 </script>
 <script src="/js/fit-frame.js?v=220"></script>
-<script src="/js/auth-validate.js?v=225" defer></script>
+<script src="/js/auth-validate.js?v=294" defer></script>
 <script src="/js/onb-select.js?v=220" defer></script>
 <%-- kd-roadmap.js 는 대시보드 로드맵 카드·12주 모달만 그린다(주차 편집기는 2026-08-10 삭제).
      이제 /api/roadmap 에서 아이 맞춤 계획을 받아 오고, 못 받으면 내장 정석 커리큘럼으로 그린다. --%>
+<%-- 로드맵이 준비되기 전에는 [학습 시작하기] 를 잠근다(이야기 생성중…).
+     온보딩 뒤 로드맵 생성이 뒤에서 도는 동안 들어가면 계획 없이 이야기가 만들어진다. --%>
+<script src="/js/kd-ready-gate.js?v=294" defer></script>
+<%-- 학습 홈 최근 기록·대시보드 연속 이용을 실제 기록으로 채운다 --%>
+<script src="/js/kd-summary.js?v=294" defer></script>
+<%-- 성장 리포트 수치를 실제 학습 기록으로 채운다 --%>
+<script src="/js/kd-report.js?v=294" defer></script>
 <script src="/js/kd-roadmap.js?v=220" defer></script>
 <%-- 온보딩 표정 등록 — 그 아이 기준값을 만들어 학습4 표정 판정에 쓴다.
      ⚠ auth-validate.js 의 kdOnbFaceNext() 를 감싸므로 반드시 **그 뒤에** 실행돼야 한다.
        둘 다 defer 라 문서 순서대로 도니 이 줄을 위로 올리지 말 것. --%>
-<script src="/js/kd-face-calib.js?v=220" defer></script>
+<script src="/js/kd-face-calib.js?v=294" defer></script>
 <%-- 온보딩 등록 — 체크리스트 답을 모으고, 완료 화면에서 서버에 아이를 만든다.
      ⚠ onb-select.js 의 kdSubmitOnbChecklist* 를 감싸므로 반드시 그 뒤에 실행돼야 한다. --%>
-<script src="/js/kd-onboarding.js?v=220" defer></script>
+<script src="/js/kd-onboarding.js?v=294" defer></script>

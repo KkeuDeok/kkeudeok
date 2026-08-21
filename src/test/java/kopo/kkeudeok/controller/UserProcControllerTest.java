@@ -1,7 +1,7 @@
 package kopo.kkeudeok.controller;
 
 import kopo.kkeudeok.dto.UserDTO;
-import kopo.kkeudeok.mapper.ChildMapper;
+import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.service.IMailService;
 import kopo.kkeudeok.service.IUserService;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +15,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -27,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * 첫 시도에서 인증번호 대조에 성공하자마자 세션에서 지워 버려서였다.
  * 되돌릴 수 없는 일(폐기)은 모든 검사를 통과한 뒤에 해야 한다.
  */
-@WebMvcTest(AuthApiController.class)
-class AuthApiControllerTest {
+@WebMvcTest(UserProcController.class)
+class UserProcControllerTest {
 
     private static final String EMAIL = "test.parent9@kkeudeok.local";
     private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
@@ -44,7 +46,7 @@ class AuthApiControllerTest {
 
     /** ChildInfoAdvice(@ControllerAdvice)가 이 슬라이스에도 올라온다 — 쓰지는 않지만 빈이 있어야 뜬다. */
     @MockitoBean
-    private ChildMapper childMapper;
+    private IChildMapper childMapper;
 
     /** existsYn 을 담은 UserDTO 하나. */
     private UserDTO exists(String yn) {
@@ -198,6 +200,8 @@ class AuthApiControllerTest {
     @Test
     @DisplayName("PIN 을 저장하면 온보딩 시작으로 넘기고, 다시 안 묻도록 세션에 표시한다")
     void savingPinMovesToOnboarding() throws Exception {
+        /* 아직 PIN 을 안 만든 상태 — 실제 구현은 CmmUtil.nvl 을 거쳐 빈 문자열을 준다(null 아님) */
+        given(userService.getParentPin(any())).willReturn("");
         given(userService.updateParentPin(any())).willReturn(1);
         given(userService.hasChild(1L)).willReturn(false);
 
@@ -208,7 +212,26 @@ class AuthApiControllerTest {
                 .andExpect(jsonPath("$.result").value(1))
                 .andExpect(jsonPath("$.next").value("/onboarding/start"));
 
-        assertThat(session.getAttribute(AuthApiController.SS_PIN_SET)).isEqualTo(true);
+        assertThat(session.getAttribute(UserProcController.SS_PIN_SET)).isEqualTo(true);
+    }
+
+    /**
+     * 최초 1회 전용 통로다. 로그인만 돼 있으면 이 주소를 직접 불러 남의 PIN 을 갈아 끼우고
+     * 들어갈 수 있으면 게이트가 무의미해진다 — 바꾸는 길은 메일 인증을 거치는 재설정뿐이다.
+     */
+    @Test
+    @DisplayName("이미 PIN 이 있으면 여기서는 못 바꾸고 재설정으로 보낸다")
+    void existingPinCannotBeOverwritten() throws Exception {
+        given(userService.getParentPin(any())).willReturn("ALREADY-HASHED");
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_MEMBER_ID", 1L);
+
+        mvc.perform(post("/parentPinProc").param("pin", "9999").session(session))
+                .andExpect(jsonPath("$.result").value(0))
+                .andExpect(jsonPath("$.next").value("/mypage/pin-reset"));
+
+        verify(userService, never()).updateParentPin(any());
     }
 
     @Test
@@ -237,5 +260,36 @@ class AuthApiControllerTest {
         assertThat(session.getAttribute(SS_AUTH_CODE))
                 .as("이름만 고쳐 다시 누를 수 있어야 한다")
                 .isEqualTo(code);
+    }
+
+    /**
+     * 온보딩에서만 CHILD_ID 를 넣던 시절에는, 온보딩을 마친 뒤 다시 로그인하면 세션에
+     * 아이가 없었다. 그러면 학습·리포트가 아이를 못 찾아 [학습 시작하기] 가
+     * '이야기 생성중…' 에서 안 풀렸다 — 로드맵은 멀쩡히 있는데도(2026-08-18).
+     */
+    @Test
+    @DisplayName("로그인하면 아이 id 도 세션에 넣는다 — 다시 들어와도 학습을 찾는다")
+    void loginPutsChildIdInSession() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(42L, "HASHED"));
+        given(userService.childIdOf(42L)).willReturn(7L);
+
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(post("/loginProc").param("loginId", "pa1234")
+                .param("password", "kkeudeok1").session(session));
+
+        assertThat(session.getAttribute("SS_CHILD_ID")).isEqualTo(7L);
+    }
+
+    @Test
+    @DisplayName("아이가 없으면 세션에 넣지 않는다 — 온보딩 전이다")
+    void loginWithoutChildLeavesSessionClean() throws Exception {
+        given(userService.getLogin(any())).willReturn(member(42L, "HASHED"));
+        given(userService.childIdOf(42L)).willReturn(null);
+
+        MockHttpSession session = new MockHttpSession();
+        mvc.perform(post("/loginProc").param("loginId", "pa1234")
+                .param("password", "kkeudeok1").session(session));
+
+        assertThat(session.getAttribute("SS_CHILD_ID")).isNull();
     }
 }

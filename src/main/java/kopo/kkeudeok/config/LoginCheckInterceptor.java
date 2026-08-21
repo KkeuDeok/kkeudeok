@@ -20,7 +20,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 public class LoginCheckInterceptor implements HandlerInterceptor {
 
-    /** 로그인 성공 시 AuthApiController 가 세션에 넣는 값. 이게 있으면 로그인된 것이다. */
+    /** 로그인 성공 시 UserProcController 가 세션에 넣는 값. 이게 있으면 로그인된 것이다. */
     public static final String SS_USER_ID = "SS_USER_ID";
 
     /**

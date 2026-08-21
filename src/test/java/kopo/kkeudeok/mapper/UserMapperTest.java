@@ -44,7 +44,7 @@ class UserMapperTest {
     private static final String RAW_EMAIL = "test.parent9@kkeudeok.local";
     private static final String RAW_PW = "kkeudeok1";
 
-    /** 화면에서 받은 원문을 저장 규칙대로 바꿔 담는다 — AuthApiController 와 같은 방식이어야 한다. */
+    /** 화면에서 받은 원문을 저장 규칙대로 바꿔 담는다 — UserProcController 와 같은 방식이어야 한다. */
     private UserDTO signupDTO() throws Exception {
         UserDTO pDTO = new UserDTO();
         pDTO.setLoginId(LOGIN_ID);

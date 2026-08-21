@@ -15,9 +15,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
-import kopo.kkeudeok.dto.ProfileDTO;
-import kopo.kkeudeok.service.IProfileService;
-import kopo.kkeudeok.util.SessionKeys; // SessionKeys import 추가 완료!
+import kopo.kkeudeok.dto.ChildDTO;
+import kopo.kkeudeok.service.IChildService;
+import kopo.kkeudeok.util.SessionKeys;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,9 +26,7 @@ public class UserController {
     /** 마이페이지 회원정보 조회용. 나머지 라우트는 화면만 띄우므로 서비스가 필요 없다. */
     private final IUserService userService;
 
-    /** 아동 프로필·캐릭터 화면용 (dev) */
-    @Autowired
-    private IProfileService profileService;
+    private final IChildService childService;
 
     /**
      * 주소창에 localhost:8080 만 쳤을 때의 첫 화면.
@@ -37,7 +35,7 @@ public class UserController {
      * 새 창으로 들어오면 다시 로그인 화면을 봐야 했다(2026-08-14 지적).
      *
      * ⚠ PIN 검사를 같이 하는 이유 — dev 의 로그인·온보딩 흐름은 "PIN 이 없으면 먼저 만들게"
-     *   보내는데(AuthApiController.nextStep), 여기서 곧바로 /dashboard 로 보내면
+     *   보내는데(UserProcController.nextStep), 여기서 곧바로 /dashboard 로 보내면
      *   주소창에 localhost:8080 만 쳐서 온보딩을 통째로 건너뛸 수 있다. 순서를 맞춘다.
      * ⚠ /login 은 그대로 둔다. 계정을 바꾸려고 일부러 오는 경우가 있어서다.
      */
@@ -46,7 +44,7 @@ public class UserController {
         if (CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")).isEmpty()) {
             return "redirect:/login";
         }
-        if (!Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_SET))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_SET))) {
             return "redirect:/onboarding/pin";
         }
         return "redirect:/dashboard";
@@ -86,13 +84,13 @@ public class UserController {
 
     @GetMapping("/find-id/result")
     public String findIdResult(HttpSession session, ModelMap model) {
-        String foundId = (String) session.getAttribute(AuthApiController.SS_FOUND_ID);
+        String foundId = (String) session.getAttribute(UserProcController.SS_FOUND_ID);
 
         if (foundId == null) {
             return "redirect:/find-id";
         }
 
-        session.removeAttribute(AuthApiController.SS_FOUND_ID);
+        session.removeAttribute(UserProcController.SS_FOUND_ID);
         model.addAttribute("foundId", foundId);
         return "auth/find-id-result";
     }
@@ -147,7 +145,7 @@ public class UserController {
         if (session.getAttribute("SS_USER_ID") == null) {
             return "redirect:/login";
         }
-        if (Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_SET))) {
+        if (Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_SET))) {
             return "redirect:/onboarding/start";
         }
         return "onboarding/pin";
@@ -227,11 +225,6 @@ public class UserController {
         return "report/social";
     }
 
-    @GetMapping("/report/weekly")
-    public String reportWeekly() {
-        return "report/weekly";
-    }
-
     /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
 
     /**
@@ -242,7 +235,7 @@ public class UserController {
      */
     @GetMapping("/mypage")
     public String mypage(HttpSession session, ModelMap model) {
-        model.addAttribute("pinLockLeft", AuthApiController.pinLockLeft(session));
+        model.addAttribute("pinLockLeft", UserProcController.pinLockLeft(session));
         return "mypage/gate";
     }
 
@@ -256,7 +249,7 @@ public class UserController {
      *   자리를 비운 사이 아이가 여는 걸 막으려면 통과 시각을 같이 저장해 n분 뒤 다시 묻게 하면 된다.
      */
     private boolean pinPassed(HttpSession session) {
-        return Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_OK));
+        return Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_OK));
     }
 
     /** PIN 재설정 1단계. 인증번호를 받을 이메일은 계정에서 가져온다(화면에 박아 두지 않는다) */
@@ -280,7 +273,7 @@ public class UserController {
     /** PIN 재설정 2단계 — 1단계 표가 없으면 열지 않는다(주소만 쳐서 새 PIN 을 정하는 것을 막는다) */
     @GetMapping("/mypage/pin-reset/new")
     public String mypagePinResetNew(HttpSession session) {
-        if (!Boolean.TRUE.equals(session.getAttribute(AuthApiController.SS_PIN_RESET_OK))) {
+        if (!Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_RESET_OK))) {
             return "redirect:/mypage/pin-reset";
         }
         return "mypage/pin-reset-new";
@@ -314,7 +307,6 @@ public class UserController {
         return "mypage/account";
     }
 
-    // 아이 정보 조회 로직 - SessionKeys를 사용하여 숫자형(Long) 아이디를 안전하게 가져옵니다.
     @GetMapping("/mypage/child")
     public String mypageChild(HttpSession session, ModelMap model) throws Exception {
 
@@ -325,13 +317,9 @@ public class UserController {
         Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
 
         if (memberId != null) {
-            ProfileDTO pDTO = new ProfileDTO();
-            pDTO.setMemberId(memberId);
 
-            // DB에서 아이 정보 가져오기
-            ProfileDTO child = profileService.getProfile(pDTO);
+            ChildDTO child = childService.getChildByMember(memberId);
 
-            // JSP 화면에서 쓸 수 있도록 'child'라는 이름표를 붙여서 넘겨주기
             model.addAttribute("child", child);
         }
 
@@ -345,17 +333,12 @@ public class UserController {
             return "redirect:/mypage";
         }
 
-        // 바로 위의 /mypage/child 와 동일하게 세션에서 회원 ID(memberId)를 안전하게 꺼냅니다.
         Long memberId = SessionKeys.longOf(session, SessionKeys.MEMBER_ID);
 
         if (memberId != null) {
-            ProfileDTO pDTO = new ProfileDTO();
-            pDTO.setMemberId(memberId); // 👈 setCharacterNickname 대신 setMemberId 사용!
 
-            // DB에서 아이 정보 가져오기
-            ProfileDTO child = profileService.getProfile(pDTO);
+            ChildDTO child = childService.getChildByMember(memberId);
 
-            // JSP 화면으로 'child' 전달
             model.addAttribute("child", child);
         }
 

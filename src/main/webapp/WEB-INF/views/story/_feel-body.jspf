@@ -1,21 +1,9 @@
+<%-- 마음 읽기 본문 조각 — feel.jsp 와 feel-hint.jsp 가 함께 쓴다.
+     카드의 정답 자리·글자·그림은 story-session.js 가 다시 칠한다. --%>
 <%@ page pageEncoding="UTF-8" %>
-<%--
-  학습2 마음 읽기 본문 — 기본(feel)·힌트(feel-hint)·오답 모달이 같은 그림을 쓴다.
-  include 전에 준비할 것:
-      String emo      정답 감정(sad|angry|happy|surprise)
-      String feelPick 테두리로 짚어 줄 카드 키. null 이면 강조 없음
 
-  카드는 동적으로 그린다(2026-08-13). 고를 수 있는 감정이 4가지인데 화면은 3장이라,
-  정답을 반드시 넣고 나머지를 채운다. 서버가 이야기에 맞는 조합을 내려 주면
-  story-session.js 가 글자·그림·정답 자리를 갈아끼운다 — 여기 마크업은 그 전에 보이는 기본값이다.
-
-  ⚠ FEEL_CARD_COUNT 는 서버(FallbackStory.MIND_CARD_COUNT)와 같아야 한다.
-    다르면 덮어쓰지 못한 카드가 남아 이야기와 안 맞는 카드가 섞인다.
---%>
 <%
-    /* 상황 요약 — 학습1 이야기와 같은 사건을 가리켜야 한다.
-       ⚠ 예전엔 sad 가 "넘어진 뒤"였는데 학습1 은 "길을 잃을 뻔"이라 앞뒤가 안 맞았다
-         (2026-08-13 지적). 네 벌 모두 학습1·학습3 과 맞췄다. */
+
     String[][] feelRecaps = {
         {"sad",      "{c}는 낯선 곳에서 길을 잃을 뻔해 눈물이 맺혔어요"},
         {"angry",    "{c}는 쌓아 올린 블록이 무너져 주먹을 꼭 쥐었어요"},
@@ -27,8 +15,6 @@
         if (row[0].equals(emo)) feelRecap = row[1];
     }
 
-    /* 키 · 이름 · 설명 · 오답일 때 들려줄 특징.
-       키는 캐릭터 포즈 파일명과 같아야 한다 — char-{캐릭터}-{키}.png */
     String[][] feelAll = {
         {"happy",    "기뻐요",   "마음이 콩콩 뛰어요", "기쁠 때는 입꼬리가 올라가."},
         {"sad",      "슬퍼요",   "가슴이 콕콕 아파요", "슬플 때는 눈썹이 아래로 처져."},
@@ -38,9 +24,6 @@
 
     int FEEL_CARD_COUNT = 3;
 
-    /* 뒤에서부터 정답이 아닌 카드를 덜어 낸다.
-       ⚠ 정답은 절대 빼지 않는다 — 빼면 아이가 아무리 골라도 맞을 수가 없다.
-       목록 순서(기쁨→슬픔→화남→놀람)는 그대로라 정답이 늘 첫 칸에 오지 않는다. */
     java.util.List<String[]> feelCards = new java.util.ArrayList<String[]>();
     for (String[] c : feelAll) {
         feelCards.add(c);
@@ -50,8 +33,7 @@
     }
 %>
 
-<%-- 상황을 다시 떠올리게 하는 그림. Figma 는 놀란 표정 한 장을 벌 구분 없이 쓴다 --%>
-<div class="feel-art"><img data-kd-char="surprise" src="/img/char-tori-surprise.png" alt=""></div>
+<div class="feel-art"><img data-kd-char="neutral" src="/img/char-tori-neutral.png" alt=""></div>
 
 <p class="feel-recap"><%= feelRecap.replace("{c}", CHAR) %></p>
 <h1 class="feel-q"><%= "{c}는 지금 어떤 마음일까?".replace("{c}", CHAR) %></h1>
@@ -61,12 +43,10 @@
             boolean right = card[0].equals(emo);
             String href = right ? "/story/why?emo=" + emo
                                 : "/story/feel?emo=" + emo + "&wrong=" + card[0];
-            /* 색은 아래 data-kd-key 로 칠해진다(child.css) — 여기서 is-{감정} 클래스를
-               따로 붙이지 않는다. 예전엔 클래스로 칠했는데, 화면이 뜬 뒤 카드가 바뀔 때
-               클래스를 같이 못 바꿔 색이 어긋났다. */
+
             String cls = "feel-card" + (card[0].equals(feelPick) ? " is-pick" : "");
     %>
-    <%-- data-trait 은 오답 모달이 읽는다 — 어떤 카드를 눌렀느냐에 따라 문구가 달라야 한다 --%>
+
     <a class="<%= cls %>"<%= right ? " data-right" : " data-wrong=\"" + card[0] + "\"" %>
        data-kd-key="<%= card[0] %>" data-trait="<%= card[3] %>" href="<%= href %>">
         <img class="ic" data-kd-char="<%= card[0] %>" src="/img/char-tori-<%= card[0] %>.png" alt="">

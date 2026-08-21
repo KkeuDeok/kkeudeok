@@ -15,6 +15,7 @@ public final class StoryRequestDTO {
         private Long childId;
         private String emotion;
         private String dailyInput;
+        private boolean prepare;
     }
 
     @Data

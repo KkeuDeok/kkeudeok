@@ -18,16 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// AI 인터랙티브 스토리 학습 API
+// 학습 세션 API
 @Slf4j
 @RestController
 @RequestMapping("/api/story")
 @RequiredArgsConstructor
-public class StoryApiController {
+public class StoryController {
 
     private final IStoryService storyService;
 
-    // 스토리 시작
     @PostMapping("/sessions")
     public ResponseEntity<StoryResponseDTO.Start> start(@RequestBody(required = false) StoryRequestDTO.Start req,
                                                        HttpSession session) {
@@ -39,7 +38,6 @@ public class StoryApiController {
         return ResponseEntity.ok(storyService.start(body));
     }
 
-    // 미완료 학습 찾기
     @GetMapping("/sessions/resume")
     public ResponseEntity<StoryResponseDTO.Resume> resume(@RequestParam(required = false) Long childId,
                                                          HttpSession session) {
@@ -47,7 +45,13 @@ public class StoryApiController {
         return ResponseEntity.ok(storyService.resume(SessionKeys.childId(session, childId)));
     }
 
-    // 다음 노드
+    @GetMapping("/summary")
+    public ResponseEntity<StoryResponseDTO.Summary> summary(@RequestParam(required = false) Long childId,
+                                                            HttpSession session) {
+
+        return ResponseEntity.ok(storyService.summary(SessionKeys.childId(session, childId)));
+    }
+
     @PostMapping("/sessions/{sessionId}/next")
     public ResponseEntity<StoryResponseDTO.Next> next(@PathVariable Long sessionId,
                                                       @RequestBody(required = false) StoryRequestDTO.Next req) {
@@ -57,15 +61,12 @@ public class StoryApiController {
         return ResponseEntity.ok(storyService.next(sessionId, body));
     }
 
-    // 스토리 종료 후 응답 결과 보냄
     @PostMapping("/sessions/{sessionId}/finish")
     public ResponseEntity<StoryResponseDTO.Finish> finish(@PathVariable Long sessionId,
                                                           @RequestBody StoryRequestDTO.Finish req) {
 
         return ResponseEntity.ok(storyService.finish(sessionId, req));
     }
-
-    // ----------------------------오류 응답--------------------------------
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<StoryResponseDTO.Fail> badRequest(IllegalArgumentException e) {

@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="kopo.kkeudeok.mapper.RoadmapMapper">
+<mapper namespace="kopo.kkeudeok.mapper.IRoadmapMapper">
 
     <!--
       ⚠ step_data 에는 CHECK json_valid 가 걸려 있고 NOT NULL 이다.

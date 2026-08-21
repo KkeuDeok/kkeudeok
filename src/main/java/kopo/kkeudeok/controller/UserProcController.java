@@ -1,6 +1,7 @@
 package kopo.kkeudeok.controller;
 
 import java.security.SecureRandom;
+import java.util.Set;
 
 import jakarta.servlet.http.HttpSession;
 import kopo.kkeudeok.dto.MsgDTO;
@@ -19,10 +20,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
-public class AuthApiController {
+public class UserProcController {
 
     private final IUserService userService;
     private final IMailService mailService;
+
+    private static final String SS_USER_ID = "SS_USER_ID";
+
+    private static final Set<String> RELATIONS = Set.of("어머니", "아버지", "조부모", "기타 보호자");
 
     private static final String SS_AUTH_CODE = "SS_AUTH_CODE";
     private static final String SS_AUTH_EMAIL = "SS_AUTH_EMAIL";
@@ -32,10 +37,8 @@ public class AuthApiController {
 
     public static final String SS_PIN_SET = "SS_PIN_SET";
 
-    /** 보호자 확인(게이트)을 통과했다는 표. 마이페이지 하위 화면은 이게 있어야 열린다 */
     public static final String SS_PIN_OK = "SS_PIN_OK";
 
-    /** PIN 재설정 본인 확인을 마쳤다는 1회용 표. 2단계 화면(UserController)도 이걸 본다 */
     public static final String SS_PIN_RESET_OK = "SS_PIN_RESET_OK";
 
     private static final String SS_PIN_TRIES = "SS_PIN_TRIES";
@@ -63,7 +66,6 @@ public class AuthApiController {
     /* ================================================================
      * 로그인
      * ================================================================ */
-
     @PostMapping("/loginProc")
     public MsgDTO loginProc(@RequestParam String loginId,
                             @RequestParam String password,
@@ -86,6 +88,11 @@ public class AuthApiController {
             session.setAttribute("SS_USER_NAME", rDTO.getName());
             session.setAttribute(SessionKeys.MEMBER_ID, rDTO.getMemberId());
             session.setAttribute(SS_PIN_SET, !CmmUtil.nvl(rDTO.getParentPin()).isEmpty());
+
+            Long childId = userService.childIdOf(rDTO.getMemberId());
+            if (childId != null) {
+                session.setAttribute(SessionKeys.CHILD_ID, childId);
+            }
 
             MsgDTO res = msg(1, "환영합니다.");
             res.setNext(nextStep(rDTO));
@@ -128,9 +135,6 @@ public class AuthApiController {
             UserDTO pDTO = new UserDTO();
             pDTO.setMemberId(memberId);
 
-            // 최초 1회 전용이다. 이미 있는 PIN 을 여기서 덮을 수 있으면 게이트가 무의미해진다 —
-            // 로그인만 돼 있으면 이 주소를 직접 불러 PIN 을 갈아 끼우고 들어갈 수 있다.
-            // 바꾸는 길은 메일 인증을 거치는 /newParentPinProc 하나뿐이다.
             if (!userService.getParentPin(pDTO).isEmpty()) {
                 MsgDTO res = msg(0, "이미 설정된 PIN 이 있어요. 바꾸려면 재설정을 이용해 주세요.", "pin");
                 res.setNext("/mypage/pin-reset");
@@ -155,19 +159,6 @@ public class AuthApiController {
         }
     }
 
-    /* ================================================================
-     * 보호자 PIN — 게이트 확인 · 재설정
-     *
-     * 전에는 정답 PIN(1234)이 gate.jsp 에 박혀 있었고 실패 횟수·잠금도 sessionStorage 였다.
-     * 개발자도구로 값을 읽거나 지우면 그냥 열렸다 — 판정을 전부 서버로 옮긴다.
-     *
-     * ponytail: 실패 횟수·잠금을 HttpSession 에 둔다. 쿠키를 버리거나 시크릿 창을 새로 열면
-     *   횟수가 0 부터 다시 시작한다. 계정 단위로 진짜 잠그려면 member 에 컬럼 두 개
-     *   (pin_fail_count · pin_locked_until)를 추가해 DB 로 옮기면 된다 — 스키마 변경이라
-     *   팀 합의가 필요해 지금은 세션에 둔다.
-     * ================================================================ */
-
-    /** 남은 잠금 시간(초). 0 이면 안 잠긴 상태. 게이트 화면 첫 그림도 이 값을 쓴다 */
     public static int pinLockLeft(HttpSession session) {
         Object until = session.getAttribute(SS_PIN_LOCK);
 
@@ -192,7 +183,6 @@ public class AuthApiController {
         session.removeAttribute(SS_PIN_LOCK);
     }
 
-    /** 마이페이지 게이트 — 입력한 PIN 이 맞는지 서버가 판정한다 */
     @PostMapping("/verifyParentPinProc")
     public MsgDTO verifyParentPinProc(@RequestParam String pin, HttpSession session) {
         try {
@@ -231,7 +221,7 @@ public class AuthApiController {
 
             if (tries >= PIN_MAX_TRY) {
                 session.setAttribute(SS_PIN_LOCK, System.currentTimeMillis() + PIN_LOCK_MS);
-                session.removeAttribute(SS_PIN_TRIES);   // 잠금이 풀리면 0회부터 다시 센다
+                session.removeAttribute(SS_PIN_TRIES);
                 return lockedMsg(pinLockLeft(session));
             }
 
@@ -244,15 +234,7 @@ public class AuthApiController {
         }
     }
 
-    /**
-     * PIN 재설정 1단계 — 메일 인증.
-     *
-     * 이메일은 파라미터로 받지 않고 세션의 계정에서 꺼낸다. 화면이 보내는 값을 믿으면
-     * 자기 메일 주소를 실어 남의 계정 PIN 을 바꿀 수 있다(화면의 readonly 는 우회된다).
-     *
-     * ⚠ 이 단계가 없으면 게이트가 통째로 무의미해진다 — PIN 을 몰라도 [PIN을 잊었어요] 로 들어와
-     *   아무 값이나 새로 정하면 그만이라 5회 잠금이 우회된다.
-     */
+    // PIN 재설정 1단계 — 메일 인증
     @PostMapping("/pinResetVerifyProc")
     public MsgDTO pinResetVerifyProc(@RequestParam String authCode, HttpSession session) {
         try {
@@ -265,7 +247,7 @@ public class AuthApiController {
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
 
-            UserDTO rDTO = userService.getUserInfo(pDTO);   // 이메일은 서비스가 복호화해 준다
+            UserDTO rDTO = userService.getUserInfo(pDTO);
 
             if (rDTO == null) {
                 return msg(0, "회원 정보를 찾을 수 없습니다. 다시 로그인해 주세요.", "authCode");
@@ -289,7 +271,7 @@ public class AuthApiController {
         }
     }
 
-    /** PIN 재설정 2단계 — 새 PIN 저장. 1단계 표를 쓰고 즉시 지운다 */
+    // PIN 재설정 2단계 — 새 PIN 저장. 1단계 표를 쓰고 즉시 지운다
     @PostMapping("/newParentPinProc")
     public MsgDTO newParentPinProc(@RequestParam String newPin, HttpSession session) {
         try {
@@ -313,10 +295,10 @@ public class AuthApiController {
                 return msg(0, "PIN 변경에 실패했습니다. 잠시 후 다시 시도해 주세요.", "newPin");
             }
 
-            session.removeAttribute(SS_PIN_RESET_OK);   // 표는 1회용이다
-            clearPinLock(session);                      // 본인 확인을 마쳤으니 5회 잠금도 푼다
+            session.removeAttribute(SS_PIN_RESET_OK);
+            clearPinLock(session);
             session.setAttribute(SS_PIN_SET, true);
-            session.setAttribute(SS_PIN_OK, true);      // 방금 확인했으므로 게이트를 다시 물을 필요가 없다
+            session.setAttribute(SS_PIN_OK, true);
 
             MsgDTO res = msg(1, "보호자 PIN 이 변경되었습니다.");
             res.setNext("/mypage/account");
@@ -331,7 +313,6 @@ public class AuthApiController {
     /* ================================================================
      * 인증번호 — 회원가입 · 아이디찾기 · 비밀번호찾기 공통
      * ================================================================ */
-
     @PostMapping("/sendAuthCodeProc")
     public MsgDTO sendAuthCodeProc(@RequestParam String email,
                                    @RequestParam(defaultValue = "signup") String kind,
@@ -376,7 +357,6 @@ public class AuthApiController {
         if (System.currentTimeMillis() > (long) expire) {
             return "인증 시간이 지났습니다. 인증번호를 다시 전송해 주세요.";
         }
-        // 인증번호를 받은 메일과 지금 조회하려는 메일이 달라지는 것을 막는다.
         if (!String.valueOf(savedEmail).equals(email)) {
             return "인증번호를 받은 이메일과 다릅니다.";
         }
@@ -395,8 +375,6 @@ public class AuthApiController {
     /* ================================================================
      * 회원가입
      * ================================================================ */
-
-    /** 아이디 중복 확인 — 화면에서 아이디 칸을 벗어날 때 부른다. */
     @PostMapping("/checkLoginIdProc")
     public MsgDTO checkLoginIdProc(@RequestParam String loginId) {
         try {
@@ -430,12 +408,12 @@ public class AuthApiController {
             pDTO.setPassword(EncryptUtil.encHashSHA256(password));
             pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
-            // TODO signup-terms 에서 실제 체크값(특히 agree_marketing)을 넘겨받도록 바꿀 것.
             pDTO.setAgreeService(1);
             pDTO.setAgreePrivacy(1);
             pDTO.setAgreeSensitive(1);
-            pDTO.setNotifyWeeklyReport(1);
-            pDTO.setNotifyReminder(1);
+
+            pDTO.setNotifyWeeklyReport(0);
+            pDTO.setNotifyReminder(0);
             pDTO.setAgreeMarketing(0);
 
             if ("Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()))) {
@@ -454,7 +432,7 @@ public class AuthApiController {
                 return msg(0, "회원가입에 실패했습니다.", "authCode");
             }
 
-            consumeAuthCode(session);   // 가입이 끝난 뒤에야 폐기한다
+            consumeAuthCode(session);
             return msg(1, "회원가입이 완료되었습니다.");
 
         } catch (Exception e) {
@@ -466,7 +444,6 @@ public class AuthApiController {
     /* ================================================================
      * 아이디 찾기
      * ================================================================ */
-
     @PostMapping("/findIdProc")
     public MsgDTO findIdProc(@RequestParam String userName,
                              @RequestParam String email,
@@ -484,7 +461,6 @@ public class AuthApiController {
 
             UserDTO rDTO = userService.getFindId(pDTO);
 
-            // 이름이 틀렸을 뿐일 수 있다 — 인증번호는 살려 둬야 이름만 고쳐 다시 누른다.
             if (rDTO == null) {
                 return msg(0, "일치하는 회원 정보가 없습니다.", "userName");
             }
@@ -503,8 +479,6 @@ public class AuthApiController {
     /* ================================================================
      * 비밀번호 찾기 - 1) 메일 인증  2) 새 비밀번호 저장
      * ================================================================ */
-
-    /** 1단계: 메일 인증이 끝나면 재설정 화면으로 갈 수 있는 표를 세션에 끊어 준다. */
     @PostMapping("/findPwProc")
     public MsgDTO findPwProc(@RequestParam String email,
                              @RequestParam String authCode,
@@ -535,7 +509,7 @@ public class AuthApiController {
         }
     }
 
-    /** 2단계: 새 비밀번호 저장. 세션의 표를 쓰고 즉시 지운다. */
+    // 2단계: 새 비밀번호 저장
     @PostMapping("/newPasswordProc")
     public MsgDTO newPasswordProc(@RequestParam String newPassword, HttpSession session) {
         try {
@@ -553,19 +527,103 @@ public class AuthApiController {
                 return msg(0, "비밀번호 변경에 실패했습니다.", "newPassword");
             }
 
-            // 비밀번호를 바꾸면 로그인 상태를 끊는다(2026-08-14 사용자 확정).
-            // 비밀번호가 새 나가 바꾸는 경우가 대부분인데, 그 사람이 이미 로그인해 둔 세션이
-            // 살아 있으면 바꾼 의미가 없다. 재설정 표(SS_PW_RESET_ID)도 같이 사라진다.
-            //
-            // ponytail: 세션이 서버 메모리에만 있어 '이 브라우저'만 확실히 끊긴다.
-            //   다른 기기·다른 브라우저의 세션까지 끊으려면 로그인 세션을 계정별로 등록해 두는
-            //   장치(세션 레지스트리)가 필요하다. 필요해지면 그때 붙일 것.
             session.invalidate();
 
             return msg(1, "비밀번호가 변경되었습니다.");
 
         } catch (Exception e) {
             log.error("newPasswordProc 실패", e);
+            return msg(2, "시스템 오류가 발생했습니다.");
+        }
+    }
+
+    @PostMapping("/updateUserInfoProc")
+    public MsgDTO updateUserInfoProc(@RequestParam String userName,
+                                     @RequestParam(required = false) String phone,
+                                     @RequestParam(required = false) String relation,
+                                     HttpSession session) {
+
+        log.info("{}.updateUserInfoProc Start!", this.getClass().getName());
+
+        try {
+            String loginId = CmmUtil.nvl((String) session.getAttribute(SS_USER_ID));
+
+            if (loginId.isEmpty()) {
+                return msg(0, "로그인이 필요합니다. 다시 로그인해 주세요.");
+            }
+
+            String name = CmmUtil.nvl(userName).trim();
+            String ph = CmmUtil.nvl(phone).trim();
+            String rel = CmmUtil.nvl(relation).trim();
+
+            if (name.isEmpty()) {
+                return msg(0, "보호자 이름을 입력해 주세요.");
+            }
+            if (name.length() > 50) {
+                return msg(0, "보호자 이름은 50자까지 입력할 수 있어요.");
+            }
+            if (!ph.isEmpty() && !ph.matches("[0-9-]{9,20}")) {
+                return msg(0, "휴대폰 번호는 숫자와 - 만 써서 입력해 주세요.");
+            }
+            if (!rel.isEmpty() && !RELATIONS.contains(rel)) {
+                return msg(0, "아이와의 관계를 다시 골라 주세요.");
+            }
+
+            UserDTO pDTO = new UserDTO();
+            pDTO.setLoginId(loginId);
+            pDTO.setName(name);
+            pDTO.setPhone(ph.isEmpty() ? null : ph);
+            pDTO.setRelation(rel.isEmpty() ? null : rel);
+
+            if (userService.updateUserInfo(pDTO) < 1) {
+                return msg(0, "저장에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            }
+
+            session.setAttribute("SS_USER_NAME", name);
+
+            return msg(1, "회원정보를 저장했어요");
+
+        } catch (Exception e) {
+            log.error("updateUserInfoProc 실패", e);
+            return msg(2, "시스템 오류가 발생했습니다.");
+        }
+    }
+
+    // 계정 삭제
+    @PostMapping("/deleteAccountProc")
+    public MsgDTO deleteAccountProc(HttpSession session) {
+
+        log.info("{}.deleteAccountProc Start!", this.getClass().getName());
+
+        try {
+            String loginId = CmmUtil.nvl((String) session.getAttribute(SS_USER_ID));
+
+            if (loginId.isEmpty()) {
+                return msg(0, "로그인이 필요합니다. 다시 로그인해 주세요.");
+            }
+
+            UserDTO pDTO = new UserDTO();
+            pDTO.setLoginId(loginId);
+
+            UserDTO rDTO = userService.getUserInfo(pDTO);
+
+            if (rDTO == null) {
+                return msg(0, "이미 삭제된 계정입니다.");
+            }
+
+            UserDTO dDTO = new UserDTO();
+            dDTO.setMemberId(rDTO.getMemberId());
+
+            if (userService.deleteUser(dDTO) < 1) {
+                return msg(0, "계정 삭제에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+            }
+
+            session.invalidate();
+
+            return msg(1, "계정이 삭제되었습니다.");
+
+        } catch (Exception e) {
+            log.error("deleteAccountProc 실패", e);
             return msg(2, "시스템 오류가 발생했습니다.");
         }
     }
