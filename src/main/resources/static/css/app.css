@@ -184,7 +184,6 @@
 .dash-basis,
 .dash-row,
 .dash-bottom,
-.dash-observe,
 .learn-hero,
 .learn-row,
 .learn-flow,
@@ -343,7 +342,10 @@
     box-sizing: border-box;
 }
 
-.dash-plan { margin-top: 18.5px; padding: 22px 24px 0; height: 346px; }
+/* 주간 추이 카드를 없앤 뒤(2026-08-18) 데이터가 있는 단계에서는 이 카드만 남는다 —
+   flex:1 이 없으면 왼쪽이 휑하게 빈다. 빈 상태(0·1단계)에서는 .dash-chart 가 옆에 서므로
+   그때는 남는 폭만 가져간다. */
+.dash-plan { flex: 1; margin-top: 18.5px; padding: 22px 24px 0; height: 346px; }
 
 .dash-plan .hd {
     display: flex;
@@ -457,6 +459,24 @@
 
 /* 12주 목록의 단계 소제목 — 온보딩 로드맵·마이페이지 카드의 6단계와 같은 이름이다.
    주차 항목이 아니라 묶음 이름이라 번호 원도 연결선도 없다. */
+/* 로드맵을 아직 만드는 중일 때의 줄 — 자리는 잡아 두고 은은히 깜박인다.
+   빈 카드를 보여 주면 '로드맵이 없는 앱' 처럼 보인다(2026-08-15). */
+li.plan-wait {
+    opacity: .55;
+    animation: kdPlanBreath 1.6s ease-in-out infinite;
+}
+
+li.plan-wait .chip { display: none; }
+
+@keyframes kdPlanBreath {
+    0%, 100% { opacity: .4; }
+    50%      { opacity: .7; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    li.plan-wait { animation: none; }
+}
+
 .dash-dlg li.plan-stage {
     padding-left: 0;
     margin-top: 24px;
@@ -673,48 +693,6 @@
     background: var(--kd-border);
 }
 
-/* --------------------------------------------------------------------------
-   오늘의 관찰 확인 배너 — 하단 851 아래로 남던 173px 을 쓴다
-   -------------------------------------------------------------------------- */
-.dash-observe {
-    display: flex;
-    align-items: center;
-    width: calc(100% - 80px);   /* 좌우 40 — 위 블록들은 padding 으로 주지만
-                                   여긴 카드 자체가 여백을 져야 해서 폭으로 뺀다 */
-    height: 88px;
-    margin-top: 24px;           /* 851 → 875, 아래 61 여백 */
-    padding: 0 24px;
-    box-sizing: border-box;
-    background: var(--kd-primary-tint);
-    border-radius: 16px;
-}
-
-.dash-observe .ic {
-    width: 48px;
-    height: 48px;
-    flex: none;
-    border-radius: 999px;
-    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 24 24' fill='none' stroke='%23268254' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z'/%3E%3C/svg%3E") center / 22px no-repeat;
-}
-
-.dash-observe p {
-    flex: 1;
-    margin: 0 24px;
-    font-size: 15px;
-    line-height: 23px;
-    color: var(--kd-text);
-}
-
-.dash-observe .kd-btn {
-    width: 140px;
-    height: 40px;
-    flex: none;
-    border-radius: 999px;
-    font-size: 15px;
-    font-weight: 700;
-}
-
-
 /* ==========================================================================
    학습 홈 — Figma 307:871
    본문 열 1200(좌우 패딩 40 → 내용 1120). 세로 좌표는 Figma 실측 그대로.
@@ -838,7 +816,8 @@
 .learn-row {
     display: flex;
     gap: 24px;
-    margin-top: 20px;       /* 배너 끝 433 → 제목 457 */
+    /* ⚠ 20 이었다. 히어로 카드와 붙어 보여 넓혔다(2026-08-20 요청) */
+    margin-top: 44px;
     padding: 0 40px;
 }
 
@@ -1058,7 +1037,12 @@
 
 /* --- 스토리 학습 흐름 5단계 --- */
 .learn-flow {
-    margin-top: 20px;
+    /* ⚠ 20 이었다. 위 두 칸(일상 입력·최근 기록)과 붙어 한 덩어리로 읽혔다 —
+         다른 이야기를 하는 자리이므로 사이를 벌린다(2026-08-20 요청).
+       ⚠ 아래 하단 배너(.learn-cta)를 걷어냈으므로 이 블록이 화면 끝이다.
+         마지막 줄이 바닥에 닿지 않게 아래 여백도 함께 준다. */
+    margin-top: 56px;
+    margin-bottom: 64px;
     padding: 0 40px;
 }
 
@@ -1069,9 +1053,12 @@
     list-style: none;
 }
 
+/* ⚠ 224px 고정이었다. 단계가 다섯일 때 폭에 맞춘 값인데 넷으로 줄이면서(2026-08-20)
+     오른쪽에 224px 이 통째로 비었다. 남는 폭을 네 칸이 나눠 갖게 한다 —
+     단계 수가 또 바뀌어도 알아서 채워진다. */
 .learn-flow li {
-    width: 224px;
-    flex: none;
+    flex: 1;
+    min-width: 0;
     padding-right: 18px;
     box-sizing: border-box;
 }
@@ -1434,15 +1421,14 @@ html[data-kd-stage="1"] .dash-plan { height: auto; margin-top: 0; padding-bottom
 .dash-chart.kd-no-data .kd-empty,
 .dash-chart.kd-s1 .kd-empty { flex: 1; }
 
-/* 최근 학습 기록이 0건일 때 — 표 대신 들어간 빈 카드가 왼쪽 일상 카드와 아래 선을 맞추도록 늘린다 */
-html[data-kd-stage="0"] .learn-recent,
-html[data-kd-stage="1"] .learn-recent { display: flex; flex-direction: column; }
-/* 2026-08-14 "크기 안 맞음" — 7px 은 표가 있던 자리(디자인 y478)에 맞춘 값이라
-   왼쪽 일상 카드(.learn-entry, margin-top:19)보다 12px 위에서 시작했다.
-   두 칸은 부모 높이·아래선(722)·제목 높이(54.4)가 모두 같으므로 이 여백만 맞추면 크기가 같아진다.
-   실측: 맞추기 전 왼쪽 231.7 / 오른쪽 243.7 → 맞춘 뒤 둘 다 231.7 */
-html[data-kd-stage="0"] .learn-recent .kd-empty { flex: 1; margin-top: 19px; }
-
+/* 최근 학습 기록이 0건일 때 — 빈 카드를 늘려 왼쪽 일상 카드와 밑단을 맞춘다.
+   ⚠ 예전에는 html[data-kd-stage="0"|"1"] 안에서만 늘렸다. 그 스위치는 시연용 단계였고
+     실데이터로 바꾸면서 안 붙게 되어, 오른쪽 카드만 짧게 남았다(2026-08-18 지적).
+     기록이 있고 없고는 kd-summary.js 가 정하므로 여기서는 조건 없이 늘린다.
+   2026-08-14 "크기 안 맞음" — margin-top 은 왼쪽 카드(.learn-entry)와 같은 19px 이어야 한다.
+   두 칸은 부모 높이·제목 높이가 같으므로 이 여백만 맞추면 크기가 같아진다. */
+.learn-recent { display: flex; flex-direction: column; }
+.learn-recent .kd-empty { flex: 1; margin-top: 19px; }
 
 /* --- 0단계 빈 화면 채우기 (2026-08-10 "너무 휑하다") ------------------------- */
 /* '오늘의 추천 학습'만 숨기므로 '연속 이용'이 한 줄을 다 쓴다 */

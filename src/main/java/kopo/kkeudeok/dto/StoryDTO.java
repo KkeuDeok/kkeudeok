@@ -16,5 +16,6 @@ public class StoryDTO {
     private Long childId;
     private String title;
     private String situationType;
+    private String emotion;
     private Boolean isGenerated;
 }

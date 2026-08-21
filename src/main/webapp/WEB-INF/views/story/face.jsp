@@ -1,12 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+<%-- 학습4 표정 따라하기 — 카메라로 표정을 판정한다(kd-mediapipe.js).
+     통과해야만 넘어간다. 코너의 시범 그림은 서버가 정한 표정으로 갈린다. --%>
 <%
-    /* 학습4 표정 따라하기 — Figma 웹_학습4_표정따라하기(383:1367 / 383:1544 화남 / 383:1650 기쁨).
-       카메라를 켜고 토리와 같은 표정을 지어 보는 단계.
-
-       ⚠ Figma 3벌이 전부 "화난 표정으로…" 로 같다(복제 잔재라 노드 이름에도 [TODO문구] 표시가 있다).
-         노드 이름이 `슬픈 표정으로…` 인 걸로 보아 감정별로 갈리는 게 원래 의도라 판단해
-         슬픔·기쁨 문구를 채웠다 — 팀장 확정 필요.
-       ⚠ 실제 카메라는 아직 안 붙였다. 온보딩 표정 등록과 같은 권한 게이트가 필요하다. */
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
@@ -30,10 +25,7 @@
 <h1 class="cam-title"><%= faceTitle.replace("{c}", CHAR) %></h1>
 
 <div class="cam-box">
-    <%-- TODO: 카메라 미리보기(getUserMedia). 지금은 얼굴 맞출 자리만 보여 준다 --%>
-    <div class="guide" aria-hidden="true"></div>
     <div class="cam-hint">
-        <%-- 따라 할 표정을 그대로 보여 준다 — Figma 는 무표정 고정이었지만 감정별로 바꿨다 --%>
         <img data-kd-char="<%= emo %>" src="/img/char-tori-<%= emo %>.png" alt="">
         <span>같이 해봐</span>
     </div>

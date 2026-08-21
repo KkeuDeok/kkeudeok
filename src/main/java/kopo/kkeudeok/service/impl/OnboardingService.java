@@ -5,7 +5,6 @@ import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.OnboardingRequestDTO;
 import kopo.kkeudeok.mapper.OnboardingMapper;
 import kopo.kkeudeok.service.IOnboardingService;
-import kopo.kkeudeok.service.IRoadmapService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -24,7 +23,6 @@ import java.util.Map;
 public class OnboardingService implements IOnboardingService {
 
     private final OnboardingMapper onboardingMapper;
-    private final IRoadmapService roadmapService;
 
     private static final Map<String, String> DISORDER = Map.of(
             "자폐 장애", "자폐",
@@ -32,7 +30,6 @@ public class OnboardingService implements IOnboardingService {
             "발달 장애", "발달"
     );
 
-    /** 아이 이름 규칙 — 보호자 이름(auth-validate.js 의 NAME_RE)과 같다. */
     private static final java.util.regex.Pattern CHILD_NAME =
             java.util.regex.Pattern.compile("^[가-힣a-zA-Z]{2,20}$");
 
@@ -46,9 +43,6 @@ public class OnboardingService implements IOnboardingService {
             throw new IllegalArgumentException("아이 이름이 없습니다");
         }
 
-        /* 화면에서도 같은 규칙으로 막지만(auth-validate.js) 그건 개발자도구로 우회된다.
-           이름은 학습 화면 곳곳에 "안녕 {이름}야!" 로 박히므로 여기서 한 번 더 본다 —
-           숫자·기호가 들어와 "안녕 이1야!" 가 되던 것을 막는다(2026-08-14). */
         if (!CHILD_NAME.matcher(name).matches()) {
             throw new IllegalArgumentException("아이 이름은 한글 또는 영문 2~20자여야 합니다");
         }
@@ -59,7 +53,11 @@ public class OnboardingService implements IOnboardingService {
             throw new IllegalArgumentException("생년월일이 없습니다");
         }
 
-        Long owner = (memberId != null) ? memberId : createPlaceholderMember(name);
+        if (memberId == null) {
+            throw new IllegalStateException("로그인이 필요합니다");
+        }
+
+        Long owner = memberId;
         ChildDTO child = onboardingMapper.selectChildByMember(owner);
         boolean isNew = (child == null);
 
@@ -83,7 +81,6 @@ public class OnboardingService implements IOnboardingService {
         }
 
         saveChecklist(row.getChildId(), req.getChecklist());
-        roadmapService.regenerate(row.getChildId());
 
         log.info("온보딩 완료 — child={}, member={}, {} ({}세), {}/{}, 친구={}, 체크리스트 {}문항",
                 row.getChildId(), owner, row.getName(), row.getAge(),
@@ -93,33 +90,7 @@ public class OnboardingService implements IOnboardingService {
         return row;
     }
 
-    /**
-     * 자리를 채우는 회원.
-     *
-     * <p>⚠ 임시 — 로그인/회원가입이 붙으면 이 메서드와 매퍼의 짝을 지우고,
-     * 세션에서 꺼낸 memberId 를 그대로 쓰면 된다.
-     */
-    private Long createPlaceholderMember(String childName) {
-
-        String loginId = "onboarding+" + System.currentTimeMillis() + "@kkeudeok.local";
-        Map<String, Object> holder = new HashMap<>();
-
-        onboardingMapper.insertPlaceholderMember(loginId, childName + " 보호자", holder);
-
-        Object id = holder.get("memberId");
-        Long memberId = (id instanceof Number n) ? n.longValue() : null;
-
-        if (memberId == null) {
-            throw new IllegalStateException("회원을 만들지 못했습니다");
-        }
-
-        log.warn("로그인이 없어 자리를 채우는 회원 {} 을 만들었습니다 — 로그인이 붙으면 이 경로를 지울 것",
-                memberId);
-
-        return memberId;
-    }
-
-    private void saveChecklist(Long childId, List<OnboardingRequestDTO.Answer> answers) {
+private void saveChecklist(Long childId, List<OnboardingRequestDTO.Answer> answers) {
 
         onboardingMapper.deleteChecklist(childId);
 

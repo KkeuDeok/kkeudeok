@@ -23,5 +23,7 @@ public class MissionLogDTO {
     private String responseValue;
     private Boolean isSuccess;
     private LocalDateTime createdAt;
+    private String stageType;
+    private LocalDateTime startedAt;
 
 }

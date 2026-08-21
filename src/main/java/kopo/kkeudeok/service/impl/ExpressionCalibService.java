@@ -44,8 +44,6 @@ public class ExpressionCalibService implements IExpressionCalibService {
             throw new IllegalArgumentException("표정 특징값이 너무 많습니다: " + shapes.size());
         }
 
-        calibMapper.deleteByEmotion(child.getChildId(), type.name());
-
         ExpressionCalibDTO calib = ExpressionCalibDTO.builder()
                 .childId(child.getChildId())
                 .emotionType(type.name())

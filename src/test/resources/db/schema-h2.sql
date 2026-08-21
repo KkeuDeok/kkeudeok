@@ -67,6 +67,8 @@ CREATE TABLE story
     child_id       BIGINT,
     title          VARCHAR(100) NOT NULL,
     situation_type VARCHAR(30),
+    -- 중심 감정. 다음 편에서 같은 답이 이어지지 않게 하려고 남긴다.
+    emotion        VARCHAR(12),
     is_generated   BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_story_child FOREIGN KEY (child_id) REFERENCES child (child_id) ON DELETE CASCADE
@@ -81,7 +83,9 @@ CREATE TABLE story_node
     narration     CLOB        NOT NULL,
     question_text VARCHAR(255),
     choice_data   CLOB,
-    CONSTRAINT fk_node_story FOREIGN KEY (story_id) REFERENCES story (story_id) ON DELETE CASCADE
+    CONSTRAINT fk_node_story FOREIGN KEY (story_id) REFERENCES story (story_id) ON DELETE CASCADE,
+    -- 한 이야기의 한 자리에는 노드가 하나뿐이다. 둘이 되면 학습 종료가 통째로 실패한다.
+    CONSTRAINT uq_node_order UNIQUE (story_id, node_order)
 );
 
 CREATE TABLE story_session
@@ -94,6 +98,8 @@ CREATE TABLE story_session
     started_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at    TIMESTAMP,
     status      VARCHAR(12) NOT NULL DEFAULT 'INCOMPLETE',
+    -- 미리 만들어 둔 세션인가. 아이가 그만둔 세션과 구분해야 '이어하기' 를 잘못 묻지 않는다.
+    prepared    BOOLEAN     NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_session_child FOREIGN KEY (child_id) REFERENCES child (child_id) ON DELETE CASCADE,
     CONSTRAINT fk_session_story FOREIGN KEY (story_id) REFERENCES story (story_id)
 );

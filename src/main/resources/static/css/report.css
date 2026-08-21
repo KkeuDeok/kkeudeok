@@ -124,7 +124,7 @@
 /* 1024 한 화면에 담기게 압축 (사용자 요청 — 스크롤 없애기) */
 .rpt-sec { margin-top: 32px; padding: 0 40px; }
 
-/* > 가 아니라 후손 선택 — 주간 변화의 2열(.rpt-cols) 안 h2 도 잡아야 한다 */
+/* > 가 아니라 후손 선택 — 안쪽에 감싼 요소가 있어도 h2 를 잡아야 한다 */
 .rpt-sec h2 {
     margin: 0;
     font-size: 18px;
@@ -169,21 +169,29 @@
     font-size: 13px;
     font-weight: 700;
     color: #fff;
-    background: none;      /* 색은 막대 전체 그라데이션이 낸다 */
+    /* 조각이 좁아도 숫자가 잘리지 않게 — 넘치면 가운데에서 잘라 낸다 */
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
 }
 
-/* 색 지점은 Figma 픽셀 실측 — 경계 앞뒤 약 7%p 구간에서 섞인다.
-   4주 전 28/38/34 -> 경계 28·66 / 이번 주 46/32/22 -> 경계 46·78 */
-.rpt-stack--prev {
-    background: linear-gradient(90deg,
-        #34a36a 0%, #34a36a 24%, #3d8fe0 32%,
-        #3d8fe0 62%, #199ea7 70%, #199ea7 100%);
+/* ⚠ 막대 전체에 그라데이션 하나를 깔던 방식은 걷어냈다(2026-08-20).
+     색 경계가 Figma 실측값(24%·62% / 42%·74%)으로 고정이라 실제 비율과 어긋났다 —
+     50·10·40 인데 색은 42·74 에서 바뀌니 숫자가 남의 색 위에 얹혀 보였다.
+     지금은 조각마다 제 색을 갖는다(kd-report.js 의 METHOD_COLOR). */
+
+/* 그 주에 학습한 적이 없을 때.
+   ⚠ 위 그라데이션을 반드시 덮어써야 한다. 안 그러면 기록이 없는데도 색이 꽉 찬 막대가
+     남아, 그만큼 한 것처럼 보인다(2026-08-20 지적). 보호자가 수치를 판단하는 화면이라
+     '없음' 과 '가득' 이 같아 보이면 안 된다. */
+.rpt-stack.is-empty {
+    background: #e0e0e0;
 }
 
-.rpt-stack--now {
-    background: linear-gradient(90deg,
-        #34a36a 0%, #34a36a 42%, #3d8fe0 50%,
-        #3d8fe0 74%, #199ea7 82%, #199ea7 100%);
+.rpt-stack.is-empty .none {
+    width: 100%;
+    color: var(--kd-text-sub);
+    font-weight: 600;
 }
 
 /* 범례 점은 그라데이션의 세 대표색 */
@@ -283,86 +291,10 @@
 /* --------------------------------------------------------------------------
    주간 변화 — 감정별 히트맵 + 8주 추이 + 변화 리스트
    -------------------------------------------------------------------------- */
-.rpt-heat {
-    display: grid;
-    grid-template-columns: 80px repeat(8, 1fr) 56px;
-    gap: 8px;
-    align-items: center;
-    margin-top: 24px;
-}
-
-.rpt-heat .rowlb {
-    font-size: 14px;
-    line-height: 21px;
-    color: var(--kd-text);
-}
-
-.rpt-heat .cell {
-    height: 40px;
-    border-radius: 10px;
-    background: color-mix(in srgb, var(--c) calc(var(--o) * 100%), #fff);
-}
-
-.rpt-heat .em-joy { --c: #e8a317; }
-.rpt-heat .em-sad { --c: #3d8fe0; }
-.rpt-heat .em-mad { --c: #ec4b3f; }
-.rpt-heat .em-sup { --c: #8b5cf6; }
-
-.rpt-heat .weeklb {
-    text-align: center;
-    font-size: 13px;
-    line-height: 19px;
-    color: var(--kd-text-sub);
-}
 
 /* 우측 많음~적음 미니 범례 (1열 세로) */
-.rpt-heat-scale {
-    grid-row: span 4;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--kd-text-sub);
-}
-
-.rpt-heat-scale i {
-    width: 18px;
-    height: 18px;
-    border-radius: 5px;
-    background: #34a36a;
-}
 
 /* 아래 2열 — 좌 추이 차트 660 + 우 변화 리스트 */
-.rpt-cols { display: flex; gap: 60px; }
-
-.rpt-cols .col-chart { width: 640px; flex: none; }
-.rpt-cols .col-list  { flex: 1; }
-
-.rpt-diff { margin-top: 24px; }
-
-.rpt-diff-item { display: flex; align-items: flex-start; gap: 24px; }
-.rpt-diff-item + .rpt-diff-item { margin-top: 24px; }
-
-.rpt-diff-item .n {
-    flex: none;
-    min-width: 72px;
-    font-size: 32px;
-    font-weight: 700;
-    line-height: 40px;
-    color: var(--kd-primary);
-    letter-spacing: -1px;
-}
-
-.rpt-diff-item b { display: block; font-size: 16px; line-height: 24px; color: var(--kd-text); }
-
-.rpt-diff-item .ds {
-    display: block;
-    margin-top: 4px;
-    font-size: 13px;
-    line-height: 19px;
-    color: var(--kd-text-sub);
-}
 
 /* --------------------------------------------------------------------------
    감정 이해 (신규 설계) — 감정별 이해도 가로 막대
@@ -436,11 +368,17 @@
 }
 
 /* --------------------------------------------------------------------------
-   0·1 단계 — 리포트는 3회를 채워야 나온다. 본문을 숨기고 common/report-empty.jsp 안내만 남긴다.
-   4개 탭이 같은 블록 클래스만 쓰기 때문에 파일을 감쌀 필요 없이 여기서 한 번에 끊는다.
+   기록이 없을 때 — 본문을 숨기고 common/report-empty.jsp 안내만 남긴다.
+   ⚠ 예전에는 localStorage.kdDone 으로 정한 '사용 단계'(0·1)에 묶여 있었다. 그건 시연용
+     스위치라, **DB 에 기록이 멀쩡히 있어도 그 브라우저에서 학습한 적이 없으면** 리포트가
+     통째로 잠겼다(2026-08-18 지적: 근거 줄만 아래에 덩그러니 남았다).
+     기록이 있고 없고는 서버가 아는 일이므로 kd-report.js 가 html 에 data-kd-report 를 켠다.
    -------------------------------------------------------------------------- */
-:is(html[data-kd-stage="0"], html[data-kd-stage="1"]) :is(
-    .rpt-score, .rpt-sec, .rpt-rule) { display: none !important; }
+html[data-kd-report="empty"] :is(.rpt-score, .rpt-sec, .rpt-rule),
+html:not([data-kd-report]) :is(.rpt-score, .rpt-sec, .rpt-rule) { display: none !important; }
+
+/* 반대로 기록이 있으면 안내 카드를 감춘다 — kd-hide2 는 단계 스위치가 쥐고 있어 못 미덥다 */
+html[data-kd-report="ready"] .rpt-empty { display: none !important; }
 
 .rpt-empty {
     max-width: 1200px;

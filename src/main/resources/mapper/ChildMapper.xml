@@ -33,13 +33,4 @@
          LIMIT 1
     </select>
 
-    <!-- 로그인이 붙기 전까지 쓰는 기본 아동. 붙고 나면 이 메서드는 지운다. -->
-    <select id="selectFirstChild" resultType="kopo.kkeudeok.dto.ChildDTO">
-        SELECT <include refid="cols"/>
-          FROM child
-         WHERE deleted_at IS NULL
-         ORDER BY child_id
-         LIMIT 1
-    </select>
-
 </mapper>

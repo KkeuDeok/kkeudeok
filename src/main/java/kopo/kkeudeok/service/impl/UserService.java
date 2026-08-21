@@ -1,5 +1,6 @@
 package kopo.kkeudeok.service.impl;
 
+import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.dto.MailDTO;
 import kopo.kkeudeok.dto.UserDTO;
 import kopo.kkeudeok.mapper.ChildMapper;
@@ -61,11 +62,9 @@ public class UserService implements IUserService {
         if (userMapper.insertUser(pDTO) > 0) {
             res = 1;
 
-            MailDTO mDTO = new MailDTO();
-            mDTO.setToMail(EncryptUtil.decAES128CBC(CmmUtil.nvl(pDTO.getEmail())));
-            mDTO.setTitle("[끄덕] 회원가입을 축하합니다");
-            mDTO.setContents(MailService.welcomeHtml(CmmUtil.nvl(pDTO.getName())));
-            mailService.doSendMail(mDTO);
+            mailService.sendWelcome(
+                    EncryptUtil.decAES128CBC(CmmUtil.nvl(pDTO.getEmail())),
+                    CmmUtil.nvl(pDTO.getName()));
         }
 
         log.info("{}.insertUser End! res={}", this.getClass().getName(), res);
@@ -124,7 +123,7 @@ public class UserService implements IUserService {
     public String getParentPin(UserDTO pDTO) throws Exception {
         log.info("{}.getParentPin Start!", this.getClass().getName());
 
-        // 해시 자체는 로그에 남기지 않는다 — 4자리 숫자라 해시만 있어도 전수 대입으로 원본이 나온다.
+        // 해시 자체는 로그에 남기지 않는다 - 4자리 숫자라 해시만 있어도 전수 대입으로 원본이 나온다.
         return CmmUtil.nvl(userMapper.getParentPin(pDTO));
     }
 
@@ -133,7 +132,18 @@ public class UserService implements IUserService {
         if (memberId == null) {
             return false;
         }
-        return childMapper.selectChildByMember(memberId) != null;
+        return childIdOf(memberId) != null;
+    }
+
+    @Override
+    public Long childIdOf(Long memberId) throws Exception {
+
+        if (memberId == null) {
+            return null;
+        }
+
+        ChildDTO child = childMapper.selectChildByMember(memberId);
+        return child == null ? null : child.getChildId();
     }
 
     /* ---------- 마이페이지 ---------- */

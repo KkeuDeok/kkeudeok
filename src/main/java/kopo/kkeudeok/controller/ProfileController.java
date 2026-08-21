@@ -44,17 +44,6 @@ public class ProfileController {
     @PostMapping(value = "updateProfile")
     public MsgDTO updateProfile(@RequestBody ProfileDTO pDTO) throws Exception {
         log.info("{}.updateProfile Start!", this.getClass().getName());
-//        여기 문제 X
-//        System.out.println("======================================");
-//        System.out.println("childId : " + pDTO.getChildId());
-//        System.out.println("name : " + pDTO.getName());
-//        System.out.println("birthDate : " + pDTO.getBirthDate());
-//        System.out.println("gender : " + pDTO.getGender());
-//        System.out.println("disorderType : " + pDTO.getDisorderType());
-//        System.out.println("severity : " + pDTO.getSeverity());
-//        System.out.println("======================================");
-//        int result = profileService.updateProfile(pDTO);
-//        System.out.println("👉 DB UPDATE 실행 결과(영향받은 행) : " + result);
 
         String msg = "프로필 정보 수정 실패";
         int res = 0;
@@ -69,11 +58,6 @@ public class ProfileController {
             if (res > 0) {
                 msg = "프로필 정보가 성공적으로 수정되었습니다.";
             }
-            /**
-             *  굳이 실패를 넣지 않고 수정중 오류로 하는게 좋을 것 같음
-             * else {
-                msg = "프로필 정보 수정에 실패했습니다.";
-            } */
         } catch (Exception e) {
             msg = "수정 중 오류가 발생했습니다: " + e.getMessage();
             log.error("updateProfile error : ", e);
@@ -87,10 +71,7 @@ public class ProfileController {
     }
 
     /**
-     * 캐릭터 및 애칭 수정 (캐릭터 관리 탭)
-     */
-    /**
-     * 캐릭터 관리 페이지 화면 이동 (GET)
+     * 캐릭터 관리 페이지 화면
      */
     @GetMapping(value = "character") // 👈 실제 접속하는 URL 경로에 맞게 지정 (예: "character" 또는 "mypage/character")
     public String characterPage(HttpSession session, ModelMap model) throws Exception {

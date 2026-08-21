@@ -1,14 +1,12 @@
+<%-- 학습2b 마음 읽기 힌트 — [잘 모르겠어] 로 오는 화면.
+     본문(_feel-body.jspf)은 학습2 와 같고 귓속말 한 줄만 더 얹는다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    /* 학습2b 마음 읽기 힌트 — Figma 웹_학습2b_마음읽기_힌트(368:75).
-       학습2 에서 [잘 모르겠어]를 누르면 온다. 카드 배치는 학습2 와 같고
-       정답 카드에 테두리가 생기고 아래에 힌트 말풍선이 붙는다.
 
-       ⚠ 힌트 문구는 Figma 가 슬픔 한 벌뿐이라 화남·기쁨은 임시 — 기획 확정 필요. */
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
-    String feelPick = emo;   /* 힌트 화면은 정답을 짚어 준다 */
+    String feelPick = emo;   
 
     String[][] feelHints = {
         {"sad",   "{c}가 살짝 알려줄게… 눈썹이 아래로 처져 있어."},

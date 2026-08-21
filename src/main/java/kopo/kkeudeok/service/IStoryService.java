@@ -13,4 +13,8 @@ public interface IStoryService {
     StoryResponseDTO.Next next(Long sessionId, StoryRequestDTO.Next req);
 
     StoryResponseDTO.Finish finish(Long sessionId, StoryRequestDTO.Finish req);
+
+    void prefetchNext(Long sessionId, String fromStage);
+
+    StoryResponseDTO.Summary summary(Long childId);
 }

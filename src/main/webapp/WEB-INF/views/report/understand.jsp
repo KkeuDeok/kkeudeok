@@ -18,24 +18,18 @@
 <div class="rpt-score">
     <div>
         <p class="lb">감정 이해 지수</p>
-        <p class="v">72<span class="u">%</span><b class="delta rpt-up">▲2 · 지난주 대비</b></p>
+        <p class="v" data-rpt="understand">-<span class="u">%</span><b class="delta"></b></p>
     </div>
-    <p class="note">슬픔과 놀람 표정 구분이 또렷해졌어요</p>
 </div>
 <%-- 지수가 "왜 올랐는지"가 화면에 없다는 지적(2026-08-10 피드백 5).
-     공식만 적으면 절반만 답한 것이라 **계산이 되는 숫자**를 그대로 보여 준다.
-     ⚠ 18/25 = 72%, 14/20 = 70% — 위 지수·▲2 와 산수가 맞아야 한다. 값을 바꿀 땐 같이 고칠 것. --%>
-<p class="rpt-basis">이번 주 미션 25회 중 <b>18회 성공</b> (지난주 20회 중 14회) · 70% → 72%</p>
+     계산이 되는 숫자를 그대로 보여 준다 — 문장은 서버가 만들어 내려보낸다(ReportService).
+     ⚠ 여기에 숫자를 다시 박지 말 것. 지수와 산수가 어긋나는 순간 리포트를 못 믿게 된다. --%>
+<p class="rpt-basis" data-rpt-basis="understand"></p>
 
 <section class="rpt-sec">
     <h2>감정별 이해도</h2>
-    <div class="rpt-hbars">
-        <div class="rpt-hbar"><span class="lb">기쁨</span><div class="track"><span class="em-joy" style="width:91%"></span></div><span class="pct">91%</span></div>
-        <div class="rpt-hbar"><span class="lb">슬픔</span><div class="track"><span class="em-sad" style="width:78%"></span></div><span class="pct">78%</span></div>
-        <div class="rpt-hbar"><span class="lb">놀람</span><div class="track"><span class="em-sup" style="width:70%"></span></div><span class="pct">70%</span></div>
-        <div class="rpt-hbar"><span class="lb">화남</span><div class="track"><span class="em-mad" style="width:62%"></span></div><span class="pct">62%</span></div>
-        <div class="rpt-hbar"><span class="lb">도움요청</span><div class="track"><span class="em-help" style="width:59%"></span></div><span class="pct">59%</span></div>
-    </div>
+    <%-- 막대는 실제 고르기 미션 결과로 그린다(kd-report.js). 기록이 없으면 안내 한 줄만 남는다 --%>
+    <div class="rpt-hbars" id="rptEmotionBars"></div>
 </section>
 
 <%-- 문구는 하드코딩(고정). 이해도 최저 2개(도움요청·화남)에 맞춘 예시 --%>

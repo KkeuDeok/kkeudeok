@@ -722,17 +722,8 @@
     overflow: hidden;
 }
 
-/* 가이드는 좌표 대신 가운데 정렬 — 카메라 폭이 바뀌어도 안 틀어진다 */
-.onb-cam .guide {
-    position: absolute;
-    left: 50%;
-    top: 107px;
-    transform: translateX(-50%);
-    width: 150px;
-    height: 200px;
-    border: 2px dashed rgba(255, 255, 255, 0.55);
-    border-radius: 12px;
-}
+/* ⚠ 얼굴 맞출 점선 네모(.guide)는 지웠다(2026-08-20 요청) — child.css 의 같은 주석 참고.
+     아래 '얼굴을 화면 안에 맞춰 주세요' 안내는 남긴다. 말로 하는 건 괜찮다. */
 
 .onb-cam .hint {
     position: absolute;

@@ -34,7 +34,7 @@
     <section class="learn-daily">
         <%-- 선택 입력이라는 사실은 모달을 열기 전에 알아야 한다 —
              열고 나서야 알려 주면 이미 써야 하는 줄 알고 들어온 뒤다 (2026-08-13) --%>
-        <h2 class="learn-sec">오늘의 일상 입력 <span class="sec-opt">선택 입력</span></h2>
+        <h2 class="learn-sec">오늘의 일상 입력 <span class="sec-opt">선택</span></h2>
 
         <%-- 기록 전 상태 — 버튼을 누르면 모달이 열린다.
              전에는 여기 textarea 가 바로 박혀 있어 '메모장'처럼 보였다. --%>
@@ -70,21 +70,14 @@
             <p class="d">이야기를 한 편 마치면 날짜와 결과가 여기에 남아요</p>
         </div>
 
-        <table class="kd-hide0">
+        <%-- 표는 **실제 학습 기록**으로 채운다(kd-summary.js).
+             예전에는 7.22·7.21 같은 예시 5줄이 박혀 있어 누가 써도 같은 표가 나왔다
+             (2026-08-15 지적). 기록이 없으면 위의 kd-empty 만 보인다. --%>
+        <table id="learnRecentTable" hidden>
             <thead>
             <tr><th class="c-no">No</th><th class="c-date">날짜</th><th class="c-story">스토리</th><th class="c-state">상태</th></tr>
             </thead>
-            <%-- 1단계 — 이야기 한 편만 마친 상태 --%>
-            <tbody class="kd-s1">
-            <tr><td class="c-no">1</td><td class="c-date">오늘</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            </tbody>
-            <tbody class="kd-has-data">
-            <tr><td class="c-no">1</td><td class="c-date">7.22</td><td class="c-story">친구가 내 블록을 무너뜨렸어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">2</td><td class="c-date">7.21</td><td class="c-story">처음 간 곳에서 길을 잃을 뻔했어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">3</td><td class="c-date">7.19</td><td class="c-story">놀이터에서 차례를 기다렸어요</td><td class="c-state"><span class="chip chip-cont">미완료</span></td></tr>
-            <tr><td class="c-no">4</td><td class="c-date">7.18</td><td class="c-story">동생이 내 장난감을 가져갔어요</td><td class="c-state"><span class="chip chip-done">완료</span></td></tr>
-            <tr><td class="c-no">5</td><td class="c-date">7.16</td><td class="c-story">블록으로 높은 탑을 쌓았어요</td><td class="c-state"><span class="chip chip-cont">미완료</span></td></tr>
-            </tbody>
+            <tbody id="learnRecentBody"></tbody>
         </table>
     </section>
 </div>
@@ -95,26 +88,17 @@
         <li><span class="no">1</span><b>상황 이야기 제시</b><span class="ds">AI가 상황을 이야기 형태로 제시</span></li>
         <li><span class="no">2</span><b>표정·동작·음성 반응 인식</b><span class="ds">아동의 반응을 분석하여 이해도 파악</span></li>
         <li><span class="no">3</span><b>분기 진행 / 코칭 피드백</b><span class="ds">반응에 따라 스토리가 분기되고 코칭 제공</span></li>
-        <li><span class="no">4</span><b>세션 결과 요약</b><span class="ds">이번 학습의 결과를 정리</span></li>
-        <li><span class="no">5</span><b>성장 리포트 반영</b><span class="ds">학습 결과가 성장 리포트에 반영</span></li>
+        <%-- '세션 결과 요약' 단계는 걷어냈다(2026-08-20 요청).
+             결과 정리는 화면에 따로 나오는 것이 아니라 성장 리포트로 바로 이어지므로
+             보호자가 보기에 4번과 5번이 같은 말이었다. --%>
+        <li><span class="no">4</span><b>성장 리포트 반영</b><span class="ds">학습 결과가 성장 리포트에 반영</span></li>
     </ol>
 </div>
 
-<div class="learn-cta">
-    <span class="ic"></span>
-    <%-- 세 문구 모두 '하루 세 편' 기준으로 통일했다(2026-08-12 변경).
-         전에는 다음에 뭘 하면 되는지가 kd-has-data 에만 있었다. --%>
-    <p class="kd-has-data" id="ctaDone">오늘 한 편을 마쳤어요 · 세 편까지 이어서 할 수 있어요 (지난 기록은 그대로 남아요)</p>
-    <p class="kd-no-data">하루 세 편이 기본이에요 · 오늘의 첫 이야기를 시작해 볼까요?</p>
-    <p class="kd-s1">오늘 기록을 남겼어요 · 오늘의 첫 이야기를 해 볼까요?</p>
-    <%-- 오늘 몫을 끝낸 뒤에도 더 할 수 있다 — 막지 않고 글자만 바꾼다.
-         ⚠ 버튼 자체를 두 개로 두면 `.learn-cta .kd-btn` 이 2개로 잡혀
-           숨은 쪽이 먼저 걸린다(검증 스크립트가 클릭 못 함). 버튼은 하나, 글자만 교체.
-         .kd-hide2 = 0·1 단계에서만 보임 (kkeudeok.css 단계 규칙) --%>
-    <a class="kd-btn kd-btn-primary" href="/story/scene">
-        <span class="kd-hide2">학습 시작</span><span class="kd-has-data">한 번 더 하기</span>
-    </a>
-</div>
+<%-- 하단 배너(.learn-cta)는 걷어냈다(2026-08-20 요청).
+     맨 위 [이야기 시작하기] 와 같은 곳으로 가는 버튼이라 화면에 같은 행동이 두 번 있었고,
+     안내 문구도 위쪽 카드와 겹쳤다. 대시보드 하단 배너를 없앤 것과 같은 이유다(2026-08-18).
+     ⚠ CSS(.learn-cta)는 지우지 않았다 — 되살릴 일이 생기면 그대로 쓴다. --%>
 
 <%-- 오늘의 일상 입력 모달 (Figma 24:20619).
      .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다 — 빼면 배율이 두 번 걸려 작아진다.
@@ -246,24 +230,10 @@
     }
 </script>
 
-<script>
-    /* 자폐면 사회성·감정 표현 시나리오를 더 넣는다(2026-08-10 피드백 7).
-       히어로 안내 칩은 2026-08-14 지적으로 걷어냈고, 완료 문구만 남았다.
-       유형은 온보딩이 sessionStorage.kdOnb 에 문자열 하나로 넣어 둔다.
-       concat 으로 받는 건 중복 진단 시절의 옛 저장값(배열)이 아직 남아 있을 수 있어서다.
-       ponytail: 백엔드가 붙으면 이 판단은 서버가 내려주면 된다. */
-    (function () {
-        var types = [];
-        try {
-            types = [].concat(JSON.parse(sessionStorage.getItem('kdOnb') || '{}').disType || []);
-        } catch (e) { }
-        if (types.indexOf('자폐 장애') < 0) return;
-
-        /* 칩을 채우던 3줄은 뺐다 — 위에서 .learn-fit 요소를 없앴으므로 여기서 채우면 null 오류가 난다.
-           다음에 뭘 하는지까지 알려 준다 (하루 세 편 기준 — 2026-08-12) */
-        document.getElementById('ctaDone').textContent =
-            '오늘 한 편을 마쳤어요 · 다음은 \'놀이터에서 차례 기다리기\'(사회성) 이야기예요';
-    })();
-</script>
+<%-- 자폐 유형일 때 하단 배너 문구를 바꾸던 블록은 통째로 걷어냈다(2026-08-20).
+     그 배너(.learn-cta)를 없앴으니 할 일이 없고, 남겨 두면 getElementById 가 null 을
+     돌려줘 그 지점부터 스크립트가 멈춘다.
+     ⚠ 문구에 '놀이터에서 차례 기다리기' 라는 예시가 박혀 있었다. 로드맵과 무관한 값이라
+       되살릴 일이 있어도 그대로 쓰지 말 것 — 다음 주차는 서버가 안다. --%>
 
 <%@ include file="../common/app-bottom.jsp" %>

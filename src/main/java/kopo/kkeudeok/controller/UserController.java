@@ -227,11 +227,6 @@ public class UserController {
         return "report/social";
     }
 
-    @GetMapping("/report/weekly")
-    public String reportWeekly() {
-        return "report/weekly";
-    }
-
     /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
 
     /**

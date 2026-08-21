@@ -1,15 +1,8 @@
+<%-- 학습1 상황 이야기 — 무슨 일이 있었는지 들려주는 첫 화면.
+     여기 들어온 순간이 한 편의 시작이라 story-session.js 가 세션을 연다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
-    /* 학습1 상황 이야기 — 감정 3벌.
-       보호자가 '오늘의 일상 입력'에서 고른 감정이 ?emo= 로 넘어온다(기쁨→happy · 화남→angry · 그 외→sad).
-       화면을 3개 만들지 않고 레일 하나에 문구만 갈아끼운다 — Figma 도 그림은 3벌이 같은 걸 쓴다.
 
-       ⚠ 문구 출처
-         sad   = Figma 웹_학습1_상황이야기(368:200) 원문
-         happy = Figma 웹_학습1_상황이야기_기쁨(237:402) 원문. 단 '같이 기뻐할래?' 한 줄은
-                 원본에 질문 줄이 아예 없어서 레일을 맞추려고 넣은 임시 문구다.
-         angry = Figma 에 화남 벌이 없다. 전부 임시 — 기획 확정 필요.
-                 학습5 에서 '미안하다고 말하기'로 이어지도록 **내 실수로 무너뜨린 상황**으로 잡았다. */
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 

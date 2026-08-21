@@ -1,22 +1,23 @@
+<%-- 아동 학습 화면 공통 껍데기(위) — <html> 부터 <main> 열기까지.
+     각 화면은 pageTitle · storyStep · storyCount · emo 를 미리 선언해 두는 것이 규약이다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 아동 학습 흐름(스토리) 공통 껍데기(위쪽) — 스텝바 + 본문 열림.
-     사용법: include 전에 스크립틀릿으로
-         String pageTitle  = "이유 찾기";
-         String storyStep  = "why";                 scene | feel | why | face | act | praise
-         String storyCount = "오늘 이야기 1 / 3";    "" 이면 카운터를 숨긴다(상황 선택 화면처럼 자체 표기가 있는 경우)
-     반드시 child-bottom.jsp 와 짝으로 쓸 것.
-     보호자 앱 껍데기(app-top.jsp)와는 다른 파일이다 — 아동 화면엔 사이드바가 없다. --%>
+
 <!DOCTYPE html>
-<html lang="ko">
+
+<html lang="ko"<%= "home".equals(storyStep) ? "" : " data-kd-node=\"pending\"" %>>
 <head>
     <title><%= pageTitle %> | 끄덕</title>
     <%@ include file="head.jsp" %>
 </head>
 <body class="child-body">
+
+<div class="story-wait" aria-hidden="true">
+    <img src="/img/char-bear.png?v=5" alt="">
+    <p>이야기를 만들고 있어요</p>
+</div>
 <div class="child-shell">
     <div class="child-scale">
-        <%-- 하단 장식 — Figma 368:201 실측(구름 2 · 언덕 3 · 나무 4).
-             언덕은 파도라 창 폭에 맞춰 늘리고, 나무는 정원이라 1440 고정 + 가운데. --%>
+
         <div class="child-deco" aria-hidden="true">
             <svg class="hills" viewBox="0 0 1440 260" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="374" cy="48" rx="70" ry="22" fill="#e3f6ec"/>
@@ -40,19 +41,10 @@
             </svg>
         </div>
 
-        <%-- 스텝바 — 현재 단계 이전은 완료(체크), 이후는 예정.
-             아동홈(storyStep="home")은 학습 단계가 아니라 흐름의 입구라 스텝바도 닫기도 없다.
-             자리(72)는 그대로 둬서 본문 좌표계가 다른 화면과 어긋나지 않게 한다. --%>
         <%
-            /* 하단 바를 통째로 끄는 화면이 있다(아동홈·세션 결과·상황 선택).
-               여기서 기본값을 잡아 두면 각 화면은 필요할 때만 true 로 바꾸면 된다.
-               ⚠ 스텝바 if 블록 안에 두면 아동홈에서 선언이 안 돼 컴파일이 깨진다. */
+
             boolean storyFootOff = false;
 
-            /* 캐릭터 이름 자리. 문구표에 `{c}` 로 적고 출력할 때 이걸로 바꾼다.
-               기본값은 토리 — JS 가 꺼져 있거나 아직 안 고른 상태에서도 화면이 멀쩡하다.
-               아이가 고른 친구가 있으면 auth-validate.js 의 renderChar() 가 글자만 갈아끼운다.
-               ⚠ 문자열을 통째로 치환하면 안 된다 — '스토리' 안에 '토리'가 들어 있다. */
             String CHAR = "<span data-kd=\"charName\">토리</span>";
         %>
         <header class="child-head">

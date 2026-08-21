@@ -15,7 +15,6 @@
 <div class="onb-capture">
     <div class="onb-cam">
         <div class="view">
-            <div class="guide"></div>
             <p class="hint">얼굴을 화면 안에 맞춰 주세요</p>
         </div>
         <div class="bar">

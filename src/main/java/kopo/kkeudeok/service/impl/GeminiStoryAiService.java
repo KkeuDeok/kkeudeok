@@ -34,6 +34,7 @@ import java.util.Set;
 public class GeminiStoryAiService implements IStoryAiService {
 
     private final GeminiClient gemini;
+    private final kopo.kkeudeok.config.GeminiProperties props;
     private final ObjectMapper objectMapper;
 
     private static final String SYSTEM = """
@@ -56,29 +57,56 @@ public class GeminiStoryAiService implements IStoryAiService {
 
     @Override
     public StoryScenarioDTO createScenario(ChildDTO child, String emotion, String dailyNote,
+                                           Brief brief,
                                            RoadmapPlanDTO.Week week) {
 
-        String friend = FallbackStory.charName(child.getCharacterType(), child.getCharacterNickname());
+        String friend = StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname());
 
         String prompt = """
                 아래 아이를 위한 사회성 학습 이야기의 뼈대를 만들어라.
 
                 [아이]
-                - 부르는 이름: %s
+                - 이름: %s
+                  ⚠ 아이를 가리킬 때는 <b>반드시 이 형태 그대로</b> 쓴다. 뒤에 아/야 를 붙여
+                    부르는 형태로 바꾸지 않는다("%s" 처럼 쓰면 "%s와" 같은 말이 된다).
+                  ⚠ 조사는 받침 없는 쪽으로 붙인다 — 가·는·를·와·랑·로.
                 - 나이: %s
                 - 장애 유형: %s (%s)
                 - 이야기에 나오는 친구 캐릭터 이름: %s
 
                 [오늘의 일상] %s
 
+                [이미 만든 이야기 — 겹치지 않게 한다] %s
+
+                [이번 이야기가 벌어지는 곳] %s
+
+                [앞으로 다룰 주제 — 지금 쓰면 안 된다] %s
+
                 [이번 주 학습] %s
+
+                [이번 주 첫 이야기인가] %s
 
                 [이야기 조건]
                 - 중심 감정은 '%s' 다.
                 - 친구 %s 가 그 감정을 느끼고, 아이가 도와주는 이야기다.
-                - 유치원·놀이터·집처럼 아이가 아는 곳에서 일어난 일로 만든다.
-                - 오늘의 일상이 있으면 그 소재를 살린다. 없으면 또래가 흔히 겪는 일로 만든다.
-                - 이번 주 학습 주제가 있으면 <b>그 주제를 연습하게 되는 상황</b>으로 만든다.
+                - ⚠ [이번 주 첫 이야기인가] 가 '예' 면 <b>이번 주 주제를 그대로 장면으로</b> 만든다.
+                  주제에 적힌 사물·사람·행동을 그대로 쓴다. 비슷한 다른 장면으로 바꾸지 않는다.
+                  ("장난감이 움직이지 않아 당황한 아이가 엄마를 바라보는 장면"
+                    → 장난감이 멈추고, 아이가 엄마를 바라보는 그 장면을 만든다)
+                  로드맵은 보호자가 미리 읽는 계획이라, 첫 이야기가 계획과 다르면 약속이 깨진다.
+                - ⚠ [앞으로 다룰 주제] 에 있는 장면은 <b>지금 만들지 않는다</b>. 그 주가 왔을 때
+                  새 이야기로 만나야 한다 — 미리 써 버리면 정작 그 주에 겹친 이야기가 나온다.
+                - ⚠ [오늘의 일상] 이 있으면 <b>그것이 이 이야기의 무대이자 소재</b>다.
+                  보호자가 오늘 아이에게 실제로 있었던 일을 적어 준 것이라, 아이가 겪은 일로
+                  배우게 하는 것이 이 서비스의 핵심이다. 거기 나온 장소·사물·사람을 그대로 쓴다.
+                  ("놀이터에서 장난감을 갖고 놀았어요" → 놀이터에서 장난감을 두고 벌어지는 일)
+                - [오늘의 일상] 이 '(입력 없음)' 일 때만 [이번 이야기가 벌어지는 곳] 을 무대로 쓴다.
+                - ⚠ 위 '이미 만든 이야기' 와 <b>다른 장면</b>을 만든다. 같은 목표라도 장소·사건·
+                  등장인물이 겹치지 않게 바꾼다. 제목만 바꿔 같은 내용을 다시 쓰지 않는다.
+                - ⚠ 이번 주 로드맵 목표가 이 이야기의 뼈대다. 곁들이는 양념이 아니다.
+                  아이가 그 목표를 **직접 해 보게 되는** 장면으로 만든다.
+                  상황·까닭·동작·칭찬이 모두 그 목표 하나를 향하게 한다.
+                  목표와 상관없는 이야기를 만들지 않는다.
 
                 [JSON 형식] 아래 키만 쓴다.
                 {
@@ -86,32 +114,40 @@ public class GeminiStoryAiService implements IStoryAiService {
                   "emotion": "%s",
                   "situationType": "이 이야기가 다루는 사회적 상황. 반드시 다음 중 하나를 그대로 골라 쓴다: %s",
                   "situation": "무슨 일이 있었는지 두 문장 이내",
+                  "recap": "그 일로 친구가 어떤 모습이 되었는지 한 문장. 마음 읽기 화면에서 다시 짚어 준다 (예: 토리는 책장이 접혀 주먹을 꼭 쥐었어요). 반드시 위 situation 과 같은 사건이어야 한다",
                   "cause": "그 감정이 된 까닭. **10자 이내**. 카드 한 장에 들어가야 한다 (예: 넘어져서 아파서)",
                   "causeDistractor": "정답이 아닌 까닭. 10자 이내. 그림으로 구분되는 것 (예: 졸려서, 배고파서)",
-                  "gesture": "아이가 할 동작. comfort(토닥토닥) | sorry(미안해) | celebrate(축하) 중 하나",
-                  "praise": "다 도와준 뒤 친구가 할 칭찬 한 문장"
+                  "gesture": "아이가 할 동작. comfort(토닥토닥) | sorry(미안해) | celebrate(축하) | wave(손 흔들어 인사) 중 하나. 먼저 말 걸기·인사 상황이면 wave 를 쓴다"
                 }
                 """.formatted(
-                child.getCallName(),
-                child.getAge() == null ? "6세 정도" : child.getAge() + "세",
+                child.getCallName(), child.getVocative(), child.getVocative(),
+                child.promptAge(),
                 nvl(child.getDisorderType(), "발달"),
                 nvl(child.getSeverity(), "정도 미상"),
                 friend,
                 (dailyNote == null || dailyNote.isBlank()) ? "(입력 없음)" : dailyNote.trim(),
+                madeBefore(brief.recentTitles()),
+                nvl(brief.place(), "(정하지 않음 — 위 [오늘의 일상] 이나 [이번 주 학습] 을 따른다)"),
+                listOrNone(brief.laterTopics()),
                 weekBrief(week),
+                brief.weekOpener() ? "예 — 주제를 그대로 장면으로 만든다" : "아니오",
                 emotion, friend, friend, emotion, SituationType.promptList()
         );
+
+        if (!gemini.isEnabled()) {
+            log.warn("AI 키가 없어 이야기를 만들지 못했습니다");
+            return null;
+        }
 
         Optional<String> json = gemini.generateJson(SYSTEM, prompt);
 
         if (json.isEmpty()) {
-            return withWeek(FallbackStory.scenario(emotion, friend), week, emotion);
+            log.warn("AI 가 이야기를 돌려주지 않았습니다");
+            return null;
         }
 
         try {
             StoryScenarioDTO sc = objectMapper.readValue(json.get(), StoryScenarioDTO.class);
-
-            StoryScenarioDTO base = FallbackStory.scenario(emotion, friend);
 
             sc.setEmotion(emotion);
             sc.setSource("AI");
@@ -122,31 +158,40 @@ public class GeminiStoryAiService implements IStoryAiService {
 
             sc.setSituationType(SituationType.normalize(wanted, emotion).label());
 
-            sc.setTitle(nvl(sc.getTitle(), base.getTitle()));
-            sc.setSituation(nvl(sc.getSituation(), base.getSituation()));
-            sc.setCause(nvl(sc.getCause(), base.getCause()));
-            sc.setCauseDistractor(nvl(sc.getCauseDistractor(), base.getCauseDistractor()));
-            sc.setPraise(nvl(sc.getPraise(), base.getPraise()));
+            if (isBlank(sc.getTitle()) || isBlank(sc.getSituation())
+                    || isBlank(sc.getCause()) || isBlank(sc.getCauseDistractor())) {
+                log.warn("AI 이야기에 빈 칸이 있어 쓰지 않습니다");
+                return null;
+            }
 
-            sc.setGesture(switch (nvl(sc.getGesture(), "")) {
-                case "comfort", "sorry", "celebrate" -> sc.getGesture();
-                default -> base.getGesture();
-            });
+            sc.setGesture(StoryTemplate.gesture(sc.getGesture(), StoryTemplate.emotionSet(emotion)));
+
+            fixNames(sc, child);
 
             return sc;
 
         } catch (Exception e) {
-            log.warn("시나리오 JSON 파싱 실패 — 내장 시나리오로 진행합니다: {}", e.getMessage());
-            return withWeek(FallbackStory.scenario(emotion, friend), week, emotion);
+            log.warn("시나리오 JSON 파싱 실패 — 이야기를 만들지 못했습니다: {}", e.getMessage());
+            return null;
         }
     }
 
-    private StoryScenarioDTO withWeek(StoryScenarioDTO sc, RoadmapPlanDTO.Week week, String emotion) {
+    private static boolean isBlank(String v) {
+        return v == null || v.isBlank();
+    }
 
-        if (week != null && week.getSituationType() != null) {
-            sc.setSituationType(SituationType.normalize(week.getSituationType(), emotion).label());
-        }
-        return sc;
+    private void fixNames(StoryScenarioDTO sc, ChildDTO child) {
+
+        sc.setTitle(name(sc.getTitle(), child));
+        sc.setSituation(name(sc.getSituation(), child));
+        sc.setRecap(name(sc.getRecap(), child));
+        sc.setCause(name(sc.getCause(), child));
+        sc.setCauseDistractor(name(sc.getCauseDistractor(), child));
+    }
+
+    private String name(String text, ChildDTO child) {
+        return StoryTemplate.fixChildName(text, child.getGivenName(),
+                child.getCallName(), child.getVocative());
     }
 
     private String weekBrief(RoadmapPlanDTO.Week week) {
@@ -155,7 +200,7 @@ public class GeminiStoryAiService implements IStoryAiService {
             return "(로드맵 없음 — 또래가 흔히 겪는 상황으로 만든다)";
         }
 
-        return "%d주차 '%s' · 다룰 상황: %s · 목표: %s".formatted(
+        return "%d주차 '%s' · 다룰 상황: %s · 이번 주에 해 볼 것: %s".formatted(
                 week.getNo(),
                 nvl(week.getTopic(), "-"),
                 nvl(week.getSituationType(), "-"),
@@ -172,17 +217,17 @@ public class GeminiStoryAiService implements IStoryAiService {
                                   StoryStage stage,
                                   StoryRequestDTO.Next previous) {
 
-        String friend = FallbackStory.charName(child.getCharacterType(), child.getCharacterNickname());
-        StoryNodeDTO fallback = FallbackStory.node(stage, scenario, child.getCallName(), friend);
+        String friend = StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname());
+        StoryNodeDTO fallback = StoryTemplate.node(stage, scenario, child.getVocative(), friend);
 
-        if (stage == StoryStage.STORY || !gemini.isEnabled()) {
+        if (stage == StoryStage.STORY || !props.isPolishNodes() || !gemini.isEnabled()) {
             return fallback;
         }
 
         String prompt = """
                 진행 중인 학습 이야기의 다음 화면 문구를 쓴다.
 
-                [아이] %s, %s, %s
+                [아이] %s (가리킬 때 이 형태 그대로 쓴다. "%s" 처럼 부르는 형태로 바꾸지 않는다. 조사는 가·는·를·와·랑), %s, %s
                 [친구] %s
                 [이야기] %s
                 [상황] %s
@@ -205,8 +250,8 @@ public class GeminiStoryAiService implements IStoryAiService {
                   "options": %s
                 }
                 """.formatted(
-                child.getCallName(),
-                child.getAge() == null ? "6세 정도" : child.getAge() + "세",
+                child.getCallName(), child.getVocative(),
+                child.promptAge(),
                 nvl(child.getDisorderType(), "발달"),
                 friend,
                 scenario.getTitle(),
@@ -227,7 +272,15 @@ public class GeminiStoryAiService implements IStoryAiService {
         }
 
         try {
-            return merge(objectMapper.readTree(json.get()), stage, fallback);
+            StoryNodeDTO node = merge(objectMapper.readTree(json.get()), stage, fallback);
+
+            node.setTitle(name(node.getTitle(), child));
+            node.setNarration(name(node.getNarration(), child));
+            node.setQuestionText(name(node.getQuestionText(), child));
+            node.setCoachText(name(node.getCoachText(), child));
+            node.setHintText(name(node.getHintText(), child));
+
+            return node;
 
         } catch (Exception e) {
             log.warn("{} 노드 JSON 파싱 실패 — 내장 문구로 진행합니다: {}", stage, e.getMessage());
@@ -375,21 +428,21 @@ public class GeminiStoryAiService implements IStoryAiService {
     // AI가 고른 마음 카드 판단
     private List<StoryOptionDTO> readMindOptions(JsonNode arr, String target) {
 
-        if (target == null || arr.size() != FallbackStory.MIND_CARD_COUNT) {
+        if (target == null || arr.size() != StoryTemplate.MIND_CARD_COUNT) {
             return null;
         }
 
-        List<StoryOptionDTO> out = new ArrayList<>(FallbackStory.MIND_CARD_COUNT);
+        List<StoryOptionDTO> out = new ArrayList<>(StoryTemplate.MIND_CARD_COUNT);
         Set<String> seen = new HashSet<>();
 
         for (JsonNode n : arr) {
             String key = text(n, "key", "").trim().toLowerCase(Locale.ROOT);
 
-            if (!FallbackStory.isMindKey(key) || !seen.add(key)) {
+            if (!StoryTemplate.isMindKey(key) || !seen.add(key)) {
                 return null;
             }
 
-            String[] base = FallbackStory.mindCard(key);
+            String[] base = StoryTemplate.mindCard(key);
 
             out.add(StoryOptionDTO.builder()
                     .key(key)
@@ -418,6 +471,22 @@ public class GeminiStoryAiService implements IStoryAiService {
 
         String v = n.asString("").trim();
         return v.isEmpty() ? fallback : v;
+    }
+
+    private static String madeBefore(java.util.List<String> titles) {
+
+        if (titles == null || titles.isEmpty()) {
+            return "(없음 — 첫 이야기다)";
+        }
+        return String.join(" / ", titles);
+    }
+
+    private static String listOrNone(java.util.List<String> items) {
+
+        if (items == null || items.isEmpty()) {
+            return "(없음)";
+        }
+        return String.join(" / ", items);
     }
 
     private static String nvl(String value, String fallback) {
