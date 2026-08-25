@@ -1,6 +1,8 @@
 (function () {
     'use strict';
 
+    if (location.pathname.replace(/\/$/, '') !== '/dashboard') return;
+
     var KD_STAGES = [];
     var KD_WEEKS = [];
 
@@ -40,6 +42,124 @@
         return li;
     }
 
+    var LOAD_TAU_MS = 30000;
+    var LOAD_CEIL = 96;
+    var LOAD_TICK_MS = 700;
+
+    var LOAD_STEPS = [
+        [0, '아이 정보를 살펴보고 있어요'],
+        [22, '12주 계획의 뼈대를 잡고 있어요'],
+        [55, '주차별 학습 주제를 고르고 있어요'],
+        [82, '계획을 마지막으로 다듬고 있어요']
+    ];
+
+    var LOAD_GRACE_MS = 700;
+
+    var loadStartedAt = 0;
+    var loadTimer = null;
+    var loadArm = null;
+
+    function loadMsg(pct) {
+        if (pct >= 100) return '12주 계획이 준비됐어요';
+
+        var text = LOAD_STEPS[0][1];
+        for (var i = 0; i < LOAD_STEPS.length; i++) {
+            if (pct >= LOAD_STEPS[i][0]) text = LOAD_STEPS[i][1];
+        }
+        return text;
+    }
+
+    function loadPct() {
+        var passed = Date.now() - loadStartedAt;
+        return Math.min(LOAD_CEIL, Math.round(LOAD_CEIL * (1 - Math.exp(-passed / LOAD_TAU_MS))));
+    }
+
+    function loadBox(host, before) {
+        var box = host.querySelector('.plan-load');
+        if (box) return box;
+
+        box = document.createElement('div');
+        box.className = 'plan-load';
+        box.setAttribute('role', 'progressbar');
+        box.setAttribute('aria-valuemin', '0');
+        box.setAttribute('aria-valuemax', '100');
+        box.innerHTML = '<div class="plan-load-hd"><span class="m"></span><b class="p">0%</b></div>'
+            + '<div class="plan-load-track"><i></i></div>';
+
+        host.insertBefore(box, before || null);
+        return box;
+    }
+
+    function loadBoxes() {
+        var out = [];
+
+        var plan = document.querySelector('.dash-plan');
+        if (plan) out.push(loadBox(plan, document.getElementById('dashPlanFoot')));
+
+        var dlg = document.querySelector('.dash-dlg');
+        if (dlg) out.push(loadBox(dlg, dlg.querySelector('button')));
+
+        return out;
+    }
+
+    function paintLoad(pct) {
+        var text = loadMsg(pct);
+
+        loadBoxes().forEach(function (box) {
+            box.setAttribute('aria-valuenow', pct);
+            box.querySelector('.plan-load-track i').style.width = pct + '%';
+            box.querySelector('.plan-load-hd .p').textContent = pct + '%';
+            box.querySelector('.plan-load-hd .m').textContent = text;
+        });
+    }
+
+    function dropLoad() {
+        document.querySelectorAll('.plan-load').forEach(function (box) {
+            if (box.parentNode) box.parentNode.removeChild(box);
+        });
+    }
+
+    function startLoad() {
+        if (loadTimer) return;
+
+        loadStartedAt = Date.now();
+        paintLoad(loadPct());
+
+        loadTimer = setInterval(function () { paintLoad(loadPct()); }, LOAD_TICK_MS);
+    }
+
+    function armLoad() {
+        if (loadArm || loadTimer) return;
+
+        loadArm = setTimeout(function () {
+            loadArm = null;
+            startLoad();
+        }, LOAD_GRACE_MS);
+    }
+
+    function endLoad(done) {
+        if (loadArm) {
+            clearTimeout(loadArm);
+            loadArm = null;
+        }
+
+        if (!loadTimer) {
+            dropLoad();
+            return;
+        }
+
+        clearInterval(loadTimer);
+        loadTimer = null;
+
+        if (!done) {
+            dropLoad();
+            return;
+        }
+
+        paintLoad(100);
+        setTimeout(dropLoad, 450);
+    }
+
     function renderWaiting() {
         var foot = document.getElementById('dashPlanFoot');
         var n = rows();
@@ -52,13 +172,16 @@
             for (var i = 0; i < n; i++) {
                 var li = document.createElement('li');
                 li.className = 'plan-wait';
-                li.innerHTML = '<span class="no no-soon">' + (i + 1) + '</span><span class="t"></span>';
-                li.querySelector('.t').textContent = i === 0 ? '로드맵 생성중…' : '';
+                li.innerHTML = '<span class="no no-soon">' + (i + 1) + '</span>'
+                    + '<span class="t"><em class="plan-skel"></em></span>';
+                li.querySelector('.plan-skel').style.width = (48 + (i * 37) % 34) + '%';
                 ul.appendChild(li);
             }
         });
 
-        if (foot) foot.textContent = '아이에게 맞는 12주 계획을 만들고 있어요';
+        if (foot) foot.textContent = '';
+
+        armLoad();
     }
 
     function renderDash() {
@@ -125,6 +248,7 @@
             badge.hidden = false;
         }
 
+        endLoad(true);
         renderDash();
     }
 
@@ -133,8 +257,6 @@
     var tries = 0;
 
     function loadRoadmap() {
-        renderDash();
-
         fetch('/api/roadmap')
             .then(function (r) { return (r.ok && r.status !== 204) ? r.json() : null; })
             .then(function (view) {
@@ -143,11 +265,14 @@
                     return;
                 }
 
+                renderWaiting();
                 tries += 1;
 
                 if (tries < MAX_TRIES) {
                     setTimeout(loadRoadmap, EVERY_MS);
                 } else {
+                    endLoad(false);
+
                     var foot = document.getElementById('dashPlanFoot');
                     if (foot) foot.textContent = '로드맵을 만들지 못했어요. 새로고침해 주세요';
                 }
