@@ -1,11 +1,38 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<%-- 카메라 예열 — 반드시 아래 <link> 들보다 **위**에 있어야 한다.
+     스크립트는 앞선 스타일시트를 다 받을 때까지 실행되지 않아서, 이 줄이 CDN 링크 뒤로
+     내려가면 폰트·부트스트랩 왕복이 끝난 뒤에야 카메라를 요청하게 된다(그래서 늦게 켜졌다).
+     스트림은 window.kdCam 에 담아 두고 kd-mediapipe.js 가 받아 쓴다. --%>
+<script>
+    (function () {
+        var p = location.pathname.replace(/\/$/, '');
+        if (p !== '/story/face' && p !== '/story/act') return;
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return;
+
+        window.kdCam = navigator.mediaDevices
+            .getUserMedia({ video: { facingMode: 'user' }, audio: false })
+            .catch(function (e) { window.kdCamFail = e; return null; });
+
+        window.addEventListener('pagehide', function () {
+            window.kdCam.then(function (s) {
+                if (s) s.getTracks().forEach(function (t) { t.stop(); });
+            });
+        });
+    })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <%-- 300(Light)은 온보딩 생년월일의 년·월·일 글자에만 쓰인다 --%>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<%-- 부트스트랩 5.3.3 — CDN 이 아니라 우리 서버에서 준다.
+     클래스는 한 곳도 안 쓰지만(2026-08-25 전수 확인), 이 파일의 Reboot 이
+     box-sizing:border-box 와 body margin:0 을 깔아 준다. 자체 리셋이 없어서
+     빼면 픽셀 실측 레이아웃이 통째로 어긋난다 — 지우지 말 것.
+     CDN 을 떼는 이유: 스크립트는 앞선 스타일시트를 기다리므로 jsdelivr 왕복이
+     카메라 시작(getUserMedia)까지 늦췄다. --%>
+<link href="/css/bootstrap.min.css?v=299" rel="stylesheet">
 <%-- ?v= 는 캐시 무효화용 — 정적 파일 수정 시 숫자를 올릴 것. ⚠ 절대 낮추지 말 것 --%>
 <%-- 병합 결과는 양쪽이 합쳐진 제3의 파일이라 223 도 220 도 그 내용을 안 가리킨다.
      둘보다 큰 224 로 통일한다. ⚠ 절대 낮추지 말 것 --%>

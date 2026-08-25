@@ -56,8 +56,13 @@
         video.muted = true;
         box.insertBefore(video, box.firstChild);
 
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+        var wanted = window.kdCam
+            || navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+
+        wanted
             .then(function (stream) {
+                if (!stream) throw (window.kdCamFail || new Error('카메라를 열지 못했습니다'));
+
                 video.srcObject = stream;
                 window.addEventListener('pagehide', function () {
                     stream.getTracks().forEach(function (t) { t.stop(); });
