@@ -149,6 +149,7 @@ public class StoryService implements IStoryService {
                 .source(source)
                 .childCallName(child.getCallName())
                 .characterKey(child.getCharacterType())
+                .gesture(scenario.getGesture())
                 .node(node)
                 .build();
     }
@@ -220,9 +221,27 @@ public class StoryService implements IStoryService {
                 .title(story == null ? null : story.getTitle())
                 .childCallName(child.getCallName())
                 .characterKey(child.getCharacterType())
+                .gesture(gestureOfStory(session.getStoryId()))
                 .resumeScreen(screen)
                 .node(resumeNode)
                 .build();
+    }
+
+    private String gestureOfStory(Long storyId) {
+
+        StoryNodeDTO first = storyMapper.selectNodeByOrder(storyId, StoryStage.STORY.seq());
+
+        if (first != null) {
+            StoryNodeMeta.unpack(first, objectMapper);
+        }
+
+        return gestureOf(first);
+    }
+
+    private static String gestureOf(StoryNodeDTO storyNode) {
+        return storyNode == null || storyNode.getScenario() == null
+                ? null
+                : storyNode.getScenario().getGesture();
     }
 
     @Override
@@ -320,6 +339,7 @@ public class StoryService implements IStoryService {
                 .source("AI")
                 .childCallName(child.getCallName())
                 .characterKey(child.getCharacterType())
+                .gesture(gestureOf(first))
                 .node(first)
                 .build();
     }
