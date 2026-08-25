@@ -138,6 +138,26 @@
 
     function clipFor(text) { return window.KD_AUDIO ? window.KD_AUDIO[text] : null; }
 
+    function forSpeech(parts) {
+        var out = [];
+
+        for (var i = 0; i < parts.length; i++) {
+            var t = String(parts[i])
+                .replace(/…+/g, '.')
+                .replace(/[~·∙•―—–]+/g, ' ')
+                .replace(/\.{2,}/g, '.')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            if (!t) continue;
+            if (!/[.!?]$/.test(t)) t += '.';
+
+            out.push(t);
+        }
+
+        return out.join(' ');
+    }
+
     function isSpeaking() {
         return !!playing || (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending));
     }
@@ -148,14 +168,62 @@
         if (clearMark) { clearMark(); clearMark = null; }
     }
 
+    var VOICE_RANK = [
+        /SunHi/i,
+        /(Heami|Hyunsu|InJoon).*(Online|Natural)/i,
+        /Google.*(한국|Korean)/i,
+        /Yuna|유나/i,
+        /Online.*Natural/i
+    ];
+
+    function voiceScore(v) {
+        if (!/^ko/i.test(v.lang || '')) return -1;
+
+        for (var i = 0; i < VOICE_RANK.length; i++) {
+            if (VOICE_RANK[i].test(v.name || '')) return 100 - i;
+        }
+
+        return v.localService === false ? 50 : 10;
+    }
+
+    function wantedVoice() {
+        try { return (localStorage.getItem('kdVoice') || '').toLowerCase(); } catch (e) { return ''; }
+    }
+
     var koVoice = null;
+    var koVoiceIsNatural = false;
 
     function pickVoice() {
         var vs = speechSynthesis.getVoices();
+        if (!vs.length) return;
+
+        var wanted = wantedVoice();
+        var best = null;
+        var bestScore = 0;
+
         for (var i = 0; i < vs.length; i++) {
-            if (/^ko/i.test(vs[i].lang)) { koVoice = vs[i]; return; }
+            if (wanted && (vs[i].name || '').toLowerCase().indexOf(wanted) >= 0) {
+                koVoice = vs[i];
+                koVoiceIsNatural = voiceScore(vs[i]) >= 50;
+                return;
+            }
+
+            var s = voiceScore(vs[i]);
+            if (s > bestScore) { bestScore = s; best = vs[i]; }
         }
+
+        koVoice = best;
+        koVoiceIsNatural = bestScore >= 50;
     }
+
+    window.kdVoices = function () {
+        return speechSynthesis.getVoices()
+            .filter(function (v) { return /^ko/i.test(v.lang || ''); })
+            .map(function (v) {
+                return v.name + '  [' + v.lang + (v.localService ? ' · 로컬' : ' · 온라인') + ']'
+                    + (koVoice && v.name === koVoice.name ? '  ← 지금 쓰는 목소리' : '');
+            });
+    };
 
     if (hasTTS) {
         pickVoice();
@@ -189,12 +257,12 @@
         var clips = [];
         for (var i = 0; i < parts.length; i++) {
             var c = clipFor(parts[i]);
-            if (!c) return sayWithBrowser(parts.join(' '), el, label);
+            if (!c) return sayWithBrowser(forSpeech(parts), el, label);
             clips.push(c);
         }
 
         var done = mark(el, label);
-        var joined = parts.join(' ');
+        var joined = forSpeech(parts);
         var n = 0;
 
         function fallback() { playing = null; done(); sayWithBrowser(joined, el, label); }
@@ -217,15 +285,29 @@
     function sayWithBrowser(text, el, label) {
         if (!hasTTS) return;
 
+        if (!koVoice) pickVoice();
+
         var u = new SpeechSynthesisUtterance(text);
         u.lang = 'ko-KR';
-        u.rate = 0.95;
-        u.pitch = 1.15;
 
         if (koVoice) u.voice = koVoice;
+
+        u.rate = tuned('kdRate', koVoiceIsNatural ? 1 : 0.92);
+        u.pitch = tuned('kdPitch', koVoiceIsNatural ? 1 : 1.3);
+
         var done = mark(el, label);
         u.onend = u.onerror = done;
-        speechSynthesis.speak(u);
+
+        speechSynthesis.cancel();
+        setTimeout(function () { speechSynthesis.speak(u); }, 120);
+    }
+
+    function tuned(key, fallback) {
+        var raw;
+        try { raw = localStorage.getItem(key); } catch (e) { return fallback; }
+
+        var n = parseFloat(raw);
+        return isNaN(n) ? fallback : n;
     }
 
     var listenBtns = document.querySelectorAll('.kd-sub-listen');
