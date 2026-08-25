@@ -15,7 +15,13 @@ public class WebConfig implements WebMvcConfigurer {
     public void addInterceptors(InterceptorRegistry registry) {
 
         registry.addInterceptor(new LoginCheckInterceptor())
-                .addPathPatterns("/mypage", "/mypage/**");
+                .addPathPatterns("/**")
+                .excludePathPatterns(
+                        "/", "/login", "/loginProc", "/logoutProc",
+                        "/signup/**", "/signupProc", "/checkLoginIdProc", "/sendAuthCodeProc",
+                        "/find-id", "/find-id/**", "/findIdProc",
+                        "/find-pw", "/find-pw/**", "/findPwProc", "/newPasswordProc",
+                        "/css/**", "/js/**", "/img/**", "/favicon.ico", "/error");
 
         registry.addInterceptor(childSessionInterceptor)
                 .addPathPatterns("/**")

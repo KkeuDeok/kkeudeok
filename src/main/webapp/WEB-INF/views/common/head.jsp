@@ -12,7 +12,7 @@
 <link href="/css/kkeudeok.css?v=294" rel="stylesheet">
 <link href="/css/auth.css?v=294" rel="stylesheet">
 <link href="/css/onboarding.css?v=294" rel="stylesheet">
-<link href="/css/app.css?v=294" rel="stylesheet">
+<link href="/css/app.css?v=295" rel="stylesheet">
 <link href="/css/report.css?v=294" rel="stylesheet">
 <link href="/css/mypage.css?v=294" rel="stylesheet">
 <link href="/css/child.css?v=294" rel="stylesheet">
@@ -233,6 +233,23 @@
         }).observe(document.documentElement, { childList: true, subtree: true });
     })();
 </script>
+<script>
+    (function () {
+        var call = window.fetch;
+        if (!call) return;
+
+        var OPEN = /^\/$|^\/(login|signup|find-id|find-pw)(\/|$)/;
+
+        window.fetch = function () {
+            return call.apply(this, arguments).then(function (res) {
+                if (res.status === 401 && !OPEN.test(location.pathname)) {
+                    location.replace('/login');
+                }
+                return res;
+            });
+        };
+    })();
+</script>
 <script src="/js/fit-frame.js?v=220"></script>
 <script src="/js/auth-validate.js?v=294" defer></script>
 <script src="/js/onb-select.js?v=220" defer></script>
@@ -245,7 +262,7 @@
 <script src="/js/kd-summary.js?v=294" defer></script>
 <%-- 성장 리포트 수치를 실제 학습 기록으로 채운다 --%>
 <script src="/js/kd-report.js?v=294" defer></script>
-<script src="/js/kd-roadmap.js?v=220" defer></script>
+<script src="/js/kd-roadmap.js?v=297" defer></script>
 <%-- 온보딩 표정 등록 — 그 아이 기준값을 만들어 학습4 표정 판정에 쓴다.
      ⚠ auth-validate.js 의 kdOnbFaceNext() 를 감싸므로 반드시 **그 뒤에** 실행돼야 한다.
        둘 다 defer 라 문서 순서대로 도니 이 줄을 위로 올리지 말 것. --%>

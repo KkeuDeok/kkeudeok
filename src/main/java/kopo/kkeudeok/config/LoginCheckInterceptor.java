@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 /**
@@ -13,9 +14,6 @@ import org.springframework.web.servlet.HandlerInterceptor;
  *  - 마이페이지 화면이 6개라 컨트롤러에 넣으면 같은 코드가 6벌이 되고,
  *    화면을 새로 추가할 때 빠뜨리면 그 화면만 조용히 뚫린다.
  *  - 어디에 걸지는 {@link WebConfig} 가 정한다.
- *
- * ⚠ 화면(GET) 전용이다. POST API 는 JSON 을 기대하는데 여기서 로그인 화면(HTML)으로
- *   리다이렉트하면 fetch 쪽에서 파싱 오류가 난다 — API 는 각자 세션을 본다.
  */
 @Slf4j
 public class LoginCheckInterceptor implements HandlerInterceptor {
@@ -34,6 +32,10 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) throws Exception {
 
+        if (!(handler instanceof HandlerMethod)) {
+            return true;
+        }
+
         // 브라우저가 이 화면을 저장하지 못하게 한다.
         // 없으면 로그아웃 뒤 '뒤로가기' 로 지난 화면이 그대로 되살아난다 — 서버에 다시 묻지 않기 때문에
         // 이 인터셉터가 실행조차 되지 않는다(2026-08-14 확인, 응답에 Cache-Control 이 아예 없었다).
@@ -45,11 +47,38 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute(SS_USER_ID) == null) {
-            log.info("로그인 안 된 접근 차단 — {}", request.getRequestURI());
-            response.sendRedirect("/login");
+            log.debug("로그인 안 된 접근 차단 — {} {}", request.getMethod(), request.getRequestURI());
+
+            if (wantsJson(request)) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"result\":0,\"msg\":\"로그인이 필요합니다.\",\"next\":\"/login\"}");
+            } else {
+                response.sendRedirect("/login");
+            }
+
             return false;
         }
 
         return true;
+    }
+
+    private boolean wantsJson(HttpServletRequest request) {
+
+        if (request.getRequestURI().startsWith("/api/")) {
+            return true;
+        }
+
+        if (!"GET".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
+        if ("XMLHttpRequest".equals(request.getHeader("X-Requested-With"))) {
+            return true;
+        }
+
+        String accept = request.getHeader("Accept");
+
+        return accept != null && !accept.contains("text/html") && accept.contains("json");
     }
 }
