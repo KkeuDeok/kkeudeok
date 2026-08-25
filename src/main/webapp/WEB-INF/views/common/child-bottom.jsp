@@ -49,8 +49,8 @@
         </main>
     </div>
 </div>
-<script src="/js/story.js?v=294"></script>
-<script src="/js/story-session.js?v=294"></script>
+<script src="/js/story.js?v=298"></script>
+<script src="/js/story-session.js?v=296"></script>
 <script src="/js/kd-mediapipe.js?v=294"></script>
 </body>
 </html>
