@@ -8,7 +8,9 @@ import kopo.kkeudeok.service.IChildService;
 import kopo.kkeudeok.service.IRoadmapService;
 import kopo.kkeudeok.service.IUserService;
 import kopo.kkeudeok.service.impl.LearningPreparer;
+import kopo.kkeudeok.util.SessionKeys;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,10 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -103,7 +109,61 @@ class LoginGuardTest {
     void screensOpenWhenLoggedIn(String path) throws Exception {
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("SS_USER_ID", "pa1234");
+        session.setAttribute(SessionKeys.MEMBER_ID, 1L);
+
+        given(userService.memberExists(1L)).willReturn(true);
 
         mvc.perform(get(path).session(session)).andExpect(status().isOk());
+    }
+
+    /**
+     * 세션은 DB 밖에 산다. 회원을 지워도 세션은 살아 있어서 가드를 통과했고,
+     * 화면이 예시값('지우')로 채워졌다(2026-08-25 지적).
+     */
+    @Test
+    @DisplayName("세션이 가리키는 회원이 없으면 세션을 버리고 로그인으로 보낸다")
+    void deadSessionIsThrownAway() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_USER_ID", "pa1234");
+        session.setAttribute(SessionKeys.MEMBER_ID, 1L);
+
+        given(userService.memberExists(1L)).willReturn(false);
+
+        mvc.perform(get("/dashboard").session(session))
+                .andExpect(redirectedUrl("/login"));
+
+        assertThat(session.isInvalid()).as("세션을 버려야 다음 요청도 막힌다").isTrue();
+    }
+
+    @Test
+    @DisplayName("회원 확인은 세션마다 한 번만 한다")
+    void memberIsCheckedOncePerSession() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_USER_ID", "pa1234");
+        session.setAttribute(SessionKeys.MEMBER_ID, 1L);
+
+        given(userService.memberExists(1L)).willReturn(true);
+
+        mvc.perform(get("/dashboard").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/dashboard").session(session)).andExpect(status().isOk());
+        mvc.perform(get("/learn").session(session)).andExpect(status().isOk());
+
+        verify(userService, times(1)).memberExists(1L);
+    }
+
+    /** DB 가 잠깐 흔들렸다고 쓰던 사람을 쫓아내면 안 된다 */
+    @Test
+    @DisplayName("회원 확인이 실패하면 통과시킨다")
+    void dbFailureDoesNotLogOut() throws Exception {
+
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_USER_ID", "pa1234");
+        session.setAttribute(SessionKeys.MEMBER_ID, 1L);
+
+        given(userService.memberExists(1L)).willThrow(new RuntimeException("DB down"));
+
+        mvc.perform(get("/dashboard").session(session)).andExpect(status().isOk());
     }
 }

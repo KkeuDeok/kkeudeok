@@ -106,6 +106,41 @@ class UserMapperTest {
         }
     }
 
+    /**
+     * 세션이 살아 있는 회원을 가리키는지 문지기(LoginCheckInterceptor)가 이 SQL 로 확인한다.
+     * 회원을 지웠는데 세션만 남아 화면이 예시값으로 채워진 적이 있다(2026-08-25 지적).
+     */
+    private Long savedMemberId(JdbcTemplate jdbc) {
+        return jdbc.queryForObject(
+                "SELECT member_id FROM member WHERE login_id = ?", Long.class, LOGIN_ID);
+    }
+
+    @Test
+    @DisplayName("살아 있는 회원만 세어진다")
+    void countMemberFindsLiveMember() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        Long memberId = savedMemberId(new JdbcTemplate(dataSource));
+
+        assertThat(userMapper.countMember(memberId)).isOne();
+        assertThat(userMapper.countMember(999999L)).isZero();
+    }
+
+    /* 지운 뒤 다시 세는 것을 한 테스트에 담으면 MyBatis 1차 캐시가 지우기 전 값을 돌려준다
+       — JdbcTemplate 의 UPDATE 는 MyBatis 세션이 모르기 때문이다. 그래서 테스트를 나눈다. */
+    @Test
+    @DisplayName("지워진 회원은 세어지지 않는다")
+    void countMemberIgnoresDeleted() throws Exception {
+        userMapper.insertUser(signupDTO());
+
+        JdbcTemplate jdbc = new JdbcTemplate(dataSource);
+        Long memberId = savedMemberId(jdbc);
+
+        jdbc.update("UPDATE member SET deleted_at = CURRENT_TIMESTAMP WHERE member_id = ?", memberId);
+
+        assertThat(userMapper.countMember(memberId)).isZero();
+    }
+
     @Test
     @DisplayName("가입할 때 쓴 해시로 로그인이 된다 (해시 방식이 어긋나면 여기서 깨진다)")
     void loginWithSameHash() throws Exception {

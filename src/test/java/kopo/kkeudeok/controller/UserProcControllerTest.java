@@ -204,6 +204,7 @@ class UserProcControllerTest {
         given(userService.getParentPin(any())).willReturn("");
         given(userService.updateParentPin(any())).willReturn(1);
         given(userService.hasChild(1L)).willReturn(false);
+        given(userService.memberExists(1L)).willReturn(true);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("SS_USER_ID", "pa1234");
@@ -224,6 +225,7 @@ class UserProcControllerTest {
     @DisplayName("이미 PIN 이 있으면 여기서는 못 바꾸고 재설정으로 보낸다")
     void existingPinCannotBeOverwritten() throws Exception {
         given(userService.getParentPin(any())).willReturn("ALREADY-HASHED");
+        given(userService.memberExists(1L)).willReturn(true);
 
         MockHttpSession session = new MockHttpSession();
         session.setAttribute("SS_USER_ID", "pa1234");

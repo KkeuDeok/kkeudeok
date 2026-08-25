@@ -48,6 +48,9 @@ public interface IUserService {
 
     Long childIdOf(Long memberId) throws Exception;
 
+    /** 세션이 가리키는 회원이 아직 살아 있는가 */
+    boolean memberExists(Long memberId) throws Exception;
+
     /* ---------- 마이페이지 ---------- */
 
     /**

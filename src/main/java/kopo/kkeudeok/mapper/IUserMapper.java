@@ -2,9 +2,13 @@ package kopo.kkeudeok.mapper;
 
 import kopo.kkeudeok.dto.UserDTO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface IUserMapper {
+
+    /** 세션이 가리키는 회원이 아직 살아 있는지 — 탈퇴·삭제되면 0 */
+    int countMember(@Param("memberId") Long memberId) throws Exception;
 
     /* ---------- 회원가입 (팀원1) ---------- */
 

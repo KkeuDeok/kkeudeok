@@ -136,6 +136,11 @@ public class UserService implements IUserService {
     }
 
     @Override
+    public boolean memberExists(Long memberId) throws Exception {
+        return memberId != null && userMapper.countMember(memberId) > 0;
+    }
+
+    @Override
     public Long childIdOf(Long memberId) throws Exception {
 
         if (memberId == null) {
