@@ -1,6 +1,7 @@
 package kopo.kkeudeok.controller;
 
 import jakarta.servlet.http.HttpSession;
+import kopo.kkeudeok.dto.CharacterType;
 import kopo.kkeudeok.dto.ChildDTO;
 import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.util.SessionKeys;
@@ -17,12 +18,8 @@ public class ChildInfoAdvice {
 
     private final IChildMapper childMapper;
 
-    private static final java.util.Map<String, String> CHAR_LABEL = java.util.Map.of(
-            "tori", "토리", "koko", "코코", "lala", "라라",
-            "bomi", "보미", "bada", "바다", "rubi", "루비");
-
     private static String charLabel(String key) {
-        return CHAR_LABEL.getOrDefault(key, "토리");
+        return CharacterType.labelOf(key);
     }
 
     @ModelAttribute

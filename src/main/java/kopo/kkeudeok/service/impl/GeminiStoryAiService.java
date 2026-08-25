@@ -69,7 +69,9 @@ public class GeminiStoryAiService implements IStoryAiService {
                 - 이름: %s
                   ⚠ 아이를 가리킬 때는 <b>반드시 이 형태 그대로</b> 쓴다. 뒤에 아/야 를 붙여
                     부르는 형태로 바꾸지 않는다("%s" 처럼 쓰면 "%s와" 같은 말이 된다).
-                  ⚠ 조사는 받침 없는 쪽으로 붙인다 — 가·는·를·와·랑·로.
+                  ⚠ 이 이름은 받침이 없다. 뒤에 오는 조사는 가·는·를·와·랑·로 를 쓴다.
+                ⚠ 조사는 <b>앞말에 반드시 붙여 쓴다.</b> "스팸 가", "문구점 에서" 처럼 띄우지 않는다.
+                  받침이 있는 말 뒤에는 이·은·을·과·이랑·으로 를 쓴다("스팸이", "문구점에서").
                 - 나이: %s
                 - 장애 유형: %s (%s)
                 - 이야기에 나오는 친구 캐릭터 이름: %s
@@ -182,16 +184,27 @@ public class GeminiStoryAiService implements IStoryAiService {
 
     private void fixNames(StoryScenarioDTO sc, ChildDTO child) {
 
-        sc.setTitle(name(sc.getTitle(), child));
-        sc.setSituation(name(sc.getSituation(), child));
-        sc.setRecap(name(sc.getRecap(), child));
-        sc.setCause(name(sc.getCause(), child));
-        sc.setCauseDistractor(name(sc.getCauseDistractor(), child));
+        String friend = StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname());
+
+        sc.setTitle(name(sc.getTitle(), child, friend));
+        sc.setSituation(name(sc.getSituation(), child, friend));
+        sc.setRecap(name(sc.getRecap(), child, friend));
+        sc.setCause(name(sc.getCause(), child, friend));
+        sc.setCauseDistractor(name(sc.getCauseDistractor(), child, friend));
+        sc.setPraise(name(sc.getPraise(), child, friend));
     }
 
     private String name(String text, ChildDTO child) {
-        return StoryTemplate.fixChildName(text, child.getGivenName(),
+        return name(text, child,
+                StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname()));
+    }
+
+    private String name(String text, ChildDTO child, String friend) {
+
+        String out = StoryTemplate.fixChildName(text, child.getGivenName(),
                 child.getCallName(), child.getVocative());
+
+        return StoryTemplate.fixJosa(out, friend);
     }
 
     private String weekBrief(RoadmapPlanDTO.Week week) {
@@ -227,7 +240,8 @@ public class GeminiStoryAiService implements IStoryAiService {
         String prompt = """
                 진행 중인 학습 이야기의 다음 화면 문구를 쓴다.
 
-                [아이] %s (가리킬 때 이 형태 그대로 쓴다. "%s" 처럼 부르는 형태로 바꾸지 않는다. 조사는 가·는·를·와·랑), %s, %s
+                [아이] %s (가리킬 때 이 형태 그대로 쓴다. "%s" 처럼 부르는 형태로 바꾸지 않는다.
+                       이 이름은 받침이 없으니 가·는·를·와·랑 을 쓰고, 조사는 앞말에 붙여 쓴다), %s, %s
                 [친구] %s
                 [이야기] %s
                 [상황] %s

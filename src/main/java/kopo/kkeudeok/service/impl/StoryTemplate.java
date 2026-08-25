@@ -1,5 +1,6 @@
 package kopo.kkeudeok.service.impl;
 
+import kopo.kkeudeok.dto.CharacterType;
 import kopo.kkeudeok.dto.MissionType;
 import kopo.kkeudeok.dto.StoryNodeDTO;
 import kopo.kkeudeok.dto.StoryOptionDTO;
@@ -9,7 +10,6 @@ import kopo.kkeudeok.dto.StoryStage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 //  이야기 화면 템플릿
@@ -17,15 +17,6 @@ final class StoryTemplate {
 
     private StoryTemplate() {
     }
-
-    private static final Map<String, String> CHAR_NAMES = Map.of(
-            "tori", "토리",
-            "koko", "코코",
-            "lala", "라라",
-            "bomi", "보미",
-            "bada", "바다",
-            "rubi", "루비"
-    );
 
     private static boolean hasJong(String word) {
 
@@ -64,19 +55,53 @@ final class StoryTemplate {
         return fixParticles(out, callName);
     }
 
-    private static final String[][] NO_JONG = {
-            {"이랑", "랑"}, {"으로", "로"}, {"은", "는"}, {"을", "를"}, {"과", "와"}
+    private static final String[][] JOSA = {
+            {"이랑", "랑"}, {"으로", "로"}, {"이", "가"}, {"은", "는"}, {"을", "를"}, {"과", "와"}
     };
 
-    private static String fixParticles(String text, String callName) {
+    private static final String[] FLAT_JOSA = {
+            "에게서", "한테서", "에게", "한테", "에서", "처럼", "부터", "까지", "에", "의", "도", "만"
+    };
+
+    static String fixParticles(String text, String word) {
+
+        if (text == null || text.isBlank() || word == null || word.isBlank()) {
+            return text;
+        }
+
+        String w = word.trim();
+        String quoted = java.util.regex.Pattern.quote(w);
+        boolean jong = hasJong(w);
 
         String out = text;
 
-        for (String[] p : NO_JONG) {
-            out = out.replace(callName + p[0], callName + p[1]);
+        for (String[] p : JOSA) {
+            out = out.replaceAll(quoted + "\\s*(?:" + p[0] + "|" + p[1] + ")(?![가-힣])",
+                    java.util.regex.Matcher.quoteReplacement(w + (jong ? p[0] : p[1])));
+        }
+
+        for (String flat : FLAT_JOSA) {
+            out = out.replaceAll(quoted + "\\s+" + flat + "(?![가-힣])",
+                    java.util.regex.Matcher.quoteReplacement(w + flat));
         }
 
         return out;
+    }
+
+    private static final java.util.regex.Pattern LOOSE_JOSA = java.util.regex.Pattern.compile(
+            "([가-힣])[ \\t]+(이랑|으로|에게서|한테서|에게|한테|에서|처럼|부터|까지|은|는|을|를|과|의|에)(?=[ \\t]|$)");
+
+    static String tightenParticles(String text) {
+
+        if (text == null || text.isBlank()) {
+            return text;
+        }
+
+        return LOOSE_JOSA.matcher(text).replaceAll("$1$2");
+    }
+
+    static String fixJosa(String text, String word) {
+        return tightenParticles(fixParticles(text, word));
     }
 
     static String charName(String characterType, String nickname) {
@@ -85,15 +110,7 @@ final class StoryTemplate {
             return nickname.trim();
         }
 
-        String v = characterType == null ? "" : characterType.trim();
-
-        if (CHAR_NAMES.containsKey(v)) {
-            return CHAR_NAMES.get(v);
-        }
-        if (CHAR_NAMES.containsValue(v)) {
-            return v;
-        }
-        return "토리";
+        return CharacterType.labelOf(characterType);
     }
 
     static String emotionSet(String emotion) {
