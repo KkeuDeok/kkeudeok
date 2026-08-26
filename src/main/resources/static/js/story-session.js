@@ -105,9 +105,13 @@
             responseValue: done ? done.responseValue : null,
             success: done ? done.success : null
         }).then(function (res) {
-            var cur = load() || s;
-            cur.nodes[res.node.stageType] = res.node;
-            save(cur);
+            var cur = load();
+
+            if (cur) {
+                cur.nodes[res.node.stageType] = res.node;
+                save(cur);
+            }
+
             return res.node;
         });
     }

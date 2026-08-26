@@ -50,7 +50,7 @@
     </div>
 </div>
 <script src="/js/story.js?v=302"></script>
-<script src="/js/story-session.js?v=300"></script>
+<script src="/js/story-session.js?v=302"></script>
 <script src="/js/kd-mediapipe.js?v=299"></script>
 </body>
 </html>
