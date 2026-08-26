@@ -114,7 +114,13 @@
 
     var SAY_SELECTORS = ['.story-title', '.story-sub', '.story-ask',
                          '.feel-recap', '.feel-q', '.feel-hint',
-                         '.why-title', '.why-sub', '.why-hint', '.cam-title'];
+                         '.why-title', '.why-sub', '.why-hint', '.cam-title',
+                         '.done-title'];
+
+    var STEP_PATHS = ['/story/scene', '/story/feel', '/story/feel-hint',
+                      '/story/why', '/story/face', '/story/act', '/story/result'];
+
+    var isStep = STEP_PATHS.indexOf(location.pathname.replace(/\/$/, '')) >= 0;
 
     var AUDIO_BASE = '/audio/story/';
     var AUDIO_V = '?v=222';
@@ -168,52 +174,103 @@
         if (clearMark) { clearMark(); clearMark = null; }
     }
 
-    var VOICE_RANK = [
-        /SunHi/i,
-        /(Heami|Hyunsu|InJoon).*(Online|Natural)/i,
-        /Google.*(한국|Korean)/i,
-        /Yuna|유나/i,
-        /Online.*Natural/i
+    /* 한국어 여자 목소리 우선순위. 순서를 바꾸면 아이가 듣는 목소리가 바뀐다. */
+    var FEMALE_RANK = [
+        /SunHi/i,                            /* Edge · Azure 신경망 */
+        /(JiMin|SeoHyeon|YuJin|SoonBok)/i,   /* 같은 계열의 다른 여자 목소리 */
+        /Google.*(한국|Korean)/i,            /* Chrome 원격 */
+        /Heami/i,                            /* Windows 기본 */
+        /Yuna|유나/i                         /* macOS · iOS */
     ];
+
+    /* ⚠ 남자 목소리다. 자연스럽다는 이유로 뽑으면 화면마다 성별이 바뀐다. */
+    var MALE = /(InJoon|BongJin|GookMin|Hyunsu|Minsik)/i;
+
+    var PIN_KEY = 'kdVoicePinned';
+
+    var RATE = 1;
+    var PITCH = 1.2;
+
+    function readLS(key) {
+        try { return localStorage.getItem(key) || ''; } catch (e) { return ''; }
+    }
+
+    function writeLS(key, value) {
+        try { localStorage.setItem(key, value); } catch (e) { }
+    }
 
     function voiceScore(v) {
         if (!/^ko/i.test(v.lang || '')) return -1;
 
-        for (var i = 0; i < VOICE_RANK.length; i++) {
-            if (VOICE_RANK[i].test(v.name || '')) return 100 - i;
+        var name = v.name || '';
+
+        if (MALE.test(name)) return -1;
+
+        for (var i = 0; i < FEMALE_RANK.length; i++) {
+            if (FEMALE_RANK[i].test(name)) return 100 - i;
         }
 
-        return v.localService === false ? 50 : 10;
+        return v.localService === false ? 30 : 10;
     }
 
-    function wantedVoice() {
-        try { return (localStorage.getItem('kdVoice') || '').toLowerCase(); } catch (e) { return ''; }
+    function byName(list, lower) {
+        for (var i = 0; i < list.length; i++) {
+            if ((list[i].name || '').toLowerCase().indexOf(lower) >= 0) return list[i];
+        }
+        return null;
     }
 
     var koVoice = null;
-    var koVoiceIsNatural = false;
 
+    /* 한 번 고른 목소리를 기억한다 — 화면마다 다시 고르면 목록이 준비된 정도에 따라
+       그때그때 다른 목소리가 뽑혀 이야기 중간에 성별이 바뀐다. */
     function pickVoice() {
         var vs = speechSynthesis.getVoices();
         if (!vs.length) return;
 
-        var wanted = wantedVoice();
+        var wanted = readLS('kdVoice').toLowerCase();
+
+        if (wanted) {
+            var manual = byName(vs, wanted);
+            if (manual) { koVoice = manual; return; }
+        }
+
+        var kept = readLS(PIN_KEY);
+
+        if (kept) {
+            var same = byName(vs, kept.toLowerCase());
+            if (same && voiceScore(same) > 0) { koVoice = same; return; }
+        }
+
         var best = null;
         var bestScore = 0;
 
         for (var i = 0; i < vs.length; i++) {
-            if (wanted && (vs[i].name || '').toLowerCase().indexOf(wanted) >= 0) {
-                koVoice = vs[i];
-                koVoiceIsNatural = voiceScore(vs[i]) >= 50;
-                return;
-            }
-
             var s = voiceScore(vs[i]);
             if (s > bestScore) { bestScore = s; best = vs[i]; }
         }
 
         koVoice = best;
-        koVoiceIsNatural = bestScore >= 50;
+
+        if (best) writeLS(PIN_KEY, best.name);
+    }
+
+    /* 목록이 아직 안 왔는데 말하면 브라우저 기본 목소리(남자일 수 있다)로 나간다.
+       첫 문장이 그렇게 새는 것을 막는다. */
+    function whenVoices(fn) {
+        if (!hasTTS || speechSynthesis.getVoices().length) { fn(); return; }
+
+        var fired = false;
+
+        function go() {
+            if (fired) return;
+            fired = true;
+            speechSynthesis.removeEventListener('voiceschanged', go);
+            fn();
+        }
+
+        speechSynthesis.addEventListener('voiceschanged', go);
+        setTimeout(go, 1500);
     }
 
     window.kdVoices = function () {
@@ -223,6 +280,18 @@
                 return v.name + '  [' + v.lang + (v.localService ? ' · 로컬' : ' · 온라인') + ']'
                     + (koVoice && v.name === koVoice.name ? '  ← 지금 쓰는 목소리' : '');
             });
+    };
+
+    window.kdVoiceReset = function () {
+        try {
+            localStorage.removeItem(PIN_KEY);
+            localStorage.removeItem('kdVoice');
+        } catch (e) { }
+
+        koVoice = null;
+        pickVoice();
+
+        return koVoice ? koVoice.name : '(고르지 못함)';
     };
 
     if (hasTTS) {
@@ -285,21 +354,24 @@
     function sayWithBrowser(text, el, label) {
         if (!hasTTS) return;
 
-        if (!koVoice) pickVoice();
-
-        var u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ko-KR';
-
-        if (koVoice) u.voice = koVoice;
-
-        u.rate = tuned('kdRate', koVoiceIsNatural ? 1 : 0.92);
-        u.pitch = tuned('kdPitch', koVoiceIsNatural ? 1 : 1.3);
-
         var done = mark(el, label);
-        u.onend = u.onerror = done;
 
-        speechSynthesis.cancel();
-        setTimeout(function () { speechSynthesis.speak(u); }, 120);
+        whenVoices(function () {
+            pickVoice();
+
+            var u = new SpeechSynthesisUtterance(text);
+            u.lang = 'ko-KR';
+
+            if (koVoice) u.voice = koVoice;
+
+            u.rate = tuned('kdRate', RATE);
+            u.pitch = tuned('kdPitch', PITCH);
+
+            u.onend = u.onerror = done;
+
+            speechSynthesis.cancel();
+            setTimeout(function () { speechSynthesis.speak(u); }, 120);
+        });
     }
 
     function tuned(key, fallback) {
@@ -325,11 +397,16 @@
                 speak(screenText(), btn, label);
             });
         });
+    }
+
+    if (canSay && isStep) {
+
+        if (hasTTS) speechSynthesis.cancel();
 
         window.addEventListener('pagehide', function () { stopSpeaking(); });
 
-        var first = listenBtns[0];
-        var firstLabel = first.textContent;
+        var first = listenBtns[0] || null;
+        var firstLabel = first ? first.textContent : null;
 
         function sayScreen() { speak(screenText(), first, firstLabel); }
 

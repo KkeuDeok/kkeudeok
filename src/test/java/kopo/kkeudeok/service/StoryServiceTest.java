@@ -794,6 +794,43 @@ class StoryServiceTest {
     }
 
     /**
+     * 미리 만들어 둔 편은 <b>오늘의 일상을 모른 채</b> 만들어졌다.
+     *
+     * <p>보호자가 오늘 있었던 일을 적어 줬는데 그 편을 그대로 쓰면, 적어 준 내용과
+     * 아무 상관 없는 이야기가 나온다(2026-08-25 지적: "갑자기 다른 얘기 나옴").
+     * 적어 줬으면 아껴 둔 편을 버리고 새로 만든다.
+     */
+    @Test
+    @DisplayName("오늘의 일상을 적어 줬으면 미리 만들어 둔 이야기를 쓰지 않는다")
+    void dailyInputBeatsPreparedStory() {
+
+        storyService.start(new StoryRequestDTO.Start());
+
+        StorySessionDTO made = savedSession;
+
+        prepared = StorySessionDTO.builder()
+                .sessionId(made.getSessionId())
+                .childId(made.getChildId())
+                .storyId(savedStory.getStoryId())
+                .status(StorySessionDTO.INCOMPLETE)
+                .prepared(true)
+                .build();
+
+        StoryRequestDTO.Start req = new StoryRequestDTO.Start();
+        req.setDailyInput("문구점에서 스티커를 샀어요");
+
+        storyService.start(req);
+
+        assertThat(savedSession)
+                .as("아껴 둔 편을 그대로 쓰면 세션이 새로 만들어지지 않는다")
+                .isNotSameAs(made);
+
+        assertThat(savedSession.getDailyInput())
+                .as("적어 준 내용이 이번 편의 재료로 남아야 한다")
+                .isEqualTo("문구점에서 스티커를 샀어요");
+    }
+
+    /**
      * 순번만으로는 부족하다 — 주차가 넘어가 상황 분류가 바뀌면 감정 목록도 바뀌어
      * 순번이 같은 감정에 다시 떨어질 수 있다. 직전 편의 감정을 실제로 보고 피해야 한다.
      */
