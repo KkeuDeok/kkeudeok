@@ -170,8 +170,25 @@
 
     function stopSpeaking() {
         if (playing) { playing.pause(); playing = null; }
-        if (hasTTS) speechSynthesis.cancel();
+        if (hasTTS) { stopKeepAlive(); speechSynthesis.cancel(); }
         if (clearMark) { clearMark(); clearMark = null; }
+    }
+
+    var keepAlive = null;
+
+    function stopKeepAlive() {
+        if (keepAlive) { clearInterval(keepAlive); keepAlive = null; }
+    }
+
+    function startKeepAlive(v) {
+        stopKeepAlive();
+
+        if (!v || v.localService !== false) return;
+
+        keepAlive = setInterval(function () {
+            if (!speechSynthesis.speaking) { stopKeepAlive(); return; }
+            speechSynthesis.resume();
+        }, 8000);
     }
 
     /* 한국어 여자 목소리 우선순위. 순서를 바꾸면 아이가 듣는 목소리가 바뀐다. */
@@ -186,10 +203,13 @@
     /* ⚠ 남자 목소리다. 자연스럽다는 이유로 뽑으면 화면마다 성별이 바뀐다. */
     var MALE = /(InJoon|BongJin|GookMin|Hyunsu|Minsik)/i;
 
-    var PIN_KEY = 'kdVoicePinned';
+    var NATURAL = /(Natural|Neural|Online)/i;
+
+    var PIN_KEY = 'kdVoicePinned2';
 
     var RATE = 1;
     var PITCH = 1.2;
+    var PLAIN_PITCH = 1;
 
     function readLS(key) {
         try { return localStorage.getItem(key) || ''; } catch (e) { return ''; }
@@ -206,11 +226,19 @@
 
         if (MALE.test(name)) return -1;
 
+        var rank = 0;
+
         for (var i = 0; i < FEMALE_RANK.length; i++) {
-            if (FEMALE_RANK[i].test(name)) return 100 - i;
+            if (FEMALE_RANK[i].test(name)) { rank = FEMALE_RANK.length - i; break; }
         }
 
-        return v.localService === false ? 30 : 10;
+        var tier = NATURAL.test(name) ? 3 : (v.localService === false ? 2 : 1);
+
+        return tier * 10 + rank;
+    }
+
+    function pitchFor(v) {
+        return v && NATURAL.test(v.name || '') ? PITCH : PLAIN_PITCH;
     }
 
     function byName(list, lower) {
@@ -365,12 +393,15 @@
             if (koVoice) u.voice = koVoice;
 
             u.rate = tuned('kdRate', RATE);
-            u.pitch = tuned('kdPitch', PITCH);
+            u.pitch = tuned('kdPitch', pitchFor(koVoice));
 
-            u.onend = u.onerror = done;
+            u.onend = u.onerror = function () { stopKeepAlive(); done(); };
 
             speechSynthesis.cancel();
-            setTimeout(function () { speechSynthesis.speak(u); }, 120);
+            setTimeout(function () {
+                speechSynthesis.speak(u);
+                startKeepAlive(koVoice);
+            }, 120);
         });
     }
 
