@@ -87,6 +87,7 @@
                 emotion: res.emotion,
                 childCallName: res.childCallName,
                 characterKey: res.characterKey,
+                gesture: res.gesture,
                 nodes: { STORY: res.node },
                 results: [],
                 finished: false
@@ -383,8 +384,31 @@
 
     /* ---------- 시작 ---------- */
 
+    var PICK_ACT = {
+        comfort:   { line: '따뜻하게 토닥여 주러 가볼까요?', go: '토닥토닥 해주기' },
+        sorry:     { line: '미안한 마음을 전하러 가볼까요?', go: '미안하다고 말하기' },
+        celebrate: { line: '함께 축하해주러 가볼까요?',      go: '함께 축하해주기' },
+        wave:      { line: '먼저 다가가 인사해 볼까요?',      go: '손 흔들어 인사하기' }
+    };
+
+    function paintPick() {
+        var s = load();
+        if (!s) return;
+
+        var act = PICK_ACT[s.gesture];
+        if (!act) return;
+
+        text('.pick-card .txt .ac', act.line);
+        text('.pick-card .go', act.go);
+    }
+
     function boot() {
         paintCount();
+
+        if (path === '/story/situation') {
+            paintPick();
+            return;
+        }
 
         if (!stage) return;
 
@@ -438,11 +462,6 @@
         }
 
         ready();
-
-        var btn = document.querySelector('.kd-sub-listen');
-        if (btn) {
-            setTimeout(function () { btn.click(); }, 150);
-        }
     }
 
     function resumeOrStart() {
@@ -468,6 +487,7 @@
                     dailyGoal: r.dailyGoal,
                     childCallName: r.childCallName,
                     characterKey: r.characterKey,
+                    gesture: r.gesture,
                     nodes: nodeMapOf(r.node),
                     results: [],
                     finished: false

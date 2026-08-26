@@ -8,18 +8,29 @@
 
     String[][] pickCards = {
         {"sad",   "#1890ff", "#e6f7ff", "#91d5ff", "우울한 상황", "{c}가 시무룩해요",
-         "{c}가 우울해하며 시무룩하게 앉아 있어요. 슬픈 {c}에게 따뜻한 토닥토닥 위로를 건네볼까요?", "토닥토닥 해주기"},
+         "{c}가 우울해하며 시무룩하게 앉아 있어요.", "comfort"},
         {"angry", "#f5222d", "#fff1f0", "#ffa39e", "화난 상황", "{c}가 화가 났어요!",
-         "{c}가 화가 나서 씩씩거리고 있어요. {c}에게 무슨 일이 생긴 걸까요? 마음을 달래주러 가볼까요?", "{c} 위로해주기"},
+         "{c}가 화가 나서 씩씩거리고 있어요.", "sorry"},
         {"happy", "#faad14", "#fffbe6", "#ffe58f", "기쁜 상황", "{c}가 신이 났어요!",
-         "{c}가 함박웃음을 지으며 꼬리를 살랑이고 있어요! 행복한 소식을 나누고 함께 축하해주러 가볼까요?", "함께 축하해주기"},
+         "{c}가 함박웃음을 지으며 꼬리를 살랑이고 있어요!", "celebrate"},
 
         {"surprise", "#722ed1", "#f9f0ff", "#d3adf7", "놀란 상황", "{c}가 깜짝 놀랐어요!",
-         "{c}가 갑자기 난 큰 소리에 눈이 동그래졌어요. 옆에서 괜찮다고 말해주러 가볼까요?", "괜찮다고 말해주기"}
+         "{c}가 갑자기 난 큰 소리에 눈이 동그래졌어요.", "comfort"}
     };
     String[] pick = pickCards[0];
     for (String[] row : pickCards) {
         if (row[0].equals(emo)) pick = row;
+    }
+
+    String[][] pickActs = {
+        {"comfort",   "따뜻하게 토닥여 주러 가볼까요?",     "토닥토닥 해주기"},
+        {"sorry",     "미안한 마음을 전하러 가볼까요?",     "미안하다고 말하기"},
+        {"celebrate", "함께 축하해주러 가볼까요?",          "함께 축하해주기"},
+        {"wave",      "먼저 다가가 인사해 볼까요?",         "손 흔들어 인사하기"}
+    };
+    String[] act = pickActs[0];
+    for (String[] row : pickActs) {
+        if (row[0].equals(pick[7])) act = row;
     }
 
     String pageTitle  = "상황 선택";
@@ -38,8 +49,8 @@
     <div class="art"><img data-kd-char="<%= pick[0] %>" src="/img/char-tori-<%= pick[0] %>.png" alt=""></div>
     <p class="tag"><%= pick[4] %></p>
     <p class="ttl"><%= pick[5].replace("{c}", CHAR) %></p>
-    <p class="txt"><%= pick[6].replace("{c}", CHAR) %></p>
-    <a class="go" href="/story/act?emo=<%= emo %>"><%= pick[7].replace("{c}", CHAR) %></a>
+    <p class="txt"><span class="st"><%= pick[6].replace("{c}", CHAR) %></span> <span class="ac"><%= act[1] %></span></p>
+    <a class="go" href="/story/act?emo=<%= emo %>"><%= act[2] %></a>
 </div>
 
 <%@ include file="../common/child-bottom.jsp" %>

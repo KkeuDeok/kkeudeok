@@ -715,6 +715,27 @@ class StoryServiceTest {
     }
 
     /**
+     * 상황 카드(situation.jsp)와 동작 화면은 <b>같은 동작</b>을 가리켜야 한다.
+     *
+     * <p>예전에는 상황 카드가 동작 값을 모른 채 감정만 보고 문구를 골랐다. 그래서 AI 가
+     * '먼저 말 걸기' 상황에 wave 를 주면 카드는 "토닥토닥", 동작 화면은 "손 흔들어 인사"
+     * 라고 서로 다른 말을 했다(2026-08-25 지적). 카드는 이제 이 gesture 를 받아 칠한다.
+     */
+    @Test
+    @DisplayName("세션 시작 응답의 동작이 동작 화면의 정답값과 같다")
+    void startCarriesTheGestureTheActionScreenUses() {
+
+        StoryResponseDTO.Start res = storyService.start(new StoryRequestDTO.Start());
+
+        StoryNodeDTO action = savedNodes.get(savedStory.getStoryId() + ":" + StoryStage.ACTION.seq());
+
+        assertThat(res.gesture())
+                .as("상황 카드가 동작을 모르면 동작 화면과 딴소리를 한다")
+                .isNotBlank()
+                .isEqualTo(action.getTargetValue());
+    }
+
+    /**
      * 마음 읽기의 되짚기는 <b>이번 이야기</b>에서 나와야 한다.
      * 감정별 고정 문장을 쓰면 앞 화면과 딴 이야기가 된다.
      */
@@ -770,6 +791,43 @@ class StoryServiceTest {
                 .isSameAs(madeStory);
 
         assertThat(res.node()).isNotNull();
+    }
+
+    /**
+     * 미리 만들어 둔 편은 <b>오늘의 일상을 모른 채</b> 만들어졌다.
+     *
+     * <p>보호자가 오늘 있었던 일을 적어 줬는데 그 편을 그대로 쓰면, 적어 준 내용과
+     * 아무 상관 없는 이야기가 나온다(2026-08-25 지적: "갑자기 다른 얘기 나옴").
+     * 적어 줬으면 아껴 둔 편을 버리고 새로 만든다.
+     */
+    @Test
+    @DisplayName("오늘의 일상을 적어 줬으면 미리 만들어 둔 이야기를 쓰지 않는다")
+    void dailyInputBeatsPreparedStory() {
+
+        storyService.start(new StoryRequestDTO.Start());
+
+        StorySessionDTO made = savedSession;
+
+        prepared = StorySessionDTO.builder()
+                .sessionId(made.getSessionId())
+                .childId(made.getChildId())
+                .storyId(savedStory.getStoryId())
+                .status(StorySessionDTO.INCOMPLETE)
+                .prepared(true)
+                .build();
+
+        StoryRequestDTO.Start req = new StoryRequestDTO.Start();
+        req.setDailyInput("문구점에서 스티커를 샀어요");
+
+        storyService.start(req);
+
+        assertThat(savedSession)
+                .as("아껴 둔 편을 그대로 쓰면 세션이 새로 만들어지지 않는다")
+                .isNotSameAs(made);
+
+        assertThat(savedSession.getDailyInput())
+                .as("적어 준 내용이 이번 편의 재료로 남아야 한다")
+                .isEqualTo("문구점에서 스티커를 샀어요");
     }
 
     /**

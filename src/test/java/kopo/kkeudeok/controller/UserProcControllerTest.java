@@ -204,8 +204,10 @@ class UserProcControllerTest {
         given(userService.getParentPin(any())).willReturn("");
         given(userService.updateParentPin(any())).willReturn(1);
         given(userService.hasChild(1L)).willReturn(false);
+        given(userService.memberExists(1L)).willReturn(true);
 
         MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_USER_ID", "pa1234");
         session.setAttribute("SS_MEMBER_ID", 1L);
 
         mvc.perform(post("/parentPinProc").param("pin", "1234").session(session))
@@ -223,8 +225,10 @@ class UserProcControllerTest {
     @DisplayName("이미 PIN 이 있으면 여기서는 못 바꾸고 재설정으로 보낸다")
     void existingPinCannotBeOverwritten() throws Exception {
         given(userService.getParentPin(any())).willReturn("ALREADY-HASHED");
+        given(userService.memberExists(1L)).willReturn(true);
 
         MockHttpSession session = new MockHttpSession();
+        session.setAttribute("SS_USER_ID", "pa1234");
         session.setAttribute("SS_MEMBER_ID", 1L);
 
         mvc.perform(post("/parentPinProc").param("pin", "9999").session(session))
@@ -235,11 +239,14 @@ class UserProcControllerTest {
     }
 
     @Test
-    @DisplayName("로그인하지 않으면 PIN 을 만들 수 없다")
+    @DisplayName("로그인하지 않으면 PIN 을 만들 수 없다 — 컨트롤러에 닿기 전에 401 로 끊는다")
     void pinNeedsLogin() throws Exception {
         mvc.perform(post("/parentPinProc").param("pin", "1234"))
+                .andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.result").value(0))
-                .andExpect(jsonPath("$.field").value("pin"));
+                .andExpect(jsonPath("$.next").value("/login"));
+
+        verify(userService, never()).updateParentPin(any());
     }
 
     @Test

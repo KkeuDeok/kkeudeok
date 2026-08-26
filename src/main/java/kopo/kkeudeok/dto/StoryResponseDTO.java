@@ -9,7 +9,8 @@ public final class StoryResponseDTO {
 
     @Builder
     public record Start(Long sessionId, Long storyId, Integer storySeq, int dailyGoal, String emotion, String title,
-                        String source, String childCallName, String characterKey, StoryNodeDTO node) { }
+                        String source, String childCallName, String characterKey, String gesture,
+                        StoryNodeDTO node) { }
 
     // 다음 노드 응답
     @Builder
@@ -37,6 +38,7 @@ public final class StoryResponseDTO {
             String title,
             String childCallName,
             String characterKey,
+            String gesture,
             // 이어하기 마지막 화면
             String resumeScreen,
             // 이어하기 노드

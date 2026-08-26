@@ -69,7 +69,9 @@ public class GeminiStoryAiService implements IStoryAiService {
                 - 이름: %s
                   ⚠ 아이를 가리킬 때는 <b>반드시 이 형태 그대로</b> 쓴다. 뒤에 아/야 를 붙여
                     부르는 형태로 바꾸지 않는다("%s" 처럼 쓰면 "%s와" 같은 말이 된다).
-                  ⚠ 조사는 받침 없는 쪽으로 붙인다 — 가·는·를·와·랑·로.
+                  ⚠ 이 이름은 받침이 없다. 뒤에 오는 조사는 가·는·를·와·랑·로 를 쓴다.
+                ⚠ 조사는 <b>앞말에 반드시 붙여 쓴다.</b> "스팸 가", "문구점 에서" 처럼 띄우지 않는다.
+                  받침이 있는 말 뒤에는 이·은·을·과·이랑·으로 를 쓴다("스팸이", "문구점에서").
                 - 나이: %s
                 - 장애 유형: %s (%s)
                 - 이야기에 나오는 친구 캐릭터 이름: %s
@@ -89,24 +91,32 @@ public class GeminiStoryAiService implements IStoryAiService {
                 [이야기 조건]
                 - 중심 감정은 '%s' 다.
                 - 친구 %s 가 그 감정을 느끼고, 아이가 도와주는 이야기다.
-                - ⚠ [이번 주 첫 이야기인가] 가 '예' 면 <b>이번 주 주제를 그대로 장면으로</b> 만든다.
-                  주제에 적힌 사물·사람·행동을 그대로 쓴다. 비슷한 다른 장면으로 바꾸지 않는다.
-                  ("장난감이 움직이지 않아 당황한 아이가 엄마를 바라보는 장면"
-                    → 장난감이 멈추고, 아이가 엄마를 바라보는 그 장면을 만든다)
-                  로드맵은 보호자가 미리 읽는 계획이라, 첫 이야기가 계획과 다르면 약속이 깨진다.
-                - ⚠ [앞으로 다룰 주제] 에 있는 장면은 <b>지금 만들지 않는다</b>. 그 주가 왔을 때
-                  새 이야기로 만나야 한다 — 미리 써 버리면 정작 그 주에 겹친 이야기가 나온다.
                 - ⚠ [오늘의 일상] 이 있으면 <b>그것이 이 이야기의 무대이자 소재</b>다.
                   보호자가 오늘 아이에게 실제로 있었던 일을 적어 준 것이라, 아이가 겪은 일로
                   배우게 하는 것이 이 서비스의 핵심이다. 거기 나온 장소·사물·사람을 그대로 쓴다.
                   ("놀이터에서 장난감을 갖고 놀았어요" → 놀이터에서 장난감을 두고 벌어지는 일)
-                - [오늘의 일상] 이 '(입력 없음)' 일 때만 [이번 이야기가 벌어지는 곳] 을 무대로 쓴다.
+                - [이번 주 첫 이야기인가] 가 '예' <b>이면서 [오늘의 일상] 이 '(입력 없음)'</b> 일 때는
+                  이번 주 주제를 그대로 장면으로 만든다. 주제에 적힌 사물·사람·행동을 그대로 쓴다.
+                  ("장난감이 움직이지 않아 당황한 아이가 엄마를 바라보는 장면"
+                    → 장난감이 멈추고, 아이가 엄마를 바라보는 그 장면을 만든다)
+                  로드맵은 보호자가 미리 읽는 계획이라, 첫 이야기가 계획과 다르면 약속이 깨진다.
+                  ⚠ 단, [오늘의 일상] 이 적혀 있으면 <b>무대는 언제나 그 일</b>이고 주제는 그
+                    무대 안에서 풀어낸다 — 아래 [무대와 목표] 를 따른다.
+                - ⚠ [앞으로 다룰 주제] 에 있는 장면은 <b>지금 만들지 않는다</b>. 그 주가 왔을 때
+                  새 이야기로 만나야 한다 — 미리 써 버리면 정작 그 주에 겹친 이야기가 나온다.
                 - ⚠ 위 '이미 만든 이야기' 와 <b>다른 장면</b>을 만든다. 같은 목표라도 장소·사건·
                   등장인물이 겹치지 않게 바꾼다. 제목만 바꿔 같은 내용을 다시 쓰지 않는다.
-                - ⚠ 이번 주 로드맵 목표가 이 이야기의 뼈대다. 곁들이는 양념이 아니다.
-                  아이가 그 목표를 **직접 해 보게 되는** 장면으로 만든다.
+                - ⚠ 이번 주 로드맵 목표는 <b>아이가 무엇을 해 보게 할지</b>를 정한다.
                   상황·까닭·동작·칭찬이 모두 그 목표 하나를 향하게 한다.
                   목표와 상관없는 이야기를 만들지 않는다.
+
+                [무대와 목표 — 둘이 부딪히면 이 순서를 따른다]
+                - [오늘의 일상] 이 있으면 <b>무대와 소재는 언제나 그것</b>이다. 로드맵 목표는
+                  그 무대 <b>안에서</b> 아이가 해 볼 일로 녹인다. 무대를 갈아치우지 않는다.
+                  (오늘의 일상 "문구점에서 스티커를 샀어요" + 목표 "차례 기다리기"
+                    → 문구점 계산대에서 줄을 서는 이야기. 놀이터나 교실로 옮기지 않는다.)
+                - [오늘의 일상] 이 '(입력 없음)' 일 때만 [이번 주 첫 이야기인가]·
+                  [이번 이야기가 벌어지는 곳] 이 무대를 정한다.
 
                 [JSON 형식] 아래 키만 쓴다.
                 {
@@ -182,16 +192,27 @@ public class GeminiStoryAiService implements IStoryAiService {
 
     private void fixNames(StoryScenarioDTO sc, ChildDTO child) {
 
-        sc.setTitle(name(sc.getTitle(), child));
-        sc.setSituation(name(sc.getSituation(), child));
-        sc.setRecap(name(sc.getRecap(), child));
-        sc.setCause(name(sc.getCause(), child));
-        sc.setCauseDistractor(name(sc.getCauseDistractor(), child));
+        String friend = StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname());
+
+        sc.setTitle(name(sc.getTitle(), child, friend));
+        sc.setSituation(name(sc.getSituation(), child, friend));
+        sc.setRecap(name(sc.getRecap(), child, friend));
+        sc.setCause(name(sc.getCause(), child, friend));
+        sc.setCauseDistractor(name(sc.getCauseDistractor(), child, friend));
+        sc.setPraise(name(sc.getPraise(), child, friend));
     }
 
     private String name(String text, ChildDTO child) {
-        return StoryTemplate.fixChildName(text, child.getGivenName(),
+        return name(text, child,
+                StoryTemplate.charName(child.getCharacterType(), child.getCharacterNickname()));
+    }
+
+    private String name(String text, ChildDTO child, String friend) {
+
+        String out = StoryTemplate.fixChildName(text, child.getGivenName(),
                 child.getCallName(), child.getVocative());
+
+        return StoryTemplate.fixJosa(out, friend);
     }
 
     private String weekBrief(RoadmapPlanDTO.Week week) {
@@ -227,7 +248,8 @@ public class GeminiStoryAiService implements IStoryAiService {
         String prompt = """
                 진행 중인 학습 이야기의 다음 화면 문구를 쓴다.
 
-                [아이] %s (가리킬 때 이 형태 그대로 쓴다. "%s" 처럼 부르는 형태로 바꾸지 않는다. 조사는 가·는·를·와·랑), %s, %s
+                [아이] %s (가리킬 때 이 형태 그대로 쓴다. "%s" 처럼 부르는 형태로 바꾸지 않는다.
+                       이 이름은 받침이 없으니 가·는·를·와·랑 을 쓰고, 조사는 앞말에 붙여 쓴다), %s, %s
                 [친구] %s
                 [이야기] %s
                 [상황] %s

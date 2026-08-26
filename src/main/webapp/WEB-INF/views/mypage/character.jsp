@@ -1,5 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ page import="kopo.kkeudeok.dto.ChildDTO" %>
+<%@ page import="kopo.kkeudeok.dto.CharacterType" %>
 <% String pageTitle = "마이페이지"; String appNav = "mypage"; String mpTab = "character"; %>
 <%@ include file="../common/app-top.jsp" %>
 
@@ -7,32 +8,22 @@
     // 1. DB에서 아이 정보 읽어오기
     ChildDTO child = (ChildDTO) request.getAttribute("child");
     Long childId = null;
-    String charKey = "tori"; // 기본값
-    String nickname = "토리"; // 기본값
+    String nickname = null;
+
+    CharacterType picked = CharacterType.DEFAULT;
 
     if (child != null) {
         childId = child.getChildId();
         // DTO 필드명(characterType, characterNickname)과 매칭
-        if (child.getCharacterType() != null && !child.getCharacterType().isEmpty()) {
-            charKey = child.getCharacterType();
-        }
+        picked = CharacterType.orDefault(child.getCharacterType());
+
         if (child.getCharacterNickname() != null && !child.getCharacterNickname().isEmpty()) {
             nickname = child.getCharacterNickname();
         }
     }
-    String defaultCharName = "토리"; // 기본값
-    if ("koko".equals(charKey)) defaultCharName = "코코";
-    else if ("lala".equals(charKey)) defaultCharName = "라라";
-    else if ("bada".equals(charKey)) defaultCharName = "바다";
-    else if ("bomi".equals(charKey)) defaultCharName = "보미";
-    else if ("rubi".equals(charKey)) defaultCharName = "루비";
 
-    String defaultexplanation = "마음을 함께 읽어주는 다정한 친구예요"; // 기본값
-    if ("koko".equals(charKey)) defaultexplanation = "궁금한 게 많은 씩씩한 친구예요";
-    else if ("lala".equals(charKey)) defaultexplanation = "노래하며 기분을 밝게 해 주는 친구예요";
-    else if ("bada".equals(charKey)) defaultexplanation = "천천히 기다려 주는 차분한 친구예요";
-    else if ("bomi".equals(charKey)) defaultexplanation = "언제나 웃으며 응원해 주는 친구예요";
-    else if ("rubi".equals(charKey)) defaultexplanation = "속상한 날 곁에 있어 주는 친구예요";
+    String charKey = picked.key();
+    if (nickname == null) nickname = picked.label();
 %>
 
 <div class="app-head mp-head">
@@ -52,8 +43,8 @@
             <div class="mp-char-box">
                 <img class="big" id="charBig" src="/img/char-<%= charKey %>-neutral.png" alt="<%= nickname %>">
             </div>
-            <p class="nm" id="charName"><%= defaultCharName %></p>
-            <p class="ds" id="charDesc"><%= defaultexplanation %></p>
+            <p class="nm" id="charName"><%= picked.label() %></p>
+            <p class="ds" id="charDesc"><%= picked.description() %></p>
             <div class="kd-field">
                 <label class="kd-label" for="charNick">캐릭터 애칭</label>
                 <input class="kd-input" type="text" id="charNick" value="<%= nickname %>" data-auto="<%= nickname %>">
@@ -63,36 +54,14 @@
         <div class="mp-char-pick">
             <h2>함께할 친구 고르기</h2>
             <div class="mp-chars">
+                <% for (CharacterType c : CharacterType.values()) {
+                       String charImg = "/img/char-" + c.key() + "-neutral.png"; %>
                 <label>
-                    <input type="radio" name="character" value="tori" <%= "tori".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-tori-neutral.png" data-ds="마음을 함께 읽어주는 다정한 친구예요">
-                    <img src="/img/char-tori-neutral.png" alt=""><span class="nm">토리</span>
+                    <input type="radio" name="character" value="<%= c.key() %>" <%= c == picked ? "checked" : "" %>
+                           data-big="<%= charImg %>" data-ds="<%= c.description() %>">
+                    <img src="<%= charImg %>" alt=""><span class="nm"><%= c.label() %></span>
                 </label>
-                <label>
-                    <input type="radio" name="character" value="koko" <%= "koko".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-koko-neutral.png" data-ds="궁금한 게 많은 씩씩한 친구예요">
-                    <img src="/img/char-koko-neutral.png" alt=""><span class="nm">코코</span>
-                </label>
-                <label>
-                    <input type="radio" name="character" value="lala" <%= "lala".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-lala-neutral.png" data-ds="노래하며 기분을 밝게 해 주는 친구예요">
-                    <img src="/img/char-lala-neutral.png" alt=""><span class="nm">라라</span>
-                </label>
-                <label>
-                    <input type="radio" name="character" value="bomi" <%= "bomi".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-bomi-neutral.png" data-ds="언제나 웃으며 응원해 주는 친구예요">
-                    <img src="/img/char-bomi-neutral.png" alt=""><span class="nm">보미</span>
-                </label>
-                <label>
-                    <input type="radio" name="character" value="bada" <%= "bada".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-bada-neutral.png" data-ds="천천히 기다려 주는 차분한 친구예요">
-                    <img src="/img/char-bada-neutral.png" alt=""><span class="nm">바다</span>
-                </label>
-                <label>
-                    <input type="radio" name="character" value="rubi" <%= "rubi".equals(charKey) ? "checked" : "" %>
-                           data-big="/img/char-rubi-neutral.png" data-ds="속상한 날 곁에 있어 주는 친구예요">
-                    <img src="/img/char-rubi-neutral.png" alt=""><span class="nm">루비</span>
-                </label>
+                <% } %>
             </div>
         </div>
     </div>

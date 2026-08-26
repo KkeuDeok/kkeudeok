@@ -570,6 +570,77 @@ li.plan-wait .chip { display: none; }
     color: var(--kd-text-sub);
 }
 
+.dash-plan:has(.plan-load) { height: auto; padding-bottom: 22px; }
+
+.plan-wait .t .plan-skel {
+    display: block;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+.plan-load { margin: 28px 0 0; }
+
+.dash-dlg .plan-load { margin: 20px 0 0; }
+
+.plan-load-hd {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 8px;
+}
+
+.plan-load-hd .m {
+    font-size: 12px;
+    line-height: 14px;
+    color: var(--kd-text-sub);
+}
+
+.plan-load-hd .p {
+    flex: none;
+    font-size: 12px;
+    line-height: 14px;
+    font-weight: 700;
+    color: var(--kd-primary-strong);
+    font-variant-numeric: tabular-nums;
+}
+
+.plan-load-track {
+    position: relative;
+    overflow: hidden;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--kd-border);
+}
+
+.plan-load-track i {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--kd-primary), var(--kd-primary-active));
+    transition: width .7s ease;
+}
+
+.plan-load-track::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .6), transparent);
+    transform: translateX(-100%);
+    animation: kdPlanSweep 1.7s ease-in-out infinite;
+}
+
+@keyframes kdPlanSweep {
+    to { transform: translateX(100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .plan-load-track i { transition: none; }
+    .plan-load-track::after { content: none; }
+}
+
 /* --------------------------------------------------------------------------
    하단 행 — 오늘의 추천 학습 660 + 연속 이용 440
    -------------------------------------------------------------------------- */

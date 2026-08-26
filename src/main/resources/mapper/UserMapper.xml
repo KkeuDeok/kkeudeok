@@ -103,6 +103,13 @@
          회원정보 화면에 뿌릴 한 명. 로그인한 본인이므로 비밀번호는 묻지 않는다.
          ⚠ password 는 뽑지 않는다 — 화면까지 내려갈 이유가 없는 값은 애초에 가져오지 않는다.
          phone·relation 은 아직 채우는 화면이 없어 NULL 일 수 있다(화면에서 빈 칸으로 보인다). -->
+    <select id="countMember" resultType="int">
+        SELECT COUNT(1)
+          FROM member
+         WHERE member_id = #{memberId}
+           AND deleted_at IS NULL
+    </select>
+
     <select id="getUserInfo" parameterType="UserDTO" resultType="UserDTO">
         SELECT member_id,
                login_id,
