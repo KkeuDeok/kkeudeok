@@ -462,11 +462,6 @@
         }
 
         ready();
-
-        var btn = document.querySelector('.kd-sub-listen');
-        if (btn) {
-            setTimeout(function () { btn.click(); }, 150);
-        }
     }
 
     function resumeOrStart() {
