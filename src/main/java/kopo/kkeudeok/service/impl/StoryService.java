@@ -249,9 +249,10 @@ public class StoryService implements IStoryService {
 
     @Override
     @Transactional
-    public StoryResponseDTO.Next next(Long sessionId, StoryRequestDTO.Next req) {
+    public StoryResponseDTO.Next next(Long sessionId, Long childId, StoryRequestDTO.Next req) {
 
         StorySessionDTO session = requireOpenSession(sessionId);
+        requireOwner(session, childId);
 
         StoryStage current = StoryStage.of(req.getStageType())
                 .orElseThrow(() -> new IllegalArgumentException("알 수 없는 단계입니다: " + req.getStageType()));
@@ -384,13 +385,15 @@ public class StoryService implements IStoryService {
 
     @Override
     @Transactional
-    public StoryResponseDTO.Finish finish(Long sessionId, StoryRequestDTO.Finish req) {
+    public StoryResponseDTO.Finish finish(Long sessionId, Long childId, StoryRequestDTO.Finish req) {
 
         StorySessionDTO session = sessionMapper.selectSession(sessionId);
 
         if (session == null) {
             throw new IllegalArgumentException("없는 세션입니다: " + sessionId);
         }
+
+        requireOwner(session, childId);
 
         List<MissionLogDTO> rows = toLogRows(session, req.getResults());
 
@@ -521,6 +524,17 @@ public class StoryService implements IStoryService {
         }
 
         return rows;
+    }
+
+    private void requireOwner(StorySessionDTO session, Long childId) {
+
+        if (childId == null || !childId.equals(session.getChildId())) {
+
+            log.warn("남의 세션에 손대려는 요청을 막았습니다 — session={}, 세션 주인={}, 요청한 아이={}",
+                    session.getSessionId(), session.getChildId(), childId);
+
+            throw new IllegalArgumentException("이 아이의 학습이 아닙니다: " + session.getSessionId());
+        }
     }
 
     private StorySessionDTO requireOpenSession(Long sessionId) {

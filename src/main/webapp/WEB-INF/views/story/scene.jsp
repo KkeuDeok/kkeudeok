@@ -29,6 +29,6 @@
 <p class="story-sub"><%= sc[2] %></p>
 <p class="story-ask"><%= sc[3].replace("{c}", CHAR) %></p>
 
-<a class="story-cta" href="/story/feel?emo=<%= emo %>"><%= "{c}에게 가기".replace("{c}", CHAR) %></a>
+<a class="story-cta" href="/story/feel?emo=<%= emo %>">다음</a>
 
 <%@ include file="../common/child-bottom.jsp" %>
