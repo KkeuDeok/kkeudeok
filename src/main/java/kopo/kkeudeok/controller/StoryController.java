@@ -54,18 +54,24 @@ public class StoryController {
 
     @PostMapping("/sessions/{sessionId}/next")
     public ResponseEntity<StoryResponseDTO.Next> next(@PathVariable Long sessionId,
-                                                      @RequestBody(required = false) StoryRequestDTO.Next req) {
+                                                      @RequestBody(required = false) StoryRequestDTO.Next req,
+                                                      HttpSession session) {
 
         StoryRequestDTO.Next body = (req == null) ? new StoryRequestDTO.Next() : req;
 
-        return ResponseEntity.ok(storyService.next(sessionId, body));
+        return ResponseEntity.ok(storyService.next(sessionId, loginChild(session), body));
     }
 
     @PostMapping("/sessions/{sessionId}/finish")
     public ResponseEntity<StoryResponseDTO.Finish> finish(@PathVariable Long sessionId,
-                                                          @RequestBody StoryRequestDTO.Finish req) {
+                                                          @RequestBody StoryRequestDTO.Finish req,
+                                                          HttpSession session) {
 
-        return ResponseEntity.ok(storyService.finish(sessionId, req));
+        return ResponseEntity.ok(storyService.finish(sessionId, loginChild(session), req));
+    }
+
+    private Long loginChild(HttpSession session) {
+        return SessionKeys.longOf(session, SessionKeys.CHILD_ID);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

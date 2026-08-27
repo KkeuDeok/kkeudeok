@@ -32,7 +32,7 @@
     <img class="art" data-kd-char="<%= emo %>" src="/img/char-tori-<%= emo %>.png" alt="">
     <p class="ttl"><%= card[1].replace("{c}", CHAR) %></p>
     <p class="txt"><%= card[2] %></p>
-    <a class="go" href="/story/scene?emo=<%= emo %>"><%= "{c} 도우러 가기".replace("{c}", CHAR) %></a>
+    <a class="go" href="/story/scene?emo=<%= emo %>">도우러 가기</a>
 </div>
 
 <%@ include file="../common/child-bottom.jsp" %>

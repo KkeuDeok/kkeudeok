@@ -439,9 +439,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 /* 주 CTA — 학습 흐름 공통 규격 h59 (보조 버튼 40/34 와 위계가 다르다) */
-/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
-   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
-   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .story-cta {
     position: absolute;
     left: 360px;            /* (1000 − 280) / 2 */
@@ -1361,9 +1358,6 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
-   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
-   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .pick-card .go {
     position: absolute;
     left: 24px;
@@ -1458,9 +1452,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 /* 주 CTA — 학습 흐름 공통 h59, 카드 좌우 여백 33 을 뺀 폭 */
-/* ⚠ 캐릭터 이름이 들어가는 버튼은 flex 로 가운데 정렬하면 안 된다 —
-   `<span>라라</span> 도우러 가기` 가 flex 아이템 2개로 쪼개져 사이 공백이 사라진다.
-   줄높이로 세로 중앙을 잡아 한 줄짜리 인라인 문맥을 유지한다. */
 .home-card .go {
     position: absolute;
     left: 33px;

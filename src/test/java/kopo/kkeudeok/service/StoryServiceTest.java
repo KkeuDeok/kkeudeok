@@ -251,7 +251,7 @@ class StoryServiceTest {
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
 
-        StoryResponseDTO.Next res = storyService.next(100L, req);
+        StoryResponseDTO.Next res = storyService.next(100L, 1L, req);
         StoryNodeDTO node = res.node();
 
         assertThat(node.getStageType()).isEqualTo("MIND");
@@ -278,7 +278,7 @@ class StoryServiceTest {
             StoryRequestDTO.Next req = new StoryRequestDTO.Next();
             req.setStageType(stage);
             req.setSuccess(true);
-            res = storyService.next(100L, req);
+            res = storyService.next(100L, 1L, req);
         }
 
         assertThat(res).isNotNull();
@@ -290,7 +290,7 @@ class StoryServiceTest {
         // 칭찬 다음을 또 달라고 하면 막는다
         StoryRequestDTO.Next after = new StoryRequestDTO.Next();
         after.setStageType("PRAISE");
-        assertThatThrownBy(() -> storyService.next(100L, after))
+        assertThatThrownBy(() -> storyService.next(100L, 1L, after))
                 .isInstanceOf(IllegalStateException.class);
     }
 
@@ -303,8 +303,8 @@ class StoryServiceTest {
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
 
-        StoryNodeDTO first = storyService.next(100L, req).node();
-        StoryNodeDTO again = storyService.next(100L, req).node();
+        StoryNodeDTO first = storyService.next(100L, 1L, req).node();
+        StoryNodeDTO again = storyService.next(100L, 1L, req).node();
 
         assertThat(again.getNodeId()).isEqualTo(first.getNodeId());
         assertThat(again.getTitle()).isEqualTo(first.getTitle());
@@ -321,7 +321,7 @@ class StoryServiceTest {
         for (String stage : new String[]{"STORY", "MIND", "CAUSE", "EXPRESSION", "ACTION"}) {
             StoryRequestDTO.Next req = new StoryRequestDTO.Next();
             req.setStageType(stage);
-            storyService.next(100L, req);
+            storyService.next(100L, 1L, req);
         }
 
         StoryRequestDTO.Finish finish = new StoryRequestDTO.Finish();
@@ -335,7 +335,7 @@ class StoryServiceTest {
                 item(99, "CHOICE", "없는 노드", true)     // 없는 순서
         ));
 
-        StoryResponseDTO.Finish res = storyService.finish(100L, finish);
+        StoryResponseDTO.Finish res = storyService.finish(100L, 1L, finish);
 
         assertThat(res.status()).isEqualTo("COMPLETED");
         assertThat(res.savedCount()).isEqualTo(4);      // 미션 있는 4건만
@@ -369,13 +369,13 @@ class StoryServiceTest {
 
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
-        storyService.next(100L, req);
+        storyService.next(100L, 1L, req);
 
         StoryRequestDTO.Finish finish = new StoryRequestDTO.Finish();
         finish.setCompleted(false);
         finish.setResults(List.of(item(2, "CHOICE", "sad", true)));
 
-        StoryResponseDTO.Finish res = storyService.finish(100L, finish);
+        StoryResponseDTO.Finish res = storyService.finish(100L, 1L, finish);
 
         assertThat(res.status()).isEqualTo("INCOMPLETE");
         assertThat(res.savedCount()).isEqualTo(1);
@@ -389,13 +389,13 @@ class StoryServiceTest {
 
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
-        storyService.next(100L, req);
+        storyService.next(100L, 1L, req);
 
         StoryRequestDTO.Finish finish = new StoryRequestDTO.Finish();
         finish.setCompleted(true);
         finish.setResults(List.of(item(2, "VOICE", "아".repeat(300), true)));
 
-        storyService.finish(100L, finish);
+        storyService.finish(100L, 1L, finish);
 
         assertThat(savedLogs.get(0).getResponseValue()).hasSize(50);
     }
@@ -439,7 +439,7 @@ class StoryServiceTest {
            (2026-08-14: 미리 받은 노드를 진행으로 세어 이야기 화면이 통째로 건너뛰어졌다) */
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
-        storyService.next(100L, req);
+        storyService.next(100L, 1L, req);
 
         resumable = savedSession;      // 매퍼가 이 세션을 이어할 것으로 돌려준다
         answeredStage = "STORY";       // 이야기까지는 아이가 실제로 지나왔다
@@ -477,9 +477,9 @@ class StoryServiceTest {
 
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
-        storyService.next(100L, req);      // MIND 노드 생성
+        storyService.next(100L, 1L, req);      // MIND 노드 생성
         req.setStageType("MIND");
-        storyService.next(100L, req);      // CAUSE 노드 생성(미리 받기)
+        storyService.next(100L, 1L, req);      // CAUSE 노드 생성(미리 받기)
 
         resumable = savedSession;
         answeredStage = "MIND";            // 아이가 마음까지 실제로 답했다
@@ -500,14 +500,14 @@ class StoryServiceTest {
         for (String stage : new String[]{"STORY", "MIND", "CAUSE", "EXPRESSION", "ACTION"}) {
             StoryRequestDTO.Next req = new StoryRequestDTO.Next();
             req.setStageType(stage);
-            storyService.next(100L, req);
+            storyService.next(100L, 1L, req);
         }
 
         // 1) 마음 읽기까지 하고 그만뒀다 — 그때까지의 결과가 저장된다
         StoryRequestDTO.Finish quit = new StoryRequestDTO.Finish();
         quit.setCompleted(false);
         quit.setResults(List.of(item(2, "CHOICE", "sad", true)));
-        storyService.finish(100L, quit);
+        storyService.finish(100L, 1L, quit);
 
         // 여기까지 지운 것은 '그때 보낸 노드'뿐이다. 두 번째 전송만 따로 보려고 비운다.
         deletedNodeIds.clear();
@@ -518,7 +518,7 @@ class StoryServiceTest {
         done.setResults(List.of(
                 item(3, "CHOICE", "cause", true),
                 item(4, "EXPRESSION", "sad", true)));
-        storyService.finish(100L, done);
+        storyService.finish(100L, 1L, done);
 
         // 지운 범위가 '이번에 보낸 노드' 뿐이어야 한다 — 2번 노드는 건드리지 않았다
         assertThat(deletedNodeIds).doesNotContain(nodeIdOf(2));
@@ -530,13 +530,35 @@ class StoryServiceTest {
     }
 
     @Test
+    @DisplayName("남의 아이 세션이면 진행도 종료도 막는다")
+    void otherChildSession() {
+
+        startSad();
+
+        StoryRequestDTO.Next req = new StoryRequestDTO.Next();
+        req.setStageType("STORY");
+
+        assertThatThrownBy(() -> storyService.next(100L, 2L, req))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        StoryRequestDTO.Finish finish = new StoryRequestDTO.Finish();
+        finish.setCompleted(true);
+
+        assertThatThrownBy(() -> storyService.finish(100L, 2L, finish))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> storyService.next(100L, null, req))
+                .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
     @DisplayName("없는 세션이면 400 으로 떨어지는 예외를 던진다")
     void unknownSession() {
 
         StoryRequestDTO.Next req = new StoryRequestDTO.Next();
         req.setStageType("STORY");
 
-        assertThatThrownBy(() -> storyService.next(999L, req))
+        assertThatThrownBy(() -> storyService.next(999L, 1L, req))
                 .isInstanceOf(IllegalArgumentException.class);
     }
 
