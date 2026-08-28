@@ -10,4 +10,3 @@
     <%@ include file="auth-left.jsp" %>
     <main class="auth-panel">
         <div class="auth-form-col">
-

@@ -12,7 +12,6 @@
                 #{severity}, #{characterType}, #{characterNickname}, NOW())
     </insert>
 
-
     <update id="updateChild" parameterType="kopo.kkeudeok.dto.ChildDTO">
         UPDATE child
            SET name               = #{name}

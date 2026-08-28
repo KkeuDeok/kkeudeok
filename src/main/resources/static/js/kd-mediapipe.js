@@ -278,7 +278,6 @@
         return calib ? matchCalib(v) : matchGeneric(v);
     }
 
-
     var MIN_STRENGTH = 0.35;
     var MIN_SIM = 0.60;
     var MIN_MARGIN = 0.10;

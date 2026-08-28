@@ -122,12 +122,7 @@
 
     var isStep = STEP_PATHS.indexOf(location.pathname.replace(/\/$/, '')) >= 0;
 
-    var AUDIO_BASE = '/audio/story/';
-    var AUDIO_V = '?v=222';
-
     var hasTTS = 'speechSynthesis' in window;
-    var canSay = hasTTS || !!window.KD_AUDIO;
-    var playing = null;
     var clearMark = null;
 
     function screenText() {
@@ -141,8 +136,6 @@
         });
         return out;
     }
-
-    function clipFor(text) { return window.KD_AUDIO ? window.KD_AUDIO[text] : null; }
 
     function forSpeech(parts) {
         var out = [];
@@ -165,11 +158,10 @@
     }
 
     function isSpeaking() {
-        return !!playing || (hasTTS && (speechSynthesis.speaking || speechSynthesis.pending));
+        return hasTTS && (speechSynthesis.speaking || speechSynthesis.pending);
     }
 
     function stopSpeaking() {
-        if (playing) { playing.pause(); playing = null; }
         if (hasTTS) { stopKeepAlive(); speechSynthesis.cancel(); }
         if (clearMark) { clearMark(); clearMark = null; }
     }
@@ -338,39 +330,13 @@
     }
 
     function speak(text, el, label) {
-        if (!canSay) return;
+        if (!hasTTS) return;
 
         var parts = (typeof text === 'string' ? [text] : (text || [])).filter(Boolean);
         if (!parts.length) return;
 
         stopSpeaking();
-
-        var clips = [];
-        for (var i = 0; i < parts.length; i++) {
-            var c = clipFor(parts[i]);
-            if (!c) return sayWithBrowser(forSpeech(parts), el, label);
-            clips.push(c);
-        }
-
-        var done = mark(el, label);
-        var joined = forSpeech(parts);
-        var n = 0;
-
-        function fallback() { playing = null; done(); sayWithBrowser(joined, el, label); }
-
-        function next() {
-            if (n >= clips.length) { playing = null; done(); return; }
-
-            var a = new Audio(AUDIO_BASE + clips[n++] + AUDIO_V);
-            playing = a;
-            a.onended = next;
-            a.onerror = fallback;
-
-            var p = a.play();
-            if (p && p['catch']) p['catch'](fallback);
-        }
-
-        next();
+        sayWithBrowser(forSpeech(parts), el, label);
     }
 
     function sayWithBrowser(text, el, label) {
@@ -409,7 +375,7 @@
 
     var listenBtns = document.querySelectorAll('.kd-sub-listen');
 
-    if (listenBtns.length && canSay) {
+    if (listenBtns.length && hasTTS) {
         listenBtns.forEach(function (btn) {
             var label = btn.textContent;
             btn.addEventListener('click', function () {
@@ -424,7 +390,7 @@
         });
     }
 
-    if (canSay && isStep) {
+    if (hasTTS && isStep) {
 
         if (hasTTS) speechSynthesis.cancel();
 

@@ -9,9 +9,6 @@ import java.util.List;
 @Mapper
 public interface IExpressionCalibMapper {
 
-    int deleteByEmotion(@Param("childId") Long childId,
-                        @Param("emotionType") String emotionType);
-
     int insertCalib(ExpressionCalibDTO calib);
 
     List<ExpressionCalibDTO> selectByChild(@Param("childId") Long childId);

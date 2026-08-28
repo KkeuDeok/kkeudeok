@@ -1,4 +1,3 @@
-
 (function () {
     'use strict';
 
@@ -76,8 +75,8 @@
     }
 
     var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;   
-    var ID_RE = /^[a-z0-9]{4,12}$/;          
+    var NAME_RE = /^[가-힣a-zA-Z]{2,20}$/;
+    var ID_RE = /^[a-z0-9]{4,12}$/;
     var CODE_RE = /^\d{6}$/;
 
     function checkRequired(input, msg) {
@@ -153,7 +152,7 @@
     }
 
     var timerHandle = null;
-    var codeExpired = false;    
+    var codeExpired = false;
 
     function startTimer(field) {
         var span = field.querySelector('.kd-timer');

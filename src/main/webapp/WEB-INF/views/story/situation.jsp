@@ -33,7 +33,7 @@
 
     String pageTitle  = "상황 선택";
     String storyStep  = "act";
-    String storyCount = "";   
+    String storyCount = "";
 %>
 <%@ include file="../common/child-top.jsp" %>
 

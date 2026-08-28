@@ -232,11 +232,9 @@ class StoryMapperTest {
                 .landmarkData("{\"v\":1,\"shapes\":{\"mouthSmileLeft\":0.85}}")
                 .build();
 
-        calibMapper.deleteByEmotion(1L, "HAPPY");
         calibMapper.insertCalib(happy);
         assertThat(happy.getCalibId()).isNotNull();
 
-        calibMapper.deleteByEmotion(1L, "HAPPY");
         calibMapper.insertCalib(ExpressionCalibDTO.builder()
                 .childId(1L).emotionType("HAPPY")
                 .landmarkData("{\"v\":1,\"shapes\":{\"mouthSmileLeft\":0.91}}")

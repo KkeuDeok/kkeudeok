@@ -10,5 +10,4 @@ public class KkeudeokApplication {
     public static void main(String[] args) {
         SpringApplication.run(KkeudeokApplication.class, args);
     }
-
 }

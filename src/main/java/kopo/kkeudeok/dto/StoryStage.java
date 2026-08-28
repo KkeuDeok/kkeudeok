@@ -55,10 +55,6 @@ public enum StoryStage {
         return STORY;
     }
 
-    public static Optional<StoryStage> ofSeq(int seq) {
-        return Arrays.stream(values()).filter(s -> s.seq == seq).findFirst();
-    }
-
     public static Optional<StoryStage> of(String value) {
         if (value == null || value.isBlank()) {
             return Optional.empty();

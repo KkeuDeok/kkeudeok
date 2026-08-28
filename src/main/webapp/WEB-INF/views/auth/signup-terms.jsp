@@ -31,7 +31,6 @@
     </div>
     <p class="terms-note">표정·음성 데이터는 기기 안에서만 처리되고 원본은 저장되지 않아요</p>
 
-
     <p class="terms-error" id="termsError"></p>
     <button type="button" class="kd-btn kd-btn-primary auth-cta"
             onclick="kdSubmitTerms()">동의하고 계속하기</button>

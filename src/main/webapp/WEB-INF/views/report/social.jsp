@@ -11,7 +11,6 @@
 </div>
 <%@ include file="../common/report-empty.jsp" %>
 
-
 <div class="rpt-score">
     <div>
         <p class="lb">사회성 지수</p>

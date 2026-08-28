@@ -27,7 +27,6 @@
     </div>
 </div>
 
-
 <div class="dash-row">
     <div class="dash-chart kd-no-data">
         <div class="kd-empty">

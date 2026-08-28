@@ -4,12 +4,6 @@
 
 <mapper namespace="kopo.kkeudeok.mapper.IExpressionCalibMapper">
 
-    <delete id="deleteByEmotion">
-        DELETE FROM expression_calib
-         WHERE child_id = #{childId}
-           AND emotion_type = #{emotionType}
-    </delete>
-
     <insert id="insertCalib" parameterType="kopo.kkeudeok.dto.ExpressionCalibDTO"
             useGeneratedKeys="true" keyProperty="calibId">
         INSERT INTO expression_calib (child_id, emotion_type, landmark_data, media_url, created_at)

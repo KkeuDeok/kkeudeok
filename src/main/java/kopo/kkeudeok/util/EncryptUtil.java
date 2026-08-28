@@ -66,7 +66,5 @@ public class EncryptUtil {
         byte[] decrypted = cipher.doFinal(encryptedBytes);
 
         return new String(decrypted, StandardCharsets.UTF_8);
-
     }
-
 }

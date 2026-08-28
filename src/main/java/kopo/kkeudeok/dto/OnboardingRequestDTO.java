@@ -25,6 +25,5 @@ public class OnboardingRequestDTO {
         private String domain;
         private Integer questionNo;
         private Integer score;
-
     }
 }

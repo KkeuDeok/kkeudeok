@@ -1,7 +1,6 @@
 package kopo.kkeudeok.service.impl;
 
 import kopo.kkeudeok.dto.ChildDTO;
-import kopo.kkeudeok.dto.MailDTO;
 import kopo.kkeudeok.dto.UserDTO;
 import kopo.kkeudeok.mapper.IChildMapper;
 import kopo.kkeudeok.mapper.IUserMapper;

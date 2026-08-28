@@ -27,5 +27,4 @@ public class RoadmapDTO {
     private Boolean isActive;
     private LocalDateTime createdAt;
     private RoadmapPlanDTO plan;
-
 }

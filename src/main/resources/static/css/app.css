@@ -920,8 +920,6 @@ li.plan-wait .chip { display: none; }
     .learn-entry-done:not([hidden]) .row { animation: none; }
 }
 
-
-
 .learn-recent table {
     width: 100%;
     margin-top: 19px;

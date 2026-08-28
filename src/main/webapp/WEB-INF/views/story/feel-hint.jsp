@@ -4,7 +4,7 @@
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";
 
-    String feelPick = emo;   
+    String feelPick = emo;
 
     String[][] feelHints = {
         {"sad",   "{c}가 살짝 알려줄게… 눈썹이 아래로 처져 있어."},

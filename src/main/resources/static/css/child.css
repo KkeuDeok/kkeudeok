@@ -362,15 +362,12 @@ html[data-kd-node="pending"] .story-wait p {
     top: 2px;
     width: 252px;
     height: 252px;
-
 }
 
 .feel-art img {
     width: 100%;
     height: 100%;
     object-fit: contain;
-
-
 }
 
 .feel-recap,
@@ -1325,7 +1322,6 @@ html[data-kd-node="pending"] .story-wait p {
     .done-confetti i { animation: none !important; }
 }
 
-
 .story-quit {
     position: fixed;
     inset: 0;
@@ -1390,7 +1386,6 @@ html[data-kd-node="pending"] .story-wait p {
 .story-quit .yes { border: 1px solid var(--kd-border); background: #fff; color: var(--kd-text-sub); }
 .story-quit .yes:hover { background: #f4f6f3; }
 
-
 .kd-sub-listen.is-speaking {
     background: var(--kd-primary-tint);
     border-color: var(--kd-primary);
@@ -1420,7 +1415,6 @@ html[data-kd-node="pending"] .story-wait p {
 @media (prefers-reduced-motion: reduce) {
     .kd-point { animation: none; }
 }
-
 
 .feel-card.is-right,
 .why-card.is-right {

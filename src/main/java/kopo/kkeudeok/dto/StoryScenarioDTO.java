@@ -23,5 +23,4 @@ public class StoryScenarioDTO {
     private String gesture;
     private String praise;
     private String source;
-
 }

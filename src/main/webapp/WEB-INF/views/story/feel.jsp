@@ -7,7 +7,7 @@
     String wrong = request.getParameter("wrong");
     if (wrong != null && (wrong.equals(emo) || !wrong.matches("happy|sad|angry|surprise"))) wrong = null;
 
-    String feelPick = wrong;   
+    String feelPick = wrong;
 
     String pageTitle  = "마음 읽기";
     String storyStep  = "feel";

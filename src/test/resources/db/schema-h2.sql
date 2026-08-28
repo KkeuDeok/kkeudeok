@@ -121,7 +121,8 @@ CREATE TABLE expression_calib
     landmark_data CLOB        NOT NULL,
     media_url     VARCHAR(500),
     created_at    TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_calib_child FOREIGN KEY (child_id) REFERENCES child (child_id) ON DELETE CASCADE
+    CONSTRAINT fk_calib_child FOREIGN KEY (child_id) REFERENCES child (child_id) ON DELETE CASCADE,
+    CONSTRAINT uq_calib_child_emotion UNIQUE (child_id, emotion_type)
 );
 
 INSERT INTO member (member_id, login_id, password, name, email)

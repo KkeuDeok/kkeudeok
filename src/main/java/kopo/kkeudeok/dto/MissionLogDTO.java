@@ -23,5 +23,4 @@ public class MissionLogDTO {
     private LocalDateTime createdAt;
     private String stageType;
     private LocalDateTime startedAt;
-
 }

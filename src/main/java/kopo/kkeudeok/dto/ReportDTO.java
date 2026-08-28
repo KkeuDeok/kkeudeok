@@ -16,7 +16,6 @@ public record ReportDTO(Metric understand,
                         int weekNo,
                         boolean hasData) {
 
-
     @Builder
     public record Metric(int score, int delta, int total, int success, String basis) {
     }

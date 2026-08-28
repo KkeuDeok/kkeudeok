@@ -115,7 +115,7 @@ public class StoryService implements IStoryService {
                 .childId(child.getChildId())
                 .title(scenario.getTitle())
                 .situationType(SituationType.normalize(scenario.getSituationType(), emotion).label())
-                .emotion(emotion)                    
+                .emotion(emotion)
                 .isGenerated("AI".equals(source))
                 .build();
 
@@ -356,7 +356,7 @@ public class StoryService implements IStoryService {
 
         StoryStage cur = StoryStage.of(fromStage).orElse(null);
         if (cur == null || cur.next().isEmpty()) {
-            return;                                  
+            return;
         }
 
         StorySessionDTO session = sessionMapper.selectSession(sessionId);
@@ -367,7 +367,7 @@ public class StoryService implements IStoryService {
         StoryStage nextStage = cur.next().get();
 
         if (storyMapper.selectNodeByOrder(session.getStoryId(), nextStage.seq()) != null) {
-            return;                                  
+            return;
         }
 
         try {
@@ -467,7 +467,7 @@ public class StoryService implements IStoryService {
             StoryNodeDTO exist = storyMapper.selectNodeByOrderLive(storyId, stage.seq());
 
             if (exist == null) {
-                throw e;                            
+                throw e;
             }
 
             log.info("{}번 노드는 이미 만들어져 있어 그것을 씁니다 — story={}", stage.seq(), storyId);
@@ -569,7 +569,7 @@ public class StoryService implements IStoryService {
     private String emotionFor(StoryRequestDTO.Start req, RoadmapPlanDTO.Week week, int seq, String last) {
 
         if (req.getEmotion() != null && !req.getEmotion().isBlank()) {
-            return normalizeEmotion(req.getEmotion());   
+            return normalizeEmotion(req.getEmotion());
         }
 
         if (week != null && week.getSituationType() != null) {
@@ -670,7 +670,7 @@ public class StoryService implements IStoryService {
         LocalDate first = days.get(0);
 
         if (first.isBefore(today.minusDays(1))) {
-            return 0;                       
+            return 0;
         }
 
         int n = 1;
@@ -678,7 +678,7 @@ public class StoryService implements IStoryService {
 
         for (int i = 1; i < days.size(); i++) {
             if (!days.get(i).equals(prev.minusDays(1))) {
-                break;                      
+                break;
             }
             prev = days.get(i);
             n += 1;

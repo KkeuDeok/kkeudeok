@@ -28,5 +28,4 @@ public class StorySessionDTO {
     private String status;
     private boolean prepared;
     private String storyTitle;
-
 }

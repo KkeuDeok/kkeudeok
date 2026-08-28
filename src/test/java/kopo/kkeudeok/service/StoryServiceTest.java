@@ -807,5 +807,4 @@ class StoryServiceTest {
 
         assertThat(storyService.start(new StoryRequestDTO.Start()).emotion()).isEqualTo("sad");
     }
-
 }
