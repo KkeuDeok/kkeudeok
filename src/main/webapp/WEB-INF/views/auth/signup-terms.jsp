@@ -4,14 +4,9 @@
 
 <%@ include file="../common/signup-header.jsp" %>
 
-<%-- 부제 없음 — 정보입력 화면과 같은 자리(276)에서 콘텐츠가 시작하도록.
-     빈 느낌은 항목별 한 줄 설명으로 채운다 (2026-08-08) --%>
 <h1 class="auth-title">회원가입</h1>
 
-<%-- 다른 회원가입 화면(정보입력)과 같은 자리에서 콘텐츠가 시작하도록 auth-center 를 뺐다.
-     항목마다 한 줄 설명을 붙여 무엇에 동의하는지 알 수 있게 한다 (2026-08-08) --%>
 <form method="post" action="/signup/terms">
-    <%-- 전체 동의 토글은 auth-validate.js 가 처리 --%>
     <div class="terms-all">
         <input class="kd-check" type="checkbox" id="agreeAll">
         <label for="agreeAll">전체 동의</label>
@@ -36,20 +31,12 @@
     </div>
     <p class="terms-note">표정·음성 데이터는 기기 안에서만 처리되고 원본은 저장되지 않아요</p>
 
-    <%-- ⚠ '마케팅 정보 수신(선택)' 항목은 지웠다(2026-08-20 요청).
-           보낼 알림이 없는데 동의만 받고 있었다 — 지키지 못할 약속은 받지 않는 게 맞다.
-           마이페이지의 알림 설정 세 개도 같이 지웠다. 되살리려면 실제로 보내는 것부터
-           만들고 나서 이 자리에 다시 넣을 것. --%>
 
     <p class="terms-error" id="termsError"></p>
-
-    <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
     <button type="button" class="kd-btn kd-btn-primary auth-cta"
             onclick="kdSubmitTerms()">동의하고 계속하기</button>
 </form>
 
-<%-- 약관 본문 — 브라우저 기본 <dialog>라 JS·라이브러리 없이 뜬다.
-     ponytail: 아래 문구는 골자만 적은 임시본. 법무 확정본 받으면 <p> 내용만 교체할 것 --%>
 <dialog class="terms-dialog" id="dlgTerms">
     <h2>이용약관</h2>
     <p>제1조(목적) 이 약관은 끄덕(이하 "서비스")의 이용 조건과 절차, 이용자와 서비스의 권리·의무를 정합니다.</p>

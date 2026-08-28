@@ -46,7 +46,6 @@ class ChildControllerTest {
         return session;
     }
 
-    /** 화면(child.jsp)이 보내는 그대로가 DTO 로 풀려야 한다 — birthDate 는 "YYYY-MM-DD" 문자열이다. */
     @Test
     @DisplayName("화면이 보내는 JSON 이 ChildDTO 로 그대로 풀린다")
     void jsonBindsToChildDto() {
@@ -75,10 +74,6 @@ class ChildControllerTest {
         verify(childService).updateProfile(req);
     }
 
-    /**
-     * 남의 아이 번호를 실어 보내도 고쳐지면 안 된다.
-     * 예전 ProfileController 는 요청 본문의 childId 를 그대로 믿고 UPDATE 했다.
-     */
     @Test
     @DisplayName("남의 아이 번호를 보내면 저장하지 않는다")
     void rejectsOtherChild() {

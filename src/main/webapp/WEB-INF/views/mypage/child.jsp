@@ -8,7 +8,6 @@
 <%@ include file="../common/app-top.jsp" %>
 
 <%
-    // 1. DB에서 꺼내온 아이 정보를 변수에 안전하게 담습니다.
     ChildDTO child = (ChildDTO) request.getAttribute("child");
 
     String childName = "";
@@ -51,17 +50,15 @@
                     childAge = Period.between(birth, LocalDate.now()).getYears();
                 }
             } catch (Exception e) {
-                // 날짜 파싱 실패 시 기본값 유지
             }
         }
     }
 
-    // 🎯 DB 값 유연한 매칭 로직 (자폐/지적/발달 / 경증/중증)
     boolean isAutism = disorderType.contains("자폐");
     boolean isIntellectual = disorderType.contains("지적");
     boolean isDevelopmental = disorderType.contains("발달");
     if (!isAutism && !isIntellectual && !isDevelopmental) {
-        isAutism = true; // 기본값
+        isAutism = true;
     }
 
     boolean isMild = severity.contains("경");
@@ -168,7 +165,6 @@
         return el.value.trim();
     }
 
-    // 사용자가 '장애 유형'을 직접 선택할 때만 하위 레벨 옵션 변경
     function updateDisabilityLevels() {
         const typeSelect = document.getElementById('disabilityType');
         const levelSelect = document.getElementById('disabilityLevel');
@@ -249,7 +245,6 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        // 새로고침 후 성공 토스트 메시지 출력
         const savedToastMsg = sessionStorage.getItem('profileSavedToast');
         if (savedToastMsg) {
             sessionStorage.removeItem('profileSavedToast');
@@ -271,7 +266,6 @@
         if (dbGender === 'M') document.getElementById('genderBoy').checked = true;
         if (dbGender === 'F') document.getElementById('genderGirl').checked = true;
 
-        // 사용자가 드롭다운을 변경할 때 이벤트 바인딩
         const disTypeSelect = document.getElementById('disabilityType');
         if (disTypeSelect) {
             disTypeSelect.addEventListener('change', updateDisabilityLevels);

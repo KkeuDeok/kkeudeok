@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// 선택지 카드
 @Data
 @Builder
 @NoArgsConstructor

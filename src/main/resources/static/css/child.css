@@ -1,30 +1,8 @@
-/* ==========================================================================
-   아동 학습 흐름(스토리) 공통 껍데기 — 상단 스텝바 72 + 본문 1000 중앙
-   - 보호자 앱(app.css)과 달리 사이드바가 없다. 아동 화면이라 1440 전체를 쓴다.
-   - 창높이/1024 배율(--fit-scale, fit-frame.js)은 온보딩·보호자 앱과 동일.
-   - Figma 실측 기준: 웹_학습3_이유찾기(136:282)
-       스텝행 y20 h32 중심720 / 칩 좌우패딩 14 · 간격 6 / 연결선 14×2 /
-       칩 글자 14px(완료·현재 Bold #1f5c40, 예정 Regular #a8b4ad) /
-       현재 칩 배경 #e3f6ec / 연결선 #e6ebe8 / 카운터 우측정렬 y939 13px
-   ========================================================================== */
-
-/* 배경은 제공받은 수채화 그림(story-bg.jpg 1440×1001) — 위쪽은 흰 여백, 아래에 잔디·꽃·나무.
-   하늘까지 있는 안(100.png)도 써 봤지만 상단 스텝바가 하늘색 위에 떠 이질적이었다.
-   아래 정렬인 이유: 잔디가 그림 아래에 있어 남는 세로는 위(흰 여백)에서 덜어야 한다.
-   --fit-scale zoom 은 .child-scale 에 걸리므로 여기 배경은 배율과 무관하게 창을 채운다. */
 .child-body {
     height: 100vh;
     overflow: hidden;
-    /* ⚠ 그림 한 장을 cover 로 깔면 안 된다 — 원본의 흰 하늘이 순백이 아니라 249~255 종이 질감이라,
-       창 크기에 맞춰 1.3배 늘리는 순간 그 얼룩이 커져 배경이 지저분해 보인다(실제 지적 받음).
-       → 잔디·나무 띠만 잘라 아래에 깔고, 그 위는 CSS 가 순백으로 칠한다.
-       가로는 창 폭에 맞추고 세로는 비율대로(100% auto) — 늘려도 파도라 티가 안 난다. */
-    /* ⚠ PNG(535KB) → JPEG(73KB). 1503×331 에 색이 83,573 개라 PNG 는 최악의 선택이었다.
-       화면을 넘길 때마다 이게 통째로 내려와 흰 화면이 먼저 뜨고 배경이 뒤늦게 들어왔다
-       (2026-08-10 사용자 지적). 불투명한 그림이라 JPEG 로 잃는 게 없다(평균 색차 1.72). */
     background: #fff url("/img/story-bg.jpg?v=159") center bottom / 100% auto no-repeat;
 }
-
 .child-shell {
     width: 100vw;
     height: 100vh;
@@ -32,24 +10,15 @@
     display: flex;
     flex-direction: column;
 }
-
 .child-scale {
-    position: relative;     /* 하단 장식이 이 상자를 기준으로 깔린다 */
+    position: relative;
     flex: 1;
-    min-height: 0;          /* 없으면 flex 자식이 내용 높이만큼 부풀어 본문이 잘린다
-                               (app.css 학습 홈에서 실제로 겪은 함정) */
+    min-height: 0;
     display: flex;
     flex-direction: column;
     zoom: var(--fit-scale, 1);
 }
 
-/* --------------------------------------------------------------------------
-   하단 장식 — 언덕·구름·나무. Figma `368:201`(1440×260, 캔버스 y764~1024) 실측.
-   8개 화면에 다 있는데 y가 764 / 772 / 880 으로 제각각이라 껍데기에서 하나로 고정한다.
-   -------------------------------------------------------------------------- */
-/* ⚠ 배경 그림(story-bg.jpg)에 언덕·나무·꽃이 이미 들어 있어 이 SVG 장식과 겹친다 → 끈다.
-   지우지 않고 남겨 두는 이유: Figma 368:201 실측값이라 배경을 되돌릴 때 그대로 살려 쓴다.
-   되살리려면 아래 display:none 한 줄만 지우면 된다. */
 .child-deco { display: none; }
 
 .child-deco {
@@ -58,18 +27,15 @@
     right: 0;
     bottom: 0;
     height: 260px;
-    pointer-events: none;   /* 위에 있는 버튼을 가리면 안 된다 */
+    pointer-events: none;
 }
 
-/* 언덕·구름은 파도라 가로로 늘어나도 티가 안 난다 → 창 폭에 맞춰 늘린다 */
 .child-deco .hills {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
 }
-
-/* 나무는 정원(正圓)이라 늘이면 타원이 된다 → 1440 고정 + 가운데 정렬 */
 .child-deco .trees {
     position: absolute;
     left: 50%;
@@ -79,10 +45,6 @@
     transform: translateX(-50%);
 }
 
-/* --------------------------------------------------------------------------
-   스텝바 — 이야기 / 마음 / 왜? / 표정 / 행동 / 칭찬
-   폭은 글자 길이가 정한다(Figma 도 상태에 따라 칩 폭이 달라진다). 행은 가운데 정렬.
-   -------------------------------------------------------------------------- */
 .child-head {
     position: relative;
     height: 72px;
@@ -92,7 +54,6 @@
     justify-content: center;
 }
 
-/* 학습 그만두기 — Figma 40×40 @(1376,16), 안쪽 아이콘 20 */
 .child-close {
     position: absolute;
     right: 24px;
@@ -130,7 +91,7 @@
     font-size: 14px;
     line-height: 21px;
     font-weight: 400;
-    color: #a8b4ad;                         /* 예정 */
+    color: #a8b4ad;
 }
 
 .child-steps .is-done,
@@ -139,15 +100,11 @@
     color: var(--kd-primary-strong);
 }
 
-/* 현재 단계만 알약 배경이라 좌우 여백이 14 → 20 이다(Figma 실측: 왜? 칩 61 = 20+21+20).
-   14 로 두면 배경이 글자에 붙어 보인다. */
 .child-steps .is-on {
     padding: 0 20px;
     background: var(--kd-primary-tint);
 }
 
-/* 완료 체크 — mask 라 색이 글자색(currentColor)을 따라간다.
-   초록 stroke 가 박힌 icon-check-sm.svg 를 쓰면 초록 위에서 안 보인다(온보딩에서 겪음). */
 .child-steps .ic {
     width: 14px;
     height: 14px;
@@ -157,7 +114,6 @@
     -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m20 6l-11 11l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m20 6l-11 11l-5-5'/%3E%3C/svg%3E") center / 11px no-repeat;
 }
-
 .child-steps .ln {
     width: 14px;
     height: 2px;
@@ -166,18 +122,6 @@
     background: var(--kd-border);
 }
 
-/* --------------------------------------------------------------------------
-   본문 — 1000 중앙(x 220~1220), 스텝바 아래 전부(y 72~1024)
-   -------------------------------------------------------------------------- */
-/* ---------- 이야기가 도착하기 전 ----------
-   JSP 에는 기본 문구가 박혀 있다(scene.jsp 의 "길을 잃을 뻔했어요" 등). 진짜 이야기는
-   서버에서 와 글자를 갈아끼우는데, 그 전에 보이면 아이가 딴 이야기를 읽었다가 바뀌는 것을
-   본다(2026-08-20 지적). 그래서 확정될 때까지 글자를 감추고 '만드는 중' 만 보여 준다.
-
-   ⚠ 자리는 남긴다(visibility). display:none 으로 지우면 문장이 도착할 때 화면이 덜컥
-     움직여 아이가 놀란다.
-   아래 .story-wait 가 화면 전체를 덮으므로 이 규칙까지 필요하지는 않다. 그래도 남긴다 —
-   덮개가 어떤 이유로든 안 뜰 때 <b>틀린 이야기를 보여 주는 것</b>만은 막아야 한다. */
 html[data-kd-node="pending"] .story-title,
 html[data-kd-node="pending"] .story-sub,
 html[data-kd-node="pending"] .story-ask,
@@ -194,38 +138,29 @@ html[data-kd-node="pending"] .done-title {
     visibility: hidden;
 }
 
-/* 기다리는 동안 덮어 두는 화면 — 로그인 앞 스플래시와 같은 곰돌이가 끄덕인다.
-   ⚠ 화면 전체를 덮는다(fixed). 가운데만 덮었더니 스텝바·하단 바·풀밭이 그대로 보여
-     덮다 만 것처럼 보였다(2026-08-20 지적).
-   ⚠ 불투명하게 덮는다. 비치게 두면 뒤에 남은 기본 문구와 그림이 어른거린다. */
 .story-wait { display: none; }
 
 html[data-kd-node="pending"] .story-wait {
     display: flex;
     position: fixed;
     inset: 0;
-    z-index: 9000;              /* 로그인 스플래시와 같은 층 — 무엇보다 위에 있어야 한다 */
+    z-index: 9000;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 18px;
     background: #fff;
 }
-
-/* 이야기 속 그림도 아직 이번 이야기 것이 아니다(감정이 바뀔 수 있다) — 같이 감춘다 */
 html[data-kd-node="pending"] .story-art,
 html[data-kd-node="pending"] .feel-art,
 html[data-kd-node="pending"] .demo {
     visibility: hidden;
 }
 
-/* 회전축을 턱 밑에 둬야 고개를 젓는 게 아니라 끄덕이는 걸로 보인다(auth.css 와 같은 값) */
 html[data-kd-node="pending"] .story-wait img {
     width: 120px;
     height: 120px;
     transform-origin: 50% 82%;
-    /* ⚠ 스플래시는 두 번 끄덕이고 멈추지만 여기서는 <b>계속</b> 끄덕여야 한다 —
-         기다리는 시간이 얼마일지 모르고, 멈추면 아이는 멈춰 버린 화면으로 읽는다. */
     animation: kdStoryNod 2.2s ease-in-out infinite;
 }
 
@@ -235,8 +170,6 @@ html[data-kd-node="pending"] .story-wait p {
     font-weight: 700;
     color: var(--kd-text-sub);
 }
-
-/* 두 번 끄덕이고 잠깐 쉰다 — 쉬는 틈이 없으면 쉼 없이 흔드는 것처럼 보여 부담스럽다 */
 @keyframes kdStoryNod {
     0%        { transform: rotate(0); }
     9%        { transform: rotate(13deg); }
@@ -246,7 +179,6 @@ html[data-kd-node="pending"] .story-wait p {
     50%, 100% { transform: rotate(0); }
 }
 
-/* 움직임에 민감한 아이도 있다 — 시스템 설정을 따른다 */
 @media (prefers-reduced-motion: reduce) {
     html[data-kd-node="pending"] .story-wait img { animation: none; }
 }
@@ -259,18 +191,11 @@ html[data-kd-node="pending"] .story-wait p {
     margin: 0 auto;
 }
 
-/* --------------------------------------------------------------------------
-   하단 바 — [다시 들려줘][잘 모르겠어] ······ [다음에 할래][오늘 이야기 N/3]
-   Figma 는 레일이 776·878.5·886.5·920·937 로 제각각인데, 아이가 6단계를 연속으로
-   누르는 흐름이라 바가 튀면 안 된다 → 학습1 값(캔버스 870.5)으로 고정.
-   ⚠ 전 화면을 다 만든 뒤 하나의 레일로 재확정할 것(온보딩 버튼 845 처럼).
-   네 요소의 세로 중심이 전부 890.5 라 높이만 40 으로 두고 가운데 정렬하면 맞는다.
-   -------------------------------------------------------------------------- */
 .child-foot {
     position: absolute;
     left: 0;
     right: 0;
-    top: 798.5px;           /* 캔버스 870.5 − 본문 시작 72 */
+    top: 798.5px;
     height: 40px;
     display: flex;
     align-items: center;
@@ -279,7 +204,6 @@ html[data-kd-node="pending"] .story-wait p {
 
 .child-foot .side { display: flex; align-items: center; gap: 12px; }
 
-/* 보조 버튼 — 흰 알약. 주 CTA(초록 59)와 위계가 다르다 */
 .child-foot .kd-sub,
 .cam-actions .kd-sub {
     display: flex;
@@ -295,7 +219,7 @@ html[data-kd-node="pending"] .story-wait p {
     font-size: 16px;
     font-weight: 500;
     color: var(--kd-text);
-    text-decoration: none;  /* 힌트는 <a> 라 밑줄이 붙는다 */
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -304,7 +228,6 @@ html[data-kd-node="pending"] .story-wait p {
 .child-foot .kd-sub-hint,
 .cam-actions .kd-sub-hint { width: 120px; }
 
-/* 스피커 — 체크와 같은 방식(mask + currentColor) */
 .child-foot .kd-sub-listen::before,
 .cam-actions .kd-sub-listen::before {
     content: "";
@@ -316,8 +239,6 @@ html[data-kd-node="pending"] .story-wait p {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 18px no-repeat;
 }
 
-/* 배경 그림을 깔면서 하단 바가 잔디 위에 올라앉았다 — 상자 없는 글자('다음에 할래'·카운터)가
-   초록 위 초록이라 안 읽힌다. 바 뒤에 흰 안개를 옅게 깔아 대비를 만든다(그림은 그대로 비친다). */
 .child-foot::before {
     content: "";
     position: absolute;
@@ -331,7 +252,6 @@ html[data-kd-node="pending"] .story-wait p {
     pointer-events: none;
 }
 
-/* 다음에 할래 — 상자 없는 글자 버튼 */
 .child-foot .kd-later {
     width: 118px;
     height: 34px;
@@ -345,9 +265,6 @@ html[data-kd-node="pending"] .story-wait p {
     cursor: pointer;
 }
 
-/* 진도 카운터 — 본문 우측 끝.
-   Figma 는 화면마다 2/5·3/5·4/5 로 올라갔지만 단계는 스텝바가 표시하므로
-   '오늘 몇 번째 이야기'만 남기고 고정한다(2026-08-09 확정). */
 .child-count {
     margin: 0;
     font-size: 13px;
@@ -355,16 +272,9 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* ==========================================================================
-   학습1 상황 이야기 — Figma `368:200`(슬픔) / `237:402`(기쁨) 실측
-   좌표는 전부 캔버스값 − 72(본문 시작). 감정 3벌은 같은 레일에 문구만 갈아끼운다.
-   ========================================================================== */
-
 .story-art {
     position: absolute;
-    left: 140px;            /* 캔버스 360 − 본문 220 */
-    /* 위 여백 46 을 그림에 준다 — 아래 문구(426)는 Figma 고정이라 그대로.
-       380 → 426 (+12%). 2026-08-10 "더 키웁시다". */
+    left: 140px;
     top: 0;
     width: 720px;
     height: 426px;
@@ -373,19 +283,9 @@ html[data-kd-node="pending"] .story-wait p {
 .story-art img {
     width: 100%;
     height: 100%;
-    object-fit: contain;    /* Figma 도 FIT — 세로 380 에 맞고 가로는 남는다 */
+    object-fit: contain;
 }
 
-/* --- 이야기로 들어올 때 -------------------------------------------------------
-   무대가 차려지는 순서로 보여 준다: 배경(먼저 깔려 있다) → 토리 → 문구.
-   아이가 눈으로 따라가기 쉬우라고 한 번에 안 띄우고 순서를 준다.
-
-   ⚠ 학습 홈에서는 아무것도 하지 않는다 — 버튼을 누르면 곧바로 이동한다.
-     나가는 쪽에서 화면을 덮고 기다리면, 이 화면이 늦게 뜰 때 흰 화면에서
-     멈춘 것처럼 보인다(그래서 '토리가 날아가는' 안을 걷어냈다).
-   ⚠ 배경(story-bg)은 .child-body 의 background 라 이미 깔린 채로 그려진다.
-     그래서 따로 띄우지 않고, 나머지를 늦춰 배경이 먼저 읽히게 한다.
-   문구는 세션 결과의 kd-rise 를 그대로 쓴다. */
 .story-art { animation: kd-scene-in 0.46s var(--kd-ease) 0.18s both; }
 
 @keyframes kd-scene-in {
@@ -438,10 +338,9 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text);
 }
 
-/* 주 CTA — 학습 흐름 공통 규격 h59 (보조 버튼 40/34 와 위계가 다르다) */
 .story-cta {
     position: absolute;
-    left: 360px;            /* (1000 − 280) / 2 */
+    left: 360px;
     top: 650px;
     width: 280px;
     height: 59px;
@@ -457,29 +356,15 @@ html[data-kd-node="pending"] .story-wait p {
 
 .story-cta:hover { background: var(--kd-primary-strong); color: #fff; }
 
-/* ==========================================================================
-   학습2 마음 읽기 — Figma `24:18040` 실측. 좌표는 캔버스값 − 72(본문 시작).
-   Figma 하단바가 캔버스 890.5 중심이라 껍데기(.child-foot)와 정확히 맞는다.
-   ========================================================================== */
-
-/* 상황을 되짚어 주는 캐릭터 그림.
-   Figma(383:832)는 150×165 인데 아이 화면치고 너무 작아 220 으로 키웠고, 그래도 작다는
-   지적이 또 나왔다(2026-08-10). 아래 문구가 Figma 실측 고정값이라(회상 259 · 질문 303 ·
-   카드 393.5) 세로로 더 내려갈 자리가 없다 → **박스는 240 에 두고 그림만 145% 로 확대해
-   가슴 아래를 잘라낸다.** 얼굴이 102px → 151px 이 되고 회상 문구와 13px 이 남는다.
-   ⚠ 박스만 키우는 방식(255)은 회상 문구에 딱 붙어 버린다 — 그래서 안 쓴다. */
 .feel-art {
     position: absolute;
-    left: 374px;            /* (1000 - 252) / 2 */
+    left: 374px;
     top: 2px;
     width: 252px;
     height: 252px;
 
 }
 
-/* ⚠ 예전엔 240 박스에 그림을 145% 로 키워 넣었다. 얼굴은 커졌지만 **목에서 몸이 잘려**
-   얼굴만 떠 있었다(2026-08-10 지적 "상체가 다 나오게"). 확대를 걷고 캔버스 전체를 보여 준다.
-   252 는 아래 회상 문구(259)까지의 자리를 다 쓴 값이다 — 여기가 이 화면의 천장이다. */
 .feel-art img {
     width: 100%;
     height: 100%;
@@ -512,11 +397,8 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text);
 }
 
-/* 카드 3장 — 300×290, 사이 28. 좌우 22 여백이라 행 폭 956 이 본문 1000 안에 든다 */
 .feel-cards {
     position: absolute;
-    /* left 고정이 아니라 좌우 0 + 가운데 정렬 — 카드 수가 바뀌어도 화면 가운데에 온다.
-       (예전엔 left:22px 라 3장 기준으로만 맞았고, 4장이 되자 오른쪽으로 넘쳤다) */
     left: 0;
     right: 0;
     top: 393.5px;
@@ -535,17 +417,10 @@ html[data-kd-node="pending"] .story-wait p {
     text-decoration: none;
 }
 
-/* 감정별 카드 색 — Figma 실측(픽셀값 그대로, 다른 화면에서 쓰는 토큰이 아니다).
-   ⚠ 클래스가 아니라 data-kd-key 로 칠한다. 카드 내용은 AI 가 정하므로 화면이 뜬 뒤
-     story-session.js 가 갈아끼우는데, 그때 확실히 바뀌는 건 data-kd-key 하나뿐이다.
-     예전엔 색이 is-happy 같은 클래스에 묶여 있어서 JS 가 그 클래스까지 따로 맞춰 줘야 했고,
-     어긋나면 기뻐요 카드가 화나요 색(분홍)으로 나왔다(2026-08-14 지적).
-     칠하는 근거를 하나로 모아 어긋날 자리를 없앤다. */
 .feel-card[data-kd-key="happy"]    { background: #fff3d6; }
 .feel-card[data-kd-key="sad"]      { background: #dceefb; }
 .feel-card[data-kd-key="angry"]    { background: #fde0dc; }
 .feel-card[data-kd-key="surprise"] { background: #ede4fb; }
-
 .feel-card:hover { border-color: var(--kd-primary); }
 
 .feel-card .ic {
@@ -556,7 +431,6 @@ html[data-kd-node="pending"] .story-wait p {
     height: 140px;
     object-fit: contain;
 }
-
 .feel-card .nm,
 .feel-card .ds {
     position: absolute;
@@ -581,14 +455,8 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* 고른 카드(또는 힌트가 짚어 주는 정답) — Figma 는 stroke 3px 안쪽이라 크기가 안 변한다 */
-/* 굵은 테두리로 자식이 밀리지 않게 inset box-shadow 로 그린다 */
 .feel-card.is-pick { box-shadow: inset 0 0 0 3px var(--kd-primary-strong); }
 
-/* 카드마다 있는 읽어주기 배지 — 카드 자체가 링크라 안에 button 을 또 넣지 않는다.
-   story.js 가 클릭을 받아 전파를 끊고 카드 글자를 읽어 준다(예전엔 핸들러가 없어
-   누르면 그 카드를 고른 것으로 처리됐다 — 2026-08-10 지적).
-   TODO: 카드를 <div role="button">+JS 로 바꾸면 이 배지도 진짜 버튼으로 — 그래야 키보드로도 눌린다. */
 .feel-card .spk,
 .why-card .spk {
     position: absolute;
@@ -605,7 +473,6 @@ html[data-kd-node="pending"] .story-wait p {
     cursor: pointer;
 }
 
-/* 읽는 중 — 눌린 게 보여야 아이가 두 번 안 누른다 */
 .feel-card .spk.is-speaking,
 .why-card .spk.is-speaking {
     border-color: var(--kd-primary-strong);
@@ -625,12 +492,9 @@ html[data-kd-node="pending"] .story-wait p {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07'/%3E%3C/svg%3E") center / 16px no-repeat;
 }
 
-/* 힌트 말풍선 — 학습2b(Figma `368:75`). 카드 아래, 하단바 위.
-   2b 프레임은 본문이 y80 에서 시작해 학습2(y98)보다 18 위인데, 요소 간격은 완전히 같다.
-   껍데기 레일이 정본이라 학습2 좌표에 맞춰 18 을 더해 두었다. */
 .feel-hint {
     position: absolute;
-    left: 299px;            /* (1000 − 402) / 2 */
+    left: 299px;
     top: 724px;
     width: 402px;
     height: 51px;
@@ -643,11 +507,6 @@ html[data-kd-node="pending"] .story-wait p {
     line-height: 27px;
     color: #fff;
 }
-
-/* ==========================================================================
-   학습3 이유 찾기 — Figma `136:282`(기본) / `383:892`(화남) / `383:1001`(기쁨)
-   3b 듣는 중(`383:1232`)은 같은 화면에서 아래 버튼만 바뀐다.
-   ========================================================================== */
 
 .why-title,
 .why-sub {
@@ -672,8 +531,6 @@ html[data-kd-node="pending"] .story-wait p {
     line-height: 26px;
     color: var(--kd-text-sub);
 }
-
-/* 카드 2장 — 320×260, 사이 24. 행 폭 664 라 좌우 168 여백 */
 .why-cards {
     position: absolute;
     left: 168px;
@@ -693,7 +550,6 @@ html[data-kd-node="pending"] .story-wait p {
     text-decoration: none;
 }
 
-/* 두 카드 색이 다르다 — 왼쪽 파랑, 오른쪽 초록(Figma 실측, 정답/오답과 무관) */
 .why-card:nth-child(1) { background: #dceefb; }
 .why-card:nth-child(2) { background: var(--kd-primary-tint); }
 
@@ -711,9 +567,6 @@ html[data-kd-node="pending"] .story-wait p {
 
 .why-card .nm {
     position: absolute;
-    /* 아래에 붙여 위로 자라게 한다 — top 고정이면 두 줄이 되는 순간 카드 밖으로 흘러넘친다
-       (2026-08-13 지적: "길을 잃을 뻔해서 무서웠 / 어서" 가 카드 밑으로 삐져나옴).
-       AI 가 이유 문구를 만들기 때문에 길이를 완전히는 못 정한다 — 길어도 안 깨지게 둔다. */
     left: 14px;
     right: 14px;
     bottom: 20px;
@@ -722,14 +575,10 @@ html[data-kd-node="pending"] .story-wait p {
     font-size: 30px;
     line-height: 38px;
     font-weight: 700;
-    /* 한글은 기본값이면 낱말 가운데서 잘린다. 낱말 단위로 줄바꿈한다. */
     word-break: keep-all;
     color: var(--kd-text);
 }
 
-/* [잘 모르겠어] 힌트 — 카드 하단(535)과 [말로 알려줄래!](616) 사이 빈 띠(81) 한가운데.
-   한 줄 30 이므로 535 + (81 − 30) / 2 = 560.5 (실측으로 위아래 25.5 씩).
-   display 를 선언하지 않는다 — 주면 hidden 속성(UA 의 display:none)을 이겨 처음부터 보인다. */
 .why-hint {
     position: absolute;
     left: 0;
@@ -744,11 +593,10 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-primary-strong);
 }
 
-/* 말로 알려줄래! / 듣는 중 — 같은 자리(240×40)에서 상태만 바뀐다 */
 .why-mic,
 .why-listen {
     position: absolute;
-    left: 380px;            /* (1000 − 240) / 2 */
+    left: 380px;
     top: 616px;
     box-sizing: border-box;
     width: 240px;
@@ -782,7 +630,6 @@ html[data-kd-node="pending"] .story-wait p {
     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3M19 10v2a7 7 0 0 1-14 0v-2M12 19v3'/%3E%3C/svg%3E") center / 20px no-repeat;
 }
 
-/* 듣는 중 — 파형 7개(4px, 사이 6) + 문구. 좌우 여백이 45/46 으로 떨어진다 */
 .why-listen {
     gap: 12px;
     background: #e9f0e7;
@@ -796,7 +643,6 @@ html[data-kd-node="pending"] .story-wait p {
     background: var(--kd-primary);
 }
 
-/* 가운데가 높은 산 모양 — Figma 실측 10·18·26·32·26·18·10 */
 .why-listen .wave i:nth-child(1),
 .why-listen .wave i:nth-child(7) { height: 10px; }
 .why-listen .wave i:nth-child(2),
@@ -804,7 +650,6 @@ html[data-kd-node="pending"] .story-wait p {
 .why-listen .wave i:nth-child(3),
 .why-listen .wave i:nth-child(5) { height: 26px; }
 .why-listen .wave i:nth-child(4) { height: 32px; }
-
 .why-listen .txt {
     font-size: 15px;
     line-height: 18px;
@@ -812,37 +657,25 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-primary);
 }
 
-/* 눌리는 느낌 — 아이 손가락에 반응이 있어야 한다.
-   story.js 가 이 버튼을 '듣는 중'과 맞바꾸는 토글로 쓰므로 눌린 표시가 필요하다.
-   ⚠ 파형 애니메이션은 아래 '학습 흐름 동작' 절(.wave i / kd-wave)에 있다 —
-     여기에 또 쓰면 :nth-child 쪽 specificity 가 높아 그쪽 주기를 덮어쓴다(실제로 겪음). */
 .why-mic { transition: transform var(--kd-dur-fast) ease, background-color var(--kd-dur-fast) ease; }
 .why-mic:active { transform: scale(0.96); background: #f4f6f3; }
 
 @media (prefers-reduced-motion: reduce) {
     .why-mic:active { transform: none; }
 }
-
-/* ==========================================================================
-   오답 모달 — 학습2c(Figma `24:17777` 위에 겹친 레이어 `24:17900`)
-   본문(1000)보다 넓어야 해서 화면 폭 1440 을 직접 덮는다. 카드는 정중앙.
-   ========================================================================== */
 .story-dim {
     position: absolute;
     left: 50%;
-    top: -72px;             /* 본문 시작 72 → 캔버스 0 */
-    /* ⚠ 1440 고정으로 두면 넓은 창에서 좌우가 딤 밖으로 남아 세로 이음매가 보인다.
-       .child-scale 의 zoom 안이라 100vw 를 배율로 나눠야 화면 전체를 정확히 덮는다. */
+    top: -72px;
     width: calc(100vw / var(--fit-scale, 1));
     height: calc(100vh / var(--fit-scale, 1));
     transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(31, 58, 51, .45);   /* Figma: #1f3a33 fill opacity 45% */
+    background: rgba(31, 58, 51, .45);
     z-index: 10;
 }
-
 .story-modal {
     box-sizing: border-box;
     width: 560px;
@@ -880,7 +713,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 .story-modal .bd { position: relative; height: 356px; }
-
 .story-modal .bd img {
     position: absolute;
     left: 220px;
@@ -907,11 +739,6 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text);
 }
 
-/* 두 문장이 이어져 '어떤 마음일' / '까?' 로 단어 중간이 끊겼다(2026-08-10 지적).
-   keep-all 로 어절을 지키고, 문장마다 줄을 나눠 읽기 좋게 한다.
-   ⚠ 초록 알약 배경은 걷어 냈다(2026-08-10 요청 "초록색칸 없애주세요").
-     자리(left/top/width/height)는 그대로 둔다 — 아래 `.more` 가 top:302 절대 좌표라
-     흐름을 건드리면 문구가 겹친다. 글자색도 진초록이면 배경 없이 링크처럼 보여 본문색으로. */
 .story-modal .clue > span { display: block; }
 .story-modal .clue {
     position: absolute;
@@ -946,7 +773,6 @@ html[data-kd-node="pending"] .story-wait p {
     padding: 0 25px;
 }
 
-/* 주 CTA 규격이지만 모달 안이라 폭이 160 이다(학습 흐름 h59 는 동일) */
 .story-modal .ft a {
     width: 160px;
     height: 59px;
@@ -962,12 +788,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 .story-modal .ft a:hover { background: var(--kd-primary-strong); color: #fff; }
-
-/* ==========================================================================
-   학습4 표정 따라하기 · 학습5 동작 따라하기 — Figma `383:1367` / `411:85`
-   두 화면은 구조가 완전히 같다(제목 → 카메라 박스 → 버튼 3개). 다른 건
-   박스 안 시범 그림과 문구뿐이라 클래스를 공유한다.
-   ========================================================================== */
 
 .cam-title {
     position: absolute;
@@ -993,55 +813,20 @@ html[data-kd-node="pending"] .story-wait p {
     overflow: hidden;
 }
 
-/* 얼굴을 맞출 자리 — 카메라가 없어도 어디를 봐야 하는지 알려 준다 */
-/* ⚠ 카메라 안 점선 네모(.guide)는 지웠다(2026-08-20 요청).
-     인식은 그 네모 안을 보는 게 아니라 화면 전체에서 얼굴·몸을 찾는다 — 그런데 점선이
-     있으면 "여기 안에 맞춰야 한다" 로 읽혀, 아이는 맞추려 애쓰고 보호자는 판정 기준으로
-     오해한다. 판정과 상관없는 선은 안 그리는 게 맞다. 되살릴 일은 없을 것이다. */
-
-/* 동작 시범 그림 — Figma 자리는 204×353(`411:549`). 상반신 그림이라 비율을 맞춘다고
-   240×264 로 줄였더니 Figma 대비 세로가 1/3 짧아 너무 작았다(2026-08-10 사용자 지적).
-   원본이 정사각이라 **좌우는 거의 빈 여백**이다 → cover 로 여백만 잘라내면 손해 없이 키운다.
-   330 인 이유: 가장 넓은 벌(바다 celebrate, 가로 75.8%)이 0.758×330 ≈ 250 이라
-   점선 가이드(x260)를 안 넘는다. 여기서 더 키우면 크래커 든 팔이 잘린다. */
 .cam-box .demo {
     position: absolute;
     left: 0;
-    /* 상반신 그림이라 아래가 직선으로 끊긴다 → 그 절단면을 상자 바닥선과 겹쳐 안 보이게 한다.
-       ⚠ bottom:0 으로는 안 붙는다. 캔버스 안에서 몸이 96.6~98% 에서 끝나 336px 기준
-       7~11px 이 비기 때문이다(2026-08-10 "밑 뜨여져 있음"). 가장 큰 11 만큼 내려
-       전 벌이 바닥에 닿게 한다 — 넘치는 만큼은 .cam-box 의 overflow 가 잘라 낸다. */
     bottom: -11px;
     width: 330px;
     height: 348px;
-    object-fit: cover;      /* 세로를 꽉 채우고 남는 좌우 여백만 잘라낸다 */
+    object-fit: cover;
 }
 
-/* ⚠ 세 벌에 **같은 값**을 준다. 벌마다 다르게 주면 나란히 놓았을 때 크기가 갈려
-   통일감이 깨진다(2026-08-10 사용자 지적 — celebrate 만 낮췄다가 되돌렸다).
-   336 인 이유: 스토리의 다른 큰 자리가 340~380(이야기 380 · 칭찬 354 · 마음 348 ·
-   상황선택 340)이라 그 띠에 맞춘 값이다. 290 이면 혼자 24% 작아 튄다.
-   창 330 인 이유: 크롭 기준이 이미지 중앙인데 캐릭터는 얼굴 기준으로 앉아 팔이 쏠린다.
-   중앙 기준 반폭 comfort 31.4% · sorry 31.1% · celebrate 47.9%(크래커 든 오른팔) →
-   0.479×336 = 161 이라 창 반폭 165 안에 겨우 들어온다.
-   점선 가이드(x260)를 넘는 건 celebrate 의 크래커뿐이고, comfort·sorry 는 270 에서 멈춘다
-   (Figma 시범칸도 x280.5 라 원래 20 겹친다). */
-
-/* celebrate 만 380 인 이유 — 숫자를 맞추면 **보이는 얼굴**이 안 맞기 때문이다.
-   이 벌만 파티모자가 실루엣 맨 위를 차지해 얼굴이 캔버스의 39% 에서 시작한다
-   (comfort·sorry 는 27%). 셋 다 336 을 주면 얼굴 폭은 같은데 bada 만 작아 보인다
-   (2026-08-10 사용자 지적 "얘는 더 커도 될 것 같아요"). 모자 몫만큼 키워 눈높이를 맞춘다.
-   ⚠ 크기가 다른 건 이 한 가지 근거 때문이다. 다른 이유로 벌마다 값을 갈라 놓지 말 것. */
 .cam-box .demo[data-kd-char="celebrate"] {
-    left: -24px;            /* 얼굴 중심 x 를 165 로 유지 (−24 + 378/2) */
-    width: 378px;           /* 0.479×394 = 189 → 창 반폭 189 로 크래커를 담는다 */
+    left: -24px;
+    width: 378px;
     height: 394px;
 }
-
-/* 토리가 먼저 해 보이는 코너 카드.
-   ⚠ 이 카드가 아이가 **따라 해야 할 것**을 보여 준다. 큰 그림은 도와줄 친구의 표정이라
-     따라 할 대상이 아니다. 예전 크기는 큰 그림(330×348)에 눌려 동작 화면에서 표정 그림을
-     가이드로 오해하게 만들었다(2026-08-18 지적) — 140×136 → 210×196 으로 키운다. */
 .cam-hint {
     position: absolute;
     right: 14px;
@@ -1050,15 +835,12 @@ html[data-kd-node="pending"] .story-wait p {
     height: 196px;
     border-radius: 26px;
     background: #fff6ea;
-    overflow: hidden;       /* 아래 그림이 넘치는 만큼 잘라 낸다 */
+    overflow: hidden;
 }
 
-/* 2026-08-10 "카드는 원래대로 두고 안에 캐릭터를 키우세요".
-   contain 이면 정사각 원본이 폭에 갇혀 못 그린다 → cover 로 **가로를 꽉 채우고**
-   넘치는 아래(가슴)를 잘라 낸다. */
 .cam-hint img {
     position: absolute;
-    left: 8px;              /* (210 − 195) / 2 ≈ 8 */
+    left: 8px;
     top: 6px;
     width: 195px;
     height: 147px;
@@ -1077,10 +859,6 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* 동작 화면의 글 안내 — 그림 대신 무엇을 어떻게 움직이면 되는지 적는다.
-   ⚠ 그림 카드는 '이 자세를 그대로 만들라' 로 읽혀, 팔을 그만큼 못 올리는 아이를 막았다
-     (2026-08-19 지적). 판정이 움직임을 보므로 안내도 움직임으로 쓴다.
-   높이를 고정하지 않는다 — 동작마다 줄 수가 달라 글이 잘리면 안 된다. */
 .cam-hint-text {
     height: auto;
     min-height: 196px;
@@ -1095,7 +873,7 @@ html[data-kd-node="pending"] .story-wait p {
     font-weight: 700;
     line-height: 22px;
     color: var(--kd-text);
-    word-break: keep-all;       /* 낱말 가운데서 줄이 바뀌면 읽기 어렵다 */
+    word-break: keep-all;
 }
 
 .cam-hint-text .gs {
@@ -1111,8 +889,6 @@ html[data-kd-node="pending"] .story-wait p {
     word-break: keep-all;
 }
 
-/* [다시 들려줘] [다 했어요!] [잘 모르겠어] — 세 개가 한 줄.
-   ⚠ Figma 는 이 행이 8px 왼쪽으로 치우쳐 있는데(229 vs 237) 가운데로 폈다. */
 .cam-actions {
     position: absolute;
     left: 0;
@@ -1125,9 +901,8 @@ html[data-kd-node="pending"] .story-wait p {
     gap: 20px;
 }
 
-/* 주 CTA — 학습 흐름 공통 h59 */
 .cam-actions .kd-cta {
-    flex: 0 0 auto;         /* .kd-btn 계열은 inline-flex 라 flex 안에서 늘어난다 */
+    flex: 0 0 auto;
     width: 220px;
     height: 59px;
     display: flex;
@@ -1146,8 +921,6 @@ html[data-kd-node="pending"] .story-wait p {
 
 .cam-actions .kd-cta:hover { background: var(--kd-primary-strong); color: #fff; }
 .cam-actions .kd-sub { flex: 0 0 auto; }
-
-/* 하단바 왼쪽이 버튼 2개가 아니라 글자 링크인 화면(학습4·5) */
 .child-foot .kd-skip {
     padding: 0;
     border: 0;
@@ -1159,12 +932,6 @@ html[data-kd-node="pending"] .story-wait p {
     text-decoration: none;
     cursor: pointer;
 }
-
-/* ==========================================================================
-   학습6 세션 결과 — Figma `24:17081`. 하단바가 없는 유일한 학습 화면이다.
-   ========================================================================== */
-
-/* 색 점 30개는 본문(1000) 밖까지 흩어져 있어 화면 폭을 직접 덮는다 */
 .done-confetti {
     position: absolute;
     left: 50%;
@@ -1179,13 +946,9 @@ html[data-kd-node="pending"] .story-wait p {
     position: absolute;
     border-radius: 999px;
 }
-
-/* Figma 는 200×220 이었지만 그 자산은 캐릭터가 상자를 꽉 채운 크롭이었다.
-   지금 자산은 정사각 캔버스라 같은 상자에 넣으면 작아 보인다 → 상자를 키웠다(사용자 지적).
-   문구 3줄도 그만큼 아래로 내렸다. */
 .done-art {
     position: absolute;
-    left: 326px;            /* (1000 − 348) / 2 */
+    left: 326px;
     top: 170px;
     width: 348px;
     height: 348px;
@@ -1193,10 +956,6 @@ html[data-kd-node="pending"] .story-wait p {
 
 .done-art img { width: 100%; height: 100%; object-fit: contain; }
 
-/* ⚠ 반드시 `.done-stage` 안으로 한정할 것 — auth 완료형 3화면(가입완료·아이디찾기 결과·
-   비밀번호 변경완료)도 `.done-title`/`.done-sub` 를 쓴다. head.jsp 가 child.css 를
-   auth.css 뒤에 싣고 특이도가 같아서, 스코프가 없으면 이 절대배치가 그쪽까지 덮어
-   제목이 흐름에서 빠지고 top:520 에 못 박혀 안내 카드와 겹쳤다(2026-08-10 지적). */
 .done-stage .done-title,
 .done-stage .done-sub {
     position: absolute;
@@ -1206,10 +965,6 @@ html[data-kd-node="pending"] .story-wait p {
     text-align: center;
 }
 
-/* ⚠ 520 이었다. 부제(.done-sub)를 걷어내면서(2026-08-20) 아래가 비어 제목이 위로
-     치우쳐 보였다 — 캐릭터와 안내문 사이 <b>가운데</b>로 내렸다.
-     계산: 캐릭터 아래 518(.done-art top 170 + 348) ~ 안내문 위 668(.done-tap).
-           그 사이 가운데 593 에 글줄(line-height 57)의 중심을 두면 593 − 57/2 = 564.5 */
 .done-stage .done-title {
     top: 564px;
     font-size: 38px;
@@ -1225,18 +980,9 @@ html[data-kd-node="pending"] .story-wait p {
     font-weight: 700;
     color: var(--kd-text-sub);
 }
-
-/* ==========================================================================
-   상황 선택 — Figma `82:148`(+화남 `210:175` / 기쁨 `210:257`)
-   ⚠ 이 3벌만 파랑 톤이고 스텝바는 `행동`인데 내용은 세션 시작 화면처럼 읽힌다.
-     팀장 확인 대기 항목이라 Figma 원본을 그대로 옮겨 두었다.
-   ⚠ 원본은 배경이 #f8faf7 단색인데 껍데기 배경 그림을 두 화면만 끄면 흐름이 튄다 →
-     배경은 껍데기 그대로 두고 카드만 옮겼다.
-   ========================================================================== */
-
 .pick-badge {
     position: absolute;
-    left: 413.5px;          /* (1000 − 173) / 2 */
+    left: 413.5px;
     top: 56px;
     box-sizing: border-box;
     width: 173px;
@@ -1276,9 +1022,6 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* 카드 1장 — 감정마다 색이 다르다(파랑/빨강/노랑 계열). 색은 JSP 가 인라인으로 준다 */
-/* 테두리를 border 로 주면 안쪽 absolute 자식이 2px 밀린다(Figma 는 안 밀린다)
-   → inset box-shadow 로 그려 자식 좌표를 Figma 값 그대로 쓴다. */
 .pick-card {
     position: absolute;
     left: 320px;
@@ -1301,12 +1044,6 @@ html[data-kd-node="pending"] .story-wait p {
     overflow: hidden;
 }
 
-/* 세 벌의 그림 크기가 제각각이다(165×283 / 290×290 / 232×276) → 원 안을 채운다.
-   ⚠ 예전엔 290 에 딱 맞춰 바닥맞춤(contain + bottom)했는데, 그러면 **그림의 아래 끝이
-     원의 밑변과 겹쳐** 원이 아직 넓은 자리에서 몸통이 직선으로 뭉텅 잘려 보였다
-     (2026-08-10 사용자 지적). 원보다 크게 그려 아래를 원 밖으로 빼면, 보이는 경계가
-     그림의 직선이 아니라 **원의 곡선**이 된다. 머리는 위 기준이라 안 잘린다.
-   340 인 이유: 가장 넓은 벌도 가로 0.6×340 ≈ 204 라 원(290) 안에 들어온다. */
 .pick-card .art img {
     position: absolute;
     left: 50%;
@@ -1376,21 +1113,13 @@ html[data-kd-node="pending"] .story-wait p {
 
 .pick-card .go:hover { filter: brightness(.94); color: #fff; }
 
-/* ==========================================================================
-   아동홈 — Figma 웹_아동홈(24:18425). 학습 단계가 아니라 흐름의 입구다.
-   스텝바·닫기·하단바가 전부 없고, 인사말 + 카드 한 장뿐이다.
-   좌표는 캔버스 − 72(본문 시작). 프레임이 1050 이 아니라 상단 여백 8 이라
-   캔버스 = 프레임 − 8 로 환산했다(다른 학습 화면은 −26).
-   ========================================================================== */
-
 .home-hi,
 .home-sub {
     position: absolute;
-    left: 225px;            /* 카드와 같은 세로축 — Figma 는 2px 어긋나 있는데 폈다 */
+    left: 225px;
     width: 550px;
     margin: 0;
 }
-
 .home-hi {
     top: 40px;
     font-size: 34px;
@@ -1406,10 +1135,9 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* 테두리는 inset box-shadow 로 그린다 — border 로 주면 안쪽 자식이 1px 밀린다 */
 .home-card {
     position: absolute;
-    left: 225px;            /* (1000 − 550) / 2 */
+    left: 225px;
     top: 161px;
     width: 550px;
     height: 558px;
@@ -1418,10 +1146,9 @@ html[data-kd-node="pending"] .story-wait p {
     box-shadow: inset 0 0 0 1px var(--kd-border), 0 4px 8px rgba(43, 58, 51, .08);
 }
 
-/* 캐릭터 그림은 세로 상반신이라 가로 548 자리에 넣으면 좌우가 크게 빈다 → 정사각 320 가운데 */
 .home-card .art {
     position: absolute;
-    left: 115px;            /* (550 − 320) / 2 */
+    left: 115px;
     top: 29px;
     width: 320px;
     height: 320px;
@@ -1451,7 +1178,6 @@ html[data-kd-node="pending"] .story-wait p {
     color: var(--kd-text-sub);
 }
 
-/* 주 CTA — 학습 흐름 공통 h59, 카드 좌우 여백 33 을 뺀 폭 */
 .home-card .go {
     position: absolute;
     left: 33px;
@@ -1467,23 +1193,12 @@ html[data-kd-node="pending"] .story-wait p {
     color: #fff;
     text-decoration: none;
 }
-
 .home-card .go:hover { background: var(--kd-primary-strong); color: #fff; }
 
-/* ==========================================================================
-   움직임 — 아이 화면이라 "눌렀더니 뭔가 일어났다"가 보여야 한다.
-   화면을 새로 띄우지 않고 그 자리에서 상태만 바꾸는 게 원칙(story.js).
-   ⚠ 접근성: 움직임을 줄이도록 설정한 사용자에게는 전부 끈다(맨 아래 규칙).
-   ========================================================================== */
-
-/* hidden 은 display:none 인데 .why-listen·.story-dim 은 자기 규칙에서 display:flex 라
-   그대로 두면 숨겨지지 않는다 — 명시적으로 눌러 준다. */
 .why-listen[hidden],
 .why-mic[hidden],
 .story-dim[hidden] { display: none !important; }
 
-/* 듣는 중 파형 — 가운데가 높은 산 모양을 유지한 채 출렁인다.
-   높이를 직접 흔들면 리플로가 나므로 scaleY 로 늘린다(변형만, 레이아웃 안 건드림). */
 @keyframes kd-wave {
     0%, 100% { transform: scaleY(.45); }
     50%      { transform: scaleY(1); }
@@ -1502,7 +1217,6 @@ html[data-kd-node="pending"] .story-wait p {
 .why-listen .wave i:nth-child(6) { animation-delay: .45s; }
 .why-listen .wave i:nth-child(7) { animation-delay: .54s; }
 
-/* 듣는 중 알약도 숨쉬듯 — 마이크가 켜져 있다는 신호 */
 @keyframes kd-listen-pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(38, 130, 84, .25); }
     50%      { box-shadow: 0 0 0 10px rgba(38, 130, 84, 0); }
@@ -1510,11 +1224,9 @@ html[data-kd-node="pending"] .story-wait p {
 
 .why-listen:not([hidden]) {
     animation: kd-listen-pulse 1.6s ease-out infinite;
-    cursor: pointer;                    /* 다시 누르면 버튼으로 돌아간다 */
+    cursor: pointer;
 }
 
-/* 오답 모달 등장 — 배경은 스르르, 카드는 살짝 튀어오른다.
-   즉시 나타나면 아이가 "새로고침됐다"고 느낀다(실제 지적 받음). */
 @keyframes kd-dim-in { from { opacity: 0; } to { opacity: 1; } }
 
 @keyframes kd-modal-in {
@@ -1525,7 +1237,6 @@ html[data-kd-node="pending"] .story-wait p {
 .story-dim.is-on { animation: kd-dim-in .18s ease-out; }
 .story-dim.is-on .story-modal { animation: kd-modal-in .26s cubic-bezier(.2, .9, .3, 1.3); }
 
-/* 고른 카드 강조도 한 번 튕겨 준다 — 어느 걸 눌렀는지 보이게 */
 @keyframes kd-pick-pop {
     0%   { transform: none; }
     45%  { transform: scale(1.035); }
@@ -1535,11 +1246,6 @@ html[data-kd-node="pending"] .story-wait p {
 .feel-card.is-pick,
 .why-card.is-pick { animation: kd-pick-pop .3s ease-out; }
 
-/* ==========================================================================
-   세션 결과 — 팡파레. 색종이가 떨어지고 캐릭터가 톡 튀어나온다.
-   ========================================================================== */
-
-/* 화면 아무 데나 눌러 아동홈으로 — 본문 전체가 누를 자리다 */
 .done-stage {
     position: absolute;
     inset: 0;
@@ -1564,7 +1270,6 @@ html[data-kd-node="pending"] .story-wait p {
     50%      { opacity: 1; }
 }
 
-/* 캐릭터 — 살짝 늦게 톡 나타난 뒤 계속 둥실거린다 */
 @keyframes kd-proud-in {
     0%   { opacity: 0; transform: translateY(24px) scale(.8); }
     70%  { opacity: 1; transform: translateY(-6px) scale(1.04); }
@@ -1581,9 +1286,6 @@ html[data-kd-node="pending"] .story-wait p {
                kd-float 3s ease-in-out 0.5s infinite;
 }
 
-/* 문구는 캐릭터 다음에 차례로 올라온다.
-   ⚠ 위 절대배치와 같은 이유로 `.done-stage` 안에서만 — 스코프가 없으면 회원가입 완료·
-     아이디 찾기 결과 화면의 제목까지 0.35초 늦게 떠올라 "애니메이션 없애 달라" 지적을 받았다. */
 @keyframes kd-rise {
     from { opacity: 0; transform: translateY(14px); }
     to   { opacity: 1; transform: none; }
@@ -1592,15 +1294,6 @@ html[data-kd-node="pending"] .story-wait p {
 .done-stage .done-title { animation: kd-rise .45s ease-out .35s both; }
 .done-stage .done-sub   { animation: kd-rise .45s ease-out .5s both; }
 
-/* 색종이 — 위에서 떨어지며 돌아간다. 낙하 거리·시간은 칸마다 조금씩 다르게
-   (JSP 가 --fall / --spin / --dur 을 점마다 넣어 준다) 해야 한꺼번에 쏟아지지 않는다. */
-/* ⚠ 조각이 6~15px 짜리 완전한 원(border-radius:999px)이라 회전은 눈에 안 들어온다.
-   실측: spin 을 240deg 줘도 좌우로 1.2px 밖에 안 움직였다 — 자리에서 맴돌 뿐이다.
-   그래서 좌우로 나풀거리게 얹었다(실측 좌우 15.9px, 조각 폭의 2.6배라 확실히 보인다).
-   회전은 그대로 둔다 — 나중에 모양을 사각형으로 바꾸면 그때 살아난다.
-
-   낙하는 translate/rotate 프로퍼티, 나풀거림은 transform 프로퍼티로 나눠 건다.
-   같은 transform 안에 섞으면 중간 키프레임이 생겨 ease-in 낙하가 구간마다 끊긴다. */
 @keyframes kd-confetti {
     0%   { opacity: 0; translate: 0 -140px; rotate: 0deg; }
     12%  { opacity: 1; }
@@ -1613,14 +1306,11 @@ html[data-kd-node="pending"] .story-wait p {
     to   { transform: translateX(var(--sway, 9px)); }
 }
 
-/* 나풀거림 주기는 --dur 의 1/4 + alternate → 떨어지는 동안 두 번 왕복한다.
-   --dur 이 조각마다 달라서 흔들리는 박자도 저절로 흩어진다(JSP 가 넣어 준다). */
 .done-confetti i {
     animation: kd-confetti var(--dur, 3s) ease-in var(--delay, 0s) infinite,
                kd-confetti-sway calc(var(--dur, 3s) / 4) ease-in-out var(--delay, 0s) infinite alternate;
 }
 
-/* 움직임을 줄이도록 설정한 경우 — 전부 정지. 그림·글자는 그대로 보인다 */
 @media (prefers-reduced-motion: reduce) {
     .why-listen .wave i,
     .why-listen:not([hidden]),
@@ -1636,10 +1326,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 
-/* --------------------------------------------------------------------------
-   학습 종료 확인 팝업 — [다음에 할래] · [이 동작은 하기 싫어] 가 연다.
-   오답 모달(.story-dim)과 같은 결이되 더 작다. 묻는 말 하나 + 버튼 둘.
-   -------------------------------------------------------------------------- */
 .story-quit {
     position: fixed;
     inset: 0;
@@ -1651,7 +1337,7 @@ html[data-kd-node="pending"] .story-wait p {
     opacity: 0;
     transition: opacity .16s ease;
 }
-.story-quit[hidden] { display: none !important; }   /* hidden 은 display:flex 에 진다 */
+.story-quit[hidden] { display: none !important; }
 .story-quit.is-on   { opacity: 1; }
 
 .story-quit .box {
@@ -1699,20 +1385,12 @@ html[data-kd-node="pending"] .story-wait p {
     text-decoration: none;
     cursor: pointer;
 }
-/* 계속하는 쪽이 주 버튼이다 — 끝내는 쪽을 눈에 덜 띄게 둔다 */
 .story-quit .no  { border: 0; background: var(--kd-primary); color: #fff; }
 .story-quit .no:hover { background: var(--kd-primary-strong); }
 .story-quit .yes { border: 1px solid var(--kd-border); background: #fff; color: var(--kd-text-sub); }
 .story-quit .yes:hover { background: #f4f6f3; }
 
 
-/* [다시 들려줘] 읽는 중 — 지금 소리가 나오고 있다는 표시.
-   색만 바뀌면 소리가 나오는 중인지 아이가 못 알아채서 알약이 숨쉬게 한다
-   (story.js 가 낭독 동안 .is-speaking 을 붙였다 뗀다).
-
-   ⚠ 주기를 2s 로 둔 이유: 「듣고 있어요」 알약이 같은 방식으로 1.6s 에 숨쉰다.
-     /story/why 에서 둘이 같이 떠 있을 수 있는데 주기까지 같으면 구분이 안 된다.
-     번지는 폭도 10 → 8 로 줄여 아이가 말하는 쪽(듣고 있어요)이 더 크게 보이게 남겨 둔다. */
 .kd-sub-listen.is-speaking {
     background: var(--kd-primary-tint);
     border-color: var(--kd-primary);
@@ -1727,9 +1405,6 @@ html[data-kd-node="pending"] .story-wait p {
 @media (prefers-reduced-motion: reduce) {
     .kd-sub-listen.is-speaking { animation: none; }
 }
-
-/* [잘 모르겠어] 가 짚어 주는 자리 — 초록 테두리와 두 번의 흔들림.
-   아이 화면이라 색만 바꾸면 잘 못 알아채서 움직임을 같이 준다. */
 @keyframes kd-point {
     0%, 100% { transform: none; }
     20%      { transform: translateY(-6px); }
@@ -1747,10 +1422,6 @@ html[data-kd-node="pending"] .story-wait p {
 }
 
 
-/* --------------------------------------------------------------------------
-   정답 카드 반응 — 오답에는 모달이 뜨는데 정답에는 아무 말이 없었다(2026-08-10 지적).
-   화면을 바꾸지 않고 고른 카드 위에 바로 표시한다.
-   -------------------------------------------------------------------------- */
 .feel-card.is-right,
 .why-card.is-right {
     box-shadow: inset 0 0 0 3px var(--kd-primary-active);
@@ -1788,10 +1459,6 @@ html[data-kd-node="pending"] .story-wait p {
     .feel-card.is-right, .why-card.is-right, .kd-yay { animation: none; }
 }
 
-/* --------------------------------------------------------------------------
-   표정·동작 되짚어 주기 띠 (2026-08-10 피드백 4)
-   아이 화면이라 '틀렸다'가 아니라 '이렇게 해보자'로 말한다. 글자는 본문급으로 크게.
-   -------------------------------------------------------------------------- */
 .child-toast {
     position: fixed;
     left: 50%;
@@ -1812,7 +1479,6 @@ html[data-kd-node="pending"] .story-wait p {
     pointer-events: none;
     transition: opacity .18s, transform .18s;
 }
-
 .child-toast.is-on { opacity: 1; transform: translate(-50%, 0); }
 
 @media (prefers-reduced-motion: reduce) {

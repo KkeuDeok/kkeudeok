@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// AI 12주 로드맵
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -165,7 +164,6 @@ public class GeminiRoadmapAiService implements IRoadmapAiService {
         }
     }
 
-    // AI가 작성한 로드맵 검토
     private boolean isUsable(RoadmapPlanDTO plan) {
 
         if (plan == null || plan.getStages() == null || plan.getWeeks() == null) {
@@ -189,10 +187,10 @@ public class GeminiRoadmapAiService implements IRoadmapAiService {
                 return false;
             }
             if (w.getNo() != i + 1) {
-                return false;                       // 순서가 빠지거나 뒤섞였다
+                return false;
             }
             if (w.getStage() == null || !names.contains(w.getStage())) {
-                return false;                       // 없는 단계를 가리킨다
+                return false;
             }
         }
 
@@ -211,7 +209,7 @@ public class GeminiRoadmapAiService implements IRoadmapAiService {
             w.setSituationType(type.label());
 
             if (isActivityNotScene(w.getTopic())) {
-                log.info("{}주차 주제 '{}' 는 감정을 고를 장면이 아니라 바꿉니다", w.getNo(), w.getTopic());
+                log.info("{}주차 주제 '{}' ", w.getNo(), w.getTopic());
                 w.setTopic(sceneTopic(type));
                 w.setGoal(null);
             }
@@ -262,7 +260,7 @@ public class GeminiRoadmapAiService implements IRoadmapAiService {
     private String scoreBrief(Map<String, Double> scores) {
 
         if (scores == null || scores.isEmpty()) {
-            return "  (응답 없음 — 프로필만 보고 짠다)";
+            return "  (응답 없음)";
         }
 
         StringBuilder sb = new StringBuilder();

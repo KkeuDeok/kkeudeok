@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-//  이야기 화면 템플릿
 final class StoryTemplate {
 
     private StoryTemplate() {

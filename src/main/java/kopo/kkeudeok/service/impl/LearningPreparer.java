@@ -70,7 +70,7 @@ public class LearningPreparer {
             RoadmapDTO roadmap = roadmapMapper.selectActive(childId);
 
             if (roadmap == null) {
-                log.info("아이 {} 의 로드맵을 뒤에서 만듭니다", childId);
+                log.info("아이 {} 의 로드맵을 백그라운드에서 만듭니다", childId);
                 roadmap = roadmapService.regenerate(childId);
             }
 

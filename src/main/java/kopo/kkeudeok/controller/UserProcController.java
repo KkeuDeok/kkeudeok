@@ -63,9 +63,6 @@ public class UserProcController {
         return dto;
     }
 
-    /* ================================================================
-     * 로그인
-     * ================================================================ */
     @PostMapping("/loginProc")
     public MsgDTO loginProc(@RequestParam String loginId,
                             @RequestParam String password,
@@ -234,7 +231,6 @@ public class UserProcController {
         }
     }
 
-    // PIN 재설정 1단계 — 메일 인증
     @PostMapping("/pinResetVerifyProc")
     public MsgDTO pinResetVerifyProc(@RequestParam String authCode, HttpSession session) {
         try {
@@ -271,7 +267,6 @@ public class UserProcController {
         }
     }
 
-    // PIN 재설정 2단계 — 새 PIN 저장. 1단계 표를 쓰고 즉시 지운다
     @PostMapping("/newParentPinProc")
     public MsgDTO newParentPinProc(@RequestParam String newPin, HttpSession session) {
         try {
@@ -310,9 +305,6 @@ public class UserProcController {
         }
     }
 
-    /* ================================================================
-     * 인증번호 — 회원가입 · 아이디찾기 · 비밀번호찾기 공통
-     * ================================================================ */
     @PostMapping("/sendAuthCodeProc")
     public MsgDTO sendAuthCodeProc(@RequestParam String email,
                                    @RequestParam(defaultValue = "signup") String kind,
@@ -372,15 +364,11 @@ public class UserProcController {
         session.removeAttribute(SS_AUTH_EXPIRE);
     }
 
-    /* ================================================================
-     * 회원가입
-     * ================================================================ */
     @PostMapping("/checkLoginIdProc")
     public MsgDTO checkLoginIdProc(@RequestParam String loginId) {
         try {
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
-
             boolean exists = "Y".equals(CmmUtil.nvl(userService.getLoginIdExists(pDTO).getExistsYn()));
 
             return exists ? msg(0, "이미 사용 중인 아이디입니다.", "loginId")
@@ -441,9 +429,6 @@ public class UserProcController {
         }
     }
 
-    /* ================================================================
-     * 아이디 찾기
-     * ================================================================ */
     @PostMapping("/findIdProc")
     public MsgDTO findIdProc(@RequestParam String userName,
                              @RequestParam String email,
@@ -476,9 +461,6 @@ public class UserProcController {
         }
     }
 
-    /* ================================================================
-     * 비밀번호 찾기 - 1) 메일 인증  2) 새 비밀번호 저장
-     * ================================================================ */
     @PostMapping("/findPwProc")
     public MsgDTO findPwProc(@RequestParam String email,
                              @RequestParam String authCode,
@@ -488,7 +470,6 @@ public class UserProcController {
             if (codeError != null) {
                 return msg(0, codeError, "authCode");
             }
-
             UserDTO pDTO = new UserDTO();
             pDTO.setEmail(EncryptUtil.encAES128CBC(email));
 
@@ -509,7 +490,6 @@ public class UserProcController {
         }
     }
 
-    // 2단계: 새 비밀번호 저장
     @PostMapping("/newPasswordProc")
     public MsgDTO newPasswordProc(@RequestParam String newPassword, HttpSession session) {
         try {
@@ -589,7 +569,6 @@ public class UserProcController {
         }
     }
 
-    // 계정 삭제
     @PostMapping("/deleteAccountProc")
     public MsgDTO deleteAccountProc(HttpSession session) {
 

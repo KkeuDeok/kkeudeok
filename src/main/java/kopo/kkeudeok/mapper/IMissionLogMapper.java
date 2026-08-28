@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// 미션 수행 결과
 @Mapper
 public interface IMissionLogMapper {
 

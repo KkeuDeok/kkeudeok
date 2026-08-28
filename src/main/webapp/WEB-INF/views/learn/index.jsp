@@ -2,17 +2,12 @@
 <% String pageTitle = "학습 홈"; String appNav = "learn"; %>
 <%@ include file="../common/app-top.jsp" %>
 
-<%-- ponytail: 칩·표·문구는 전부 Figma 예시값이다. 백엔드가 붙으면 그대로 갈아끼운다.
-     Figma 원본(307:871)은 본문이 1115 라 하단 배너가 프레임 밖으로 잘려 있다.
-     웹에서는 .app-main 이 세로로 스크롤되므로 잘리지 않고 끝까지 보인다. --%>
 <div class="app-head app-head-lg">
     <h1>학습 홈</h1>
     <p>오늘 학습을 시작하고 일상을 기록해요</p>
 </div>
 
 <div class="learn-hero">
-    <%-- 배경은 사용자가 제공한 수채화 그림(learn-hero-bg2.jpg), 캐릭터는 기존 사람 토리를 겹친다.
-         제공 그림에는 아이가 없어서 배경만 쓰면 배너가 비어 보인다. --%>
     <span class="art">
         <img class="bg" src="/img/learn-hero-bg2.jpg?v=130" alt="">
         <img class="ch" data-kd-char="wave" src="/img/char-tori-wave.png" alt="">
@@ -20,24 +15,14 @@
     <div class="txt">
         <h2>AI 스토리 학습</h2>
         <p>AI가 만든 상황 이야기로 감정을 배워요</p>
-        <%-- 학습량 기준은 dev 의 '하루 세 편'을 따른다 — 아래 .learn-cta 세 문구가
-             이미 세 편 기준이라(109행 주석), 여기만 '한 편'이면 한 화면에서 숫자가 엇갈린다.
-             '예상 소요 약 7분'도 1편 기준 수치라 되살리지 않는다.
-             유형 안내 칩(.learn-fit)은 2026-08-14 지적으로 걷어냈고 app.css 의 규칙도 지웠다
-             — 칩을 되살리면 스타일 없는 맨텍스트가 뜬다. --%>
         <p class="min">하루 세 편 권장</p>
         <a class="kd-btn kd-btn-primary" href="/story/scene">이야기 시작하기</a>
     </div>
 </div>
-
 <div class="learn-row">
     <section class="learn-daily">
-        <%-- 선택 입력이라는 사실은 모달을 열기 전에 알아야 한다 —
-             열고 나서야 알려 주면 이미 써야 하는 줄 알고 들어온 뒤다 (2026-08-13) --%>
         <h2 class="learn-sec">오늘의 일상 입력 <span class="sec-opt">선택</span></h2>
 
-        <%-- 기록 전 상태 — 버튼을 누르면 모달이 열린다.
-             전에는 여기 textarea 가 바로 박혀 있어 '메모장'처럼 보였다. --%>
         <div class="learn-entry" id="dailyEmpty">
             <span class="ic ic-pen"></span>
             <p class="t">오늘은 아직 기록하지 않았어요</p>
@@ -45,17 +30,13 @@
             <button type="button" class="kd-btn kd-btn-primary" onclick="dlgDaily.showModal()">오늘의 일상 기록하기</button>
         </div>
 
-        <%-- 기록 후 상태 — Figma 에 없는 추가분.
-             "다음으로 넘어가는 느낌"을 만들기 위한 블록이라 통째로 빼기 쉽게 분리해 뒀다. --%>
         <div class="learn-entry learn-entry-done" id="dailyDone" hidden style="cursor:pointer" onclick="kdDailyPeek(event)">
             <span class="ic ic-check"></span>
             <p class="t">오늘 기록을 남겼어요</p>
             <p class="d" id="dailySummary"></p>
-            <%-- 카드를 누르면 펼쳐지는 원문. 요약은 40자에서 잘리니 여기서 전체를 보여 준다. --%>
             <p class="d" id="dailyFull" hidden></p>
             <div class="row">
                 <button type="button" class="kd-btn kd-btn-outline" onclick="kdDailyNew()">다시 쓰기</button>
-                <%-- 고른 감정이 그대로 학습 흐름의 감정 벌로 이어진다 — href 는 kdDailySave() 가 채운다 --%>
                 <a class="kd-btn kd-btn-primary" id="dailyStart" href="/story/scene">이 이야기로 학습 시작</a>
             </div>
         </div>
@@ -63,16 +44,12 @@
 
     <section class="learn-recent">
         <h2 class="learn-sec">최근 학습 기록</h2>
-        <%-- 기록이 0건일 때 — 표 헤더만 덩그러니 남으면 남의 화면처럼 보인다 --%>
         <div class="kd-empty kd-no-data">
             <span class="ic kd-empty-ic-list"></span>
             <p class="t">아직 학습 기록이 없어요</p>
             <p class="d">이야기를 한 편 마치면 날짜와 결과가 여기에 남아요</p>
         </div>
 
-        <%-- 표는 **실제 학습 기록**으로 채운다(kd-summary.js).
-             예전에는 7.22·7.21 같은 예시 5줄이 박혀 있어 누가 써도 같은 표가 나왔다
-             (2026-08-15 지적). 기록이 없으면 위의 kd-empty 만 보인다. --%>
         <table id="learnRecentTable" hidden>
             <thead>
             <tr><th class="c-no">No</th><th class="c-date">날짜</th><th class="c-story">스토리</th><th class="c-state">상태</th></tr>
@@ -88,34 +65,18 @@
         <li><span class="no">1</span><b>상황 이야기 제시</b><span class="ds">AI가 상황을 이야기 형태로 제시</span></li>
         <li><span class="no">2</span><b>표정·동작·음성 반응 인식</b><span class="ds">아동의 반응을 분석하여 이해도 파악</span></li>
         <li><span class="no">3</span><b>분기 진행 / 코칭 피드백</b><span class="ds">반응에 따라 스토리가 분기되고 코칭 제공</span></li>
-        <%-- '세션 결과 요약' 단계는 걷어냈다(2026-08-20 요청).
-             결과 정리는 화면에 따로 나오는 것이 아니라 성장 리포트로 바로 이어지므로
-             보호자가 보기에 4번과 5번이 같은 말이었다. --%>
         <li><span class="no">4</span><b>성장 리포트 반영</b><span class="ds">학습 결과가 성장 리포트에 반영</span></li>
     </ol>
 </div>
 
-<%-- 하단 배너(.learn-cta)는 걷어냈다(2026-08-20 요청).
-     맨 위 [이야기 시작하기] 와 같은 곳으로 가는 버튼이라 화면에 같은 행동이 두 번 있었고,
-     안내 문구도 위쪽 카드와 겹쳤다. 대시보드 하단 배너를 없앤 것과 같은 이유다(2026-08-18).
-     ⚠ CSS(.learn-cta)는 지우지 않았다 — 되살릴 일이 생기면 그대로 쓴다. --%>
-
-<%-- 오늘의 일상 입력 모달 (Figma 24:20619).
-     .terms-dialog 를 같이 붙여야 backdrop 과 zoom 상쇄를 물려받는다 — 빼면 배율이 두 번 걸려 작아진다.
-     상황 칩은 Figma 서버 렌더에는 없지만 사용자 요청으로 모달 안에 넣었다. --%>
 <dialog id="dlgDaily" class="terms-dialog daily-modal">
     <div class="hd">
         <h2>오늘의 일상 입력</h2>
         <button type="button" class="x" aria-label="닫기" onclick="dlgDaily.close()"></button>
     </div>
-
     <div class="bd">
         <h3>오늘은 어떤 일이 있었나요?</h3>
 
-        <%-- 2026-08-10 피드백 6 — 상황 칩(유치원·친구랑 다퉜어…) 4개를 걷어냈다.
-             무엇을 고르는 칸인지 안 읽혀 헷갈린다는 지적이었고, 실제 역할은
-             아래 메모의 예시 문구를 바꾸는 것뿐이라 지워도 잃는 기능이 없다.
-             대신 남은 두 칸에 라벨을 달아 무엇을 넣는 칸인지 분명히 했다. --%>
         <div class="daily-emos" id="dailyEmos">
             <label><img src="/img/face-happy.png" alt=""><span class="nm">기쁨</span><input type="radio" name="emotion" value="기쁨" checked></label>
             <label><img src="/img/face-sad.png" alt=""><span class="nm">슬픔</span><input type="radio" name="emotion" value="슬픔"></label>
@@ -123,8 +84,6 @@
             <label><img src="/img/face-surprise.png" alt=""><span class="nm">놀람</span><input type="radio" name="emotion" value="놀람"></label>
             <label><img src="/img/face-neutral.png" alt=""><span class="nm">무표정</span><input type="radio" name="emotion" value="무표정"></label>
         </div>
-
-        <%-- 팀장 확정: 일일 회고는 선택 입력이다("꼭 안 적어도 됨") --%>
         <p class="daily-lb">무슨 일이 있었나요?</p>
 
         <div class="daily-memo">
@@ -141,8 +100,6 @@
 </dialog>
 
 <script>
-    /* 상황 칩이 사라지면서 예시 문구 표(KD_DAILY)도 같이 걷어냈다 —
-       칩의 유일한 역할이 placeholder 를 바꾸는 것이었다. 이제 예시는 고정 한 개다. */
     (function () {
         var text = document.getElementById('dailyText');
         var count = document.getElementById('dailyCount');
@@ -152,18 +109,16 @@
         });
     })();
 
-    /* '다시 쓰기'는 말 그대로 새로 쓰는 것 — 지난 내용을 비우고 연다 (2026-08-10 지적). */
     function kdDailyNew() {
         document.getElementById('dailyText').value = '';
         document.getElementById('dailyCount').textContent = '0 / 200';
         dlgDaily.showModal();
     }
 
-    /* 기록 카드를 누르면 원문을 폈다 접는다. 카드 안의 버튼·링크 클릭은 그대로 통과시킨다. */
     function kdDailyPeek(e) {
         if (e.target.closest('button, a')) return;
         var full = document.getElementById('dailyFull');
-        if (!full.textContent) return;      /* 메모는 선택 입력 — 비어 있으면 펼칠 게 없다 */
+        if (!full.textContent) return;
         full.hidden = !full.hidden;
     }
 
@@ -171,45 +126,29 @@
         var emo = document.querySelector('#dailyEmos input:checked');
         var text = document.getElementById('dailyText');
 
-        /* ⚠ 예전엔 `text.value.trim() || text.placeholder` 였다 — 빈칸으로 저장하면
-           예시문("유치원에서 선생님이 칭찬…")이 **진짜 기록인 것처럼** 카드에 박혔다.
-           메모는 선택 입력이므로 비었으면 비운 채로 둔다. */
         var memo = text.value.trim();
         var full = document.getElementById('dailyFull');
 
         full.textContent = memo ? '"' + memo + '"' : '';
         full.hidden = true;
 
-        /* 요약 한 줄에 통째로 붙이던 탓에 길게 쓰면 카드가 늘어지고 글이 흘러넘쳤다
-           (2026-08-10 지적). 여기서는 앞부분만 보여 준다 — 원문은 카드를 누르면 펼쳐진다. */
         var shortMemo = memo.length > 40 ? memo.slice(0, 40).trim() + '…' : memo;
 
         document.getElementById('dailySummary').textContent =
             shortMemo ? emo.value + ' · "' + shortMemo + '"' : emo.value;
 
-        /* 고른 감정 → 학습1 감정 벌. 슬픔·놀람·무표정은 아직 벌이 없어 슬픔으로 보낸다. */
         var KD_EMO = { '기쁨': 'happy', '화남': 'angry', '놀람': 'surprise' };
         document.getElementById('dailyStart').href =
             '/story/scene?emo=' + (KD_EMO[emo.value] || 'sad');
 
-        /* AI 가 이야기를 만들 때 쓰는 입력값 — story-session.js 가 세션을 시작할 때 읽는다.
-           ⚠ 감정은 한글 그대로 남긴다. 서버가 '기쁨/슬픔/화남/놀람' 을 알아서 바꾸고,
-             화면 벌(happy|angry|sad)보다 원래 고른 값이 이야기 소재로 더 정확하다.
-           메모는 선택 입력이라 비어 있을 수 있다 — 그때는 프로필만으로 만들어진다. */
         try {
             sessionStorage.setItem('kdDailyEmo', emo.value);
             sessionStorage.setItem('kdDailyNote', memo);
         } catch (e) { }
-
         document.getElementById('dailyEmpty').hidden = true;
         document.getElementById('dailyDone').hidden = false;
         dlgDaily.close();
 
-        /* 실제로 기록을 남겼으면 '아무것도 없음(0)' 은 더 이상 맞지 않다 -> 1단계로 올린다.
-           이야기를 끝까지 마치면 story.js 가 localStorage.kdDone 을 올려 **한 편에 2단계**가 된다
-           (2026-08-10 요청으로 3회 → 1회).
-           ⚠ 예전엔 여기서 sessionStorage.kdStage 에 썼다 — 그건 head.jsp 의 **시연 스위치**라
-             한 번 쓰면 학습 횟수 계산을 영영 가로챈다. 자기 키(kdDaily)로 분리했다. */
         if (document.documentElement.dataset.kdStage === '0') {
             try { sessionStorage.setItem('kdDaily', '1'); } catch (e) { }
             document.documentElement.dataset.kdStage = '1';
@@ -218,8 +157,6 @@
 </script>
 
 <script>
-    /* 1단계는 '이미 오늘 기록을 남긴' 상태다 — 두 카드의 hidden 을 단계에 맞춰 정한다.
-       (0·2 단계는 JSP 기본값 그대로 = 아직 기록 안 함) */
     if (document.documentElement.dataset.kdStage === '1') {
         document.getElementById('dailySummary').textContent =
             '기쁨 · "선생님이 칭찬해 주셔서 어깨가 으쓱했어요"';
@@ -229,11 +166,5 @@
         document.getElementById('dailyDone').hidden = false;
     }
 </script>
-
-<%-- 자폐 유형일 때 하단 배너 문구를 바꾸던 블록은 통째로 걷어냈다(2026-08-20).
-     그 배너(.learn-cta)를 없앴으니 할 일이 없고, 남겨 두면 getElementById 가 null 을
-     돌려줘 그 지점부터 스크립트가 멈춘다.
-     ⚠ 문구에 '놀이터에서 차례 기다리기' 라는 예시가 박혀 있었다. 로드맵과 무관한 값이라
-       되살릴 일이 있어도 그대로 쓰지 말 것 — 다음 주차는 서버가 안다. --%>
 
 <%@ include file="../common/app-bottom.jsp" %>

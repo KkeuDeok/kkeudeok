@@ -3,7 +3,6 @@ package kopo.kkeudeok.dto;
 import java.util.Arrays;
 import java.util.Optional;
 
-// 미션 유형 4종
 public enum MissionType {
 
     EXPRESSION("표정"),

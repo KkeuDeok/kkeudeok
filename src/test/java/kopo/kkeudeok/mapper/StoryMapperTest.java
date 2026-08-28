@@ -11,7 +11,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-// Boot 4 에서 패키지가 옮겨졌다 — 3.x 의 org.springframework.boot.test.autoconfigure.jdbc 가 아니다
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
@@ -44,27 +43,13 @@ class StoryMapperTest {
     @Autowired
     private IRoadmapMapper roadmapMapper;
 
-    /**
-     * 중복 키를 잡은 뒤 쓰는 조회가 실제로 동작하는가.
-     *
-     * <p>미리 만들기와 화면 요청이 같은 자리를 동시에 만들면 뒤늦은 쪽이 unique 에 걸린다.
-     * 그때 이미 만들어진 노드를 찾아 써야 학습이 안 끊긴다 —
-     * 못 찾으면 예외가 그대로 올라가 그 화면에서 멈추고 미션 결과가 버려진다
-     * (2026-08-19 로그: Duplicate entry '41-3' → 스토리 API 오류).
-     *
-     * <p>⚠ 여기서는 트랜잭션이 하나뿐이라 스냅샷 문제까지는 재현되지 않는다.
-     * 그 부분(REPEATABLE READ 에서 다른 트랜잭션이 넣은 행이 안 보이는 것)은
-     * 실제 MariaDB 에 두 커넥션으로 붙어 확인했고, FOR UPDATE 로만 보였다.
-     */
     @Test
     @DisplayName("중복이 났을 때 쓰는 조회가 이미 만들어진 노드를 찾아낸다")
     void liveLookupFindsExistingNode() {
-
         StoryDTO story = StoryDTO.builder()
                 .childId(1L).title("중복 확인용").situationType("sad").isGenerated(true)
                 .build();
         storyMapper.insertStory(story);
-
         storyMapper.insertNode(StoryNodeDTO.builder()
                 .storyId(story.getStoryId())
                 .nodeOrder(3)
@@ -77,7 +62,6 @@ class StoryMapperTest {
         assertThat(found).isNotNull();
         assertThat(found.getStageType()).isEqualTo("CAUSE");
 
-        /* 없는 자리는 없다고 해야 한다 — 아무거나 집어 오면 엉뚱한 화면이 뜬다 */
         assertThat(storyMapper.selectNodeByOrderLive(story.getStoryId(), 5)).isNull();
     }
 
@@ -93,8 +77,6 @@ class StoryMapperTest {
         assertThat(child.getCallName()).isEqualTo("지우");
         assertThat(child.getDisorderType()).isEqualTo("자폐");
 
-        /* selectFirstChild 는 없앴다 — 로그인이 붙기 전 '첫 아이로 떨어지던' 임시 장치라,
-           지금은 남의 집 아이로 학습이 돌아간다는 뜻이었다(2026-08-18). */
         assertThat(childMapper.selectChildByMember(1L).getChildId()).isEqualTo(1L);
     }
 
@@ -102,7 +84,6 @@ class StoryMapperTest {
     @DisplayName("이야기 → 노드 → 세션 → 결과가 순서대로 저장되고 다시 읽힌다")
     void fullRound() {
 
-        // --- 이야기 ---
         StoryDTO story = StoryDTO.builder()
                 .childId(1L)
                 .title("토리가 길을 잃을 뻔했어요")
@@ -111,11 +92,10 @@ class StoryMapperTest {
                 .build();
 
         storyMapper.insertStory(story);
-        assertThat(story.getStoryId()).isNotNull();      // 생성 키가 되돌아왔는가
+        assertThat(story.getStoryId()).isNotNull();
 
         assertThat(storyMapper.selectStory(story.getStoryId()).getSituationType()).isEqualTo("sad");
 
-        // --- 노드 (choice_data 에 부가정보를 담는다) ---
         StoryNodeDTO node = StoryNodeDTO.builder()
                 .storyId(story.getStoryId())
                 .nodeOrder(2)
@@ -127,7 +107,6 @@ class StoryMapperTest {
 
         storyMapper.insertNode(node);
         assertThat(node.getNodeId()).isNotNull();
-
         StoryNodeDTO read = storyMapper.selectNodeByOrder(story.getStoryId(), 2);
         assertThat(read).isNotNull();
         assertThat(read.getStageType()).isEqualTo("MIND");
@@ -136,7 +115,6 @@ class StoryMapperTest {
 
         assertThat(storyMapper.selectNodes(story.getStoryId())).hasSize(1);
 
-        // --- 세션 ---
         StorySessionDTO session = StorySessionDTO.builder()
                 .childId(1L)
                 .storyId(story.getStoryId())
@@ -155,7 +133,6 @@ class StoryMapperTest {
         assertThat(sessionMapper.countTodaySessions(1L)).isEqualTo(1);
         assertThat(sessionMapper.countTodayCompleted(1L)).isZero();
 
-        // --- 미션 결과 ---
         missionLogMapper.insertLogs(List.of(MissionLogDTO.builder()
                 .sessionId(session.getSessionId())
                 .nodeId(node.getNodeId())
@@ -171,12 +148,10 @@ class StoryMapperTest {
         assertThat(logs.get(0).getIsSuccess()).isFalse();
         assertThat(logs.get(0).getTargetValue()).isEqualTo("sad");
 
-        // --- 세션 닫기 ---
         assertThat(sessionMapper.updateSessionClosed(session.getSessionId(), "COMPLETED")).isEqualTo(1);
         assertThat(sessionMapper.selectSession(session.getSessionId()).getStatus()).isEqualTo("COMPLETED");
         assertThat(sessionMapper.countTodayCompleted(1L)).isEqualTo(1);
 
-        // 이미 마친 세션은 중도이탈로 되돌아가지 않는다 — 늦게 도착한 전송이 완료를 깨면 안 된다
         assertThat(sessionMapper.updateSessionClosed(session.getSessionId(), "INCOMPLETE")).isZero();
         assertThat(sessionMapper.selectSession(session.getSessionId()).getStatus()).isEqualTo("COMPLETED");
     }
@@ -188,7 +163,6 @@ class StoryMapperTest {
         StoryDTO story = StoryDTO.builder()
                 .childId(1L).title("제목").situationType("happy").isGenerated(false).build();
         storyMapper.insertStory(story);
-
         StoryNodeDTO node = StoryNodeDTO.builder()
                 .storyId(story.getStoryId()).nodeOrder(4).stageType("EXPRESSION")
                 .narration("표정을 지어 보자").build();
@@ -236,19 +210,16 @@ class StoryMapperTest {
                 .status(StorySessionDTO.INCOMPLETE).build();
         sessionMapper.insertSession(session);
 
-        // 그만둘 때 저장된 앞부분
         missionLogMapper.insertLogs(List.of(MissionLogDTO.builder()
                 .sessionId(session.getSessionId()).nodeId(mind.getNodeId())
                 .missionType("CHOICE").targetValue("sad").responseValue("sad")
                 .isSuccess(true).build()));
 
-        // 이어서 마친 뒤 뒷부분만 전송
         missionLogMapper.deleteByNodes(session.getSessionId(), List.of(cause.getNodeId()));
         missionLogMapper.insertLogs(List.of(MissionLogDTO.builder()
                 .sessionId(session.getSessionId()).nodeId(cause.getNodeId())
                 .missionType("CHOICE").targetValue("cause").responseValue("cause")
                 .isSuccess(true).build()));
-
         assertThat(missionLogMapper.selectBySession(session.getSessionId())).hasSize(2);
     }
 
@@ -265,7 +236,6 @@ class StoryMapperTest {
         calibMapper.insertCalib(happy);
         assertThat(happy.getCalibId()).isNotNull();
 
-        // 다시 찍기 — 지우고 넣으므로 행이 늘지 않는다
         calibMapper.deleteByEmotion(1L, "HAPPY");
         calibMapper.insertCalib(ExpressionCalibDTO.builder()
                 .childId(1L).emotionType("HAPPY")
@@ -283,7 +253,6 @@ class StoryMapperTest {
         assertThat(rows).extracting(ExpressionCalibDTO::getEmotionType)
                 .containsExactlyInAnyOrder("HAPPY", "SAD");
 
-        // ⚠ 얼굴 사진은 저장하지 않는다 — 온보딩이 "원본 사진은 바로 지워져요" 라고 약속했다
         assertThat(rows).allSatisfy(r -> assertThat(r.getMediaUrl()).isNull());
 
         assertThat(calibMapper.deleteByChild(1L)).isEqualTo(2);
@@ -295,7 +264,6 @@ class StoryMapperTest {
     void roadmapActivation() {
 
         assertThat(roadmapMapper.selectActive(1L)).isNull();
-
         RoadmapDTO first = RoadmapDTO.builder()
                 .childId(1L).roadmapType("STANDARD")
                 .stepData("{\"totalWeeks\":12,\"weeks\":[]}").isActive(true).build();
@@ -319,7 +287,7 @@ class StoryMapperTest {
     @DisplayName("오늘 남긴 미완료 세션을 이어할 것으로 찾는다")
     void selectResumable() {
 
-        assertThat(sessionMapper.selectResumable(1L)).isNull();   // 아직 없다
+        assertThat(sessionMapper.selectResumable(1L)).isNull();
 
         StoryDTO story = StoryDTO.builder()
                 .childId(1L).title("제목").situationType("친구 위로하기").isGenerated(true).build();
@@ -330,7 +298,6 @@ class StoryMapperTest {
                 .status(StorySessionDTO.INCOMPLETE).build();
         sessionMapper.insertSession(session);
 
-        // 노드가 하나도 없으면 이어할 게 없다
         assertThat(sessionMapper.selectResumable(1L)).isNull();
 
         storyMapper.insertNode(StoryNodeDTO.builder()
@@ -338,7 +305,6 @@ class StoryMapperTest {
 
         assertThat(sessionMapper.selectResumable(1L)).isNotNull();
 
-        // 마친 세션은 이어할 대상이 아니다
         sessionMapper.updateSessionClosed(session.getSessionId(), "COMPLETED");
         assertThat(sessionMapper.selectResumable(1L)).isNull();
     }

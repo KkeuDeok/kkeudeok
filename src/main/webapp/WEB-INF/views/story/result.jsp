@@ -1,5 +1,3 @@
-<%-- 칭찬 화면 — 한 편을 끝까지 마쳤을 때. 여기 오면 세션이 completed 로 닫힌다.
-     아무 데나 누르면 대시보드로 나간다. 하단 바는 없다(storyFootOff). --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

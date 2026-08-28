@@ -36,7 +36,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-// 학습 세션 진행
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -530,7 +529,7 @@ public class StoryService implements IStoryService {
 
         if (childId == null || !childId.equals(session.getChildId())) {
 
-            log.warn("남의 세션에 손대려는 요청을 막았습니다 — session={}, 세션 주인={}, 요청한 아이={}",
+            log.warn("session={}, 세션 주인={}, 요청한 아이={}",
                     session.getSessionId(), session.getChildId(), childId);
 
             throw new IllegalArgumentException("이 아이의 학습이 아닙니다: " + session.getSessionId());
@@ -564,7 +563,7 @@ public class StoryService implements IStoryService {
         }
 
         throw new IllegalStateException(
-                "세션 " + session.getSessionId() + " 의 이야기 씨앗을 찾지 못했습니다");
+                "세션 " + session.getSessionId() + " 의 이야기 뼈대를 찾지 못했습니다");
     }
 
     private String emotionFor(StoryRequestDTO.Start req, RoadmapPlanDTO.Week week, int seq, String last) {

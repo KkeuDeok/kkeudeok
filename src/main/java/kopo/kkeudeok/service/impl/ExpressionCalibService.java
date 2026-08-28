@@ -16,7 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// 표정 캘리브레이션
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -3,7 +3,6 @@ package kopo.kkeudeok.dto;
 import java.util.Arrays;
 import java.util.Optional;
 
-// 감정 유형
 public enum EmotionType {
 
     HAPPY("happy", "기쁨"),

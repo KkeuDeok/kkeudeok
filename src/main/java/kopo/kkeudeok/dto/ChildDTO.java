@@ -9,7 +9,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Period;
 
-// 아동
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,7 +30,6 @@ public class ChildDTO {
         return birthDate == null ? null : Period.between(birthDate, LocalDate.now()).getYears();
     }
 
-    // 이 서비스가 상대하는 나이 (유치원·어린이집부터 초등 저학년까지)
     private static final int MIN_AGE = 3;
     private static final int MAX_AGE = 12;
 

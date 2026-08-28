@@ -1,11 +1,5 @@
-/* ==========================================================================
-   로그인·회원가입 계열 (auth) 전용 레이아웃
-   - Figma 좌우 분할: 좌측 수채 일러스트 47% + 우측 폼 패널
-   - 화면 전체를 꽉 채우는 유동 레이아웃 (창모드·전체화면 동일)
-   ========================================================================== */
-
 html {
-    overflow: hidden;          /* 스크롤 금지 — 화면은 항상 뷰포트 안에 들어온다 */
+    overflow: hidden;
 }
 
 .auth-body {
@@ -22,10 +16,9 @@ html {
     display: flex;
 }
 
-/* 좌측 일러스트 패널 — 곰은 항상 좌하단 고정, 우측 끝은 흰색 그라데이션으로 폼과 연결 */
 .auth-illust {
     position: relative;
-    flex: 0 0 47%;             /* 1440 기준 676px과 같은 비율 */
+    flex: 0 0 47%;
     height: 100%;
     overflow: hidden;
 }
@@ -38,18 +31,15 @@ html {
     object-position: left bottom;
 }
 
-/* 곰(토리) — Figma 좌표(87, 454, h568 / 1024 기준)를 vh로 환산.
-   우측 패널 zoom과 같은 '높이 기준 배율'이라 창 크기와 무관하게 위치·크기가 디자인과 동일 */
 .auth-illust .bear {
     position: absolute;
-    top: 35vh;             /* 원본 44.34 → 위로 올림 */
-    left: 3vh;             /* 원본 8.5 → 왼쪽으로 이동 */
-    height: 65vh;          /* 원본 55.47 → 확대, 하단(100vh)은 바닥 고정 */
+    top: 35vh;
+    left: 3vh;
+    height: 65vh;
     width: auto;
-    z-index: 2;            /* 페이드(z1)보다 위 — 곰은 씻겨나가지 않는다 */
+    z-index: 2;
 }
 
-/* 중간부터 흰색으로 페이드 — 배경 위·곰 아래 레이어 */
 .auth-illust::after {
     content: "";
     position: absolute;
@@ -61,19 +51,13 @@ html {
     background: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.55) 55%, #fff);
 }
 
-/* --------------------------------------------------------------------------
-   우측 폼 패널 — 폼 열은 폭 520 고정·가로 중앙 (1440에서 Figma의 121px 여백과 일치)
-   기본은 세로 중앙 정렬, 회원가입 3화면은 상단 고정(--top)
-   fit-frame.js가 --fit-scale(= 창높이/1024)을 계산해 패널만 배율 조정 →
-   패널 내부 세로 좌표는 어떤 창 크기에서도 디자인 기준 1024px 그대로 유지된다.
-   -------------------------------------------------------------------------- */
 .auth-panel {
     position: relative;
     flex: 1;
     background: #fff;
     display: flex;
     flex-direction: column;
-    padding-top: 110px;    /* 9개 화면 공통 앵커 — 로고 110 / 진행바 162 / 타이틀 210 */
+    padding-top: 110px;
     zoom: var(--fit-scale, 1);
 }
 
@@ -82,11 +66,6 @@ html {
     margin: 0 auto;
 }
 
-/* --------------------------------------------------------------------------
-   브랜드: 곰 아바타(36px 원) + '끄덕' — 전 화면 공통
-   행 높이 36(로고 line-height와 동일)으로 레일(150/202/250) 불변
-   -------------------------------------------------------------------------- */
-/* 기본은 진행바 없는 화면 — 타이틀을 216 레일에 맞춘다 (192+24) */
 .auth-brand {
     display: flex;
     align-items: center;
@@ -117,9 +96,6 @@ html {
     color: var(--kd-primary-strong);
 }
 
-/* --------------------------------------------------------------------------
-   타이틀·부제
-   -------------------------------------------------------------------------- */
 .auth-title {
     font-size: 40px;
     font-weight: 700;
@@ -135,26 +111,15 @@ html {
 
 .auth-subtitle {
     font-size: 17px;
-    line-height: 26px;     /* 16 + 26 + 16 = 58 → 부제 없는 화면의 예약분과 정확히 일치 */
+    line-height: 26px;
     color: var(--kd-text-sub);
     margin: 0 0 16px;
 }
 
-/* 제목(부제) 아래 첫 콘텐츠까지 40 — 9화면 공통 (2026-08-08 사용자 확정).
-   전에는 부제 없는 화면에 부제 자리 42를 비워 둬서 82가 됐는데, 그만큼 콘텐츠가
-   내려앉아 화면이 답답했다. 이제 부제 유무와 상관없이 제목 아래 16 + 첫 콘텐츠 24 = 40. */
-
-/* --------------------------------------------------------------------------
-   유효성 검사 (데모 — 백엔드 연동 시 서버 검증으로 대체)
-   -------------------------------------------------------------------------- */
-/* 자리는 차지한 채 숨긴다 — 인증칸이 나타나도 아래 버튼이 밀리지 않게 */
 .is-hidden {
     visibility: hidden;
 }
 
-/* 모든 필드는 입력칸 아래 왼쪽에 문구 한 줄(17px) 자리를 상시 예약한다.
-   오류·힌트는 그 예약석에만 표시되므로 아무것도 밀리거나 붙지 않는다.
-   (필드 간격은 예약분만큼 줄여 전체 높이 유지 — kkeudeok.css) */
 .kd-field {
     position: relative;
     padding-bottom: 16px;
@@ -165,7 +130,6 @@ html {
     bottom: 0;
     left: 0;
     margin: 0;
-    /* 줄높이는 .kd-field 예약석(16)을 넘기면 안 된다 — 넘기면 입력칸을 파고든다 */
     font-size: 13px;
     line-height: 16px;
     color: var(--kd-danger);
@@ -175,7 +139,6 @@ html {
     border-color: var(--kd-danger) !important;
 }
 
-/* 안내 문구(초록) — 오류와 같은 예약석. 인증번호 전송 안내 등 긍정 메시지용 */
 .kd-info {
     position: absolute;
     bottom: 0;
@@ -186,14 +149,10 @@ html {
     color: var(--kd-primary);
 }
 
-/* --------------------------------------------------------------------------
-   필수 표시·힌트·타이머
-   -------------------------------------------------------------------------- */
 .req {
     color: var(--kd-danger);
 }
 
-/* 힌트도 같은 예약석 사용 — 오류가 뜨는 동안은 auth-validate.js가 힌트를 감춘다 */
 .kd-hint {
     position: absolute;
     bottom: 0;
@@ -204,19 +163,12 @@ html {
     color: var(--kd-text-sub);
 }
 
-/* 문구를 예약석보다 3px 아래로 — 입력칸에 붙어 보인다는 피드백(2026-08-08).
-   예약석·필드 간격은 그대로라 레일이 안 움직인다 (아래 여백 16을 3px 빌려 쓸 뿐) */
 .kd-error,
 .kd-hint,
 .kd-info {
     bottom: -3px;
 }
 
-/* ==========================================================================
-   첫 진입 스플래시 — 로그인 화면에만(login.jsp). 곰이 두 번 끄덕이고 걷힌다.
-   ⚠ visibility 까지 끄는 이유: opacity 만 0 이면 투명한 판이 그대로 남아
-     로그인 폼이 안 눌린다(elementFromPoint 로 확인함).
-   ========================================================================== */
 .kd-splash {
     position: fixed;
     inset: 0;
@@ -224,23 +176,13 @@ html {
     display: grid;
     place-items: center;
     background: #fff;
-    /* 1.9s = 끄덕이 완전히 잦아드는 1.6s(0.5 지연 + 1.1 재생) + 숨 고르는 0.3s.
-       세션당 한 번만 뜨므로(login.jsp) 조금 길어도 된다 — 1.35s 로 두면
-       끄덕이 다 잦아들기 전에 걷히기 시작한다. */
     animation: kd-splash-out 0.65s ease 1.9s forwards;
 }
 
-/* pointer-events 는 지연이 끝나고(=걷히기 시작할 때) 비로소 걸린다 — fill-mode 가
-   forwards 라 대기 중에는 적용되지 않는다. 덕분에 "덮여 있는 동안은 막고,
-   흐려지기 시작하면 바로 눌린다"가 된다. 없으면 보이는데 안 눌리는 구간이
-   사라지는 시간(0.65s)만큼 생긴다.
-   ⚠ 양쪽 키프레임에 모두 적어야 한다. pointer-events 는 이산(discrete) 속성이라
-     한쪽에만 두면 구간 절반에서 원래 값으로 되돌아간다(실측으로 확인). */
 @keyframes kd-splash-out {
     from { pointer-events: none; }
     to   { opacity: 0; visibility: hidden; pointer-events: none; }
 }
-
 .kd-splash-logo {
     display: flex;
     flex-direction: column;
@@ -248,7 +190,6 @@ html {
     gap: 14px;
 }
 
-/* 회전축을 턱 밑에 둬야 고개를 젓는 게 아니라 끄덕이는 걸로 보인다 */
 .kd-splash-logo img {
     width: 96px;
     height: 96px;
@@ -256,7 +197,6 @@ html {
     animation: kd-splash-drop 0.5s cubic-bezier(0.34, 1.3, 0.64, 1) both,
                kd-splash-nod 1.1s 0.5s ease-in-out both;
 }
-
 .kd-splash-logo span {
     font-size: 34px;
     font-weight: 700;
@@ -270,7 +210,6 @@ html {
     from { transform: translateY(-64px) scale(0.86); opacity: 0; }
 }
 
-/* 두 번 끄덕 — 크게 한 번, 작게 한 번. 되돌아오는 각(−4·−2)이 있어야 관성이 산다 */
 @keyframes kd-splash-nod {
     0%   { transform: rotate(0); }
     18%  { transform: rotate(13deg); }
@@ -284,18 +223,12 @@ html {
     from { opacity: 0; transform: translateY(10px); }
 }
 
-/* 움직임을 줄이도록 설정한 경우 — 곰만 조용히 보여 주고 빨리 걷는다 */
 @media (prefers-reduced-motion: reduce) {
     .kd-splash-logo img,
     .kd-splash-logo span { animation: none; }
     .kd-splash { animation-duration: 0.2s; animation-delay: 0.4s; }
 }
 
-/* --- 오류·안내 문구가 뜨는 방식 ----------------------------------------------
-   auth-validate.js 가 .kd-error / .kd-info 를 DOM 에 새로 붙이므로 transition 은
-   걸리지 않는다(붙는 순간이 곧 첫 상태다) → animation 으로 한 번 돌린다.
-   위 예약석 덕분에 자리가 이미 잡혀 있어 움직임을 넣어도 아래 요소가 안 밀린다.
-   로그인 계열 9화면과 온보딩이 이 클래스를 공유하므로 여기 한 곳이면 전부 적용된다. */
 .kd-error,
 .kd-info {
     animation: kd-msg-in var(--kd-dur-base) var(--kd-ease) both;
@@ -305,7 +238,6 @@ html {
     from { opacity: 0; transform: translateY(-3px); }
 }
 
-/* 테두리가 빨개지는 것도 같이 부드럽게 */
 .kd-input {
     transition: border-color var(--kd-dur-fast) ease;
 }
@@ -315,12 +247,10 @@ html {
     .kd-info { animation: none; }
 }
 
-/* 인증 행: 376px 입력 + 132px pill 버튼 (gap 12) */
 .kd-input-row {
     display: flex;
     gap: 12px;
 }
-
 .kd-input-wrap {
     position: relative;
     width: 376px;
@@ -357,20 +287,15 @@ html {
     border-color: var(--kd-primary-active);
 }
 
-/* 재전송 — 이미 한 번 보낸 뒤라 글자를 진초록으로 강조 */
 .kd-btn-resend {
     color: var(--kd-primary-strong);
 }
 
-/* --------------------------------------------------------------------------
-   버튼 상태
-   -------------------------------------------------------------------------- */
 .auth-cta {
     width: 100%;
     margin-top: 33px;
 }
 
-/* 필드 바로 다음에 오는 요소들은 예약석(17px)만큼 마진을 빼서 시각 간격 유지 */
 .kd-field + .auth-cta {
     margin-top: 16px;
 }
@@ -389,7 +314,6 @@ html {
     pointer-events: none;
 }
 
-/* 회색 비활성 (비밀번호 재설정 화면) */
 .kd-btn-muted {
     height: 59px;
     border-radius: 999px;
@@ -400,7 +324,6 @@ html {
     pointer-events: none;
 }
 
-/* 약관 본문 — 브라우저 기본 <dialog> (top layer라 zoom·overflow 영향 없음) */
 .terms-dialog {
     width: 480px;
     max-height: 68vh;
@@ -408,11 +331,9 @@ html {
     border: none;
     border-radius: 16px;
     color: var(--kd-text);
-    zoom: calc(1 / var(--fit-scale, 1));   /* 패널에 걸린 배율 상쇄 — 화면 실제 크기로 */
+    zoom: calc(1 / var(--fit-scale, 1));
 }
 
-/* 0.35 는 흰 바탕을 회색으로 덮어 초록 사이드바까지 탁해 보였다(2026-08-09 지적).
-   옅게 낮추고 흐림을 조금 줘서, 뒤가 비치되 모달에 시선이 모이게 한다. */
 .terms-dialog::backdrop {
     background: rgba(0, 0, 0, 0.22);
     backdrop-filter: blur(3px);
@@ -444,12 +365,6 @@ html {
     font-weight: 700;
 }
 
-/* --------------------------------------------------------------------------
-   약관 동의 리스트
-   -------------------------------------------------------------------------- */
-/* 전체 동의 — 개별 항목과 성격이 달라 아래 구분선으로 나눈다.
-   박스(배경·테두리·안쪽여백)를 쓰면 체크박스가 21px 밀려 아래 항목들과 왼쪽이 어긋난다.
-   가로 구분선은 왼쪽 정렬을 해치지 않으면서 위계는 그대로 보여준다. */
 .terms-all {
     display: flex;
     align-items: center;
@@ -458,7 +373,6 @@ html {
     border-bottom: 1px solid var(--kd-border);
 }
 
-/* 항목 체크박스(22)와 같은 크기 — 라벨 시작점이 34로 일치한다 */
 .terms-all .kd-check {
     width: 22px;
     height: 22px;
@@ -485,7 +399,6 @@ html {
     height: 22px;
     border-radius: 6px;
 }
-
 .terms-item label {
     font-size: 17px;
     line-height: 26px;
@@ -508,8 +421,6 @@ html {
     text-decoration: none;
 }
 
-/* 화살표 — 글자 '>' 대신 lucide 아이콘. background가 currentColor라
-   링크 색과 hover 색을 그대로 따라간다 (장식이라 스크린리더에는 안 읽힌다) */
 .terms-item .terms-view::after {
     content: "";
     width: 16px;
@@ -524,8 +435,6 @@ html {
     color: var(--kd-primary);
 }
 
-/* 항목 아래 한 줄 설명 — 민감정보만 있던 안내(.terms-note)를 네 항목 모두에 맞춘 것.
-   체크박스(22) + 간격(12) = 34 만큼 들여써 라벨과 왼쪽이 맞는다 */
 .terms-note,
 .terms-desc {
     font-size: 15px;
@@ -534,7 +443,6 @@ html {
     margin: 8px 0 0 34px;
 }
 
-/* 필수 미동의 안내 — 자리는 상시 예약해서 뜰 때 버튼이 밀리지 않게 한다 */
 .terms-error {
     margin: 16px 0 0;
     font-size: 15px;
@@ -546,14 +454,10 @@ html {
 .terms-error.is-shown {
     visibility: visible;
 }
-
 .kd-check--error {
     border-color: var(--kd-danger);
 }
 
-/* --------------------------------------------------------------------------
-   비밀번호 규칙 체크리스트
-   -------------------------------------------------------------------------- */
 .pw-rules {
     margin-top: 26px;
 }
@@ -590,9 +494,6 @@ html {
     background: url("/img/icon-check-sm.svg") no-repeat center / contain;
 }
 
-/* --------------------------------------------------------------------------
-   완료형 화면 (가입완료·아이디성공·변경완료)
-   -------------------------------------------------------------------------- */
 .done-icon {
     width: 96px;
     height: 96px;
@@ -627,13 +528,12 @@ html {
     margin: 0;
 }
 
-/* 크림색 안내 카드 */
 .done-card {
     background: var(--kd-card-cream);
     border: 1px solid var(--kd-border);
     border-radius: 20px;
     padding: 24px 24px 32px;
-    margin-top: 40px;      /* 제목 블록↔본문 = 40 (폼 화면의 first-child 규칙과 동일) */
+    margin-top: 40px;
 }
 
 .done-card .card-caption {
@@ -682,7 +582,6 @@ html {
     margin: 0;
 }
 
-/* 아이디 표시 카드 */
 .done-id-card {
     background: var(--kd-card-cream);
     border: 1px solid var(--kd-border);
@@ -694,12 +593,9 @@ html {
     font-size: 22px;
     font-weight: 700;
     color: var(--kd-text);
-    margin-top: 40px;      /* 제목 블록↔본문 = 40 */
+    margin-top: 40px;
 }
 
-/* --------------------------------------------------------------------------
-   하단 링크·푸터
-   -------------------------------------------------------------------------- */
 .auth-links {
     display: flex;
     justify-content: center;
@@ -733,7 +629,6 @@ html {
     color: var(--kd-text-sub);
 }
 
-/* 로그인 상태 유지 행 */
 .auth-remember {
     display: flex;
     align-items: center;
@@ -748,28 +643,11 @@ html {
     cursor: pointer;
 }
 
-/* ==========================================================================
-   레일 그룹 2개 — 사용자가 실제로 연속해서 넘어가는 단위끼리 묶는다.
-
-   [그룹 B] 로그인 · 아이디찾기 2 · 비밀번호찾기 3   (기본값)
-       브랜드 150 / 제목 216 / 초록 버튼 742~801 / 링크 827~850
-       패널 안쪽 110 + 열 위 40 = 브랜드 150, 열 아래 223 → 열 하단 801.
-       버튼이 열 하단에 붙으므로 6화면 어디서나 742.
-       레일을 정하는 건 아이디찾기(콘텐츠 702).
-
-   [그룹 A] 회원가입 약관 · 정보입력 · 완료   (.auth-signup — signup-header.jsp)
-       브랜드 110 / 제목 176 / 초록 버튼 883~942
-       회원가입은 약관→정보입력→완료를 연속으로 거치는 한 흐름이라
-       그 안에서 버튼이 안 움직이는 쪽이 중요하다.
-       레일을 정하는 건 정보입력(콘텐츠 867) — 입력칸 6개라 더 못 올린다.
-   ========================================================================== */
-/* 위 여백 0 — 9화면 모두 패널 앵커(110)에서 바로 시작해 로고·제목이 정렬된다.
-   40 을 주면 정보입력(.auth-legacy, 위 0)만 혼자 위로 붙어 어긋난다 (2026-08-08) */
 .auth-form-col {
     flex: 1;
     display: flex;
     flex-direction: column;
-    margin: 0 auto 251px;      /* 열 하단 773 → 버튼 714~773 */
+    margin: 0 auto 251px;
 }
 
 .auth-form-col > form {
@@ -779,61 +657,40 @@ html {
 }
 
 .auth-form-col > form > * {
-    flex: none;              /* 세로가 모자라도 입력칸이 찌그러지지 않게 */
+    flex: none;
 }
 
-/* 남는 공간을 전부 위로 흡수 → 초록 버튼은 열 하단 레일에 고정 */
 .auth-form-col > form > .auth-cta,
 .auth-form-col > .auth-cta {
     margin-top: auto;
 }
 
-/* 제목(부제) 블록 아래 첫 콘텐츠까지 40px = 제목·부제 margin 16 + 여기 24.
-   8px 스케일의 기점 — 이 값 하나로 9화면 전부의 '헤더↔본문' 간격이 결정된다.
-   완료형 화면은 카드가 본문이라 .done-card / .done-id-card 의 margin-top 40 이 같은 역할. */
 .auth-form-col > form > :first-child {
     margin-top: 24px;
 }
 
-/* 콘텐츠가 짧아 아래가 크게 비는 화면 — 남는 공간을 제목 아래와 버튼 위가 반씩 나눠
-   콘텐츠 덩어리를 그 사이 중앙에 놓는다. 버튼 레일(margin-top:auto)은 그대로 유지된다. */
 .auth-form-col > form.auth-center > :first-child {
     margin-top: auto;
 }
 
-/* 로그인 계열 6화면 — 콘텐츠를 제목과 버튼 사이 중앙에 (2026-08-08 사용자 확정).
-   버튼은 margin-top:auto 로 열 하단(714)에 그대로 붙어 있고, 첫 콘텐츠에도 auto 를 주면
-   남는 공간이 위·아래로 반씩 나뉘어 덩어리가 가운데로 내려온다.
-   회원가입 3화면(.auth-signup)은 제외 — 그쪽은 위에서부터 채우는 게 맞다. */
 .auth-form-col:not(:has(.auth-signup)) > form > :first-child,
 .auth-form-col:not(:has(.auth-signup)) > .done-icon {
     margin-top: auto;
 }
 
-/* 하단 링크는 푸터와 같이 패널 바닥 기준으로 띄운다.
-   폼 열 안에 두면 열 하단(870)을 차지해 초록 버튼이 49px 밀려 올라간다. */
 .auth-form-col > .auth-links {
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
-    bottom: 204px;           /* 버튼 끝 773 + 24 = 797 */
+    bottom: 204px;
     width: 520px;
     margin: 0;
 }
 
-/* --------------------------------------------------------------------------
-   그룹 A — 회원가입 약관 · 완료. 브랜드는 그룹 B와 같은 150,
-   버튼만 781 (레일을 정하는 건 완료 화면의 안내 카드, 콘텐츠 741).
-   -------------------------------------------------------------------------- */
-/* 회원가입 3화면은 버튼을 907 한 줄로 — 레일을 정하는 건 정보입력(콘텐츠 883).
-   약관동의·완료도 여기에 맞춰 내려, 회원가입 흐름에서 버튼이 안 움직인다 (2026-08-08) */
 .auth-form-col:has(.auth-signup) {
-    margin: 0 auto 58px;       /* 위 0 = 로고 110 (9화면 공통) · 열 하단 966 → 버튼 907~966 */
+    margin: 0 auto 58px;
 }
-
-/* 정보입력만 단독 — 입력칸 6개로 콘텐츠가 883까지 내려와 어느 레일에도 못 들어간다.
-   브랜드를 150으로 올리면 버튼이 푸터를 넘으므로 110 유지. */
 .auth-form-col:has(.auth-legacy) {
-    margin: 0 auto 58px;       /* 열 하단 966 → 버튼 907~966 */
+    margin: 0 auto 58px;
 }
 

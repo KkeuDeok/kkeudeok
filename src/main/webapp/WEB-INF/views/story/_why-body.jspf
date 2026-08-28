@@ -1,5 +1,3 @@
-<%-- 이유 찾기 본문 조각 — why.jsp 가 쓴다.
-     오답 카드를 누르면 story.js 가 그 자리에서 귓속말 모달을 띄운다. --%>
 <%@ page pageEncoding="UTF-8" %>
 
 <%

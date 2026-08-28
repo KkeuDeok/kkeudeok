@@ -116,10 +116,6 @@ class LoginGuardTest {
         mvc.perform(get(path).session(session)).andExpect(status().isOk());
     }
 
-    /**
-     * 세션은 DB 밖에 산다. 회원을 지워도 세션은 살아 있어서 가드를 통과했고,
-     * 화면이 예시값('지우')로 채워졌다(2026-08-25 지적).
-     */
     @Test
     @DisplayName("세션이 가리키는 회원이 없으면 세션을 버리고 로그인으로 보낸다")
     void deadSessionIsThrownAway() throws Exception {
@@ -153,7 +149,6 @@ class LoginGuardTest {
         verify(userService, times(1)).memberExists(1L);
     }
 
-    /** DB 가 잠깐 흔들렸다고 쓰던 사람을 쫓아내면 안 된다 */
     @Test
     @DisplayName("회원 확인이 실패하면 통과시킨다")
     void dbFailureDoesNotLogOut() throws Exception {

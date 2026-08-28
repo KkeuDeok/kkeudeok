@@ -24,7 +24,6 @@
            AND deleted_at IS NULL
     </select>
 
-    <!-- 이 보호자의 아이. 온보딩 완료 판단, 화면의 이름 표시, 마이페이지 프로필에 함께 쓴다. -->
     <select id="selectChildByMember" resultType="kopo.kkeudeok.dto.ChildDTO">
         SELECT <include refid="cols"/>
           FROM child

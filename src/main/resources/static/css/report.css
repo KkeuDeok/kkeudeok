@@ -1,12 +1,3 @@
-/* ==========================================================================
-   성장 리포트 — Figma 24:16727(감정 표현) · 24:16480(사회성) · 24:16167(주간 변화)
-                 + 감정 이해 (Figma에 탭만 있고 화면이 없어 신규 설계)
-   껍데기는 app.css(.app-shell 등)를 쓰고 이 파일은 리포트 화면 전용.
-   ⚠ app.css는 병합 충돌 방지를 위해 수정 금지 — 가운데 정렬도 여기서 자체 선언.
-   공통 레일: 제목 104 · 부제 149 · 탭 193(h49) · 지수 265.
-   (Figma는 제목 114·탭 180이지만 부제 한 줄을 더하며 8px 스케일로 재배치 — 4화면 동일)
-   ========================================================================== */
-
 .rpt-head,
 .rpt-tabsrow,
 .rpt-score,
@@ -18,12 +9,8 @@
     box-sizing: border-box;
 }
 
-/* 제목 레일 64 — 대시보드·학습 홈·마이페이지와 통일 (사용자 요청 2026-08-08) */
 .rpt-head { padding-top: 64px; }
 
-/* --------------------------------------------------------------------------
-   탭바 4개 — 컨테이너 h49 r999 #f1f5f2, 활성 = tint 배경 + 진초록 (Figma 실측)
-   -------------------------------------------------------------------------- */
 .rpt-tabsrow { margin-top: 24px; padding: 0 40px; }
 
 .rpt-tabs {
@@ -53,13 +40,10 @@
     font-weight: 700;
 }
 
-/* --------------------------------------------------------------------------
-   지수 헤더 — 라벨 13 + 값 44 + 증감. 우측 note 는 감정 이해 화면만 쓴다
-   -------------------------------------------------------------------------- */
 .rpt-score {
     display: flex;
     align-items: flex-end;
-    gap: 24px;              /* 값↔증감(24) 과 같은 값으로 통일 */
+    gap: 24px;
     margin-top: 24px;
     padding: 0 40px;
 }
@@ -70,7 +54,6 @@
     line-height: 20px;
     color: var(--kd-text-sub);
 }
-
 .rpt-score .v {
     margin: 2px 0 0;
     font-size: 44px;
@@ -82,7 +65,6 @@
 
 .rpt-score .v .u { margin-left: 4px; font-size: 20px; }
 
-/* 값과 붙어 보인다는 지적 -> 24 로 벌리고, 화살표와 문구 사이도 띄운다 */
 .rpt-score .delta {
     margin-left: 24px;
     font-size: 14px;
@@ -97,9 +79,6 @@
     color: var(--kd-text-sub);
 }
 
-/* 지수 산정 기준 한 줄 (2026-08-10 피드백 5).
-   .rpt-score 안에 넣으면 flex 아이템이 하나 더 늘어 가로로 붙는다 -> 형제 블록으로 둔다.
-   좌우 정렬은 .rpt-score 와 같은 max-width 1200 + padding 40. */
 .rpt-basis {
     max-width: 1200px;
     margin: 6px auto 0;
@@ -110,21 +89,13 @@
     color: var(--kd-text-sub);
 }
 
-/* 성공 횟수만 진하게 — 심사·보호자 눈이 여기 먼저 닿아야 한다 */
 .rpt-basis b { font-weight: 700; color: var(--kd-text); }
 
-/* 증감색 — app.css의 .dl-up/.dl-down 과 같은 값 (그 클래스는 dash-kpi 스코프가 아니라 재사용 가능하지만
-   리포트 파일 단독으로도 성립하도록 자체 선언) */
 .rpt-up   { color: #268254; }
 .rpt-down { color: #c0392b; }
 
-/* --------------------------------------------------------------------------
-   섹션 공통
-   -------------------------------------------------------------------------- */
-/* 1024 한 화면에 담기게 압축 (사용자 요청 — 스크롤 없애기) */
 .rpt-sec { margin-top: 32px; padding: 0 40px; }
 
-/* > 가 아니라 후손 선택 — 안쪽에 감싼 요소가 있어도 h2 를 잡아야 한다 */
 .rpt-sec h2 {
     margin: 0;
     font-size: 18px;
@@ -133,7 +104,6 @@
     color: var(--kd-text);
 }
 
-/* 섹션 사이 구분선 */
 .rpt-rule {
     width: calc(100% - 80px);
     height: 1px;
@@ -142,10 +112,6 @@
     background: var(--kd-border);
 }
 
-/* --------------------------------------------------------------------------
-   가로 스택바 (표현 방법의 변화) — 말/표정/몸짓
-   -------------------------------------------------------------------------- */
-/* CTA 배너를 걷어낸 만큼(2026-08-10) 여백을 되돌려 하단 레일 940 을 맞춘다 */
 .rpt-stackrow { margin-top: 32px; }
 
 .rpt-stackrow .cap {
@@ -161,7 +127,6 @@
     border-radius: 999px;
     overflow: hidden;
 }
-
 .rpt-stack span {
     display: flex;
     align-items: center;
@@ -169,21 +134,11 @@
     font-size: 13px;
     font-weight: 700;
     color: #fff;
-    /* 조각이 좁아도 숫자가 잘리지 않게 — 넘치면 가운데에서 잘라 낸다 */
     min-width: 0;
     overflow: hidden;
     white-space: nowrap;
 }
 
-/* ⚠ 막대 전체에 그라데이션 하나를 깔던 방식은 걷어냈다(2026-08-20).
-     색 경계가 Figma 실측값(24%·62% / 42%·74%)으로 고정이라 실제 비율과 어긋났다 —
-     50·10·40 인데 색은 42·74 에서 바뀌니 숫자가 남의 색 위에 얹혀 보였다.
-     지금은 조각마다 제 색을 갖는다(kd-report.js 의 METHOD_COLOR). */
-
-/* 그 주에 학습한 적이 없을 때.
-   ⚠ 위 그라데이션을 반드시 덮어써야 한다. 안 그러면 기록이 없는데도 색이 꽉 찬 막대가
-     남아, 그만큼 한 것처럼 보인다(2026-08-20 지적). 보호자가 수치를 판단하는 화면이라
-     '없음' 과 '가득' 이 같아 보이면 안 된다. */
 .rpt-stack.is-empty {
     background: #e0e0e0;
 }
@@ -194,14 +149,11 @@
     font-weight: 600;
 }
 
-/* 범례 점은 그라데이션의 세 대표색 */
 .st-talk { background: #34a36a; }
 .st-face { background: #3d8fe0; }
 .st-body { background: #199ea7; }
 
-/* 범례 칩 — Figma 실측: 크림 배경 + 어두운 크림 테두리 */
 .rpt-legend { display: flex; gap: 12px; margin-top: 28px; }
-
 .rpt-legend span {
     display: inline-flex;
     align-items: center;
@@ -217,18 +169,12 @@
 
 .rpt-legend i { width: 10px; height: 10px; border-radius: 999px; }
 
-/* --------------------------------------------------------------------------
-   세로 막대 (감정별 표현 빈도) — 높이 = 값 × 4.5px 인라인
-   -------------------------------------------------------------------------- */
-/* 좌측 절반만 쓰고 우측이 비어 보인다는 지적(2026-08-10)
-   -> 고정 gap 을 버리고 폭 전체(1120)에 5칸을 균등 배분한다. 칸당 224, 막대 88(≈39%) */
 .rpt-bars {
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
     gap: 0;
     margin-top: 52px;
-    /* padding-left 를 뺐다 — 위 가로 스택바와 좌우 끝을 맞춘다 */
 }
 
 .rpt-bar {
@@ -260,17 +206,12 @@
     white-space: nowrap;
 }
 
-/* 감정색 — Figma 실측 (막대·히트맵·이해도 막대 공용) */
 .em-joy  { background: #e8a317; }
 .em-sad  { background: #3d8fe0; }
 .em-mad  { background: #ec4b3f; }
-.em-sup  { background: #8b5cf6; }   /* 놀람 */
-.em-help { background: #0fa394; }   /* 도움요청 */
+.em-sup  { background: #8b5cf6; }
+.em-help { background: #0fa394; }
 
-/* --------------------------------------------------------------------------
-   사회성 — 레이더 차트 래퍼 + 장면 리스트 (감정 이해 화면과 공용)
-   -------------------------------------------------------------------------- */
-/* 2026-08-10 지적 — 우측 축별 점수 열을 걷어내고 오각형만 가운데에 크게 둔다 */
 .rpt-radar { margin-top: 8px; }
 .rpt-radar svg { display: block; margin: 0 auto; }
 
@@ -288,22 +229,9 @@
 .rpt-radar-legend .ln { width: 18px; height: 0; border-top: 3px solid #34a36a; border-radius: 2px; }
 .rpt-radar-legend .ln-prev { border-top: 2px dashed #8b978f; }
 
-/* --------------------------------------------------------------------------
-   주간 변화 — 감정별 히트맵 + 8주 추이 + 변화 리스트
-   -------------------------------------------------------------------------- */
-
-/* 우측 많음~적음 미니 범례 (1열 세로) */
-
-/* 아래 2열 — 좌 추이 차트 660 + 우 변화 리스트 */
-
-/* --------------------------------------------------------------------------
-   감정 이해 (신규 설계) — 감정별 이해도 가로 막대
-   -------------------------------------------------------------------------- */
 .rpt-hbars { margin-top: 32px; }
-
 .rpt-hbar { display: flex; align-items: center; }
 .rpt-hbar + .rpt-hbar { margin-top: 42px; }
-
 .rpt-hbar .lb {
     flex: none;
     width: 96px;
@@ -321,8 +249,6 @@
 }
 
 .rpt-hbar .track span { display: block; height: 100%; border-radius: 999px; }
-
-/* 보호자 실천 팁 2장 — 문구 고정, 데이터 없음 */
 .rpt-tips { display: flex; gap: 16px; margin-top: 32px; }
 
 .rpt-tip {
@@ -367,17 +293,9 @@
     color: var(--kd-text);
 }
 
-/* --------------------------------------------------------------------------
-   기록이 없을 때 — 본문을 숨기고 common/report-empty.jsp 안내만 남긴다.
-   ⚠ 예전에는 localStorage.kdDone 으로 정한 '사용 단계'(0·1)에 묶여 있었다. 그건 시연용
-     스위치라, **DB 에 기록이 멀쩡히 있어도 그 브라우저에서 학습한 적이 없으면** 리포트가
-     통째로 잠겼다(2026-08-18 지적: 근거 줄만 아래에 덩그러니 남았다).
-     기록이 있고 없고는 서버가 아는 일이므로 kd-report.js 가 html 에 data-kd-report 를 켠다.
-   -------------------------------------------------------------------------- */
 html[data-kd-report="empty"] :is(.rpt-score, .rpt-sec, .rpt-rule),
 html:not([data-kd-report]) :is(.rpt-score, .rpt-sec, .rpt-rule) { display: none !important; }
 
-/* 반대로 기록이 있으면 안내 카드를 감춘다 — kd-hide2 는 단계 스위치가 쥐고 있어 못 미덥다 */
 html[data-kd-report="ready"] .rpt-empty { display: none !important; }
 
 .rpt-empty {

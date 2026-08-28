@@ -3,25 +3,18 @@ package kopo.kkeudeok.dto;
 import java.util.Arrays;
 import java.util.Optional;
 
-// 스토리 노드 6단계
 public enum StoryStage {
 
-    // 상황 이야기
     STORY(1, "이야기", "scene", null),
 
-    // 마음 읽기
     MIND(2, "마음", "feel", MissionType.CHOICE),
 
-    // 이유 찾기
     CAUSE(3, "왜?", "why", MissionType.CHOICE),
 
-    // 표정 따라하기
     EXPRESSION(4, "표정", "face", MissionType.EXPRESSION),
 
-    // 동작 따라하기
     ACTION(5, "행동", "act", MissionType.GESTURE),
 
-    // 칭찬
     PRAISE(6, "칭찬", "result", null);
 
     private final int seq;

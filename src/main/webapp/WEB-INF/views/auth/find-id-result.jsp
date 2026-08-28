@@ -9,8 +9,6 @@
 </div>
 <h1 class="done-title" style="margin-bottom: 0;">아이디를 찾았어요</h1>
 
-<%-- findIdProc 이 세션에 넣어 둔 값을 UserController 가 꺼내 모델에 담아 준다.
-     DB 에서 온 값이라 c:out 으로 이스케이프한다(그냥 찍으면 XSS). --%>
 <div class="done-id-card"><c:out value="${foundId}"/></div>
 
 <a href="/find-pw" class="kd-btn kd-btn-outline auth-cta">비밀번호 찾기</a>

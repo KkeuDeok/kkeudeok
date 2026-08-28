@@ -1,7 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 온보딩 시작 안내. 좌우 분할이라 온보딩 껍데기(onb-top)가 아니라
-     로그인 계열의 .app-frame / auth-left.jsp 를 재사용한다.
-     Figma 에는 좌상단 브랜드 노드가 있지만 일러스트가 그 위를 덮어 렌더에 안 보인다 → 넣지 않는다. --%>
 <% String pageTitle = "온보딩 - 시작"; %>
 <!DOCTYPE html>
 <html lang="ko">

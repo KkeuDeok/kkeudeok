@@ -1,4 +1,3 @@
-// 학습 화면의 표정 · 동작 · 음성 인식
 (function () {
     'use strict';
 
@@ -37,8 +36,6 @@
     var raf = null;
 
     start();
-
-    /* ---------- 카메라 + 모델 ---------- */
 
     function start() {
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -176,9 +173,9 @@
     }
 
     var hand = null;
-    var handAt = 0;                 /* 손 모델을 마지막으로 돌린 시각 */
-    var handSeenAt = 0;             /* 손이 화면에 마지막으로 잡힌 시각 */
-    var openAt = 0;                 /* 편 손을 마지막으로 본 시각 */
+    var handAt = 0;
+    var handSeenAt = 0;
+    var openAt = 0;
     var sawHand = false;
     var fistAt = 0;
 
@@ -267,8 +264,6 @@
 
         return false;
     }
-
-    /* ---------- 표정 ---------- */
 
     function readFace(landmarker, now) {
         var res = landmarker.detectForVideo(video, now);
@@ -650,8 +645,6 @@
         return ok;
     }
 
-    /* ---------- 통과 / 포기 ---------- */
-
     function pass(value) {
         passed = true;
         if (raf) cancelAnimationFrame(raf);
@@ -811,8 +804,6 @@
 
         window.addEventListener('pagehide', function () { listening = false; });
     }
-
-    /* ---------- 거들기 ---------- */
 
     function avg(a, b) {
         return ((a || 0) + (b || 0)) / 2;

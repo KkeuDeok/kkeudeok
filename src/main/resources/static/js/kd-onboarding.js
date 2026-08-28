@@ -1,4 +1,3 @@
-// 온보딩 등록
 (function () {
     'use strict';
 

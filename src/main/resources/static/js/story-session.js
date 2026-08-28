@@ -57,8 +57,6 @@
         });
     }
 
-    /* ---------- 세션 ---------- */
-
     function startSession() {
         var emo = '';
         var note = '';
@@ -385,8 +383,6 @@
     }
 
     setTimeout(ready, 20000);
-
-    /* ---------- 시작 ---------- */
 
     var PICK_ACT = {
         comfort:   { line: '따뜻하게 토닥여 주러 가볼까요?', go: '토닥토닥 해주기' },

@@ -1,8 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 아동 학습 화면 공통 껍데기(아래) — child-top.jsp 가 연 태그를 닫고 하단 바를 그린다.
-     왼쪽 버튼은 화면군에 따라 갈린다(표정·동작은 [하기 싫어] 하나).
-     스크립트 순서가 규약이다 — story-session.js 가 window.kdStory.stage 를 먼저 정해야
-     kd-mediapipe.js 가 지금이 표정 화면인지 동작 화면인지 알 수 있다. --%>
 <% if (!storyFootOff) {
        boolean camStep = "face".equals(storyStep) || "act".equals(storyStep);
 %>

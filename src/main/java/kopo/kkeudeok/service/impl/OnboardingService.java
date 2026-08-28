@@ -17,7 +17,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// 온보딩
 @Slf4j
 @Service
 @RequiredArgsConstructor

@@ -1,4 +1,3 @@
-// 성장 리포트
 (function () {
     'use strict';
 
@@ -143,9 +142,9 @@
     }
 
     var METHOD_COLOR = {
-        VOICE: '#34a36a',        /* 말 */
-        EXPRESSION: '#3d8fe0',   /* 표정 */
-        GESTURE: '#0fa394'       /* 몸짓 */
+        VOICE: '#34a36a',
+        EXPRESSION: '#3d8fe0',
+        GESTURE: '#0fa394'
     };
 
     function paintMethods(id, rows) {
@@ -222,7 +221,7 @@
 
         var n = domains.length;
 
-        if (n < 3) return;      /* 축이 셋 미만이면 면이 안 생겨 선 하나만 남는다 */
+        if (n < 3) return;
 
         var grid = el('g', {
             fill: 'none', stroke: '#e6ebe8', 'stroke-width': '1', 'stroke-dasharray': '4 4'

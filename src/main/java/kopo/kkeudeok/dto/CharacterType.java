@@ -3,7 +3,6 @@ package kopo.kkeudeok.dto;
 import java.util.Arrays;
 import java.util.Optional;
 
-// 함께할 친구 캐릭터
 public enum CharacterType {
 
     TORI("tori", "토리", "마음을 함께 읽어주는 다정한 친구예요"),

@@ -4,7 +4,6 @@ import kopo.kkeudeok.dto.RoadmapDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-// 학습 로드맵
 @Mapper
 public interface IRoadmapMapper {
 

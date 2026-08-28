@@ -18,7 +18,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-// 성장 리포트 계산
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -79,10 +78,6 @@ public class ReportService implements IReportService {
                 .build();
     }
 
-    /* ================================================================
-     * 감정 이해 · 감정 표현 — 미션 성공률
-     * ================================================================ */
-
     private boolean isUnderstand(MissionLogDTO l) {
         return "CHOICE".equals(l.getMissionType())
                 && l.getStageType() != null
@@ -93,9 +88,6 @@ public class ReportService implements IReportService {
         return EXPRESS_TYPES.contains(l.getMissionType());
     }
 
-    /**
-     * @param baseline 학습 기록이 없을 때의 출발점 — 그 영역의 온보딩 체크리스트 지수
-     */
     private ReportDTO.Metric rateMetric(int baseline,
                                         List<MissionLogDTO> now,
                                         List<MissionLogDTO> before,
@@ -221,9 +213,6 @@ public class ReportService implements IReportService {
         return out;
     }
 
-    /* ================================================================
-     * 사회성 — SRS-2 채점 방식
-     * ================================================================ */
     private static final List<String> SOCIAL_DOMAINS =
             List.of("사회적 상호작용", "감정 표현", "감정 이해");
 
@@ -250,7 +239,6 @@ public class ReportService implements IReportService {
                                           List<MissionLogDTO> now,
                                           List<MissionLogDTO> before) {
 
-        // 실제 사회성 미션 - 아이가 화면에서 해낸 것
         int total = 0, success = 0;
         for (MissionLogDTO l : now) {
             if (isExpress(l) || isUnderstand(l)) {
@@ -261,7 +249,6 @@ public class ReportService implements IReportService {
 
         int score = blend(baseline, success, total);
 
-        // 미션 기록이 없으면 체크리스트만으로 낸 값
         String basis = total == 0 ? ""
                 : "체크리스트 지수 %d점과 이번 주 미션 %d회 중 %d회 성공을 %d:%d 로 본 값이에요"
                         .formatted(baseline, total, success,

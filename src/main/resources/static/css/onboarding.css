@@ -1,11 +1,3 @@
-/* ==========================================================================
-   온보딩(보호자) 전용 레이아웃
-   - auth 계열과 달리 좌우 분할이 아니라 1440 전폭·중앙 정렬 화면이다.
-   - 세로 좌표는 Figma 디자인 캔버스(1024) 기준. fit-frame.js 의 --fit-scale 로
-     .onb-scale 만 배율 조정하므로 창 크기와 무관하게 위치가 같다.
-   - 확정 레일: 스텝바 77 / 타이틀 225 / 부제 283 / 내용 시작 363 / 버튼 845
-   ========================================================================== */
-
 .onb-body {
     background: #fff;
     height: 100vh;
@@ -21,16 +13,12 @@
     flex-direction: column;
 }
 
-/* 배율이 걸리는 층 — 이 안의 px 은 전부 디자인 좌표(높이 1024 기준) */
 .onb-scale {
     flex: 1;
     position: relative;
     zoom: var(--fit-scale, 1);
 }
 
-/* --------------------------------------------------------------------------
-   상단 브랜드 바 (72) — auth-brand.jsp 를 그대로 쓰되 크기만 온보딩 규격으로
-   -------------------------------------------------------------------------- */
 .onb-header {
     height: 72px;
     padding: 20px 0 0 32px;
@@ -51,19 +39,12 @@
     line-height: 30px;
 }
 
-/* --------------------------------------------------------------------------
-   6단계 스텝바 — 블록 96 + 연결선 56, 총 856 중앙(중심 720)
-   상단 5 + 높이 58 + 하단 7 = 70 → 내용 행이 142에서 시작한다
-   -------------------------------------------------------------------------- */
-/* ⚠ 폭을 고정하지 말 것 — 예전 856px 은 6칸 기준이라 2026-08-10 에 로드맵 칸을 빼자
-   내용(704)이 그 안에서 왼쪽으로 몰렸다. 칸 수가 바뀌어도 가운데를 지키게 flex 로 맡긴다. */
 .onb-steps {
     display: flex;
     justify-content: center;
     height: 58px;
     margin: 5px auto 7px;
 }
-
 .onb-step {
     position: relative;
     flex: none;
@@ -72,7 +53,7 @@
 }
 
 .onb-step + .onb-step {
-    margin-left: 56px;      /* 연결선 자리 — 블록 시작이 0/152/304/456/608/760 이 된다 */
+    margin-left: 56px;
 }
 
 .onb-step .dot {
@@ -92,13 +73,12 @@
 
 .onb-step .lb {
     display: block;
-    margin-top: 8px;        /* 원 32 + 8 = 라벨 상단 40 */
+    margin-top: 8px;
     font-size: 12px;
     line-height: 18px;
     color: var(--kd-text-sub);
 }
 
-/* 연결선은 다음 블록 자리(96~152)에 깔린다 — 원 세로 중앙(15) */
 .onb-step .line {
     position: absolute;
     left: 96px;
@@ -118,7 +98,6 @@
     color: var(--kd-text);
 }
 
-/* 완료 단계는 숫자 대신 체크 — 별도 이미지 없이 CSS 로 그린다 */
 .onb-step.is-done .dot {
     background: var(--kd-primary-active);
     color: transparent;
@@ -141,12 +120,6 @@
     background: var(--kd-primary-active);
 }
 
-/* --------------------------------------------------------------------------
-   본문 열 — 폭 520 중앙(x 460~980), 타이틀 상단 225
-   (헤더 72 + 스텝바 블록 70 = 142, + 83 = 225)
-   -------------------------------------------------------------------------- */
-/* 위 간격은 margin 이 아니라 padding 이어야 한다 —
-   margin 이면 .onb-steps 의 margin-bottom(7)과 상쇄돼 타이틀이 7px 올라간다 */
 .onb-col {
     width: 520px;
     margin: 0 auto;
@@ -161,18 +134,13 @@
     color: var(--kd-text);
     margin: 0 0 10px;
 }
-
 .onb-sub {
     font-size: 15px;
     line-height: 22.5px;
     color: var(--kd-text-sub);
-    margin: 0 0 57.5px;     /* 부제 하단 305.5 → 첫 필드 363 */
+    margin: 0 0 57.5px;
 }
 
-/* --------------------------------------------------------------------------
-   PIN 설정 — 브랜드·스텝바가 없는 화면(온보딩 스텝 흐름 밖의 계정 설정 단계)
-   아이콘 144 / 타이틀 284 / 첫 필드 410 / 버튼은 온보딩 공통 845
-   -------------------------------------------------------------------------- */
 .onb-col--bare {
     padding-top: 144px;
 }
@@ -181,7 +149,7 @@
     display: block;
     width: 120px;
     height: 120px;
-    margin: 0 auto 20px;    /* 아이콘 하단 264 → 타이틀 284 */
+    margin: 0 auto 20px;
 }
 
 .onb-col--bare .onb-title {
@@ -189,32 +157,21 @@
     line-height: 42px;
     letter-spacing: normal;
     text-align: center;
-    margin-bottom: 84px;    /* 타이틀 하단 326 → 첫 필드 410 */
+    margin-bottom: 84px;
 }
 
-/* PIN 입력칸 — 몇 자리인지 한눈에 보이도록 동그라미를 키운다.
-   type=password 의 점 크기는 글자 크기로만 조절된다(점은 약 0.28em) */
-/* PIN 동그라미 — 글꼴이 그리는 '•' 를 쓰지 않는다.
-   '•' 는 글자 기준선보다 한참 위에 있는 글리프라 40px 로 키우면 칸 중앙에서 벗어나는데,
-   input 안 글자의 세로 위치는 폰트 메트릭이 정해서 CSS 로 정확히 못 맞춘다
-   (line-height 는 아예 안 먹고, padding 은 절반씩만 움직이는 눈대중 보정이다).
-   그래서 진짜 글자는 투명하게 두고 점은 아래 .onb-pin-dots 로 직접 그린다 —
-   높이를 꽉 채운 상자에 align-items:center 라 중앙 정렬이 구조로 보장된다. */
-/* 글자는 투명이지만 커서는 보인다 → 커서가 점을 따라오도록 한 칸 전진폭을
-   점 간격(13 + 14 = 27)과 같게 맞춘다. 17px '•' 의 폭이 5.8 이므로 자간 21.2 */
 .onb-pin {
     color: transparent;
     caret-color: var(--kd-text);
     letter-spacing: 21.2px;
 }
-
 .onb-pin-box {
     position: relative;
 }
 
 .onb-pin-dots {
     position: absolute;
-    left: 16px;             /* .kd-input 의 좌패딩과 같은 값 */
+    left: 16px;
     top: 0;
     bottom: 0;
     display: flex;
@@ -222,8 +179,6 @@
     gap: 14px;
     pointer-events: none;
 }
-
-/* 안 친 자리는 아예 안 그린다 — 빈 자리를 회색 점으로 깔면 값이 있는 것처럼 보인다 */
 .onb-pin-dots i {
     display: none;
     width: 13px;
@@ -236,24 +191,16 @@
     display: block;
 }
 
-/* --- 점이 톡 켜지고, 안 맞으면 흔들린다 ---------------------------------------
-   ⚠ 점은 display:none → block 으로 켜진다. display 는 transition 이 안 걸리므로
-     .is-on 에 animation 을 건다 — 클래스가 붙는 순간 한 번 돈다.
-     (auth-validate.js renderPinDots 가 입력 수만큼 .is-on 을 토글한다) */
 .onb-pin-dots i.is-on {
     animation: kd-dot-in 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 @keyframes kd-dot-in {
     from { transform: scale(0.2); opacity: 0; }
 }
 
-/* 흔들림은 PIN 칸에만 건다 — 회원가입처럼 칸이 많은 화면에서 여러 개가
-   한꺼번에 흔들리면 시끄럽다. 대상: 온보딩 PIN · 마이페이지 PIN 재설정 · 게이트 */
 .onb-pin.kd-input--error {
     animation: kd-pin-shake 0.4s ease-in-out;
 }
-
 @keyframes kd-pin-shake {
     0%, 100% { transform: none; }
     18%      { transform: translateX(-8px); }
@@ -266,27 +213,15 @@
     .onb-pin-dots i.is-on,
     .onb-pin.kd-input--error { animation: none; }
 }
-
-/* --------------------------------------------------------------------------
-   입력 블록 — Figma 온보딩 원안 규격 (로그인 계열의 520×48 과 다르다)
-   라벨 13 Medium + 8 + 입력칸 34, 블록 간격 42.
-   한 화면에 입력 요소가 9개라 48px 로는 무거워 보여 원안을 유지하기로 했다.
-   힌트·오류는 입력칸 아래 8(= 블록 상단 기준 70)에 절대배치 — 42px 간격 안에
-   겹쳐 뜨므로 오류가 떠도 아래 블록·버튼이 안 밀린다.
-   -------------------------------------------------------------------------- */
 .onb-field {
     position: relative;
-    padding-bottom: 0;      /* auth.css 의 예약석은 온보딩에선 쓰지 않는다 */
+    padding-bottom: 0;
 }
 
-/* 간격은 이 규칙 하나로만 준다. .kd-field 를 섞은 인접 선택자(.kd-field + .onb-field)
-   를 쓰면 앞 블록까지 잡아채서 간격이 어긋난다 — 실제로 한 번 겪었다 */
 .onb-field + .onb-field {
     margin-top: 42px;
 }
 
-/* 힌트가 있는 블록 — 블록 높이는 88 로 고정(아래 블록이 안 밀리게).
-   아이 이름 칸이 35 로 1px 커진 만큼 여기서 1px 을 뺀다 */
 .onb-field--hint {
     padding-bottom: 25px;
 }
@@ -300,17 +235,12 @@
     margin-bottom: 8px;
 }
 
-/* 줄높이 18 은 온보딩 전용이다. 로그인 계열은 예약석이 16px 이라 18 을 주면
-   문구가 입력칸을 파고들지만, 온보딩은 42px 간격 안에 띄우므로 여유가 있다.
-   16 으로 두면 힌트 아래 간격만 44 가 되어 다른 블록(42)과 어긋난다 */
 .onb-field .kd-error,
 .onb-field .kd-hint {
-    top: 70px;              /* 입력칸(34) 하단 + 8 */
+    top: 70px;
     bottom: auto;
     line-height: 18px;
 }
-
-/* 입력칸·드롭다운 공통 — 높이 34, 글자 14, 좌패딩 14 */
 .onb-input,
 .onb-select {
     height: 34px;
@@ -319,44 +249,33 @@
     line-height: 21px;
 }
 
-/* ⚠ 일부러 드롭다운(34)보다 1px 크다 — 오타 아님.
-   폭이 520 대 135 라 같은 높이여도 넓은 칸이 눌려 보이는 착시가 있어 시각 보정한 값이다.
-   되돌리면 "아이 이름 칸만 납작해 보인다"는 지적이 다시 나온다 */
 .onb-input {
     height: 35px;
 }
 
-/* 드롭다운 — 폭만 135, 나머지는 위 규격을 따른다 */
 .onb-select {
     appearance: none;
     -webkit-appearance: none;
     width: 135px;
-    padding-right: 36px;    /* 화살표 16 + 우여백 16 */
+    padding-right: 36px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 6l4 4 4-4' fill='none' stroke='%236b7a72' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 16px center;
     background-size: 16px 16px;
 }
 
-/* --------------------------------------------------------------------------
-   드롭다운 목록 (onb-select.js 가 만든다)
-   기본 <select> 목록은 브라우저가 그려서 년·월·일의 높이·스크롤바가 제각각이었다.
-   max-height 를 고정해 세 목록이 똑같은 크기로 열리게 한다.
-   -------------------------------------------------------------------------- */
 .kd-select {
     position: relative;
     width: 135px;
     flex: none;
 }
 
-/* 원래 select 는 남겨 두되 화면에서만 감춘다 (값·폼 전송은 그대로) */
 .kd-select select {
     position: absolute;
     inset: 0;
     opacity: 0;
     pointer-events: none;
 }
-
 .kd-select-btn {
     display: block;
     width: 100%;
@@ -368,19 +287,17 @@
     color: var(--kd-text-sub);
 }
 
-/* 오류 테두리는 숨은 select 에 붙으므로 보이는 버튼으로 옮겨 준다 */
 .kd-select:has(select.kd-input--error) .kd-select-btn {
     border-color: var(--kd-danger);
 }
-
 .kd-select-list {
     position: absolute;
     left: 0;
-    top: 38px;              /* 입력칸(34) 아래 4 */
+    top: 38px;
     z-index: 10;
     display: none;
     width: 100%;
-    max-height: 240px;      /* 년·월·일 목록 높이를 하나로 통일 */
+    max-height: 240px;
     margin: 0;
     padding: 4px;
     overflow-y: auto;
@@ -413,7 +330,6 @@
     color: #fff;
 }
 
-/* 드롭다운 행: [135] 13 [년] 12 [135] 13 [월] 12 [135] 13 [일] = 519 */
 .onb-row {
     display: flex;
     align-items: center;
@@ -426,34 +342,27 @@
     line-height: 18px;
     color: #000;
 }
-
 .onb-row .onb-unit:last-child {
     margin-right: 0;
 }
 
-/* 드롭다운만 두 개인 행 (장애 정보) — 간격 42.
-   ⚠ 대상은 .kd-select 래퍼다. .onb-select + .onb-select 로 쓰면 한 래퍼 안의
-   [숨은 select + 버튼] 이 인접 형제로 잡혀 버튼이 42px 밀린다(실제로 겪음) */
 .onb-row--gap .kd-select + .kd-select {
     margin-left: 42px;
 }
 
-/* 화면마다 본문 열 폭이 다르다 (Figma 실측) — 타이틀 225·부제 283·버튼 845 는 공통.
-   내용 시작 위치만 화면마다 달라서 부제 아래 여백으로 맞춘다
-   (기본 57.5 = 아이 정보·캐릭터 화면의 363 기준) */
 .onb-col--w560 { width: 560px; }
 .onb-col--w740 { width: 740px; }
 .onb-col--w800 { width: 800px; }
-.onb-col--w900 { width: 900px; }      /* 체크리스트 — 문항·척도 간격을 벌리려고 넓혔다 */
+.onb-col--w900 { width: 900px; }
 
 .onb-col--w560 > .onb-sub,
 .onb-col--w900 > .onb-sub,
 .onb-col--w800 > .onb-sub {
-    margin-bottom: 22.5px;  /* 내용 시작 328 */
+    margin-bottom: 22.5px;
 }
 
 .onb-col--w740 > .onb-sub {
-    margin-bottom: 28.5px;  /* 내용 시작 334 */
+    margin-bottom: 28.5px;
 }
 
 .onb-col--center > .onb-title,
@@ -461,9 +370,6 @@
     text-align: center;
 }
 
-/* --------------------------------------------------------------------------
-   온보딩3 발달 체크리스트 — 카드 800×225 두 장 (328 / 577), 7단계 원형 척도
-   -------------------------------------------------------------------------- */
 .onb-check {
     position: relative;
     height: 225px;
@@ -472,7 +378,7 @@
 }
 
 .onb-check + .onb-check {
-    margin-top: 24px;       /* 카드1 하단 553 → 카드2 577 */
+    margin-top: 24px;
 }
 
 .onb-check > h2 {
@@ -485,7 +391,6 @@
     line-height: 26px;
     color: #2d5a3d;
 }
-
 .onb-check .done-count {
     position: absolute;
     left: 105px;
@@ -495,8 +400,6 @@
     color: var(--kd-text-sub);
 }
 
-/* 문항 행 — 카드 기준 51 / 111 / 171.
-   가로 배분: [문항 flex] 36 [그렇다 52] [원 360] 30 [그렇지 않다 63] */
 .onb-q {
     position: absolute;
     left: 24px;
@@ -512,13 +415,12 @@
 
 .onb-q > .txt {
     flex: 1;
-    padding-right: 36px;    /* 문항 글이 '그렇다' 에 닿지 않게 */
+    padding-right: 36px;
     font-size: 14px;
     line-height: 20px;
     color: #262626;
 }
 
-/* 척도 457 = 그렇다(52) + 원 7개(319) + 23 + 그렇지 않다(63) */
 .onb-q > .yes,
 .onb-q > .no {
     flex: none;
@@ -530,7 +432,6 @@
 .onb-q > .yes { width: 52px; color: #33a474; }
 .onb-q > .no  { margin-left: 30px; color: #ff7e7e; }
 
-/* 폭 360 안에 원 7개(합 186) → 사이 간격 29 (전에는 22) */
 .onb-q > .dots {
     display: flex;
     align-items: center;
@@ -549,19 +450,14 @@
     background: transparent;
     cursor: pointer;
 }
-
 .onb-q input:checked {
     background: currentColor;
 }
 
-/* 크기·색은 바깥에서 안쪽으로 좁아지며 초록 → 회색 → 빨강 */
 .onb-q .d1, .onb-q .d7 { width: 36px; height: 36px; }
 .onb-q .d2, .onb-q .d6 { width: 28px; height: 28px; }
 .onb-q .d3, .onb-q .d5 { width: 21px; height: 21px; }
 .onb-q .d4 { width: 16px; height: 16px; }
-/* 안 고른 문항 표시 — 왼쪽 막대 + 아래 안내 문구.
-   색만으로 알리지 않는다(WCAG 1.4.1 — 색약 사용자도 알 수 있어야 한다).
-   배경을 칠하지 않아서 문항을 읽는 데도 방해가 없다. */
 .onb-q.is-missing::before {
     content: "";
     position: absolute;
@@ -576,7 +472,7 @@
 .onb-q .miss {
     position: absolute;
     left: 0;
-    top: 36px;              /* 문항 줄(36) 바로 아래 — 다음 줄까지 24 여유가 있다 */
+    top: 36px;
     font-size: 12px;
     line-height: 16px;
     color: #b8770d;
@@ -585,18 +481,14 @@
 .done-count.is-missing {
     color: #b8770d;
 }
-
 .onb-q .d1, .onb-q .d2, .onb-q .d3 { color: #33a474; }
 .onb-q .d4 { color: #888; }
 .onb-q .d5, .onb-q .d6, .onb-q .d7 { color: #ff7e7e; }
 
-/* --------------------------------------------------------------------------
-   온보딩4 표정 안내 — 원형 아이콘 307(328) + 안내 3줄(664)
-   -------------------------------------------------------------------------- */
 .onb-cam-icon {
     width: 307px;
     height: 307px;
-    margin: 0 auto;         /* 세로 위치는 .onb-col--w560 의 부제 여백(22.5)이 잡는다 → 328 */
+    margin: 0 auto;
     border-radius: 999px;
     background: var(--kd-primary-tint);
     display: flex;
@@ -612,7 +504,7 @@
 
 .onb-notes {
     width: 350px;
-    margin: 29px auto 0;    /* 아이콘 하단 635 → 664 */
+    margin: 29px auto 0;
     text-align: left;
 }
 
@@ -626,12 +518,9 @@
 }
 
 .onb-note + .onb-note {
-    margin-top: 16px;       /* 행 간격 39 = 23 + 16 */
+    margin-top: 16px;
 }
 
-/* 카메라 권한 거부 안내 — 안내 3줄과 같은 자리를 쓴다(레일 안 흔들리게).
-   붉은 경고 상자로 두면 화면 톤과 따로 놀고 사용자 잘못처럼 읽힌다.
-   카드는 다른 곳과 같은 중립색으로 두고, 주의는 작은 아이콘 하나가 맡는다. */
 .onb-denied {
     display: flex;
     gap: 12px;
@@ -697,16 +586,11 @@
     transform: rotate(45deg);
 }
 
-/* --------------------------------------------------------------------------
-   온보딩5 표정 등록 — 카메라 뷰 460 + 감정 목록 256 (좌우 배치, 간격 24)
-   -------------------------------------------------------------------------- */
-/* 카메라 행만 열(740)보다 넓게 쓴다 — 열 자체를 넓히면 제목이 왼쪽으로 밀린다.
-   860 폭을 -60 만큼 당겨 290~1150, 중심 720 유지 */
 .onb-capture {
     display: flex;
     gap: 24px;
-    width: 840px;               /* 카메라 560 + 24 + 목록 256 */
-    margin: 28.5px 0 0 -50px;   /* 300~1140, 중심 720 유지 · 부제 하단 305.5 → 334 */
+    width: 840px;
+    margin: 28.5px 0 0 -50px;
 }
 
 .onb-cam {
@@ -721,9 +605,6 @@
     background: #2f3b33;
     overflow: hidden;
 }
-
-/* ⚠ 얼굴 맞출 점선 네모(.guide)는 지웠다(2026-08-20 요청) — child.css 의 같은 주석 참고.
-     아래 '얼굴을 화면 안에 맞춰 주세요' 안내는 남긴다. 말로 하는 건 괜찮다. */
 
 .onb-cam .hint {
     position: absolute;
@@ -752,7 +633,6 @@
     overflow: hidden;
 }
 
-/* display:block 이 없으면 inline span 이라 width·height 가 통째로 무시된다(진행바가 안 참) */
 .onb-cam .bar .fill {
     display: block;
     height: 100%;
@@ -760,7 +640,6 @@
     background: var(--kd-primary-active);
     transition: width 0.25s ease;
 }
-
 .onb-cam .bar .cnt {
     flex: none;
     font-size: 13px;
@@ -768,11 +647,6 @@
     color: var(--kd-text-sub);
 }
 
-/* 카메라 뷰(415)와 같은 높이의 연한 카드로 감싼다.
-   배경 없이 두면 진한 카메라 덩어리 옆에 글자만 떠 있어 무게가 한쪽으로 쏠린다.
-   위아래 여백 67.5 = (415 − 목록 280) / 2 → 행이 카드 안에서 세로 중앙 */
-/* 다섯 줄이 카드 높이를 균등하게 나눠 가져 빈 곳 없이 꽉 찬다
-   (행마다 flex:1 — 카드가 415 든 다른 값이든 알아서 나뉜다) */
 .onb-emotions {
     display: flex;
     flex-direction: column;
@@ -795,7 +669,6 @@
     border: 1px solid transparent;
 }
 
-/* Figma 감정 아이콘 그림 자체에 원형 배경이 들어 있어 따로 원을 깔지 않는다 */
 .onb-emotion .ico {
     width: 40px;
     height: 40px;
@@ -818,8 +691,6 @@
     color: var(--kd-text-sub);
 }
 
-/* 완료는 '완료' 글자 대신 초록 체크 — 훑어볼 때 더 빨리 읽힌다.
-   font-size:0 이라 눈에는 안 보이지만 글자는 남아 있어 스크린리더는 그대로 읽는다 */
 .onb-emotion.is-done .st {
     position: relative;
     width: 20px;
@@ -845,18 +716,11 @@
     border-color: var(--kd-primary-active);
 }
 .onb-emotion.is-current .st { color: var(--kd-primary-strong); font-weight: 700; }
-/* 대기 항목도 읽혀야 한다 — 몇 개 남았는지가 이 목록의 존재 이유다.
-   전에 쓰던 #a8b4ad 는 대비 2.14 로 WCAG AA(4.5:1) 미달이었다 */
 .onb-emotion.is-wait .ico { opacity: 0.7; }
 
-/* 토큰 --kd-text-sub(#6b7a72) 은 흰 배경에선 4.51 로 통과하지만
-   이 카드 배경(#f7faf8) 위에서는 4.30 이라 미달이다. 카드 위 기준으로 4.55 인 값을 쓴다 */
 .onb-emotion.is-wait .nm,
 .onb-emotion.is-wait .st { color: #67766e; }
 
-/* --------------------------------------------------------------------------
-   온보딩 완료 — 캐릭터 + 요약표
-   -------------------------------------------------------------------------- */
 .onb-done-char {
     display: block;
     width: 150px;
@@ -865,9 +729,6 @@
     object-fit: contain;
 }
 
-/* 축하 점들 — Figma 완료 화면의 흩뿌려진 색점. 본문 뒤에 깔린다.
-   기준이 .onb-col(폭 800)이라 그대로 두면 점이 잘린다 → 캔버스(1440×1024) 전체로 펼친다.
-   top -142 = 본문 열 상단(헤더 72 + 스텝바 70)을 캔버스 0 으로 되돌리는 값 */
 .onb-confetti {
     position: absolute;
     left: 50%;
@@ -886,8 +747,6 @@
 
 .onb-col--done { position: relative; z-index: 1; }
 
-/* 담긴 정보가 두 줄뿐이라 작게 두면 화면이 비어 보인다 → 행 45 → 56 으로 키웠다.
-   표 하단 646, 버튼 레일 845 까지 여유 199 */
 .onb-summary {
     width: 100%;
     margin-top: 28px;
@@ -915,17 +774,9 @@
 .onb-summary tbody td:first-child { width: 68px; color: var(--kd-text-sub); }
 .onb-summary tbody td:nth-child(2) { width: 280px; }
 
-/* --------------------------------------------------------------------------
-   온보딩_시작 — 좌우 분할은 로그인 계열(.app-frame / .auth-illust / .auth-panel)을
-   그대로 재사용한다. 본문 열은 폭 532 이고 패널 중앙이 아니라 좌측에 붙는다(Figma 그대로).
-   타이틀 203 / 부제 273 / 카드 335·447·559 / 버튼 764
-   -------------------------------------------------------------------------- */
 .onb-start-panel {
-    padding-top: 0;         /* 이 화면은 로고가 없어 110 앵커를 쓰지 않는다 */
+    padding-top: 0;
 }
-
-/* Figma 는 이 열이 패널 좌측에 붙어 있어 오른쪽에 221px 여백이 남았다 →
-   다른 화면들처럼 패널 중앙으로 옮겼다(사용자 확정) */
 .onb-start-col {
     width: 532px;
     margin: 0 auto;
@@ -941,7 +792,7 @@
 .onb-start-col .onb-sub {
     font-size: 17px;
     line-height: 25.5px;
-    margin-bottom: 36.5px;  /* 부제 하단 298.5 → 카드1 335 */
+    margin-bottom: 36.5px;
 }
 
 .onb-card {
@@ -955,10 +806,9 @@
 }
 
 .onb-card + .onb-card {
-    margin-top: 16px;       /* 카드 간격 112 = 96 + 16 */
+    margin-top: 16px;
 }
 
-/* 아이콘은 배경 없이 그림만 — 수채 일러스트라 색 타일을 깔면 지저분해진다 */
 .onb-card .ic {
     display: flex;
     align-items: center;
@@ -976,7 +826,7 @@
 
 .onb-card .tx {
     flex: 1;
-    margin-left: 20px;      /* 아이콘 우측 88 → 텍스트 108 */
+    margin-left: 20px;
 }
 
 .onb-card .t {
@@ -991,7 +841,7 @@
     font-size: 15px;
     line-height: 22.5px;
     color: var(--kd-text-sub);
-    margin: 4.5px 0 0;      /* 두 줄 묶음 높이 54 = 27 + 4.5 + 22.5 */
+    margin: 4.5px 0 0;
 }
 
 .onb-card .min {
@@ -1000,28 +850,18 @@
     line-height: 21px;
     color: var(--kd-text-sub);
 }
-
 .onb-start-cta {
     display: flex;
     width: 520px;
-    margin: 109px auto 0;   /* 카드3 하단 655 → 버튼 764 */
+    margin: 109px auto 0;
 }
 
-/* --------------------------------------------------------------------------
-   온보딩2 캐릭터 선택 — 카드 212×264 두 장이 520 축 양끝(간격 96)
-   카드 363 / 애칭 716 / 버튼 845
-   선택 표시는 라디오 + :has() 로 처리한다(JS 0줄)
-   -------------------------------------------------------------------------- */
-/* ⚠ 이 값은 `.onb-sub` 의 margin-bottom(57.5)과 **마진 겹침**이라 큰 쪽이 이긴다.
-   예전 95.5 는 겹침을 이기고 카드를 401 로 밀어내 이 화면만 혼자 내려와 있었다
-   (2026-08-10 "더 위로" 지적). 57.5 = 온보딩 기본 레일 → 카드 363. */
 .onb-chars {
     display: flex;
     justify-content: space-between;
-    margin-top: 57.5px;     /* 부제 하단 305.5 → 카드 363 */
+    margin-top: 57.5px;
 }
 
-/* 카드 248 + 간격 24 + 248 = 520 축 */
 .onb-char {
     position: relative;
     display: block;
@@ -1032,32 +872,23 @@
     border-radius: 20px;
     text-align: center;
     cursor: pointer;
-    overflow: hidden;       /* 위로 끌어올린 그림의 빈 여백을 걷어 낸다 */
+    overflow: hidden;
 }
 
-/* 테두리가 1→2px 로 바뀌어도 box-sizing: border-box 라 카드 크기는 그대로다 */
 .onb-char:has(input:checked) {
     background: var(--kd-primary-tint);
     border: 2px solid var(--kd-primary-strong);
 }
-
 .onb-char input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-/* 2026-08-10 "더 크게". 212 → 240 + cover 로 캔버스 위쪽 빈 여백을 잘라 낸다.
-   얼굴이 33.7% 에 고정돼 있어 6명 모두 같은 자리에서 잘린다. */
 .onb-char img {
     display: block;
-    /* 위 빈 여백 8% 만 잘라 올려 그만큼 크게 — 261 − 21 = 240 이라 자리는 그대로다.
-       cover 로 자르면 코코 올림머리가 날아간다(마이페이지와 같은 이유) → contain 유지. */
     width: 261px;
     height: 261px;
-    /* 그림(261)이 카드 안쪽(246)보다 넓어 margin:auto 는 0 으로 풀린다 → 왼쪽에 붙고
-       오른쪽으로만 삐져나가 7.5px 우측으로 치우쳐 보였다. 선택 시 테두리가 2px 로
-       바뀌어 안쪽 폭이 달라져도 어긋나지 않게 50% + translate 로 잡는다. */
     margin: -13px 0 0 50%;
     transform: translateX(-50%);
     object-fit: contain;
@@ -1072,23 +903,17 @@
     color: var(--kd-text);
 }
 
-/* 카드 블록의 오류 문구는 카드 아래(310+6)에 — 기본 위치(70)는 카드 한가운데다 */
 .onb-charfield .kd-error {
     top: 316px;
 }
 
-/* 카드 하단(711) → 애칭 → 버튼(845) 사이 간격을 43 으로 균일하게 맞춘다
-   711 +43= 754 (애칭 48) → 802 +43= 845 */
 .onb-nickname {
     margin-top: 43px;
 }
 
-/* --------------------------------------------------------------------------
-   라디오 — Figma 규격은 20×20 둥근 사각 테두리 안에 원형 점
-   -------------------------------------------------------------------------- */
 .onb-radios {
     display: flex;
-    gap: 32px;              /* 그룹 폭 58 + 32 = 다음 그룹 시작 90 */
+    gap: 32px;
 }
 
 .onb-radio-item {
@@ -1096,7 +921,6 @@
     align-items: center;
     gap: 10px;
 }
-
 .onb-radio {
     appearance: none;
     -webkit-appearance: none;
@@ -1110,13 +934,10 @@
     background: #fff;
     cursor: pointer;
 }
-
 .onb-radio:checked {
     border-color: var(--kd-primary);
 }
 
-/* 점은 상자 정중앙. left/top 을 px 로 잡으면 테두리 두께·box-sizing 에 따라
-   기준점이 달라져 한쪽으로 쏠린다(실제로 4px 쏠렸던 적 있음) → 50% + translate 로 고정 */
 .onb-radio:checked::after {
     content: "";
     position: absolute;
@@ -1128,7 +949,6 @@
     border-radius: 999px;
     background: var(--kd-primary);
 }
-
 .onb-radio-item label {
     font-size: 15px;
     line-height: 22.5px;
@@ -1136,15 +956,6 @@
     cursor: pointer;
 }
 
-/* 장애 유형 체크박스(중복 진단) · 라벨 옆 .onb-sublabel 안내는 2026-08-11 에 걷어냈다 —
-   유형이 드롭다운 하나로 돌아가면서 둘 다 쓰는 곳이 없어졌다.
-   유형·정도 두 칸의 간격은 위 .onb-row--gap 이 맡는다(42). */
-
-/* --------------------------------------------------------------------------
-   버튼 레일 — 온보딩 진행 화면 공통 고정 Y=845 (내용 길이와 무관하게 안 움직임)
-   폭 520 축 안에서 254 + 12 + 254
-   -------------------------------------------------------------------------- */
-/* 520 축은 유지하되 버튼을 벌린다 — 248 + 24 + 248 = 520 (전에는 254 + 12 + 254) */
 .onb-actions {
     position: absolute;
     top: 845px;
@@ -1154,12 +965,10 @@
     justify-content: center;
     gap: 24px;
 }
-
 .onb-actions .kd-btn {
     width: 248px;
 }
 
-/* [이전] 이 없는 화면 — [다음] 하나가 520 축을 다 쓴다 */
 .onb-actions .onb-btn-wide {
     width: 520px;
 }

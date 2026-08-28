@@ -1,5 +1,3 @@
-<%-- 아동 학습 화면 공통 껍데기(위) — <html> 부터 <main> 열기까지.
-     각 화면은 pageTitle · storyStep · storyCount · emo 를 미리 선언해 두는 것이 규약이다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 
 <!DOCTYPE html>

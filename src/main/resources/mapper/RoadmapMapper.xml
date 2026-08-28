@@ -4,10 +4,6 @@
 
 <mapper namespace="kopo.kkeudeok.mapper.IRoadmapMapper">
 
-    <!--
-      ⚠ step_data 에는 CHECK json_valid 가 걸려 있고 NOT NULL 이다.
-        만드는 쪽에서 반드시 올바른 JSON 을 채워야 한다.
-    -->
     <insert id="insertRoadmap" parameterType="kopo.kkeudeok.dto.RoadmapDTO"
             useGeneratedKeys="true" keyProperty="roadmapId">
         INSERT INTO roadmap (child_id, roadmap_type, step_data, is_active, created_at)

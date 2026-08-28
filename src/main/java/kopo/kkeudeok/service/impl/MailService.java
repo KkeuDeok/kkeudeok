@@ -78,10 +78,6 @@ public class MailService implements IMailService {
         doSendMail(dto);
     }
 
-    /* ====================================================================
-     * 메일 템플릿
-     * ==================================================================== */
-
     private static final String BRAND = "#3FB27F";
 
     private static String layout(String heading, String bodyHtml) {

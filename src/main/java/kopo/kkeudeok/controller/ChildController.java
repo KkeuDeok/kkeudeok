@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-// 아동 프로필 수정
 @Slf4j
 @RestController
 @RequestMapping("/child")
@@ -50,7 +49,7 @@ public class ChildController {
 
             if (mine == null || pDTO.getChildId() == null
                     || !mine.getChildId().equals(pDTO.getChildId())) {
-                log.warn("남의 아이를 고치려 했습니다 — memberId={}, 요청 childId={}",
+                log.warn("타 아동 데이터 — memberId={}, 요청 childId={}",
                         memberId, pDTO.getChildId());
                 dto.setMsg("아이 정보를 찾을 수 없습니다.");
                 return dto;

@@ -4,15 +4,6 @@
 
 <mapper namespace="kopo.kkeudeok.mapper.IMissionLogMapper">
 
-    <!--
-      같은 결과가 두 번 오면 지우고 다시 넣는다.
-      (session_id, node_id) UNIQUE 가 없어 ON DUPLICATE KEY 로는 못 막는다.
-
-      ⚠ 세션 전체가 아니라 **이번에 보낸 노드만** 지운다.
-        중간에 그만둔 학습을 나중에 이어서 마치면, 앞서 저장해 둔 기록이 이미 DB 에 있다.
-        세션 전체를 지우면 그게 통째로 날아간다.
-      ⚠ 반드시 insertLogs 와 같은 트랜잭션 안에서 부를 것.
-    -->
     <delete id="deleteByNodes">
         DELETE FROM mission_log
          WHERE session_id = #{sessionId}
@@ -46,8 +37,6 @@
          ORDER BY log_id
     </select>
 
-    <!-- 아이가 실제로 답한 가장 뒤 단계. node_order 로 줄 세운다(로그 순서가 아니라
-         이야기 순서가 기준이다 — 되돌아가서 다시 답할 수도 있다). -->
     <select id="selectLastAnsweredStage" resultType="java.lang.String">
         SELECT n.stage_type
           FROM mission_log l
@@ -57,8 +46,6 @@
          LIMIT 1
     </select>
 
-    <!-- 성장 리포트 집계 원자료. 단계(stage_type)와 학습 시작 시각을 같이 가져온다 —
-         감정 이해/표현을 가르는 것이 단계이고, 이번 주/지난주를 가르는 것이 시작 시각이다. -->
     <select id="selectForReport" resultType="kopo.kkeudeok.dto.MissionLogDTO">
         SELECT l.log_id
              , l.session_id

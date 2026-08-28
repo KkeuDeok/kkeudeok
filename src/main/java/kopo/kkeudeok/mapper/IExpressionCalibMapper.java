@@ -6,7 +6,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-// 표정 캘리브레이션
 @Mapper
 public interface IExpressionCalibMapper {
 

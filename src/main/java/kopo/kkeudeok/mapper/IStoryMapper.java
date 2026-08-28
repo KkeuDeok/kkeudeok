@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-// 이야기 & 이야기 노드
 @Mapper
 public interface IStoryMapper {
 

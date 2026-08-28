@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// 이야기
 @Data
 @Builder
 @NoArgsConstructor

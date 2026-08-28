@@ -4,7 +4,6 @@ import lombok.Data;
 
 import java.util.List;
 
-// 온보딩 값
 @Data
 public class OnboardingRequestDTO {
 
@@ -18,7 +17,6 @@ public class OnboardingRequestDTO {
     private String charKey;
     private String nickname;
 
-    // 발달 체크리스트 응답 12개
     private List<Answer> checklist;
 
     @Data

@@ -18,7 +18,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-// Gemini 호출
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -44,8 +43,7 @@ public class GeminiClient {
 
         if (key.isEmpty()) {
             log.warn("""
-                    AI 키가 없어 스토리·로드맵 생성을 끕니다.
-                    만들지 못하므로 [학습 시작하기] 가 잠깁니다.
+                    AI API 키가 없어 스토리·로드맵 생성을 끕니다.
                     켜려면 환경변수를 넣고 다시 띄우세요:  $env:AI_API = "키" """);
             return;
         }
@@ -171,7 +169,7 @@ public class GeminiClient {
 
             } catch (TimeoutException e) {
                 task.cancel(true);
-                log.warn("Gemini 응답이 {}초를 넘겨 끊었습니다 — 이번에는 만들지 못합니다", timeoutSeconds);
+                log.warn("Gemini 응답이 {}초를 넘겨 끊겼습니다", timeoutSeconds);
                 break;
 
             } catch (InterruptedException e) {

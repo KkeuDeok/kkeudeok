@@ -1,5 +1,3 @@
-<%-- 학습3 이유 찾기 — 왜 그런 마음이 됐는지 고르거나 말로 답한다.
-     본문은 _why-body.jspf 에 있고, 음성 인식은 kd-mediapipe.js 가 맡는다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

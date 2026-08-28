@@ -1,17 +1,6 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- onbStep = 6 → 스텝바 다섯 칸이 모두 완료 표시된다 --%>
-<%-- ⚠ JSP 주석은 스크립틀릿 안에 넣을 수 없다 — 넣으면 컴파일이 깨진다.
-        주석 닫는 기호를 주석 본문에 글자로 적어도 안 된다. 거기서 주석이 끝나 버려
-        뒷문장이 화면에 그대로 찍힌다 (실제로 이 주석이 그렇게 새고 있었다) --%>
 <% String pageTitle = "온보딩 - 완료"; int onbStep = 6;
    String onbCol = "onb-col--w800 onb-col--center onb-col--done";
-   /* 온보딩을 실제로 통과했으면 데이터가 0인 게 맞다 — 학습 횟수를 0으로 되돌린다.
-      예전엔 sessionStorage.kdStage 에 '0' 을 박았는데, 그건 head.jsp 의 **시연 스위치**라
-      그 탭에서 학습을 몇 번 해도 계산이 통째로 무시됐다(2026-08-10 지적의 직접 원인).
-      해제는 주소에 ?stage=2 (head.jsp 스위치). 위 경고대로 여기는 자바 주석이어야 한다. */
-   /* 2026-08-12: 여기서 서버에 아이를 등록한다(kd-onboarding.js).
-      등록이 끝나야 로드맵이 생겨 대시보드 카드가 채워지므로, 이동은 그다음이다.
-      실패해도 넘어간다 — 대시보드가 막히면 안 된다. */
    String onbNext = "kdOnbSubmit(function(){"
                   + "localStorage.setItem('kdDone','0');"
                   + "sessionStorage.removeItem('kdStage');"
@@ -22,10 +11,8 @@
 <%@ include file="../common/onb-top.jsp" %>
 <% onbPrev = false; onbNextLabel = "대시보드로 가기"; %>
 
-<%-- 축하 점 — Figma 완료 화면의 흩뿌려진 색점을 좌표 그대로 옮긴 것 --%>
 <div class="onb-confetti" aria-hidden="true">
     <%
-        /* {x, y, 지름, 색인덱스} — 색은 아래 palette */
         int[][] dots = {
             {248, 236, 9, 0}, {455, 214, 7, 1}, {545, 190, 8, 2}, {690, 168, 6, 3},
             {318, 300, 7, 2}, {760, 296, 9, 4}, {214, 372, 8, 1}, {830, 260, 7, 0},
@@ -44,9 +31,6 @@
 <h1 class="onb-title">준비가 끝났어요!</h1>
 <p class="onb-sub" id="doneSub">지우에게 맞는 학습을 준비했어요</p>
 
-<%-- 여기 적힌 값은 Figma 예시다. 앞 단계 입력이 보관돼 있으면
-     auth-validate.js 의 renderOnbDone() 이 덮어쓴다.
-     백엔드가 붙으면 그 함수 대신 세션/DB 값으로 채우면 된다 --%>
 <table class="onb-summary">
     <thead>
         <tr><th>No</th><th>항목</th><th>내용</th></tr>

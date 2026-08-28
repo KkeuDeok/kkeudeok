@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-// 사회적 상황 분류
 public enum SituationType {
 
     WAIT_TURN("차례 기다리기"),
@@ -69,7 +68,6 @@ public enum SituationType {
         return all.get(Math.floorMod(seq, all.size()));
     }
 
-    // 감정별 기본 상황
     public static SituationType defaultFor(String emotion) {
         return switch (emotion == null ? "" : emotion) {
             case "angry" -> APOLOGIZE;
@@ -79,7 +77,6 @@ public enum SituationType {
         };
     }
 
-    // 프롬프트에 넣을 목록
     public static String promptList() {
         return String.join(" | ", Arrays.stream(values()).map(SituationType::label).toList());
     }

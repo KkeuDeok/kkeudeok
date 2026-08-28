@@ -6,8 +6,7 @@ import java.util.List;
 
 public final class StoryRequestDTO {
 
-    private StoryRequestDTO() {
-    }
+    private StoryRequestDTO() {}
 
     @Data
     public static class Start {

@@ -24,7 +24,6 @@
                     onclick="kdSendCode('findId')">인증번호 전송</button>
         </div>
     </div>
-    <%-- 인증번호 칸은 [인증번호 전송]을 눌러야 나타난다 --%>
     <div class="kd-field is-hidden" id="authCodeField">
         <label class="kd-label" for="authCode">인증번호</label>
         <div class="kd-input-row">
@@ -38,7 +37,6 @@
         </div>
     </div>
 
-    <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
     <button type="button" class="kd-btn kd-btn-primary auth-cta"
             onclick="kdSubmitFindId()">확인</button>
 </form>

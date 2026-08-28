@@ -1,5 +1,3 @@
-<%-- 학습2b 마음 읽기 힌트 — [잘 모르겠어] 로 오는 화면.
-     본문(_feel-body.jspf)은 학습2 와 같고 귓속말 한 줄만 더 얹는다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

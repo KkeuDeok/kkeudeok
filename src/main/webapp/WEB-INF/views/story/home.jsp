@@ -1,6 +1,3 @@
-<%-- 아동 홈 — 학습으로 들어가는 입구.
-     캐릭터 카드를 눌러 한 편을 시작한다. 여기 박힌 문구는 기본값이고,
-     실제 이야기는 story-session.js 가 서버에서 받아 갈아끼운다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

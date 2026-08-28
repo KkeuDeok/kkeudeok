@@ -1,16 +1,3 @@
--- 테스트 전용 스키마 (H2, MySQL 호환 모드).
---
--- ⚠ 이건 우리가 정한 스키마가 아니다. VM 의 MariaDB 에 이미 들어가 있는 팀 스키마를
---   H2 가 알아듣는 문법으로 옮겨 적은 것이다. 컬럼 이름·널 여부·타입이 실제와 같아야
---   테스트가 의미를 갖는다. 팀이 DDL 을 바꾸면 이 파일도 같이 고칠 것.
---   (원본 확인: information_schema.columns — 2026-08-13)
---
--- 학습 기능이 쓰는 테이블만 옮겼다. checklist·growth_*·roadmap 은 다른 기능 몫이다.
---   · ENGINE / CHARSET / COMMENT   → H2 에 없다
---   · datetime                      → timestamp
---   · tinyint(1)                    → boolean
---   · ON UPDATE CURRENT_TIMESTAMP  → H2 에 없다(기본값만 옮긴다)
-
 DROP TABLE IF EXISTS expression_calib;
 DROP TABLE IF EXISTS roadmap;
 DROP TABLE IF EXISTS mission_log;
@@ -67,7 +54,6 @@ CREATE TABLE story
     child_id       BIGINT,
     title          VARCHAR(100) NOT NULL,
     situation_type VARCHAR(30),
-    -- 중심 감정. 다음 편에서 같은 답이 이어지지 않게 하려고 남긴다.
     emotion        VARCHAR(12),
     is_generated   BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -84,7 +70,6 @@ CREATE TABLE story_node
     question_text VARCHAR(255),
     choice_data   CLOB,
     CONSTRAINT fk_node_story FOREIGN KEY (story_id) REFERENCES story (story_id) ON DELETE CASCADE,
-    -- 한 이야기의 한 자리에는 노드가 하나뿐이다. 둘이 되면 학습 종료가 통째로 실패한다.
     CONSTRAINT uq_node_order UNIQUE (story_id, node_order)
 );
 
@@ -98,7 +83,6 @@ CREATE TABLE story_session
     started_at  TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
     ended_at    TIMESTAMP,
     status      VARCHAR(12) NOT NULL DEFAULT 'INCOMPLETE',
-    -- 미리 만들어 둔 세션인가. 아이가 그만둔 세션과 구분해야 '이어하기' 를 잘못 묻지 않는다.
     prepared    BOOLEAN     NOT NULL DEFAULT FALSE,
     CONSTRAINT fk_session_child FOREIGN KEY (child_id) REFERENCES child (child_id) ON DELETE CASCADE,
     CONSTRAINT fk_session_story FOREIGN KEY (story_id) REFERENCES story (story_id)

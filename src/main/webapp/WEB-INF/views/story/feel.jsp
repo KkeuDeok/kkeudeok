@@ -1,5 +1,3 @@
-<%-- 학습2 마음 읽기 — 친구가 어떤 마음인지 카드로 고른다.
-     본문은 힌트 화면과 같아서 _feel-body.jspf 로 빼 두었다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// 학습 세션
 @Data
 @Builder
 @NoArgsConstructor

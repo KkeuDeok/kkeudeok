@@ -3,7 +3,7 @@ package kopo.kkeudeok.util;
 public class EncrytTest {
     public static void main(String[] args) throws Exception {
         System.out.println("----------------------------------");
-        System.out.println("<해시 암호화 알고리즘>"); //해시 암호화
+        System.out.println("<해시 암호화 알고리즘>");
 
         String planText = "암호화할 문자열";
         System.out.println("해시 암호화할 문자열 : "+planText);
@@ -14,7 +14,7 @@ public class EncrytTest {
 
         System.out.println("<AES-128 암호화 알고리즘>");
         System.out.println("AES-128 암호화할 문자열 : "+planText);
-        String aesEnc = EncryptUtil.encAES128CBC(planText);//암호화 문자열
+        String aesEnc = EncryptUtil.encAES128CBC(planText);
 
         System.out.println("AES-128 암호화 결과 : " + aesEnc);
         String aesDec = EncryptUtil.decAES128CBC(aesEnc);

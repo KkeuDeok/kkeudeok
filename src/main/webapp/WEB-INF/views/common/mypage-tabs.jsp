@@ -1,9 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 마이페이지 탭바 3개.
-     사용법: include 전에 스크립틀릿으로
-         String mpTab = "account";   account | child | character
-     게이트(/mypage)는 탭바가 없다.
-     2026-08-10: '학습 로드맵' 탭은 사용자 요청으로 삭제(화면·라우트·CSS 전부). --%>
 <nav class="mp-tabs">
 <%
     String[][] mpTabs = {
@@ -17,7 +12,6 @@
 <% } %>
 </nav>
 
-<%-- 저장 알림 — 탭 3화면이 공유한다. 백엔드가 붙으면 POST 성공 후 호출하도록 바꾸면 된다. --%>
 <div class="mp-toast" id="mpToast" role="status" aria-live="polite"></div>
 <script>
     function kdSaved(msg) {

@@ -191,16 +191,14 @@
         }, 8000);
     }
 
-    /* 한국어 여자 목소리 우선순위. 순서를 바꾸면 아이가 듣는 목소리가 바뀐다. */
     var FEMALE_RANK = [
-        /SunHi/i,                            /* Edge · Azure 신경망 */
-        /(JiMin|SeoHyeon|YuJin|SoonBok)/i,   /* 같은 계열의 다른 여자 목소리 */
-        /Google.*(한국|Korean)/i,            /* Chrome 원격 */
-        /Heami/i,                            /* Windows 기본 */
-        /Yuna|유나/i                         /* macOS · iOS */
+        /SunHi/i,
+        /(JiMin|SeoHyeon|YuJin|SoonBok)/i,
+        /Google.*(한국|Korean)/i,
+        /Heami/i,
+        /Yuna|유나/i
     ];
 
-    /* ⚠ 남자 목소리다. 자연스럽다는 이유로 뽑으면 화면마다 성별이 바뀐다. */
     var MALE = /(InJoon|BongJin|GookMin|Hyunsu|Minsik)/i;
 
     var NATURAL = /(Natural|Neural|Online)/i;
@@ -250,8 +248,6 @@
 
     var koVoice = null;
 
-    /* 한 번 고른 목소리를 기억한다 — 화면마다 다시 고르면 목록이 준비된 정도에 따라
-       그때그때 다른 목소리가 뽑혀 이야기 중간에 성별이 바뀐다. */
     function pickVoice() {
         var vs = speechSynthesis.getVoices();
         if (!vs.length) return;
@@ -283,8 +279,6 @@
         if (best) writeLS(PIN_KEY, best.name);
     }
 
-    /* 목록이 아직 안 왔는데 말하면 브라우저 기본 목소리(남자일 수 있다)로 나간다.
-       첫 문장이 그렇게 새는 것을 막는다. */
     function whenVoices(fn) {
         if (!hasTTS || speechSynthesis.getVoices().length) { fn(); return; }
 

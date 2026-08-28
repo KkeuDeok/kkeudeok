@@ -1,6 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 학습5 동작 따라하기 — 카메라로 몸짓을 판정한다(kd-mediapipe.js).
-     따라 할 동작은 글로 안내한다. 그 글은 판정 규칙과 같은 말이어야 한다. --%>
 <%
     String emo = request.getParameter("emo");
     if (!"happy".equals(emo) && !"angry".equals(emo) && !"surprise".equals(emo)) emo = "sad";

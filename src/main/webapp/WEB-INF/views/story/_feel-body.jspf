@@ -1,5 +1,3 @@
-<%-- 마음 읽기 본문 조각 — feel.jsp 와 feel-hint.jsp 가 함께 쓴다.
-     카드의 정답 자리·글자·그림은 story-session.js 가 다시 칠한다. --%>
 <%@ page pageEncoding="UTF-8" %>
 
 <%

@@ -23,22 +23,10 @@ import kopo.kkeudeok.util.SessionKeys;
 @RequiredArgsConstructor
 public class UserController {
 
-    /** 마이페이지 회원정보 조회용. 나머지 라우트는 화면만 띄우므로 서비스가 필요 없다. */
     private final IUserService userService;
 
     private final IChildService childService;
 
-    /**
-     * 주소창에 localhost:8080 만 쳤을 때의 첫 화면.
-     *
-     * 세션을 보고 갈라준다 — 전에는 무조건 로그인 화면이라, 이미 로그인한 사람이
-     * 새 창으로 들어오면 다시 로그인 화면을 봐야 했다(2026-08-14 지적).
-     *
-     * ⚠ PIN 검사를 같이 하는 이유 — dev 의 로그인·온보딩 흐름은 "PIN 이 없으면 먼저 만들게"
-     *   보내는데(UserProcController.nextStep), 여기서 곧바로 /dashboard 로 보내면
-     *   주소창에 localhost:8080 만 쳐서 온보딩을 통째로 건너뛸 수 있다. 순서를 맞춘다.
-     * ⚠ /login 은 그대로 둔다. 계정을 바꾸려고 일부러 오는 경우가 있어서다.
-     */
     @GetMapping("/")
     public String root(HttpSession session) {
         if (CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")).isEmpty()) {
@@ -55,27 +43,20 @@ public class UserController {
         return "auth/login";
     }
 
-    /* ---------- 회원가입 3단계 ---------- */
-
-    /** 1단계 약관동의 */
     @GetMapping("/signup/terms")
     public String signupTerms() {
         return "auth/signup-terms";
     }
 
-    /** 2단계 정보입력 */
     @GetMapping("/signup/form")
     public String signupForm() {
         return "auth/signup-form";
     }
 
-    /** 3단계 가입완료 */
     @GetMapping("/signup/done")
     public String signupDone() {
         return "auth/signup-done";
     }
-
-    /* ---------- 아이디 찾기 ---------- */
 
     @GetMapping("/find-id")
     public String findId() {
@@ -95,21 +76,6 @@ public class UserController {
         return "auth/find-id-result";
     }
 
-    /* ---------- 비밀번호 찾기 ---------- */
-
-    /**
-     * 비밀번호 찾기(=변경) 1단계.
-     *
-     * 화면 하나를 두 상황이 같이 쓴다.
-     *  · 비로그인 — 비밀번호를 잊은 사람. 이메일을 직접 입력한다.
-     *  · 로그인   — 마이페이지에서 [비밀번호 변경] 으로 온 사람.
-     *               자기 이메일을 다시 타이핑하는 게 어색하고 오타·오입력 위험도 있어
-     *               세션의 계정 이메일을 채워 주고 수정은 막는다(화면에서 readonly).
-     *
-     * ⚠ readonly 는 편의·실수 방지용이다. 개발자도구로 다른 주소를 보낼 수는 있지만,
-     *   그러면 인증번호가 그 주소로 갈 뿐이라 메일함을 못 여는 이상 진행되지 않는다
-     *   — 이 흐름의 본인 확인은 어차피 '메일을 받을 수 있는가' 이다.
-     */
     @GetMapping("/find-pw")
     public String findPwEmail(HttpSession session, ModelMap model) throws Exception {
 
@@ -119,7 +85,7 @@ public class UserController {
             UserDTO pDTO = new UserDTO();
             pDTO.setLoginId(loginId);
 
-            UserDTO rDTO = userService.getUserInfo(pDTO);   // 이메일은 서비스가 복호화해 준다
+            UserDTO rDTO = userService.getUserInfo(pDTO);
             if (rDTO != null) {
                 model.addAttribute("myEmail", CmmUtil.nvl(rDTO.getEmail()));
             }
@@ -137,8 +103,6 @@ public class UserController {
     public String findPwDone() {
         return "auth/find-pw-done";
     }
-
-    /* ---------- 온보딩(보호자) ---------- */
 
     @GetMapping("/onboarding/pin")
     public String onboardingPin(HttpSession session) {
@@ -196,8 +160,6 @@ public class UserController {
         return "onboarding/done";
     }
 
-    /* ---------- 보호자 앱 ---------- */
-
     @GetMapping("/dashboard")
     public String dashboard() {
         return "dashboard/index";
@@ -207,8 +169,6 @@ public class UserController {
     public String learn() {
         return "learn/index";
     }
-
-    /* ---------- 성장 리포트 (탭 4개, 첫 탭 = 감정 이해) ---------- */
 
     @GetMapping("/report")
     public String report() {
@@ -225,41 +185,23 @@ public class UserController {
         return "report/social";
     }
 
-    /* ---------- 마이페이지 (게이트 통과 후 탭 3개) ---------- */
-
-    /**
-     * 보호자 확인(게이트).
-     *
-     * 잠금이 걸려 있으면 남은 시간을 화면에 같이 넘긴다 — 새로고침해도 잠금이 보여야 한다.
-     * 남은 시간을 화면이 스스로 계산하면 시계를 돌려 풀 수 있으므로 서버 값만 쓴다.
-     */
     @GetMapping("/mypage")
     public String mypage(HttpSession session, ModelMap model) {
         model.addAttribute("pinLockLeft", UserProcController.pinLockLeft(session));
         return "mypage/gate";
     }
 
-    /**
-     * 게이트를 통과했는지. 안 했으면 게이트로 돌려보낸다.
-     *
-     * 전에는 게이트 통과 여부가 화면 JS 안에만 있어서 /mypage/account 를 주소창에 직접 치면
-     * PIN 을 한 번도 안 넣고 들어갈 수 있었다. 표는 세션에 있고 로그아웃하면 같이 사라진다.
-     *
-     * ponytail: 표에 만료가 없다 — 한 번 통과하면 그 세션 동안 유지된다.
-     *   자리를 비운 사이 아이가 여는 걸 막으려면 통과 시각을 같이 저장해 n분 뒤 다시 묻게 하면 된다.
-     */
     private boolean pinPassed(HttpSession session) {
         return Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_OK));
     }
 
-    /** PIN 재설정 1단계. 인증번호를 받을 이메일은 계정에서 가져온다(화면에 박아 두지 않는다) */
     @GetMapping("/mypage/pin-reset")
     public String mypagePinReset(HttpSession session, ModelMap model) throws Exception {
 
         UserDTO pDTO = new UserDTO();
         pDTO.setLoginId(CmmUtil.nvl((String) session.getAttribute("SS_USER_ID")));
 
-        UserDTO rDTO = userService.getUserInfo(pDTO);   // 이메일은 서비스가 복호화해 준다
+        UserDTO rDTO = userService.getUserInfo(pDTO);
 
         if (rDTO == null) {
             session.invalidate();
@@ -270,7 +212,6 @@ public class UserController {
         return "mypage/pin-reset";
     }
 
-    /** PIN 재설정 2단계 — 1단계 표가 없으면 열지 않는다(주소만 쳐서 새 PIN 을 정하는 것을 막는다) */
     @GetMapping("/mypage/pin-reset/new")
     public String mypagePinResetNew(HttpSession session) {
         if (!Boolean.TRUE.equals(session.getAttribute(UserProcController.SS_PIN_RESET_OK))) {
@@ -279,13 +220,6 @@ public class UserController {
         return "mypage/pin-reset-new";
     }
 
-    /**
-     * 회원정보 탭. 화면에 박아 두었던 예시 값(김민서·jiu@example.com…)을 실제 회원 정보로 바꾼다.
-     *
-     * 대상은 세션의 로그인 아이디다 — 주소나 파라미터로 받으면 남의 정보를 열어 볼 수 있다.
-     * 여기까지 오려면 LoginCheckInterceptor 를 통과해야 하므로 세션은 반드시 있다.
-     * 그래도 조회 결과가 null 이면(예: 다른 창에서 계정을 지운 뒤) 세션이 낡은 것이라 로그인으로 보낸다.
-     */
     @GetMapping("/mypage/account")
     public String mypageAccount(HttpSession session, ModelMap model) throws Exception {
 
@@ -346,15 +280,15 @@ public class UserController {
     }
 
     private static final Set<String> STORY_STEPS = Set.of(
-            "home",          // 아동홈 — 학습 단계가 아니라 흐름의 입구다(스텝바·하단바 없음)
-            "scene",         // 학습1 상황 이야기
-            "feel",          // 학습2 마음 읽기
-            "feel-hint",     // 학습2b 힌트
-            "why",           // 학습3 이유 찾기 (듣는 중은 별도 화면이 아니라 같은 화면의 상태다)
-            "face",          // 학습4 표정 따라하기
-            "situation",     // 상황 선택
-            "act",           // 학습5 동작 따라하기
-            "result"         // 학습6 세션 결과
+            "home",
+            "scene",
+            "feel",
+            "feel-hint",
+            "why",
+            "face",
+            "situation",
+            "act",
+            "result"
     );
 
     @GetMapping("/story/{step}")

@@ -1,5 +1,3 @@
-<%-- 학습1 상황 이야기 — 무슨 일이 있었는지 들려주는 첫 화면.
-     여기 들어온 순간이 한 편의 시작이라 story-session.js 가 세션을 연다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

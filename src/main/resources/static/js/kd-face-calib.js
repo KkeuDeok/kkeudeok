@@ -1,4 +1,3 @@
-// 온보딩 표정 등록
 (function () {
     'use strict';
 
@@ -7,7 +6,6 @@
     var VISION_CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14';
     var MODEL = 'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task';
 
-    /* 화면의 카드 순서와 같아야 한다 */
     var EMOTIONS = ['happy', 'sad', 'angry', 'surprise', 'neutral'];
 
     var view = document.querySelector('.onb-cam .view');
@@ -29,7 +27,6 @@
 
         injectStyle();
 
-        /* 모델은 카메라 권한과 동시에 받는다 — 순서대로 하면 검은 화면을 한참 본다 */
         var modelReady = loadModel();
 
         video = document.createElement('video');
@@ -41,7 +38,6 @@
 
         navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
             .then(function (stream) {
-                /* 페이지를 떠나면 카메라도 판정도 멈춘다 — 영상이 남지 않는다 */
                 video.srcObject = stream;
                 window.addEventListener('pagehide', function () {
                     stopped = true;
@@ -51,7 +47,7 @@
                 return video.play();
             })
             .then(function () {
-                view.classList.add('kd-cam-on');   /* 인식 준비 전에도 얼굴은 보인다 */
+                view.classList.add('kd-cam-on');
                 return modelReady;
             })
             .then(function (fl) {
@@ -73,7 +69,6 @@
                     baseOptions: { modelAssetPath: MODEL, delegate: 'GPU' },
                     runningMode: 'VIDEO',
                     numFaces: 1,
-                    /* 좌표가 아니라 이걸 쓴다 — 판정에 필요한 건 표정의 강도다 */
                     outputFaceBlendshapes: true
                 });
             });
@@ -94,7 +89,6 @@
                 if (shapes) {
                     var v = {};
 
-                    /* 소수점 세 자리면 충분하다 — 그대로 넣으면 JSON 이 쓸데없이 커진다 */
                     shapes.categories.forEach(function (c) {
                         v[c.categoryName] = Math.round(c.score * 1000) / 1000;
                     });
@@ -142,7 +136,7 @@
     var faceOk = null;
 
     function face(ok) {
-        if (faceOk === ok) return;      /* 문구가 깜빡이지 않게 바뀔 때만 건드린다 */
+        if (faceOk === ok) return;
         faceOk = ok;
 
         if (hint) {
@@ -155,7 +149,7 @@
     function reset() {
         latest = null;
         faceOk = null;
-        frames = [];        /* 다음 감정에 앞 표정이 섞이면 안 된다 */
+        frames = [];
     }
 
     var origNext = window.kdOnbFaceNext;
@@ -177,7 +171,6 @@
         if (typeof origNext === 'function') origNext();
     };
 
-    /* 뒤로 가면 순서도 되돌린다 — 안 그러면 엉뚱한 감정 자리에 저장된다 */
     window.kdOnbFaceRetry = function () {
         idx = Math.max(0, idx - 1);
         reset();

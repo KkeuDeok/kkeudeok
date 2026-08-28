@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-// 학습 로드맵
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -110,7 +109,7 @@ public class RoadmapService implements IRoadmapService {
         RoadmapPlanDTO plan = roadmapAiService.createPlan(child, domainScores(child.getChildId()));
 
         if (plan == null) {
-            log.warn("아이 {} 의 로드맵을 짜지 못했습니다 — 저장하지 않습니다", child.getChildId());
+            log.warn("아이 {} 의 로드맵을 만들지 못했습니다", child.getChildId());
             return null;
         }
 

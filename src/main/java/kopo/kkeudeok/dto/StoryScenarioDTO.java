@@ -6,7 +6,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// 시나리오 (세션을 시작할 때 AI 가 한 번에 만드는 이야기의 뼈대)
 @Data
 @Builder
 @NoArgsConstructor

@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-// 학습 로드맵
 @Data
 @Builder
 @NoArgsConstructor
@@ -21,7 +20,6 @@ public class RoadmapDTO {
     private Long roadmapId;
     private Long childId;
 
-    // AI(아이 맞춤) | STANDARD(정석 커리큘럼)
     private String roadmapType;
 
     @JsonIgnore

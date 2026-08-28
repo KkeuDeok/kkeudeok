@@ -1,8 +1,4 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
-<%-- 성장 리포트 탭바 3개.
-     사용법: include 전에 스크립틀릿으로
-         String reportTab = "understand";   understand | express | social
-     감정 이해가 첫 탭이라 /report 가 곧 감정 이해 화면이다. --%>
 <nav class="rpt-tabs">
 <%
     String[][] rptTabs = {

@@ -1,5 +1,3 @@
-<%-- 상황 선택 안내 — 표정과 동작 사이에 끼는 화면. 학습 단계는 아니다.
-     이번 이야기의 감정에 맞춰 카드 한 장을 보여 주고 동작 화면으로 넘긴다. --%>
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%
 

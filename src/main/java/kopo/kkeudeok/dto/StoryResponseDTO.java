@@ -12,21 +12,17 @@ public final class StoryResponseDTO {
                         String source, String childCallName, String characterKey, String gesture,
                         StoryNodeDTO node) { }
 
-    // 다음 노드 응답
     @Builder
     public record Next(
             StoryNodeDTO node,
 
-            // 이 노드가 마지막(칭찬)인가
             boolean last
     ) {
     }
 
-    // 세션 종료 응답
     @Builder
     public record Finish(Long sessionId, String status, int savedCount, int todayDone, int dailyGoal) { }
 
-    // 이어하기 응답
     @Builder
     public record Resume(
 
@@ -39,9 +35,7 @@ public final class StoryResponseDTO {
             String childCallName,
             String characterKey,
             String gesture,
-            // 이어하기 마지막 화면
             String resumeScreen,
-            // 이어하기 노드
             StoryNodeDTO node
     ) {
     }

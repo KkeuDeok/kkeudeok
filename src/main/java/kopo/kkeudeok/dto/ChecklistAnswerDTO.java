@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-// 온보딩 발달 체크리스트
 @Data
 @Builder
 @NoArgsConstructor

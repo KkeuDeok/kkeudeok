@@ -13,9 +13,6 @@ import kopo.kkeudeok.service.IStoryAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-// ⚠ Jackson 3 (Spring Boot 4). 2.x 의 com.fasterxml.jackson.databind 이 아니다 —
-//   그쪽을 쓰면 ObjectMapper 빈을 못 찾아 기동 자체가 실패한다.
-//   애노테이션(@JsonIgnore 등)은 여전히 com.fasterxml.jackson.annotation 이다.
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 
@@ -27,7 +24,6 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
-// AI 12주 이야기
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -50,10 +46,6 @@ public class GeminiStoryAiService implements IStoryAiService {
             - 이모지·특수문자·마크다운을 쓰지 않는다.
             - 답은 JSON 만. 설명이나 인사말을 붙이지 않는다.
             """;
-
-    // ------------------------------------------------------------
-    //  1) 시나리오 뼈대
-    // ------------------------------------------------------------
 
     @Override
     public StoryScenarioDTO createScenario(ChildDTO child, String emotion, String dailyNote,
@@ -145,7 +137,7 @@ public class GeminiStoryAiService implements IStoryAiService {
         );
 
         if (!gemini.isEnabled()) {
-            log.warn("AI 키가 없어 이야기를 만들지 못했습니다");
+            log.warn("AI API 키가 없어 이야기를 만들지 못했습니다");
             return null;
         }
 
@@ -228,10 +220,6 @@ public class GeminiStoryAiService implements IStoryAiService {
                 nvl(week.getGoal(), "-"));
     }
 
-    // ------------------------------------------------------------
-    //  2) 노드 이어 쓰기
-    // ------------------------------------------------------------
-
     @Override
     public StoryNodeDTO writeNode(ChildDTO child,
                                   StoryScenarioDTO scenario,
@@ -310,10 +298,6 @@ public class GeminiStoryAiService implements IStoryAiService {
         }
     }
 
-    // ------------------------------------------------------------
-    //  프롬프트 조각
-    // ------------------------------------------------------------
-
     private String describePrevious(StoryRequestDTO.Next prev) {
 
         if (prev == null || prev.getStageType() == null) {
@@ -332,7 +316,6 @@ public class GeminiStoryAiService implements IStoryAiService {
                 : "'%s' 에서 '%s' 라고 답해 처음에 틀렸다".formatted(stage, value);
     }
 
-    // 코딩 규칙
     private String coachingRule(StoryRequestDTO.Next prev) {
 
         if (prev == null || prev.getSuccess() == null) {
@@ -346,7 +329,6 @@ public class GeminiStoryAiService implements IStoryAiService {
                 - 친구가 어떤 마음인지 한 번 더 풀어 말해 주고, 다시 해 보자고 이끈다.""";
     }
 
-    // 이번 화면이 무엇을 하는 자리인지
     private String stageBrief(StoryStage stage, String friend) {
         return switch (stage) {
             case STORY -> "상황 이야기 — 무슨 일이 있었는지 보여 준다";
@@ -358,7 +340,6 @@ public class GeminiStoryAiService implements IStoryAiService {
         };
     }
 
-    // 선택지가 있는 단계인지 알려 준다
     private String optionSpec(StoryStage stage) {
         return switch (stage) {
             case MIND -> """
@@ -381,10 +362,6 @@ public class GeminiStoryAiService implements IStoryAiService {
             default -> "null  (이 화면에는 선택지가 없다)";
         };
     }
-
-    // ------------------------------------------------------------
-    //  응답 합치기
-    // ------------------------------------------------------------
 
     private StoryNodeDTO merge(JsonNode json, StoryStage stage, StoryNodeDTO fallback) {
 
@@ -447,7 +424,6 @@ public class GeminiStoryAiService implements IStoryAiService {
         return merged;
     }
 
-    // AI가 고른 마음 카드 판단
     private List<StoryOptionDTO> readMindOptions(JsonNode arr, String target) {
 
         if (target == null || arr.size() != StoryTemplate.MIND_CARD_COUNT) {

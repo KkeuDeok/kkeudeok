@@ -21,21 +21,12 @@
              , child_id
              , title
              , situation_type
-             /* ⚠ emotion 을 빠뜨리면 미리 만든 이야기를 꺼내 쓸 때 감정이 null 로 나간다.
-                  그러면 화면이 주소의 ?emo= 기본값(슬픔)으로 캐릭터를 그려, 기쁜 이야기에
-                  우는 얼굴이 붙는다(2026-08-20 지적). */
              , emotion
              , is_generated
           FROM story
          WHERE story_id = #{storyId}
     </select>
 
-    <!--
-      story_node — 노드는 story 에 붙는다(session 이 아니다).
-      제목·정답·코칭·힌트·포즈·선택지는 테이블에 칸이 없어 choice_data JSON 에 담는다.
-      ⚠ choice_data 에는 CHECK json_valid 가 걸려 있다. 깨진 문자열을 넣으면 INSERT 가
-        통째로 실패하므로, 만드는 쪽(StoryNodeMeta)에서 실패하면 null 을 넣는다.
-    -->
     <insert id="insertNode" parameterType="kopo.kkeudeok.dto.StoryNodeDTO"
             useGeneratedKeys="true" keyProperty="nodeId">
         INSERT INTO story_node (story_id, node_order, stage_type, narration,
@@ -61,16 +52,6 @@
          ORDER BY node_order
     </select>
 
-    <!--
-      ⚠ LIMIT 1 이 꼭 있어야 한다. 한 자리에 노드가 둘이면 MyBatis 가
-        TooManyResultsException 을 던지고, 그러면 학습 종료(finish)가 통째로 500 이 되어
-        미션 기록이 하나도 저장되지 않는다(2026-08-18: "완료했는데 미완료로 뜬다").
-        아래 unique 제약으로 둘이 생기지 못하게 막았지만, 이미 생긴 데이터에서도
-        화면은 돌아가야 하므로 먼저 만든 것을 쓴다.
-
-      ⚠ 이 조회는 트랜잭션이 시작될 때의 <b>스냅샷</b>을 본다(MariaDB 기본 REPEATABLE READ).
-        중복이 났을 때 여기로 다시 물어보면 안 된다 — 아래 selectNodeByOrderLive 를 쓸 것.
-    -->
     <select id="selectNodeByOrder" resultType="kopo.kkeudeok.dto.StoryNodeDTO">
         SELECT <include refid="nodeCols"/>
           FROM story_node
@@ -80,19 +61,6 @@
          LIMIT 1
     </select>
 
-    <!--
-      지금 이 순간 실제로 있는 노드. 스냅샷이 아니라 <b>가장 최근에 커밋된 것</b>을 본다.
-
-      ⚠ 왜 따로 두는가 — MariaDB 기본 격리 수준은 REPEATABLE READ 다. 트랜잭션은 첫 읽기
-        시점의 스냅샷을 계속 보므로, 그 뒤에 다른 트랜잭션이 넣고 커밋한 행은 보이지 않는다.
-        그런데 unique 제약 검사는 스냅샷이 아니라 현재 인덱스를 본다. 그래서
-          1) next() 가 "3번 노드 없다" 를 읽고 (스냅샷 고정)
-          2) 미리 만들기가 3번 노드를 넣고 커밋
-          3) next() 가 INSERT → Duplicate entry '41-3'
-          4) 잡아서 다시 조회 → 스냅샷이라 여전히 안 보임 → 없다고 판단해 예외를 그대로 던짐
-        이 되어 학습이 그 화면에서 끊기고 미션 결과가 버려졌다(2026-08-19 로그).
-        FOR UPDATE 같은 잠금 읽기는 최신 커밋본을 읽으므로 4)에서 제대로 찾는다.
-    -->
     <select id="selectNodeByOrderLive" resultType="kopo.kkeudeok.dto.StoryNodeDTO">
         SELECT <include refid="nodeCols"/>
           FROM story_node
@@ -116,7 +84,6 @@
         SELECT COUNT(*) FROM story WHERE child_id = #{childId}
     </select>
 
-    <!-- 그 시각 이후에 만든 이야기 수. '이번 주 첫 이야기인가' 를 가리는 데 쓴다. -->
     <select id="countStoriesSince" resultType="int">
         SELECT COUNT(*)
           FROM story
@@ -124,7 +91,6 @@
            AND created_at >= #{from}
     </select>
 
-    <!-- 직전 이야기의 중심 감정. 같은 답이 연달아 나오지 않게 하는 근거다. -->
     <select id="selectLastEmotion" resultType="string">
         SELECT emotion
           FROM story

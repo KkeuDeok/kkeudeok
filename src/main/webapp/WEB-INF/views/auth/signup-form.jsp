@@ -6,7 +6,6 @@
 
 <h1 class="auth-title">회원가입</h1>
 
-<%-- auth-legacy: 세로가 꽉 차 8화면 공통 규격에서 제외된 화면 (auth.css 참고) --%>
 <form method="post" action="/signup/form" class="auth-legacy">
     <div class="kd-field">
         <label class="kd-label" for="userName">이름 <span class="req">*</span></label>
@@ -40,7 +39,6 @@
                     onclick="kdSendCode('signup')">인증번호 전송</button>
         </div>
     </div>
-    <%-- 인증번호 칸은 [인증번호 전송]을 눌러야 나타난다 --%>
     <div class="kd-field kd-field--tight is-hidden" id="authCodeField">
         <label class="kd-label" for="authCode">인증번호 <span class="req">*</span></label>
         <div class="kd-input-row">
@@ -54,7 +52,6 @@
         </div>
     </div>
 
-    <%-- 데모 검증 — 백엔드 연동 시 type="submit"으로 복원 --%>
     <button type="button" class="kd-btn kd-btn-primary auth-cta"
             onclick="kdSubmitSignup()">확인</button>
 </form>

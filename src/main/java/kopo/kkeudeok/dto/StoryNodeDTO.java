@@ -9,7 +9,6 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-// 스토리 노드
 @Data
 @Builder
 @NoArgsConstructor
@@ -31,10 +30,10 @@ public class StoryNodeDTO {
 
     private String title;
     private String missionType;
-    private String targetValue; // 정답값
-    private String coachText; // 피드백 문구
-    private String hintText; // 힌트
-    private String charPose; // 캐릭터 포즈 키
+    private String targetValue;
+    private String coachText;
+    private String hintText;
+    private String charPose;
 
     @Builder.Default
     private List<StoryOptionDTO> options = new ArrayList<>();

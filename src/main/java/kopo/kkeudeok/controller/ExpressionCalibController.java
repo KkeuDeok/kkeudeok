@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import java.util.Map;
 
-// 온보딩 표정 등록 API
 @Slf4j
 @RestController
 @RequestMapping("/api/calib")
@@ -38,7 +37,7 @@ public class ExpressionCalibController {
         Long childId = SessionKeys.childId(session, req.getChildId());
 
         if (childId == null) {
-            log.info("아직 아이가 없어 표정 등록을 미룹니다 — 온보딩이 끝나면 다시 받습니다");
+            log.info("아직 등록된 아동이 없어 표정 등록을 미룹니다 — 온보딩이 끝나면 다시 시작합니다");
             return ResponseEntity.accepted().build();
         }
 
@@ -61,7 +60,6 @@ public class ExpressionCalibController {
                 .build());
     }
 
-    // 표정 등록본 조회
     @GetMapping
     public ResponseEntity<Map<String, Object>> list(@RequestParam(required = false) Long childId,
                                                    HttpSession session) {
@@ -88,7 +86,6 @@ public class ExpressionCalibController {
                 calibService.deleteAll(SessionKeys.childId(session, childId))));
     }
 
-    // 등록 요청
     @Data
     public static class SaveRequest {
 

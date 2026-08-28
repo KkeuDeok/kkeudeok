@@ -5,7 +5,6 @@
 <%@ include file="../common/app-top.jsp" %>
 
 <%
-    // 1. DB에서 아이 정보 읽어오기
     ChildDTO child = (ChildDTO) request.getAttribute("child");
     Long childId = null;
     String nickname = null;
@@ -14,7 +13,6 @@
 
     if (child != null) {
         childId = child.getChildId();
-        // DTO 필드명(characterType, characterNickname)과 매칭
         picked = CharacterType.orDefault(child.getCharacterType());
 
         if (child.getCharacterNickname() != null && !child.getCharacterNickname().isEmpty()) {
@@ -34,7 +32,6 @@
     <%@ include file="../common/mypage-tabs.jsp" %>
 </div>
 
-<!-- childId 숨김 태그 (AJAX 전송용) -->
 <input type="hidden" id="childId" value="<%= childId != null ? childId : "" %>">
 
 <section class="mp-sec">
@@ -69,12 +66,10 @@
 
 <div class="mp-actions">
     <a class="kd-btn kd-btn-outline" href="/dashboard">취소</a>
-    <!-- DB 저장 스크립트 실행 -->
     <button type="button" class="kd-btn kd-btn-primary" onclick="saveCharacterDB()">저장</button>
 </div>
 
 <script>
-    // 카드를 고르면 좌측 미리보기(그림·이름·소개) 동적 변경
     document.querySelectorAll('.mp-chars input').forEach(function (radio) {
         radio.addEventListener('change', function () {
             var name = radio.parentElement.querySelector('.nm').textContent;
@@ -86,7 +81,6 @@
         });
     });
 
-    // DB 캐릭터 업데이트 AJAX 전송 함수
     function saveCharacterDB() {
         const picked = document.querySelector('.mp-chars input[name="character"]:checked');
         if (!picked) return;
@@ -105,8 +99,8 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 childId: parseInt(childId, 10),
-                characterType: charKey,          // ChildDTO의 characterType
-                characterNickname: nickname      // ChildDTO의 characterNickname
+                characterType: charKey,
+                characterNickname: nickname
             })
         })
             .then(res => {
@@ -118,7 +112,6 @@
                     if (typeof kdSaved === 'function') kdSaved('캐릭터를 성공적으로 저장했어요');
                     else alert('캐릭터를 성공적으로 저장했어요');
 
-                    // 🎯 1.2초(1200ms) 지연 후 새로고침 (토스트 메시지가 충분히 보이도록 함)
                     setTimeout(function() {
                         window.location.reload();
                     }, 1200);
